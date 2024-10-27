@@ -4,9 +4,9 @@ import pro.gravit.launcher.gui.utils.SystemTheme;
 import pro.gravit.launcher.gui.runtime.client.DirBridge;
 import pro.gravit.launcher.gui.runtime.client.UserSettings;
 import pro.gravit.launcher.core.LauncherNetworkAPI;
-import pro.gravit.launcher.base.events.request.GetAvailabilityAuthRequestEvent;
-import pro.gravit.launcher.base.profiles.ClientProfile;
-import pro.gravit.launcher.base.request.auth.AuthRequest;
+import pro.gravit.launcher.gui.base.events.request.GetAvailabilityAuthRequestEvent;
+import pro.gravit.launcher.gui.base.profiles.ClientProfile;
+import pro.gravit.launcher.gui.base.request.auth.AuthRequest;
 import pro.gravit.utils.helper.JavaHelper;
 
 import java.nio.file.Path;

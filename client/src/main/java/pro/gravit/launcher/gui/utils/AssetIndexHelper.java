@@ -1,6 +1,6 @@
 package pro.gravit.launcher.gui.utils;
 
-import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.gui.base.Launcher;
 import pro.gravit.launcher.core.LauncherNetworkAPI;
 import pro.gravit.launcher.core.hasher.HashedDir;
 import pro.gravit.launcher.core.hasher.HashedEntry;

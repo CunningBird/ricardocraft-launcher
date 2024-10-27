@@ -1,8 +1,8 @@
 package pro.gravit.launcher.gui.client;
 
-import pro.gravit.launcher.base.Launcher;
-import pro.gravit.launcher.base.modules.LauncherModule;
-import pro.gravit.launcher.base.modules.impl.SimpleModuleManager;
+import pro.gravit.launcher.gui.base.Launcher;
+import pro.gravit.launcher.gui.base.modules.LauncherModule;
+import pro.gravit.launcher.gui.base.modules.impl.SimpleModuleManager;
 import pro.gravit.launcher.core.LauncherTrustManager;
 
 import java.nio.file.Path;

@@ -1,8 +1,8 @@
 package pro.gravit.launcher.gui.client;
 
 import com.google.gson.GsonBuilder;
-import pro.gravit.launcher.base.modules.events.PreGsonPhase;
-import pro.gravit.launcher.base.request.websockets.ClientWebSocketService;
+import pro.gravit.launcher.gui.base.modules.events.PreGsonPhase;
+import pro.gravit.launcher.gui.base.request.websockets.ClientWebSocketService;
 import pro.gravit.launcher.gui.client.ClientModuleManager;
 import pro.gravit.launcher.core.managers.GsonManager;
 

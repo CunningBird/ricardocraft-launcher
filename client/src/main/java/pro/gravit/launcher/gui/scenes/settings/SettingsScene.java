@@ -12,7 +12,7 @@ import pro.gravit.launcher.gui.components.ServerButton;
 import pro.gravit.launcher.gui.scenes.interfaces.SceneSupportUserBlock;
 import pro.gravit.launcher.gui.scenes.settings.components.JavaSelectorComponent;
 import pro.gravit.launcher.gui.utils.SystemMemory;
-import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.gui.base.profiles.ClientProfile;
 import pro.gravit.utils.helper.JVMHelper;
 
 import java.text.MessageFormat;

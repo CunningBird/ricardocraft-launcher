@@ -1,7 +1,7 @@
 package pro.gravit.launcher.gui.client.events;
 
-import pro.gravit.launcher.base.modules.LauncherModule;
-import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.gui.base.modules.LauncherModule;
+import pro.gravit.launcher.gui.base.profiles.ClientProfile;
 import pro.gravit.launcher.gui.client.ClientParams;
 
 import java.util.Collection;

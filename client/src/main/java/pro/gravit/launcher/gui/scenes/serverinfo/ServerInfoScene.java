@@ -12,7 +12,7 @@ import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.scenes.AbstractScene;
 import pro.gravit.launcher.gui.components.ServerButton;
 import pro.gravit.launcher.gui.scenes.interfaces.SceneSupportUserBlock;
-import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.gui.base.profiles.ClientProfile;
 import pro.gravit.utils.helper.*;
 
 public class ServerInfoScene extends AbstractScene implements SceneSupportUserBlock {

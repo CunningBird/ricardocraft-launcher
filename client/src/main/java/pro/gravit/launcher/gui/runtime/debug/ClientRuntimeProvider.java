@@ -1,15 +1,15 @@
 package pro.gravit.launcher.gui.runtime.debug;
 
-import pro.gravit.launcher.base.ClientPermissions;
-import pro.gravit.launcher.base.Launcher;
-import pro.gravit.launcher.base.api.AuthService;
-import pro.gravit.launcher.base.api.ClientService;
-import pro.gravit.launcher.base.events.request.AuthRequestEvent;
-import pro.gravit.launcher.base.events.request.ProfilesRequestEvent;
-import pro.gravit.launcher.base.profiles.ClientProfile;
-import pro.gravit.launcher.base.request.Request;
-import pro.gravit.launcher.base.request.auth.AuthRequest;
-import pro.gravit.launcher.base.request.update.ProfilesRequest;
+import pro.gravit.launcher.gui.base.ClientPermissions;
+import pro.gravit.launcher.gui.base.Launcher;
+import pro.gravit.launcher.gui.base.api.AuthService;
+import pro.gravit.launcher.gui.base.api.ClientService;
+import pro.gravit.launcher.gui.base.events.request.AuthRequestEvent;
+import pro.gravit.launcher.gui.base.events.request.ProfilesRequestEvent;
+import pro.gravit.launcher.gui.base.profiles.ClientProfile;
+import pro.gravit.launcher.gui.base.request.Request;
+import pro.gravit.launcher.gui.base.request.auth.AuthRequest;
+import pro.gravit.launcher.gui.base.request.update.ProfilesRequest;
 import pro.gravit.launcher.gui.runtime.LauncherEngine;
 import pro.gravit.launcher.gui.runtime.gui.RuntimeProvider;
 import pro.gravit.utils.helper.IOHelper;

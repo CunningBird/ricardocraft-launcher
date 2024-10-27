@@ -1,6 +1,6 @@
 package pro.gravit.launcher.gui.runtime.console;
 
-import pro.gravit.launcher.base.request.management.GetConnectUUIDRequest;
+import pro.gravit.launcher.gui.base.request.management.GetConnectUUIDRequest;
 import pro.gravit.utils.command.Command;
 import pro.gravit.utils.helper.LogHelper;
 

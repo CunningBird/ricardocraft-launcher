@@ -1,17 +1,17 @@
 package pro.gravit.launcher.gui.service;
 
-import pro.gravit.launcher.base.ClientPermissions;
+import pro.gravit.launcher.gui.base.ClientPermissions;
 import pro.gravit.launcher.gui.JavaFXApplication;
 import pro.gravit.launcher.gui.runtime.client.DirBridge;
-import pro.gravit.launcher.base.events.request.AuthRequestEvent;
-import pro.gravit.launcher.base.events.request.ProfilesRequestEvent;
-import pro.gravit.launcher.base.profiles.ClientProfile;
-import pro.gravit.launcher.base.profiles.PlayerProfile;
-import pro.gravit.launcher.base.request.Request;
-import pro.gravit.launcher.base.request.auth.AuthRequest;
-import pro.gravit.launcher.base.request.auth.password.AuthOAuthPassword;
-import pro.gravit.launcher.base.request.update.ProfilesRequest;
-import pro.gravit.launcher.base.request.websockets.OfflineRequestService;
+import pro.gravit.launcher.gui.base.events.request.AuthRequestEvent;
+import pro.gravit.launcher.gui.base.events.request.ProfilesRequestEvent;
+import pro.gravit.launcher.gui.base.profiles.ClientProfile;
+import pro.gravit.launcher.gui.base.profiles.PlayerProfile;
+import pro.gravit.launcher.gui.base.request.Request;
+import pro.gravit.launcher.gui.base.request.auth.AuthRequest;
+import pro.gravit.launcher.gui.base.request.auth.password.AuthOAuthPassword;
+import pro.gravit.launcher.gui.base.request.update.ProfilesRequest;
+import pro.gravit.launcher.gui.base.request.websockets.OfflineRequestService;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.nio.charset.StandardCharsets;

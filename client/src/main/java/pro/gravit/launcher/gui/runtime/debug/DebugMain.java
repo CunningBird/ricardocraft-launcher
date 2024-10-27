@@ -1,14 +1,14 @@
 package pro.gravit.launcher.gui.runtime.debug;
 
-import pro.gravit.launcher.base.Launcher;
-import pro.gravit.launcher.base.LauncherConfig;
-import pro.gravit.launcher.base.modules.LauncherModule;
-import pro.gravit.launcher.base.modules.events.OfflineModeEvent;
-import pro.gravit.launcher.base.modules.events.PreConfigPhase;
-import pro.gravit.launcher.base.request.Request;
-import pro.gravit.launcher.base.request.RequestService;
-import pro.gravit.launcher.base.request.websockets.OfflineRequestService;
-import pro.gravit.launcher.base.request.websockets.StdWebSocketService;
+import pro.gravit.launcher.gui.base.Launcher;
+import pro.gravit.launcher.gui.base.LauncherConfig;
+import pro.gravit.launcher.gui.base.modules.LauncherModule;
+import pro.gravit.launcher.gui.base.modules.events.OfflineModeEvent;
+import pro.gravit.launcher.gui.base.modules.events.PreConfigPhase;
+import pro.gravit.launcher.gui.base.request.Request;
+import pro.gravit.launcher.gui.base.request.RequestService;
+import pro.gravit.launcher.gui.base.request.websockets.OfflineRequestService;
+import pro.gravit.launcher.gui.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.gui.client.ClientLauncherMethods;
 import pro.gravit.launcher.gui.client.RuntimeLauncherCoreModule;
 import pro.gravit.launcher.gui.runtime.LauncherEngine;

@@ -1,8 +1,8 @@
 package pro.gravit.launcher.gui.client;
 
-import pro.gravit.launcher.base.modules.LauncherInitContext;
-import pro.gravit.launcher.base.modules.LauncherModule;
-import pro.gravit.launcher.base.modules.LauncherModuleInfo;
+import pro.gravit.launcher.gui.base.modules.LauncherInitContext;
+import pro.gravit.launcher.gui.base.modules.LauncherModule;
+import pro.gravit.launcher.gui.base.modules.LauncherModuleInfo;
 import pro.gravit.utils.Version;
 
 public class RuntimeLauncherCoreModule extends LauncherModule {

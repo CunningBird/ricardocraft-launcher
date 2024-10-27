@@ -1,14 +1,14 @@
 package pro.gravit.launcher.gui.service;
 
-import pro.gravit.launcher.base.Launcher;
-import pro.gravit.launcher.base.LauncherConfig;
+import pro.gravit.launcher.gui.base.Launcher;
+import pro.gravit.launcher.gui.base.LauncherConfig;
 import pro.gravit.launcher.gui.JavaFXApplication;
-import pro.gravit.launcher.base.events.request.AuthRequestEvent;
-import pro.gravit.launcher.base.events.request.GetAvailabilityAuthRequestEvent;
-import pro.gravit.launcher.base.profiles.PlayerProfile;
-import pro.gravit.launcher.base.request.Request;
-import pro.gravit.launcher.base.request.auth.AuthRequest;
-import pro.gravit.launcher.base.request.auth.password.*;
+import pro.gravit.launcher.gui.base.events.request.AuthRequestEvent;
+import pro.gravit.launcher.gui.base.events.request.GetAvailabilityAuthRequestEvent;
+import pro.gravit.launcher.gui.base.profiles.PlayerProfile;
+import pro.gravit.launcher.gui.base.request.Request;
+import pro.gravit.launcher.gui.base.request.auth.AuthRequest;
+import pro.gravit.launcher.gui.base.request.auth.password.*;
 import pro.gravit.utils.helper.SecurityHelper;
 
 import java.util.ArrayList;

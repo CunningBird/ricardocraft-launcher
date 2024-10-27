@@ -1,6 +1,6 @@
 package pro.gravit.launcher.gui.client.utils;
 
-import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.gui.base.Launcher;
 import pro.gravit.launcher.core.LauncherTrustManager;
 
 import java.security.cert.X509Certificate;

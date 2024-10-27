@@ -3,7 +3,7 @@ package pro.gravit.launcher.gui;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
-import pro.gravit.launcher.base.Downloader;
+import pro.gravit.launcher.gui.base.Downloader;
 import pro.gravit.utils.helper.LogHelper;
 
 import javax.imageio.ImageIO;

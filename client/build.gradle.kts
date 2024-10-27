@@ -22,7 +22,7 @@ version = "1.0-SNAPSHOT"
 
 dependencies {
     implementation("pro.gravit.launcher:launcher-core:5.6.8")
-    implementation("pro.gravit.launcher:launcher-ws-api:5.6.8")
+//    implementation("pro.gravit.launcher:launcher-ws-api:5.6.8")
 //    implementation("pro.gravit.launcher:launcher-client-api:5.6.8")
 //    implementation("pro.gravit.launcher:launcher-client-start-api:5.6.8")
 //    implementation("pro.gravit.launcher:launcher-client-starter-api:5.6.8")

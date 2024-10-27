@@ -11,8 +11,8 @@ import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.overlays.AbstractOverlay;
 import pro.gravit.launcher.gui.scenes.login.AuthFlow;
 import pro.gravit.launcher.gui.scenes.login.LoginScene;
-import pro.gravit.launcher.base.request.auth.details.AuthWebViewDetails;
-import pro.gravit.launcher.base.request.auth.password.AuthCodePassword;
+import pro.gravit.launcher.gui.base.request.auth.details.AuthWebViewDetails;
+import pro.gravit.launcher.gui.base.request.auth.password.AuthCodePassword;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;

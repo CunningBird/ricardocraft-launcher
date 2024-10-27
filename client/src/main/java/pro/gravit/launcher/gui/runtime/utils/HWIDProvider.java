@@ -3,7 +3,7 @@ package pro.gravit.launcher.gui.runtime.utils;
 import oshi.SystemInfo;
 import oshi.hardware.*;
 import oshi.software.os.OperatingSystem;
-import pro.gravit.launcher.base.request.secure.HardwareReportRequest;
+import pro.gravit.launcher.gui.base.request.secure.HardwareReportRequest;
 
 import java.util.List;
 

@@ -13,7 +13,7 @@ import javafx.util.Duration;
 import pro.gravit.launcher.gui.JavaFXApplication;
 import pro.gravit.launcher.gui.config.RuntimeSettings;
 import pro.gravit.launcher.gui.helper.LookupHelper;
-import pro.gravit.launcher.base.request.RequestException;
+import pro.gravit.launcher.gui.base.request.RequestException;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;

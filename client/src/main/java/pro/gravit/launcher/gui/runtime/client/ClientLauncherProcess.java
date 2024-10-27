@@ -1,13 +1,13 @@
 package pro.gravit.launcher.gui.runtime.client;
 
-import pro.gravit.launcher.base.Launcher;
-import pro.gravit.launcher.base.LauncherConfig;
-import pro.gravit.launcher.base.profiles.ClientProfile;
-import pro.gravit.launcher.base.profiles.PlayerProfile;
-import pro.gravit.launcher.base.profiles.optional.OptionalView;
-import pro.gravit.launcher.base.profiles.optional.actions.OptionalAction;
-import pro.gravit.launcher.base.profiles.optional.actions.OptionalActionJvmArgs;
-import pro.gravit.launcher.base.request.Request;
+import pro.gravit.launcher.gui.base.Launcher;
+import pro.gravit.launcher.gui.base.LauncherConfig;
+import pro.gravit.launcher.gui.base.profiles.ClientProfile;
+import pro.gravit.launcher.gui.base.profiles.PlayerProfile;
+import pro.gravit.launcher.gui.base.profiles.optional.OptionalView;
+import pro.gravit.launcher.gui.base.profiles.optional.actions.OptionalAction;
+import pro.gravit.launcher.gui.base.profiles.optional.actions.OptionalActionJvmArgs;
+import pro.gravit.launcher.gui.base.request.Request;
 import pro.gravit.launcher.gui.client.ClientLauncherEntryPoint;
 import pro.gravit.launcher.gui.client.ClientParams;
 import pro.gravit.launcher.core.hasher.HashedDir;

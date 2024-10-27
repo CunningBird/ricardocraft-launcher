@@ -1,6 +1,6 @@
 package pro.gravit.launcher.gui.runtime.managers;
 
-import pro.gravit.launcher.base.config.JsonConfigurable;
+import pro.gravit.launcher.gui.base.config.JsonConfigurable;
 import pro.gravit.launcher.gui.runtime.NewLauncherSettings;
 import pro.gravit.launcher.gui.runtime.client.DirBridge;
 import pro.gravit.utils.helper.LogHelper;

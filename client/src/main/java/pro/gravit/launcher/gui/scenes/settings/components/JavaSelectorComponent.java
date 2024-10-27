@@ -8,7 +8,7 @@ import javafx.util.StringConverter;
 import pro.gravit.launcher.gui.config.RuntimeSettings;
 import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.service.JavaService;
-import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.gui.base.profiles.ClientProfile;
 import pro.gravit.utils.helper.JavaHelper;
 import pro.gravit.utils.helper.LogHelper;
 

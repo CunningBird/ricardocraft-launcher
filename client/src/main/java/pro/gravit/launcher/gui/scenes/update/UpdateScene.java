@@ -7,7 +7,7 @@ import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.scenes.AbstractScene;
 import pro.gravit.launcher.core.hasher.FileNameMatcher;
 import pro.gravit.launcher.core.hasher.HashedDir;
-import pro.gravit.launcher.base.profiles.optional.OptionalView;
+import pro.gravit.launcher.gui.base.profiles.optional.OptionalView;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.nio.file.Path;

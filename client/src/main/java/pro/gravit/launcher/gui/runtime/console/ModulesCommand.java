@@ -1,7 +1,7 @@
 package pro.gravit.launcher.gui.runtime.console;
 
-import pro.gravit.launcher.base.modules.LauncherModule;
-import pro.gravit.launcher.base.modules.LauncherModuleInfo;
+import pro.gravit.launcher.gui.base.modules.LauncherModule;
+import pro.gravit.launcher.gui.base.modules.LauncherModuleInfo;
 import pro.gravit.launcher.core.LauncherTrustManager;
 import pro.gravit.launcher.gui.runtime.LauncherEngine;
 import pro.gravit.launcher.gui.runtime.managers.ConsoleManager;

@@ -1,6 +1,6 @@
 package pro.gravit.launcher.gui.runtime.utils;
 
-import pro.gravit.launcher.base.request.update.LauncherRequest;
+import pro.gravit.launcher.gui.base.request.update.LauncherRequest;
 import pro.gravit.launcher.core.LauncherInject;
 import pro.gravit.launcher.gui.runtime.LauncherEngine;
 import pro.gravit.utils.helper.IOHelper;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static pro.gravit.launcher.base.Downloader.makeSSLSocketFactory;
+import static pro.gravit.launcher.gui.base.Downloader.makeSSLSocketFactory;
 
 public class LauncherUpdater {
     @LauncherInject("launcher.certificatePinning")

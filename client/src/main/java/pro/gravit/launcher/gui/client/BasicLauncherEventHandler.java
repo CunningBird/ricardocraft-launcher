@@ -1,11 +1,11 @@
 package pro.gravit.launcher.gui.client;
 
-import pro.gravit.launcher.base.events.ExtendedTokenRequestEvent;
-import pro.gravit.launcher.base.events.NotificationEvent;
-import pro.gravit.launcher.base.events.request.SecurityReportRequestEvent;
-import pro.gravit.launcher.base.request.Request;
-import pro.gravit.launcher.base.request.RequestService;
-import pro.gravit.launcher.base.request.WebSocketEvent;
+import pro.gravit.launcher.gui.base.events.ExtendedTokenRequestEvent;
+import pro.gravit.launcher.gui.base.events.NotificationEvent;
+import pro.gravit.launcher.gui.base.events.request.SecurityReportRequestEvent;
+import pro.gravit.launcher.gui.base.request.Request;
+import pro.gravit.launcher.gui.base.request.RequestService;
+import pro.gravit.launcher.gui.base.request.WebSocketEvent;
 import pro.gravit.launcher.gui.client.api.DialogService;
 import pro.gravit.utils.helper.LogHelper;
 

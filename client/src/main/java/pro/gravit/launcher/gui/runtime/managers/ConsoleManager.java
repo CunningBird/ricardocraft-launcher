@@ -1,6 +1,6 @@
 package pro.gravit.launcher.gui.runtime.managers;
 
-import pro.gravit.launcher.base.Launcher;
+import pro.gravit.launcher.gui.base.Launcher;
 import pro.gravit.launcher.gui.client.events.ClientUnlockConsoleEvent;
 import pro.gravit.launcher.gui.runtime.LauncherEngine;
 import pro.gravit.launcher.gui.runtime.console.GetConnectUUIDCommand;

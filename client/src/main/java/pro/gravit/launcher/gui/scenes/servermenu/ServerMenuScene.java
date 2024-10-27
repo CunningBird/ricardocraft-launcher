@@ -13,7 +13,7 @@ import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.scenes.AbstractScene;
 import pro.gravit.launcher.gui.scenes.interfaces.SceneSupportUserBlock;
 import pro.gravit.launcher.gui.runtime.client.ServerPinger;
-import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.gui.base.profiles.ClientProfile;
 import pro.gravit.utils.helper.CommonHelper;
 
 import java.io.IOException;

@@ -11,7 +11,7 @@ import pro.gravit.launcher.gui.JavaFXApplication;
 import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.impl.AbstractVisualComponent;
 import pro.gravit.launcher.gui.utils.JavaFxUtils;
-import pro.gravit.launcher.base.profiles.ClientProfile;
+import pro.gravit.launcher.gui.base.profiles.ClientProfile;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.net.URL;

@@ -1,7 +1,7 @@
 package pro.gravit.launcher.gui.start;
 
-import pro.gravit.launcher.base.Launcher;
-import pro.gravit.launcher.base.LauncherConfig;
+import pro.gravit.launcher.gui.base.Launcher;
+import pro.gravit.launcher.gui.base.LauncherConfig;
 import pro.gravit.launcher.core.LauncherInject;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.*;

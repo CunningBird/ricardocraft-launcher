@@ -5,8 +5,8 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import pro.gravit.launcher.base.profiles.optional.OptionalFile;
-import pro.gravit.launcher.base.profiles.optional.OptionalView;
+import pro.gravit.launcher.gui.base.profiles.optional.OptionalFile;
+import pro.gravit.launcher.gui.base.profiles.optional.OptionalView;
 import pro.gravit.launcher.gui.JavaFXApplication;
 
 import java.util.Arrays;
