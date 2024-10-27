@@ -7,7 +7,7 @@ import pro.gravit.launcher.gui.base.request.Request;
 import pro.gravit.launcher.gui.base.request.RequestService;
 import pro.gravit.launcher.gui.base.request.WebSocketEvent;
 import pro.gravit.launcher.gui.client.api.DialogService;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 public class BasicLauncherEventHandler implements RequestService.EventHandler {
 

@@ -11,8 +11,8 @@ import pro.gravit.launcher.gui.scenes.settings.components.LanguageSelectorCompon
 import pro.gravit.launcher.gui.scenes.settings.components.ThemeSelectorComponent;
 import pro.gravit.launcher.gui.stage.ConsoleStage;
 import pro.gravit.launcher.gui.runtime.client.DirBridge;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.io.File;
 import java.io.IOException;

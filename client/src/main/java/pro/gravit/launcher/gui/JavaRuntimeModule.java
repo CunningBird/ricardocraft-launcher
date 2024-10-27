@@ -13,9 +13,9 @@ import pro.gravit.launcher.gui.base.modules.LauncherModule;
 import pro.gravit.launcher.gui.base.modules.LauncherModuleInfo;
 import pro.gravit.launcher.gui.base.modules.events.OfflineModeEvent;
 import pro.gravit.launcher.gui.base.request.websockets.OfflineRequestService;
-import pro.gravit.utils.Version;
-import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.Version;
+import pro.gravit.launcher.gui.utils.helper.JVMHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import javax.swing.*;
 import java.lang.reflect.Method;

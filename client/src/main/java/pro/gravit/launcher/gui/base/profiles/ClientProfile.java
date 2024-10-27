@@ -1,15 +1,14 @@
 package pro.gravit.launcher.gui.base.profiles;
 
 import com.google.gson.*;
-import pro.gravit.launcher.gui.base.profiles.ClientProfileVersions;
 import pro.gravit.launcher.gui.base.profiles.optional.OptionalDepend;
 import pro.gravit.launcher.gui.base.profiles.optional.OptionalFile;
 import pro.gravit.launcher.gui.base.profiles.optional.triggers.OptionalTrigger;
-import pro.gravit.launcher.core.LauncherNetworkAPI;
-import pro.gravit.launcher.core.hasher.FileNameMatcher;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.VerifyHelper;
-import pro.gravit.utils.launch.LaunchOptions;
+import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
+import pro.gravit.launcher.gui.core.hasher.FileNameMatcher;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.VerifyHelper;
+import pro.gravit.launcher.gui.utils.launch.LaunchOptions;
 
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;

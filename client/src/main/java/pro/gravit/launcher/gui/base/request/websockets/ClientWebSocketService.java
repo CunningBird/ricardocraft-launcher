@@ -13,11 +13,11 @@ import pro.gravit.launcher.gui.base.request.auth.AuthRequest;
 import pro.gravit.launcher.gui.base.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launcher.gui.base.request.websockets.ClientJSONPoint;
 import pro.gravit.launcher.gui.base.request.websockets.WebSocketRequest;
-import pro.gravit.launcher.core.hasher.HashedEntry;
-import pro.gravit.launcher.core.hasher.HashedEntryAdapter;
-import pro.gravit.utils.ProviderMap;
-import pro.gravit.utils.UniversalJsonAdapter;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.core.hasher.HashedEntry;
+import pro.gravit.launcher.gui.core.hasher.HashedEntryAdapter;
+import pro.gravit.launcher.gui.utils.ProviderMap;
+import pro.gravit.launcher.gui.utils.UniversalJsonAdapter;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;

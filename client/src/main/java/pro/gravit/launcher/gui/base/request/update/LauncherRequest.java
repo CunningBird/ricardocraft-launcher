@@ -5,10 +5,10 @@ import pro.gravit.launcher.gui.base.events.request.LauncherRequestEvent;
 import pro.gravit.launcher.gui.base.request.Request;
 import pro.gravit.launcher.gui.base.request.RequestService;
 import pro.gravit.launcher.gui.base.request.websockets.WebSocketRequest;
-import pro.gravit.launcher.core.LauncherNetworkAPI;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;

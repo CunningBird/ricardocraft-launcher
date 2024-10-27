@@ -1,7 +1,7 @@
 package pro.gravit.launcher.gui.commands.runtime;
 
 import pro.gravit.launcher.gui.impl.MessageManager;
-import pro.gravit.utils.command.Command;
+import pro.gravit.launcher.gui.utils.command.Command;
 
 public class NotifyCommand extends Command {
     private final MessageManager messageManager;

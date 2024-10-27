@@ -2,7 +2,7 @@ package pro.gravit.launcher.gui.base.modules;
 
 import pro.gravit.launcher.gui.base.modules.LauncherModule;
 import pro.gravit.launcher.gui.base.modules.ModulesConfigManager;
-import pro.gravit.utils.Version;
+import pro.gravit.launcher.gui.utils.Version;
 
 import java.io.IOException;
 import java.nio.file.Path;

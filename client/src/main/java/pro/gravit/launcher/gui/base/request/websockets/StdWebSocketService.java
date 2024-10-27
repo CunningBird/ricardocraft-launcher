@@ -8,8 +8,8 @@ import pro.gravit.launcher.gui.base.request.RequestService;
 import pro.gravit.launcher.gui.base.request.WebSocketEvent;
 import pro.gravit.launcher.gui.base.request.websockets.ClientWebSocketService;
 import pro.gravit.launcher.gui.base.request.websockets.WebSocketRequest;
-import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.JVMHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;

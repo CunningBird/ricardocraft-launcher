@@ -8,8 +8,8 @@ import pro.gravit.launcher.gui.base.profiles.PlayerProfile;
 import pro.gravit.launcher.gui.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.gui.base.profiles.optional.actions.OptionalActionClientArgs;
 import pro.gravit.launcher.gui.base.request.Request;
-import pro.gravit.launcher.core.hasher.HashedDir;
-import pro.gravit.utils.Version;
+import pro.gravit.launcher.gui.core.hasher.HashedDir;
+import pro.gravit.launcher.gui.utils.Version;
 
 import java.util.*;
 

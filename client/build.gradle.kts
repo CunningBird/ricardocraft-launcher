@@ -21,11 +21,13 @@ group = "ru.ricardocraft"
 version = "1.0-SNAPSHOT"
 
 dependencies {
-    implementation("pro.gravit.launcher:launcher-core:5.6.8")
-//    implementation("pro.gravit.launcher:launcher-ws-api:5.6.8")
-//    implementation("pro.gravit.launcher:launcher-client-api:5.6.8")
-//    implementation("pro.gravit.launcher:launcher-client-start-api:5.6.8")
-//    implementation("pro.gravit.launcher:launcher-client-starter-api:5.6.8")
+    compileOnly("org.fusesource.jansi:jansi:2.4.1")
+    compileOnly("org.jline:jline:3.26.3")
+    compileOnly("org.jline:jline-reader:3.26.3")
+    compileOnly("org.jline:jline-terminal:3.26.3")
+    compileOnly("org.slf4j:slf4j-api:2.0.13")
+    api("com.google.code.gson:gson:2.11.0")
+
     implementation("pro.gravit.utils.enfs:enfs:2.0.1-SNAPSHOT")
     implementation("io.netty:netty-codec-http:4.1.67.Final")
     implementation("com.github.oshi:oshi-core:5.8.1")

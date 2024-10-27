@@ -11,7 +11,7 @@ import pro.gravit.launcher.gui.config.DesignConstants;
 import pro.gravit.launcher.gui.dialogs.AbstractDialog;
 import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.impl.AbstractStage;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.io.IOException;
 

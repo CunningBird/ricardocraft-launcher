@@ -9,9 +9,9 @@ import pro.gravit.utils.enfs.dir.CachedFile;
 import pro.gravit.utils.enfs.dir.FileEntry;
 import pro.gravit.utils.enfs.dir.RealFile;
 import pro.gravit.utils.enfs.dir.URLFile;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.SecurityHelper;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

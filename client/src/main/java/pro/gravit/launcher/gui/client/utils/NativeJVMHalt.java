@@ -1,6 +1,6 @@
 package pro.gravit.launcher.gui.client.utils;
 
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.lang.reflect.Method;
 

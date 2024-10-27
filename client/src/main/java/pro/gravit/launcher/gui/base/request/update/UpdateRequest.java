@@ -3,7 +3,7 @@ package pro.gravit.launcher.gui.base.request.update;
 import pro.gravit.launcher.gui.base.events.request.UpdateRequestEvent;
 import pro.gravit.launcher.gui.base.request.Request;
 import pro.gravit.launcher.gui.base.request.websockets.WebSocketRequest;
-import pro.gravit.launcher.core.LauncherNetworkAPI;
+import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 
 public final class UpdateRequest extends Request<UpdateRequestEvent> implements WebSocketRequest {
 

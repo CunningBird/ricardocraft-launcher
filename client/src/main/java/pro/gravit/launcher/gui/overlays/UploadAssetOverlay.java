@@ -6,15 +6,15 @@ import javafx.stage.FileChooser;
 import pro.gravit.launcher.gui.base.Launcher;
 import pro.gravit.launcher.gui.JavaFXApplication;
 import pro.gravit.launcher.gui.helper.LookupHelper;
-import pro.gravit.launcher.core.LauncherNetworkAPI;
+import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 import pro.gravit.launcher.gui.base.events.request.AssetUploadInfoRequestEvent;
 import pro.gravit.launcher.gui.base.profiles.Texture;
 import pro.gravit.launcher.gui.base.request.Request;
 import pro.gravit.launcher.gui.base.request.RequestException;
 import pro.gravit.launcher.gui.base.request.cabinet.GetAssetUploadUrl;
 import pro.gravit.launcher.gui.scenes.interfaces.SceneSupportUserBlock;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.SecurityHelper;
 
 import java.io.*;
 import java.net.URI;

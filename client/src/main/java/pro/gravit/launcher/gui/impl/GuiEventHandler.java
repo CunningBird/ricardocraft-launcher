@@ -15,7 +15,7 @@ import pro.gravit.launcher.gui.base.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.gui.base.profiles.ClientProfile;
 import pro.gravit.launcher.gui.base.request.RequestService;
 import pro.gravit.launcher.gui.base.request.WebSocketEvent;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.util.UUID;
 

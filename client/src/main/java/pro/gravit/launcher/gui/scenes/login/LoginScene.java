@@ -24,7 +24,7 @@ import pro.gravit.launcher.gui.base.request.auth.details.AuthPasswordDetails;
 import pro.gravit.launcher.gui.base.request.auth.password.*;
 import pro.gravit.launcher.gui.base.request.update.LauncherRequest;
 import pro.gravit.launcher.gui.base.request.update.ProfilesRequest;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.net.URI;
 import java.util.*;

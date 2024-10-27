@@ -4,8 +4,8 @@ import javafx.application.Application;
 import pro.gravit.launcher.gui.runtime.LauncherEngine;
 import pro.gravit.launcher.gui.runtime.gui.RuntimeProvider;
 import pro.gravit.launcher.gui.runtime.utils.LauncherUpdater;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.io.InputStream;

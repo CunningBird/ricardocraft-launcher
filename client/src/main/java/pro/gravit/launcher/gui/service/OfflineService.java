@@ -12,7 +12,7 @@ import pro.gravit.launcher.gui.base.request.auth.AuthRequest;
 import pro.gravit.launcher.gui.base.request.auth.password.AuthOAuthPassword;
 import pro.gravit.launcher.gui.base.request.update.ProfilesRequest;
 import pro.gravit.launcher.gui.base.request.websockets.OfflineRequestService;
-import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.launcher.gui.utils.helper.SecurityHelper;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;

@@ -5,7 +5,7 @@ import pro.gravit.launcher.gui.impl.ContextHelper;
 import pro.gravit.launcher.gui.overlays.AbstractOverlay;
 import pro.gravit.launcher.gui.scenes.AbstractScene;
 import pro.gravit.launcher.gui.stage.PrimaryStage;
-import pro.gravit.utils.command.Command;
+import pro.gravit.launcher.gui.utils.command.Command;
 
 public class WarpCommand extends Command {
     private JavaFXApplication application;

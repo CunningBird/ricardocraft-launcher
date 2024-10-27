@@ -1,9 +1,9 @@
 package pro.gravit.launcher.gui.runtime;
 
-import pro.gravit.launcher.core.LauncherNetworkAPI;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.launch.LaunchOptions;
-import pro.gravit.utils.launch.ModuleLaunch;
+import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.launch.LaunchOptions;
+import pro.gravit.launcher.gui.utils.launch.ModuleLaunch;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

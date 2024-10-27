@@ -4,8 +4,8 @@ import pro.gravit.launcher.gui.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.gui.base.request.Request;
 import pro.gravit.launcher.gui.base.request.auth.password.*;
 import pro.gravit.launcher.gui.base.request.websockets.WebSocketRequest;
-import pro.gravit.launcher.core.LauncherNetworkAPI;
-import pro.gravit.utils.ProviderMap;
+import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
+import pro.gravit.launcher.gui.utils.ProviderMap;
 
 public final class AuthRequest extends Request<AuthRequestEvent> implements WebSocketRequest {
     public static final ProviderMap<AuthPasswordInterface> providers = new ProviderMap<>();

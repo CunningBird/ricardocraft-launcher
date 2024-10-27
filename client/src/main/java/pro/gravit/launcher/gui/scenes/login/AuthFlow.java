@@ -14,7 +14,7 @@ import pro.gravit.launcher.gui.base.request.auth.password.Auth2FAPassword;
 import pro.gravit.launcher.gui.base.request.auth.password.AuthMultiPassword;
 import pro.gravit.launcher.gui.base.request.auth.password.AuthOAuthPassword;
 import pro.gravit.launcher.gui.scenes.login.methods.*;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;

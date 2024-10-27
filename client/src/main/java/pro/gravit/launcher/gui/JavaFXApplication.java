@@ -33,11 +33,11 @@ import pro.gravit.launcher.gui.runtime.client.events.ClientGuiPhase;
 import pro.gravit.launcher.gui.runtime.debug.DebugMain;
 import pro.gravit.launcher.gui.runtime.managers.ConsoleManager;
 import pro.gravit.launcher.gui.runtime.managers.SettingsManager;
-import pro.gravit.utils.command.BaseCommandCategory;
-import pro.gravit.utils.command.CommandCategory;
-import pro.gravit.utils.command.CommandHandler;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.command.BaseCommandCategory;
+import pro.gravit.launcher.gui.utils.command.CommandCategory;
+import pro.gravit.launcher.gui.utils.command.CommandHandler;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

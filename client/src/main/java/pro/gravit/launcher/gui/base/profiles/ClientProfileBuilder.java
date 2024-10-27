@@ -2,7 +2,7 @@ package pro.gravit.launcher.gui.base.profiles;
 
 import pro.gravit.launcher.gui.base.profiles.ClientProfile;
 import pro.gravit.launcher.gui.base.profiles.optional.OptionalFile;
-import pro.gravit.utils.launch.LaunchOptions;
+import pro.gravit.launcher.gui.utils.launch.LaunchOptions;
 
 import java.util.*;
 

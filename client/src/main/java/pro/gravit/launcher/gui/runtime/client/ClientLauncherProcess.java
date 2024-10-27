@@ -10,14 +10,14 @@ import pro.gravit.launcher.gui.base.profiles.optional.actions.OptionalActionJvmA
 import pro.gravit.launcher.gui.base.request.Request;
 import pro.gravit.launcher.gui.client.ClientLauncherEntryPoint;
 import pro.gravit.launcher.gui.client.ClientParams;
-import pro.gravit.launcher.core.hasher.HashedDir;
-import pro.gravit.launcher.core.serialize.HOutput;
+import pro.gravit.launcher.gui.core.hasher.HashedDir;
+import pro.gravit.launcher.gui.core.serialize.HOutput;
 import pro.gravit.launcher.gui.runtime.LauncherEngine;
 import pro.gravit.launcher.gui.runtime.client.events.ClientProcessBuilderCreateEvent;
 import pro.gravit.launcher.gui.runtime.client.events.ClientProcessBuilderLaunchedEvent;
 import pro.gravit.launcher.gui.runtime.client.events.ClientProcessBuilderParamsWrittedEvent;
 import pro.gravit.launcher.gui.runtime.client.events.ClientProcessBuilderPreLaunchEvent;
-import pro.gravit.utils.helper.*;
+import pro.gravit.launcher.gui.utils.helper.*;
 
 import javax.crypto.CipherOutputStream;
 import java.io.File;

@@ -2,8 +2,8 @@ package pro.gravit.launcher.gui.base.config;
 
 import com.google.gson.Gson;
 import pro.gravit.launcher.gui.base.Launcher;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

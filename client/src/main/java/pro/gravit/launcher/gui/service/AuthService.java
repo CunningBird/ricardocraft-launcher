@@ -9,7 +9,7 @@ import pro.gravit.launcher.gui.base.profiles.PlayerProfile;
 import pro.gravit.launcher.gui.base.request.Request;
 import pro.gravit.launcher.gui.base.request.auth.AuthRequest;
 import pro.gravit.launcher.gui.base.request.auth.password.*;
-import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.launcher.gui.utils.helper.SecurityHelper;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -7,7 +7,7 @@ import pro.gravit.launcher.gui.base.request.auth.details.AuthPasswordDetails;
 import pro.gravit.launcher.gui.base.request.auth.details.AuthTotpDetails;
 import pro.gravit.launcher.gui.base.request.auth.details.AuthWebViewDetails;
 import pro.gravit.launcher.gui.base.request.websockets.WebSocketRequest;
-import pro.gravit.utils.ProviderMap;
+import pro.gravit.launcher.gui.utils.ProviderMap;
 
 public class GetAvailabilityAuthRequest extends Request<GetAvailabilityAuthRequestEvent> implements WebSocketRequest {
 

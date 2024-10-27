@@ -1,8 +1,8 @@
 package pro.gravit.launcher.gui.base.api;
 
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.launch.ClassLoaderControl;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.JVMHelper;
+import pro.gravit.launcher.gui.utils.launch.ClassLoaderControl;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;

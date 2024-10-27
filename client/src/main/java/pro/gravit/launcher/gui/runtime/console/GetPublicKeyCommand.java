@@ -1,8 +1,8 @@
 package pro.gravit.launcher.gui.runtime.console;
 
 import pro.gravit.launcher.gui.runtime.LauncherEngine;
-import pro.gravit.utils.command.Command;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.command.Command;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.util.Base64;
 

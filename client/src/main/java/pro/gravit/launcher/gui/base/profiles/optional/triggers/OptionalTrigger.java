@@ -5,7 +5,7 @@ import pro.gravit.launcher.gui.base.profiles.optional.triggers.ArchTrigger;
 import pro.gravit.launcher.gui.base.profiles.optional.triggers.JavaTrigger;
 import pro.gravit.launcher.gui.base.profiles.optional.triggers.OSTrigger;
 import pro.gravit.launcher.gui.base.profiles.optional.triggers.OptionalTriggerContext;
-import pro.gravit.utils.ProviderMap;
+import pro.gravit.launcher.gui.utils.ProviderMap;
 
 public abstract class OptionalTrigger {
     public static ProviderMap<OptionalTrigger> providers = new ProviderMap<>("OptionalTriggers");

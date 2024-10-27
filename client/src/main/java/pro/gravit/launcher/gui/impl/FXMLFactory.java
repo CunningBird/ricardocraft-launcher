@@ -3,8 +3,8 @@ package pro.gravit.launcher.gui.impl;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import pro.gravit.launcher.gui.JavaFXApplication;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.io.InputStream;

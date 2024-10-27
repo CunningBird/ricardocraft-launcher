@@ -17,7 +17,7 @@ import pro.gravit.launcher.gui.scenes.settings.GlobalSettingsScene;
 import pro.gravit.launcher.gui.scenes.settings.SettingsScene;
 import pro.gravit.launcher.gui.scenes.update.UpdateScene;
 import pro.gravit.launcher.gui.stage.ConsoleStage;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;

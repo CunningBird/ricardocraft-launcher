@@ -1,14 +1,14 @@
 package pro.gravit.launcher.gui.client.utils;
 
 import pro.gravit.launcher.gui.client.ClientLauncherMethods;
-import pro.gravit.launcher.core.hasher.FileNameMatcher;
-import pro.gravit.launcher.core.hasher.HashedDir;
-import pro.gravit.launcher.core.hasher.HashedEntry;
-import pro.gravit.launcher.core.hasher.HashedFile;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.JVMHelper.OS;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.core.hasher.FileNameMatcher;
+import pro.gravit.launcher.gui.core.hasher.HashedDir;
+import pro.gravit.launcher.gui.core.hasher.HashedEntry;
+import pro.gravit.launcher.gui.core.hasher.HashedFile;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.JVMHelper;
+import pro.gravit.launcher.gui.utils.helper.JVMHelper.OS;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.*;

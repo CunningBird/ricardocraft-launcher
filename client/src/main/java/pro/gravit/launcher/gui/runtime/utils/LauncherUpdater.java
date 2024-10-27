@@ -1,11 +1,11 @@
 package pro.gravit.launcher.gui.runtime.utils;
 
 import pro.gravit.launcher.gui.base.request.update.LauncherRequest;
-import pro.gravit.launcher.core.LauncherInject;
+import pro.gravit.launcher.gui.core.LauncherInject;
 import pro.gravit.launcher.gui.runtime.LauncherEngine;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.SecurityHelper;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.SecurityHelper;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;

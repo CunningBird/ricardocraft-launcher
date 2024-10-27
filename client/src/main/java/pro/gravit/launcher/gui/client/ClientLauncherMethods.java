@@ -23,8 +23,8 @@ import pro.gravit.launcher.gui.client.ClientModuleManager;
 import pro.gravit.launcher.gui.client.ClientParams;
 import pro.gravit.launcher.gui.client.events.ClientExitPhase;
 import pro.gravit.launcher.gui.client.utils.NativeJVMHalt;
-import pro.gravit.launcher.core.LauncherTrustManager;
-import pro.gravit.utils.helper.JVMHelper;
+import pro.gravit.launcher.gui.core.LauncherTrustManager;
+import pro.gravit.launcher.gui.utils.helper.JVMHelper;
 
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;

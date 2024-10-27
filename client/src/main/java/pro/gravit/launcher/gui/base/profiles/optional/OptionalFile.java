@@ -2,7 +2,7 @@ package pro.gravit.launcher.gui.base.profiles.optional;
 
 import pro.gravit.launcher.gui.base.profiles.optional.OptionalDepend;
 import pro.gravit.launcher.gui.base.profiles.optional.actions.OptionalAction;
-import pro.gravit.launcher.core.LauncherNetworkAPI;
+import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 
 import java.util.List;
 import java.util.Objects;

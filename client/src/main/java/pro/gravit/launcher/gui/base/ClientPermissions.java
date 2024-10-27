@@ -1,6 +1,6 @@
 package pro.gravit.launcher.gui.base;
 
-import pro.gravit.launcher.core.LauncherNetworkAPI;
+import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 
 import java.util.*;
 

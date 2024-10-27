@@ -3,9 +3,9 @@ package pro.gravit.launcher.gui.commands.runtime;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import pro.gravit.launcher.gui.JavaFXApplication;
-import pro.gravit.utils.command.Command;
-import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.command.Command;
+import pro.gravit.launcher.gui.utils.helper.JVMHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.util.ArrayList;
 import java.util.List;

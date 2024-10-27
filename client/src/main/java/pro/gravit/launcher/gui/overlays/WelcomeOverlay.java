@@ -7,7 +7,7 @@ import pro.gravit.launcher.gui.JavaFXApplication;
 import pro.gravit.launcher.gui.config.DesignConstants;
 import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.utils.JavaFxUtils;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 public class WelcomeOverlay extends AbstractOverlay {
     private Image originalImage;

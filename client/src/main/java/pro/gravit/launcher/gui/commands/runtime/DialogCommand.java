@@ -1,8 +1,8 @@
 package pro.gravit.launcher.gui.commands.runtime;
 
 import pro.gravit.launcher.gui.impl.MessageManager;
-import pro.gravit.utils.command.Command;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.command.Command;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 public class DialogCommand extends Command {
     private final MessageManager messageManager;

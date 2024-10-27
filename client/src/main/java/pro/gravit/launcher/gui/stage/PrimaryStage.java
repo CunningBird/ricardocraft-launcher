@@ -10,7 +10,7 @@ import pro.gravit.launcher.gui.JavaFXApplication;
 import pro.gravit.launcher.gui.config.DesignConstants;
 import pro.gravit.launcher.gui.impl.AbstractStage;
 import pro.gravit.launcher.gui.impl.AbstractVisualComponent;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.io.IOException;
 

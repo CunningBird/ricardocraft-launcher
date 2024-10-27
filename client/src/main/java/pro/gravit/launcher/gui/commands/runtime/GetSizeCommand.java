@@ -3,8 +3,8 @@ package pro.gravit.launcher.gui.commands.runtime;
 import javafx.scene.layout.Pane;
 import pro.gravit.launcher.gui.JavaFXApplication;
 import pro.gravit.launcher.gui.impl.AbstractStage;
-import pro.gravit.utils.command.Command;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.command.Command;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 public class GetSizeCommand extends Command {
     private final JavaFXApplication application;

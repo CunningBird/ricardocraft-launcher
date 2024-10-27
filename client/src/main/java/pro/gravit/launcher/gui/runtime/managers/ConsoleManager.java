@@ -6,15 +6,15 @@ import pro.gravit.launcher.gui.runtime.LauncherEngine;
 import pro.gravit.launcher.gui.runtime.console.GetConnectUUIDCommand;
 import pro.gravit.launcher.gui.runtime.console.UnlockCommand;
 import pro.gravit.launcher.gui.runtime.console.test.PrintHardwareInfoCommand;
-import pro.gravit.utils.command.CommandHandler;
-import pro.gravit.utils.command.JLineCommandHandler;
-import pro.gravit.utils.command.StdCommandHandler;
-import pro.gravit.utils.command.basic.ClearCommand;
-import pro.gravit.utils.command.basic.DebugCommand;
-import pro.gravit.utils.command.basic.GCCommand;
-import pro.gravit.utils.command.basic.HelpCommand;
-import pro.gravit.utils.helper.CommonHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.command.CommandHandler;
+import pro.gravit.launcher.gui.utils.command.JLineCommandHandler;
+import pro.gravit.launcher.gui.utils.command.StdCommandHandler;
+import pro.gravit.launcher.gui.utils.command.basic.ClearCommand;
+import pro.gravit.launcher.gui.utils.command.basic.DebugCommand;
+import pro.gravit.launcher.gui.utils.command.basic.GCCommand;
+import pro.gravit.launcher.gui.utils.command.basic.HelpCommand;
+import pro.gravit.launcher.gui.utils.helper.CommonHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.io.IOException;
 

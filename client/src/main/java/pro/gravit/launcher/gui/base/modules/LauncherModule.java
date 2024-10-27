@@ -5,8 +5,8 @@ import pro.gravit.launcher.gui.base.modules.LauncherModuleInfo;
 import pro.gravit.launcher.gui.base.modules.LauncherModulesContext;
 import pro.gravit.launcher.gui.base.modules.LauncherModulesManager;
 import pro.gravit.launcher.gui.base.modules.ModulesConfigManager;
-import pro.gravit.launcher.core.LauncherTrustManager;
-import pro.gravit.utils.Version;
+import pro.gravit.launcher.gui.core.LauncherTrustManager;
+import pro.gravit.launcher.gui.utils.Version;
 
 import java.util.ArrayList;
 import java.util.List;

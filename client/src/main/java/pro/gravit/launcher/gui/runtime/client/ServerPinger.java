@@ -5,11 +5,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import pro.gravit.launcher.gui.base.profiles.ClientProfile;
 import pro.gravit.launcher.gui.base.profiles.ClientProfileVersions;
-import pro.gravit.launcher.core.serialize.HInput;
-import pro.gravit.launcher.core.serialize.HOutput;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.helper.VerifyHelper;
+import pro.gravit.launcher.gui.core.serialize.HInput;
+import pro.gravit.launcher.gui.core.serialize.HOutput;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.VerifyHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -4,7 +4,7 @@ import pro.gravit.launcher.gui.runtime.utils.HWIDProvider;
 import pro.gravit.launcher.gui.base.request.secure.GetSecureLevelInfoRequest;
 import pro.gravit.launcher.gui.base.request.secure.HardwareReportRequest;
 import pro.gravit.launcher.gui.base.request.secure.VerifySecureLevelKeyRequest;
-import pro.gravit.utils.helper.*;
+import pro.gravit.launcher.gui.utils.helper.*;
 
 import java.io.IOException;
 

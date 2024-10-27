@@ -2,8 +2,8 @@ package pro.gravit.launcher.gui.base.modules.impl;
 
 import pro.gravit.launcher.gui.base.config.SimpleConfigurable;
 import pro.gravit.launcher.gui.base.modules.ModulesConfigManager;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;

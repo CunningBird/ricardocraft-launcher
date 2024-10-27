@@ -4,7 +4,7 @@ import pro.gravit.launcher.gui.base.profiles.optional.actions.OptionalActionClas
 import pro.gravit.launcher.gui.base.profiles.optional.actions.OptionalActionClientArgs;
 import pro.gravit.launcher.gui.base.profiles.optional.actions.OptionalActionFile;
 import pro.gravit.launcher.gui.base.profiles.optional.actions.OptionalActionJvmArgs;
-import pro.gravit.utils.ProviderMap;
+import pro.gravit.launcher.gui.utils.ProviderMap;
 
 public class OptionalAction {
     public static final ProviderMap<OptionalAction> providers = new ProviderMap<>();

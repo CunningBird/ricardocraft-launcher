@@ -2,11 +2,11 @@ package pro.gravit.launcher.gui.runtime.console;
 
 import pro.gravit.launcher.gui.base.modules.LauncherModule;
 import pro.gravit.launcher.gui.base.modules.LauncherModuleInfo;
-import pro.gravit.launcher.core.LauncherTrustManager;
+import pro.gravit.launcher.gui.core.LauncherTrustManager;
 import pro.gravit.launcher.gui.runtime.LauncherEngine;
 import pro.gravit.launcher.gui.runtime.managers.ConsoleManager;
-import pro.gravit.utils.command.Command;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.command.Command;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.security.cert.X509Certificate;
 import java.util.Arrays;

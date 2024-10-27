@@ -9,7 +9,7 @@ import pro.gravit.launcher.gui.scenes.login.AuthFlow;
 import pro.gravit.launcher.gui.scenes.login.LoginAuthButtonComponent;
 import pro.gravit.launcher.gui.scenes.login.LoginScene;
 import pro.gravit.launcher.gui.base.request.auth.details.AuthLoginOnlyDetails;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;
 

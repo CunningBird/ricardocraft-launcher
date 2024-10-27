@@ -16,7 +16,7 @@ import pro.gravit.launcher.gui.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.gui.client.*;
 import pro.gravit.launcher.gui.client.events.ClientExitPhase;
 import pro.gravit.launcher.gui.client.utils.NativeJVMHalt;
-import pro.gravit.launcher.core.LauncherTrustManager;
+import pro.gravit.launcher.gui.core.LauncherTrustManager;
 import pro.gravit.launcher.gui.runtime.client.DirBridge;
 import pro.gravit.launcher.gui.runtime.client.RuntimeGsonManager;
 import pro.gravit.launcher.gui.runtime.client.events.ClientEngineInitPhase;
@@ -28,7 +28,7 @@ import pro.gravit.launcher.gui.runtime.gui.NoRuntimeProvider;
 import pro.gravit.launcher.gui.runtime.gui.RuntimeProvider;
 import pro.gravit.launcher.gui.runtime.managers.ConsoleManager;
 import pro.gravit.launcher.gui.start.RuntimeModuleManager;
-import pro.gravit.utils.helper.*;
+import pro.gravit.launcher.gui.utils.helper.*;
 
 import java.io.IOException;
 import java.nio.file.Path;

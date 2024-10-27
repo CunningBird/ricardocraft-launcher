@@ -22,12 +22,12 @@ import pro.gravit.launcher.gui.client.ClientModuleManager;
 import pro.gravit.launcher.gui.client.ClientParams;
 import pro.gravit.launcher.gui.client.events.*;
 import pro.gravit.launcher.gui.client.utils.DirWatcher;
-import pro.gravit.launcher.core.hasher.FileNameMatcher;
-import pro.gravit.launcher.core.hasher.HashedDir;
-import pro.gravit.launcher.core.hasher.HashedEntry;
-import pro.gravit.launcher.core.serialize.HInput;
-import pro.gravit.utils.helper.*;
-import pro.gravit.utils.launch.*;
+import pro.gravit.launcher.gui.core.hasher.FileNameMatcher;
+import pro.gravit.launcher.gui.core.hasher.HashedDir;
+import pro.gravit.launcher.gui.core.hasher.HashedEntry;
+import pro.gravit.launcher.gui.core.serialize.HInput;
+import pro.gravit.launcher.gui.utils.helper.*;
+import pro.gravit.launcher.gui.utils.launch.*;
 
 import javax.crypto.CipherInputStream;
 import java.io.File;

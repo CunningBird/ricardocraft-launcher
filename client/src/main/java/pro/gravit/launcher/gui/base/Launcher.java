@@ -2,11 +2,11 @@ package pro.gravit.launcher.gui.base;
 
 import pro.gravit.launcher.gui.base.LauncherConfig;
 import pro.gravit.launcher.gui.base.profiles.ClientProfile;
-import pro.gravit.launcher.core.managers.GsonManager;
-import pro.gravit.launcher.core.serialize.HInput;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.core.managers.GsonManager;
+import pro.gravit.launcher.gui.core.serialize.HInput;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.JVMHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.net.URL;

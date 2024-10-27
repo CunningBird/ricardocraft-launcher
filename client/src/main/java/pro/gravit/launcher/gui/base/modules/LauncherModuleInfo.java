@@ -1,6 +1,6 @@
 package pro.gravit.launcher.gui.base.modules;
 
-import pro.gravit.utils.Version;
+import pro.gravit.launcher.gui.utils.Version;
 
 public class LauncherModuleInfo {
     public final String name;

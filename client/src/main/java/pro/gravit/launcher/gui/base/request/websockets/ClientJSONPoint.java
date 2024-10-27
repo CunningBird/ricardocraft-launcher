@@ -1,8 +1,8 @@
 package pro.gravit.launcher.gui.base.request.websockets;
 
 import pro.gravit.launcher.gui.base.Downloader;
-import pro.gravit.launcher.core.LauncherInject;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.core.LauncherInject;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;

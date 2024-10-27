@@ -5,10 +5,10 @@ import javafx.scene.layout.Pane;
 import pro.gravit.launcher.gui.JavaFXApplication;
 import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.scenes.AbstractScene;
-import pro.gravit.launcher.core.hasher.FileNameMatcher;
-import pro.gravit.launcher.core.hasher.HashedDir;
+import pro.gravit.launcher.gui.core.hasher.FileNameMatcher;
+import pro.gravit.launcher.gui.core.hasher.HashedDir;
 import pro.gravit.launcher.gui.base.profiles.optional.OptionalView;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.nio.file.Path;
 import java.util.concurrent.CompletionException;

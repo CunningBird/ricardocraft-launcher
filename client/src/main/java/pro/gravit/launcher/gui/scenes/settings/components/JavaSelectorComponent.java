@@ -9,8 +9,8 @@ import pro.gravit.launcher.gui.config.RuntimeSettings;
 import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.service.JavaService;
 import pro.gravit.launcher.gui.base.profiles.ClientProfile;
-import pro.gravit.utils.helper.JavaHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.JavaHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 public class JavaSelectorComponent {
     private final ComboBox<JavaHelper.JavaVersion> comboBox;

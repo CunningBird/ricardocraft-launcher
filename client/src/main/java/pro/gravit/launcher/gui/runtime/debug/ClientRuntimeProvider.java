@@ -12,9 +12,9 @@ import pro.gravit.launcher.gui.base.request.auth.AuthRequest;
 import pro.gravit.launcher.gui.base.request.update.ProfilesRequest;
 import pro.gravit.launcher.gui.runtime.LauncherEngine;
 import pro.gravit.launcher.gui.runtime.gui.RuntimeProvider;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
-import pro.gravit.utils.launch.*;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.launch.*;
 
 import java.io.File;
 import java.io.Reader;

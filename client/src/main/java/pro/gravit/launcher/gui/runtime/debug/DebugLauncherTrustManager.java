@@ -1,6 +1,6 @@
 package pro.gravit.launcher.gui.runtime.debug;
 
-import pro.gravit.launcher.core.LauncherTrustManager;
+import pro.gravit.launcher.gui.core.LauncherTrustManager;
 
 import java.security.cert.X509Certificate;
 

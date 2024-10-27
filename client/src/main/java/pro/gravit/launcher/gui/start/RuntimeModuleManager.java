@@ -3,7 +3,7 @@ package pro.gravit.launcher.gui.start;
 import pro.gravit.launcher.gui.base.Launcher;
 import pro.gravit.launcher.gui.base.modules.LauncherModule;
 import pro.gravit.launcher.gui.base.modules.impl.SimpleModuleManager;
-import pro.gravit.launcher.core.LauncherTrustManager;
+import pro.gravit.launcher.gui.core.LauncherTrustManager;
 import pro.gravit.launcher.gui.start.ClientLauncherWrapper;
 import pro.gravit.launcher.gui.start.ClientWrapperModule;
 

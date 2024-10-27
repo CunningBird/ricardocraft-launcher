@@ -2,8 +2,8 @@ package pro.gravit.launcher.gui.client.events;
 
 import pro.gravit.launcher.gui.base.modules.LauncherModule;
 import pro.gravit.launcher.gui.base.profiles.ClientProfile;
-import pro.gravit.utils.launch.ClassLoaderControl;
-import pro.gravit.utils.launch.Launch;
+import pro.gravit.launcher.gui.utils.launch.ClassLoaderControl;
+import pro.gravit.launcher.gui.utils.launch.Launch;
 
 public class ClientProcessClassLoaderEvent extends LauncherModule.Event {
     public final Launch launch;

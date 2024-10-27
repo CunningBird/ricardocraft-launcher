@@ -3,7 +3,7 @@ package pro.gravit.launcher.gui.runtime.managers;
 import pro.gravit.launcher.gui.base.config.JsonConfigurable;
 import pro.gravit.launcher.gui.runtime.NewLauncherSettings;
 import pro.gravit.launcher.gui.runtime.client.DirBridge;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 public class SettingsManager extends JsonConfigurable<NewLauncherSettings> {
     public static NewLauncherSettings settings;

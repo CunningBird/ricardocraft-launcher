@@ -9,7 +9,7 @@ import pro.gravit.launcher.gui.impl.AbstractStage;
 import pro.gravit.launcher.gui.impl.ContextHelper;
 import pro.gravit.launcher.gui.base.request.Request;
 import pro.gravit.launcher.gui.base.request.WebSocketEvent;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.io.IOException;
 import java.util.function.Consumer;

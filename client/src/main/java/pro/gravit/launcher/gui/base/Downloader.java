@@ -1,9 +1,9 @@
 package pro.gravit.launcher.gui.base;
 
-import pro.gravit.launcher.core.CertificatePinningTrustManager;
-import pro.gravit.launcher.core.LauncherInject;
-import pro.gravit.utils.helper.IOHelper;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.core.CertificatePinningTrustManager;
+import pro.gravit.launcher.gui.core.LauncherInject;
+import pro.gravit.launcher.gui.utils.helper.IOHelper;
+import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
