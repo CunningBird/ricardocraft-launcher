@@ -5,7 +5,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
-import pro.gravit.launcher.client.events.ClientExitPhase;
+import pro.gravit.launcher.gui.client.events.ClientExitPhase;
 import pro.gravit.launcher.gui.StdJavaRuntimeProvider;
 import pro.gravit.launcher.gui.JavaFXApplication;
 import pro.gravit.launcher.gui.helper.LookupHelper;

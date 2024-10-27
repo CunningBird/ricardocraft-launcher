@@ -1,8 +1,8 @@
 package pro.gravit.launcher.gui;
 
 import javafx.stage.Stage;
-import pro.gravit.launcher.client.events.ClientExitPhase;
-import pro.gravit.launcher.client.events.ClientUnlockConsoleEvent;
+import pro.gravit.launcher.gui.client.events.ClientExitPhase;
+import pro.gravit.launcher.gui.client.events.ClientUnlockConsoleEvent;
 import pro.gravit.launcher.gui.service.OfflineService;
 import pro.gravit.launcher.gui.runtime.LauncherEngine;
 import pro.gravit.launcher.gui.runtime.client.events.ClientEngineInitPhase;

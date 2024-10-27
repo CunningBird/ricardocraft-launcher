@@ -25,7 +25,7 @@ dependencies {
     implementation("pro.gravit.launcher:launcher-ws-api:5.6.8")
 //    implementation("pro.gravit.launcher:launcher-client-api:5.6.8")
 //    implementation("pro.gravit.launcher:launcher-client-start-api:5.6.8")
-    implementation("pro.gravit.launcher:launcher-client-starter-api:5.6.8")
+//    implementation("pro.gravit.launcher:launcher-client-starter-api:5.6.8")
     implementation("pro.gravit.utils.enfs:enfs:2.0.1-SNAPSHOT")
     implementation("io.netty:netty-codec-http:4.1.67.Final")
     implementation("com.github.oshi:oshi-core:5.8.1")
