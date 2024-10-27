@@ -25,14 +25,14 @@ import pro.gravit.launcher.gui.impl.*;
 import pro.gravit.launcher.gui.scenes.AbstractScene;
 import pro.gravit.launcher.gui.service.*;
 import pro.gravit.launcher.gui.stage.PrimaryStage;
-import pro.gravit.launcher.runtime.LauncherEngine;
-import pro.gravit.launcher.runtime.NewLauncherSettings;
-import pro.gravit.launcher.runtime.client.DirBridge;
-import pro.gravit.launcher.runtime.client.UserSettings;
-import pro.gravit.launcher.runtime.client.events.ClientGuiPhase;
-import pro.gravit.launcher.runtime.debug.DebugMain;
-import pro.gravit.launcher.runtime.managers.ConsoleManager;
-import pro.gravit.launcher.runtime.managers.SettingsManager;
+import pro.gravit.launcher.gui.runtime.LauncherEngine;
+import pro.gravit.launcher.gui.runtime.NewLauncherSettings;
+import pro.gravit.launcher.gui.runtime.client.DirBridge;
+import pro.gravit.launcher.gui.runtime.client.UserSettings;
+import pro.gravit.launcher.gui.runtime.client.events.ClientGuiPhase;
+import pro.gravit.launcher.gui.runtime.debug.DebugMain;
+import pro.gravit.launcher.gui.runtime.managers.ConsoleManager;
+import pro.gravit.launcher.gui.runtime.managers.SettingsManager;
 import pro.gravit.utils.command.BaseCommandCategory;
 import pro.gravit.utils.command.CommandCategory;
 import pro.gravit.utils.command.CommandHandler;
@@ -139,7 +139,7 @@ public class JavaFXApplication extends Application {
     public void start(Stage stage) {
         // If debugging
         try {
-            Class.forName("pro.gravit.launcher.runtime.debug.DebugMain", false, JavaFXApplication.class.getClassLoader());
+            Class.forName("pro.gravit.launcher.gui.runtime.debug.DebugMain", false, JavaFXApplication.class.getClassLoader());
             if (DebugMain.IS_DEBUG.get()) {
                 runtimeDirectory = IOHelper.WORKING_DIR.resolve("runtime");
                 debugMode = true;

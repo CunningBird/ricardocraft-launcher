@@ -2,7 +2,7 @@ package pro.gravit.launcher.gui.service;
 
 import pro.gravit.launcher.base.ClientPermissions;
 import pro.gravit.launcher.gui.JavaFXApplication;
-import pro.gravit.launcher.runtime.client.DirBridge;
+import pro.gravit.launcher.gui.runtime.client.DirBridge;
 import pro.gravit.launcher.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.base.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.base.profiles.ClientProfile;

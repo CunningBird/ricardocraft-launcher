@@ -23,7 +23,7 @@ version = "1.0-SNAPSHOT"
 dependencies {
     implementation("pro.gravit.launcher:launcher-core:5.6.8")
     implementation("pro.gravit.launcher:launcher-ws-api:5.6.8")
-    implementation("pro.gravit.launcher:launcher-client-api:5.6.8")
+//    implementation("pro.gravit.launcher:launcher-client-api:5.6.8")
     implementation("pro.gravit.launcher:launcher-client-start-api:5.6.8")
     implementation("pro.gravit.launcher:launcher-client-starter-api:5.6.8")
     implementation("pro.gravit.utils.enfs:enfs:2.0.1-SNAPSHOT")
@@ -71,7 +71,7 @@ tasks.create<JavaExec>("runDev") {
     description = "Run the main class with JavaExecTask"
     classpath(sourceSets.main.get().runtimeClasspath)
     jvmArgs = listOf("-Dlauncherdebug.modules=pro.gravit.launcher.gui.JavaRuntimeModule", "-Dlauncherdebug.env=DEBUG")
-    mainClass = "pro.gravit.launcher.runtime.debug.DebugMain"
+    mainClass = "pro.gravit.launcher.gui.runtime.debug.DebugMain"
 }
 
 tasks.jar {

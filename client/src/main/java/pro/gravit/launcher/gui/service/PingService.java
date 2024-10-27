@@ -1,6 +1,6 @@
 package pro.gravit.launcher.gui.service;
 
-import pro.gravit.launcher.runtime.client.ServerPinger;
+import pro.gravit.launcher.gui.runtime.client.ServerPinger;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
