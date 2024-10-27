@@ -13,7 +13,7 @@ import pro.gravit.launcher.client.ClientLauncherMethods;
 import pro.gravit.launcher.client.RuntimeLauncherCoreModule;
 import pro.gravit.launcher.gui.runtime.LauncherEngine;
 import pro.gravit.launcher.gui.runtime.managers.ConsoleManager;
-import pro.gravit.launcher.start.RuntimeModuleManager;
+import pro.gravit.launcher.gui.start.RuntimeModuleManager;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.lang.invoke.MethodHandles;

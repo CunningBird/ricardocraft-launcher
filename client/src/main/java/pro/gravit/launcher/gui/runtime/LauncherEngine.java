@@ -27,7 +27,7 @@ import pro.gravit.launcher.gui.runtime.console.SignDataCommand;
 import pro.gravit.launcher.gui.runtime.gui.NoRuntimeProvider;
 import pro.gravit.launcher.gui.runtime.gui.RuntimeProvider;
 import pro.gravit.launcher.gui.runtime.managers.ConsoleManager;
-import pro.gravit.launcher.start.RuntimeModuleManager;
+import pro.gravit.launcher.gui.start.RuntimeModuleManager;
 import pro.gravit.utils.helper.*;
 
 import java.io.IOException;
