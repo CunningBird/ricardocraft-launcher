@@ -5,17 +5,6 @@ plugins {
 group = "ru.ricardocraft"
 version = "1.0-SNAPSHOT"
 
-//configurations {
-//    compileOnlyA
-//    bundleOnly
-//    bundle
-//    hikari
-//    pack
-//    launch4j
-//    bundleOnly.extendsFrom bundle
-//            api.extendsFrom bundle, hikari, pack, launch4j
-//}
-
 repositories {
     maven {
         url = uri("https://oss.sonatype.org/content/repositories/snapshots")
@@ -68,7 +57,6 @@ dependencies {
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    //     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: rootProject['verJunit']
 }
 
 tasks.test {
@@ -77,18 +65,6 @@ tasks.test {
         events("passed", "skipped", "failed")
     }
 }
-
-//tasks.jar {
-//    dependsOn(parent.childProjects.Launcher.tasks.assemble)
-//    from { configurations.pack.collect { it.isDirectory() ? it : zipTree(it) } }
-//    from(parent.childProjects.Launcher.tasks.shadowJar)
-//    from(parent.childProjects.Launcher.tasks.genRuntimeJS)
-//    manifest{
-//        attributes["Main-Class"] = "pro.gravit.launchserver.Main"
-//        attributes["Premain-Class"] = "pro.gravit.launchserver.StarterAgent"
-//        attributes["Multi-Release"] = "true"
-//    }
-//}
 
 tasks.register<Jar>("sourcesJar") {
     from(sourceSets.main.get().allJava)
@@ -109,43 +85,3 @@ tasks.register<Jar>("cleanjar") {
     }
     from(sourceSets.main.get().output)
 }
-
-//tasks.register<Copy>("hikari") {
-//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-//    into("${layout.buildDirectory}/libs/libraries/hikaricp")
-//    from(configurations.hikari)
-//}
-//
-//tasks.register<Copy>("dumpLibs") {
-//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-//    dependsOn(tasks.hikari)
-//    into("${layout.buildDirectory}/libs/libraries")
-//    from(configurations.bundleOnly)
-//}
-//
-//tasks.register<Copy>("dumpCompileOnlyLibs") {
-//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-//    into("${layout.buildDirectory}/libs/launcher-libraries-compile")
-//    from(configurations.compileOnlyA)
-//}
-//
-//tasks.register<Zip>("bundle") {
-//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-//    dependsOn(parent.childProjects.Launcher.tasks.build, tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.jar)
-//    archiveFileName.set("LaunchServer.zip")
-//    destinationDirectory = file("${layout.buildDirectory}")
-//    from(tasks.dumpLibs.destinationDir) { into("libraries") }
-//    from(tasks.dumpCompileOnlyLibs.destinationDir) { into("launcher-libraries-compile") }
-//    from(tasks.jar)
-//    from(parent.childProjects.Launcher.tasks.dumpLibs) { into("launcher-libraries") }
-//}
-//
-//tasks.register<Copy>("dumpClientLibs") {
-//    dependsOn(parent.childProjects.Launcher.tasks.build)
-//    into("${layout.buildDirectory}/libs/launcher-libraries")
-//    from(parent.childProjects.Launcher.tasks.dumpLibs)
-//}
-//
-//tasks.assemble {
-//    dependsOn(tasks.dumpLibs, tasks.dumpCompileOnlyLibs, tasks.dumpClientLibs, tasks.bundle, tasks.cleanjar)
-//}

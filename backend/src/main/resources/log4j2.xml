@@ -9,22 +9,6 @@
                 <MarkerFilter marker="NOJANSI" onMatch="DENY" onMismatch="NEUTRAL"/>
             </Filters>
         </Console>
-        <RollingFile name="MainFile" fileName="logs/latest.log"
-                     filePattern="logs/%d{yyyy-MM-dd}.log.gz">
-            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-            <Policies>
-                <TimeBasedTriggeringPolicy/>
-            </Policies>
-            <Filters>
-                <MarkerFilter marker="JANSI" onMatch="DENY" onMismatch="NEUTRAL"/>
-            </Filters>
-        </RollingFile>
-        <File name="DebugFile" fileName="logs/debug.log" immediateFlush="false" append="false">
-            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-            <Filters>
-                <MarkerFilter marker="JANSI" onMatch="DENY" onMismatch="NEUTRAL"/>
-            </Filters>
-        </File>
         <LogCollect name="logCollector">
 
         </LogCollect>
@@ -32,15 +16,11 @@
     <Loggers>
         <Root level="debug">
             <AppenderRef ref="Console" level="info"/>
-            <AppenderRef ref="MainFile" level="info"/>
             <AppenderRef ref="logCollector" level="info"/>
-            <AppenderRef ref="DebugFile" level="debug"/>
         </Root>
         <Logger name="pro.gravit" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="MainFile"/>
             <AppenderRef ref="logCollector"/>
-            <AppenderRef ref="DebugFile"/>
         </Logger>
     </Loggers>
 </Configuration>
