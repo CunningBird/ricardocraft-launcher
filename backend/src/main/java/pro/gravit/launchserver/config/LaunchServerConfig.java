@@ -4,8 +4,6 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.handler.logging.LogLevel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launchserver.base.Launcher;
-import pro.gravit.launchserver.base.LauncherConfig;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
@@ -16,9 +14,12 @@ import pro.gravit.launchserver.auth.protect.StdProtectHandler;
 import pro.gravit.launchserver.auth.texture.RequestTextureProvider;
 import pro.gravit.launchserver.auth.updates.LocalUpdatesProvider;
 import pro.gravit.launchserver.auth.updates.UpdatesProvider;
+import pro.gravit.launchserver.base.Launcher;
+import pro.gravit.launchserver.base.LauncherConfig;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.ProGuardComponent;
+import pro.gravit.launchserver.utils.helper.SecurityHelper;
 
 import java.util.*;
 
@@ -45,6 +46,7 @@ public final class LaunchServerConfig {
     public LauncherConf launcher;
     public JarSignerConf sign;
     public OSSLSignCodeConfig osslSignCodeConfig;
+    public RemoteControlConfig remoteControlConfig;
     private transient LaunchServer server = null;
     private transient AuthProviderPair authDefault;
 
@@ -88,6 +90,11 @@ public final class LaunchServerConfig {
         newConfig.osslSignCodeConfig.osslsigncodePath = "osslsigncode";
         newConfig.osslSignCodeConfig.customArgs.add("-h");
         newConfig.osslSignCodeConfig.customArgs.add("sha256");
+
+        newConfig.remoteControlConfig = new RemoteControlConfig();
+        newConfig.remoteControlConfig.enabled = true;
+        newConfig.remoteControlConfig.list = new ArrayList<>();
+        newConfig.remoteControlConfig.list.add(new RemoteControlConfig.RemoteControlToken(SecurityHelper.randomStringToken(), 0, true, new String[0]));
 
         newConfig.components = new HashMap<>();
         AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
@@ -179,11 +186,11 @@ public final class LaunchServerConfig {
             server.registerObject("protectHandler", protectHandler);
             protectHandler.init(server);
         }
-        if(profileProvider != null) {
+        if (profileProvider != null) {
             server.registerObject("profileProvider", profileProvider);
             profileProvider.init(server);
         }
-        if(updatesProvider != null) {
+        if (updatesProvider != null) {
             server.registerObject("updatesProvider", updatesProvider);
             updatesProvider.init(server);
         }
@@ -227,11 +234,11 @@ public final class LaunchServerConfig {
             server.unregisterObject("protectHandler", protectHandler);
             protectHandler.close();
         }
-        if(profileProvider != null) {
+        if (profileProvider != null) {
             server.unregisterObject("profileProvider", profileProvider);
             profileProvider.close();
         }
-        if(updatesProvider != null) {
+        if (updatesProvider != null) {
             server.unregisterObject("updatesProvider", updatesProvider);
             updatesProvider.close();
         }
@@ -325,4 +332,42 @@ public final class LaunchServerConfig {
         public boolean checkCorrectJar = true;
     }
 
+    public static class RemoteControlConfig {
+        public List<RemoteControlToken> list = new ArrayList<>();
+        public boolean enabled;
+
+        public RemoteControlToken find(String token) {
+            for (RemoteControlToken r : list) {
+                if (token.equals(r.token)) {
+                    return r;
+                }
+            }
+            return null;
+        }
+
+        public static class RemoteControlToken {
+            public String token;
+            public long permissions;
+            public boolean allowAll;
+            public boolean startWithMode;
+            public List<String> commands = new ArrayList<>();
+
+            public RemoteControlToken(String token, long permissions, boolean allowAll, List<String> commands) {
+                this.token = token;
+                this.permissions = permissions;
+                this.allowAll = allowAll;
+                this.commands = commands;
+            }
+
+            public RemoteControlToken(String token, long permissions, boolean allowAll, String[] commands) {
+                this.token = token;
+                this.permissions = permissions;
+                this.allowAll = allowAll;
+                this.commands = Arrays.asList(commands.clone());
+            }
+
+            public RemoteControlToken() {
+            }
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.launchermodules.remotecontrol.commands;
+package pro.gravit.launchserver.command.remotecontrol;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
@@ -6,10 +6,6 @@ import pro.gravit.launchserver.command.Command;
 public class RemoteControlCommand extends Command {
     public RemoteControlCommand(LaunchServer server) {
         super(server);
-        childCommands.put("reload", new ReloadCommand(server));
-        childCommands.put("revoke", new RevokeCommand(server));
-        childCommands.put("new", new NewCommand(server));
-        childCommands.put("enabled", new EnabledCommand(server));
         childCommands.put("list", new ListCommand(server));
     }
 

@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.launchermodules.remotecontrol;
+package pro.gravit.launchserver.socket.servlet;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LogEvent;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.log4j.LogAppender;
 import pro.gravit.launchserver.socket.NettyConnectContext;
 import pro.gravit.launchserver.socket.handlers.NettyWebAPIHandler;
@@ -18,18 +19,16 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class RemoteControlWebSeverlet implements NettyWebAPIHandler.SimpleSeverletHandler {
-    private final RemoteControlModule module;
     private final LaunchServer server;
     private transient final Logger logger = LogManager.getLogger();
 
-    public RemoteControlWebSeverlet(RemoteControlModule module, LaunchServer server) {
-        this.module = module;
+    public RemoteControlWebSeverlet(LaunchServer server) {
         this.server = server;
     }
 
     @Override
     public void handle(ChannelHandlerContext ctx, FullHttpRequest msg, NettyConnectContext context) {
-        if (!module.config.enabled) {
+        if (!server.config.remoteControlConfig.enabled) {
             sendHttpResponse(ctx, simpleJsonResponse(HttpResponseStatus.FORBIDDEN, new RemoteControlResponse<Void>("RemoteControl disabled")));
             return;
         }
@@ -43,7 +42,7 @@ public class RemoteControlWebSeverlet implements NettyWebAPIHandler.SimpleSeverl
             sendHttpResponse(ctx, simpleJsonResponse(HttpResponseStatus.BAD_REQUEST, new RemoteControlResponse<Void>("Missing required parameter: token")));
             return;
         }
-        RemoteControlConfig.RemoteControlToken token = module.config.find(accessToken);
+        LaunchServerConfig.RemoteControlConfig.RemoteControlToken token = server.config.remoteControlConfig.find(accessToken);
         if (token == null) {
             sendHttpResponse(ctx, simpleJsonResponse(HttpResponseStatus.FORBIDDEN, new RemoteControlResponse<Void>("Token not valid")));
             return;

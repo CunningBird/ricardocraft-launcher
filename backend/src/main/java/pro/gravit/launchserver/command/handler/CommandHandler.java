@@ -7,6 +7,7 @@ import pro.gravit.launchserver.command.hash.*;
 import pro.gravit.launchserver.command.modules.LoadModuleCommand;
 import pro.gravit.launchserver.command.modules.ModulesCommand;
 import pro.gravit.launchserver.command.profiles.ProfilesCommand;
+import pro.gravit.launchserver.command.remotecontrol.RemoteControlCommand;
 import pro.gravit.launchserver.command.service.*;
 import pro.gravit.launchserver.command.sync.*;
 import pro.gravit.launchserver.command.tools.SignDirCommand;
@@ -65,5 +66,6 @@ public abstract class CommandHandler extends pro.gravit.launchserver.utils.comma
 
         handler.registerCommand("generatecertificate", new GenerateCertificateCommand(server));
         handler.registerCommand("osslsignexe", new OSSLSignEXECommand(server));
+        handler.registerCommand("remotecontrol", new RemoteControlCommand(server));
     }
 }

@@ -21,6 +21,7 @@ import pro.gravit.launchserver.socket.handlers.NettyIpForwardHandler;
 import pro.gravit.launchserver.socket.handlers.NettyWebAPIHandler;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
 import pro.gravit.launchserver.socket.handlers.fileserver.FileServerHandler;
+import pro.gravit.launchserver.socket.servlet.RemoteControlWebSeverlet;
 import pro.gravit.launchserver.utils.BiHookSet;
 
 import java.net.InetSocketAddress;
@@ -71,6 +72,8 @@ public class LauncherNettyServer implements AutoCloseable {
                         pipelineHook.hook(context, ch);
                     }
                 });
+
+        NettyWebAPIHandler.addNewSeverlet("remotecontrol/command", new RemoteControlWebSeverlet(server));
     }
 
     public void bind(InetSocketAddress address) {
