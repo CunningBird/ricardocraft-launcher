@@ -44,6 +44,7 @@ public final class LaunchServerConfig {
     public NettyConfig netty;
     public LauncherConf launcher;
     public JarSignerConf sign;
+    public OSSLSignCodeConfig osslSignCodeConfig;
     private transient LaunchServer server = null;
     private transient AuthProviderPair authDefault;
 
@@ -81,6 +82,12 @@ public final class LaunchServerConfig {
         newConfig.launcher.customJvmOptions.add("-Dfile.encoding=UTF-8");
 
         newConfig.sign = new JarSignerConf();
+
+        newConfig.osslSignCodeConfig = new OSSLSignCodeConfig();
+        newConfig.osslSignCodeConfig.timestampServer = "http://timestamp.sectigo.com";
+        newConfig.osslSignCodeConfig.osslsigncodePath = "osslsigncode";
+        newConfig.osslSignCodeConfig.customArgs.add("-h");
+        newConfig.osslSignCodeConfig.customArgs.add("sha256");
 
         newConfig.components = new HashMap<>();
         AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
@@ -231,9 +238,9 @@ public final class LaunchServerConfig {
     }
 
     public static class JarSignerConf {
-        public boolean enabled = false;
-        public String keyStore = "pathToKey";
-        public String keyStoreType = "JKS";
+        public boolean enabled = true;
+        public String keyStore = "keystore";
+        public String keyStoreType = "PKCS12";
         public String keyStorePass = "mypass";
         public String keyAlias = "myname";
         public String keyPass = "mypass";
@@ -306,4 +313,16 @@ public final class LaunchServerConfig {
 
         public long launcherTokenExpire = HOURS.toSeconds(8);
     }
+
+    public static class OSSLSignCodeConfig {
+        public String timestampServer;
+        public String osslsigncodePath;
+        public List<String> customArgs = new ArrayList<>();
+        public LaunchServerConfig.JarSignerConf customConf;
+
+        public boolean checkSignSize = true;
+        public boolean checkCorrectSign = true;
+        public boolean checkCorrectJar = true;
+    }
+
 }

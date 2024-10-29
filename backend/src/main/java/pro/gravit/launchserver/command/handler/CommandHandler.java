@@ -11,6 +11,7 @@ import pro.gravit.launchserver.command.service.*;
 import pro.gravit.launchserver.command.sync.*;
 import pro.gravit.launchserver.command.tools.SignDirCommand;
 import pro.gravit.launchserver.command.tools.SignJarCommand;
+import pro.gravit.launchserver.command.OSSLSignEXECommand;
 import pro.gravit.launchserver.utils.command.BaseCommandCategory;
 import pro.gravit.launchserver.utils.command.basic.ClearCommand;
 import pro.gravit.launchserver.utils.command.basic.GCCommand;
@@ -63,5 +64,6 @@ public abstract class CommandHandler extends pro.gravit.launchserver.utils.comma
         handler.registerCategory(toolsCategory);
 
         handler.registerCommand("generatecertificate", new GenerateCertificateCommand(server));
+        handler.registerCommand("osslsignexe", new OSSLSignEXECommand(server));
     }
 }

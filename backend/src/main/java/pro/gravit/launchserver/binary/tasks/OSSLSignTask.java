@@ -1,7 +1,6 @@
-package pro.gravit.launchserver.launchermodules.osslsigncode;
+package pro.gravit.launchserver.binary.tasks;
 
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.binary.tasks.LauncherBuildTask;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.utils.helper.IOHelper;
 import pro.gravit.launchserver.utils.helper.LogHelper;
@@ -17,12 +16,12 @@ import java.util.zip.ZipInputStream;
 
 public class OSSLSignTask implements LauncherBuildTask {
     private final LaunchServer server;
-    private final OSSLSignCodeConfig config;
+    private final LaunchServerConfig.OSSLSignCodeConfig config;
     private LaunchServerConfig.JarSignerConf signConf;
 
-    public OSSLSignTask(LaunchServer server, OSSLSignCodeConfig config) {
+    public OSSLSignTask(LaunchServer server) {
         this.server = server;
-        this.config = config;
+        this.config = server.config.osslSignCodeConfig;
         signConf = config.customConf;
         if (signConf == null || !signConf.enabled) signConf = server.config.sign;
         if (!signConf.enabled) throw new IllegalStateException("sign.enabled must be true");
@@ -30,7 +29,7 @@ public class OSSLSignTask implements LauncherBuildTask {
             throw new IllegalStateException("sign.keyStoreType must be PKCS12");
     }
 
-    public static void signLaunch4j(OSSLSignCodeConfig config, LaunchServerConfig.JarSignerConf signConf, Path inputFile, Path resultFile) throws IOException {
+    public static void signLaunch4j(LaunchServerConfig.OSSLSignCodeConfig config, LaunchServerConfig.JarSignerConf signConf, Path inputFile, Path resultFile) throws IOException {
         File input = new File(inputFile.toUri());
         long lastSignSize = 0;
         long inputLength = input.length();
@@ -74,7 +73,7 @@ public class OSSLSignTask implements LauncherBuildTask {
         }
     }
 
-    public static void sign(OSSLSignCodeConfig config, LaunchServerConfig.JarSignerConf signConf, Path source, Path dest) throws IOException {
+    public static void sign(LaunchServerConfig.OSSLSignCodeConfig config, LaunchServerConfig.JarSignerConf signConf, Path source, Path dest) throws IOException {
         ProcessBuilder builder = new ProcessBuilder();
         List<String> args = new ArrayList<>();
         args.add(config.osslsigncodePath);

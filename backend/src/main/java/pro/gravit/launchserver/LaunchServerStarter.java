@@ -51,7 +51,7 @@ public class LaunchServerStarter {
         //LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
         LogHelper.printVersion("LaunchServer");
         LogHelper.printLicense("LaunchServer");
-        Path dir = Path.of(classloader.getResource("config/").toURI()); //IOHelper.WORKING_DIR;
+        Path dir = IOHelper.WORKING_DIR; //Path.of(classloader.getResource("config/").toURI()); //IOHelper.WORKING_DIR;
         Path configFile, runtimeConfigFile;
         try {
             Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider");
@@ -109,6 +109,7 @@ public class LaunchServerStarter {
             logger.warn("JLine2 isn't in classpath, using std");
         }
         modulesManager.invokeEvent(new PreConfigPhase());
+        generateConfigIfNotExists(configFile, localCommandHandler, env);
         logger.info("Reading LaunchServer config file");
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
             config = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
@@ -193,6 +194,61 @@ public class LaunchServerStarter {
             }
         } catch (Throwable e) {
             logger.warn("Build information not found");
+        }
+    }
+
+    public static void generateConfigIfNotExists(Path configFile, CommandHandler commandHandler, LaunchServer.LaunchServerEnv env) throws IOException {
+        if (IOHelper.isFile(configFile))
+            return;
+
+        // Create new config
+        logger.info("Creating LaunchServer config");
+
+
+        LaunchServerConfig newConfig = LaunchServerConfig.getDefault(env);
+        // Set server address
+        String address;
+        if (env.equals(LaunchServer.LaunchServerEnv.TEST)) {
+            address = "localhost";
+            newConfig.setProjectName("test");
+        } else {
+            address = System.getenv("ADDRESS");
+            if (address == null) {
+                address = System.getProperty("launchserver.address", null);
+            }
+            String projectName = System.getenv("PROJECTNAME");
+            if (projectName == null) {
+                projectName = System.getProperty("launchserver.projectname", null);
+            }
+            newConfig.setProjectName(projectName);
+        }
+        if (address == null || address.isEmpty()) {
+            address = "localhost:9274";
+        }
+        if (newConfig.projectName == null || newConfig.projectName.isEmpty()) {
+            newConfig.projectName = "ricardocraft";
+        }
+        int port = 9274;
+        if(address.contains(":")) {
+            String portString = address.substring(address.indexOf(':')+1);
+            try {
+                port = Integer.parseInt(portString);
+            } catch (NumberFormatException e) {
+                logger.warn("Unknown port {}, using 9274", portString);
+            }
+        } else {
+            logger.info("Address {} doesn't contains port (you want to use nginx?)", address);
+        }
+        newConfig.netty.address = "ws://" + address + "/api";
+        newConfig.netty.downloadURL = "http://" + address + "/%dirname%/";
+        newConfig.netty.launcherURL = "http://" + address + "/Launcher.jar";
+        newConfig.netty.launcherEXEURL = "http://" + address + "/Launcher.exe";
+        newConfig.netty.binds[0].port = port;
+
+        // Write LaunchServer config
+        logger.info("Writing LaunchServer config file");
+        try (BufferedWriter writer = IOHelper.newWriter(configFile)) {
+            Launcher.gsonManager.configGson.toJson(newConfig, writer);
         }
     }
 

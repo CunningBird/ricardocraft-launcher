@@ -1,17 +1,18 @@
-package pro.gravit.launchserver.launchermodules.osslsigncode;
+package pro.gravit.launchserver.command;
 
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.command.Command;
+import pro.gravit.launchserver.binary.tasks.OSSLSignTask;
+import pro.gravit.launchserver.config.LaunchServerConfig;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class OSSLSignEXECommand extends Command {
-    public final OSSLSignCodeConfig config;
+    public final LaunchServerConfig.OSSLSignCodeConfig config;
 
-    public OSSLSignEXECommand(LaunchServer server, OSSLSignCodeConfig config) {
+    public OSSLSignEXECommand(LaunchServer server) {
         super(server);
-        this.config = config;
+        this.config = server.config.osslSignCodeConfig;
     }
 
     @Override
