@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper.newforge;
+package pro.gravit.launchserver.mirror.newforge;
 
 import java.util.List;
 

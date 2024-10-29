@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper;
+package pro.gravit.launchserver.mirror;
 
 import pro.gravit.launchserver.base.profiles.ClientProfile;
 
@@ -9,7 +9,7 @@ public record MirrorWorkspace(List<String> fabricMods, List<String> quiltMods, L
     public record Library(String path, String url, String data, Map<String, String> unpack, List<String> prefixFilter) {
     }
     public record MultiMod(ClientProfile.Version minVersion, ClientProfile.Version maxVersion, InstallClient.VersionType type, String url, String target) {
-        boolean check(InstallClient.VersionType type, ClientProfile.Version version) {
+        public boolean check(InstallClient.VersionType type, ClientProfile.Version version) {
             if(this.type != null && this.type != type) {
                 return false;
             }
@@ -24,7 +24,7 @@ public record MirrorWorkspace(List<String> fabricMods, List<String> quiltMods, L
     }
 
     public record BuildScript(List<BuildCommand> script, String result, String path, InstallClient.VersionType type, ClientProfile.Version minVersion, ClientProfile.Version maxVersion, boolean dynamic) {
-        boolean check(InstallClient.VersionType type, ClientProfile.Version version) {
+        public boolean check(InstallClient.VersionType type, ClientProfile.Version version) {
             if(this.type != null && this.type != type) {
                 return false;
             }

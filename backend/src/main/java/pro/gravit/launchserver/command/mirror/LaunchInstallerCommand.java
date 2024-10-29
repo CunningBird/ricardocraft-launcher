@@ -1,8 +1,8 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper.commands;
+package pro.gravit.launchserver.command.mirror;
 
-import pro.gravit.launchserver.launchermodules.mirrorhelper.installers.FabricInstallerCommand;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.installers.ForgeInstallerCommand;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.installers.QuiltInstallerCommand;
+import pro.gravit.launchserver.command.mirror.installers.FabricInstallerCommand;
+import pro.gravit.launchserver.command.mirror.installers.ForgeInstallerCommand;
+import pro.gravit.launchserver.command.mirror.installers.QuiltInstallerCommand;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 

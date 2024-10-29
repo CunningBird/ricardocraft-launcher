@@ -1,21 +1,20 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper.commands;
+package pro.gravit.launchserver.command.mirror;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launchserver.base.Launcher;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.Config;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.modapi.CurseforgeAPI;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.base.Launcher;
 import pro.gravit.launchserver.command.Command;
+import pro.gravit.launchserver.mirror.modapi.CurseforgeAPI;
 import pro.gravit.launchserver.utils.command.SubCommand;
 
 public class CurseforgeCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
     private final CurseforgeAPI api;
 
-    public CurseforgeCommand(LaunchServer server, Config config) {
+    public CurseforgeCommand(LaunchServer server) {
         super(server);
-        this.api = new CurseforgeAPI(config.curseforgeApiKey);
+        this.api = new CurseforgeAPI(server.config.mirrorConfig.curseforgeApiKey);
         this.childCommands.put("getMod", new SubCommand("[modId]", "Get mod info by id") {
             @Override
             public void invoke(String... args) throws Exception {

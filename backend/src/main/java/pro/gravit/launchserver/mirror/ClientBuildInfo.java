@@ -1,6 +1,4 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper.config;
-
-import pro.gravit.launchserver.launchermodules.mirrorhelper.InstallClient;
+package pro.gravit.launchserver.mirror;
 
 import java.util.ArrayList;
 import java.util.List;

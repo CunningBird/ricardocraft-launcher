@@ -1,9 +1,8 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper.modapi;
+package pro.gravit.launchserver.mirror.modapi;
 
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 import pro.gravit.launchserver.base.Launcher;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.MirrorHelperModule;
 import pro.gravit.launchserver.helper.HttpHelper;
 import pro.gravit.launchserver.utils.Version;
 
@@ -21,7 +20,7 @@ import java.util.Map;
 
 public class ModrinthAPI {
     private static final String BASE_URL = "https://api.modrinth.com/v2/";
-    private static final String userAgent = "GravitLauncher/%s MirrorHelper/%s".formatted(Version.getVersion().getVersionString(), MirrorHelperModule.version.getVersionString());
+    private static final String userAgent = "GravitLauncher/%s MirrorHelper/%s".formatted(Version.getVersion().getVersionString(), "1.0.0");
 
     private String apiKey;
     public final HttpClient client = HttpClient.newBuilder().build();

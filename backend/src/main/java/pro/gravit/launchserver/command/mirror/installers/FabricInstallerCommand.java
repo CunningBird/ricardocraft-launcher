@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper.installers;
+package pro.gravit.launchserver.command.mirror.installers;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,38 +21,41 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QuiltInstallerCommand extends Command {
+public class FabricInstallerCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
 
-    public QuiltInstallerCommand(LaunchServer server) {
+    public FabricInstallerCommand(LaunchServer server) {
         super(server);
     }
 
     public static NamedURL makeURL(String mavenUrl, String mavenId) throws URISyntaxException, MalformedURLException {
-        URI baseUri = new URI(mavenUrl);
-        String scheme = baseUri.getScheme();
-        String host = baseUri.getHost();
-        int port = baseUri.getPort();
-        if (port != -1)
-            host = host + ":" + port;
-        String path = baseUri.getPath();
         //
         String[] mavenIdSplit = mavenId.split(":");
         String artifact = "%s/%s/%s/%s-%s.jar".formatted(mavenIdSplit[0].replaceAll("\\.", "/"),
                 mavenIdSplit[1], mavenIdSplit[2], mavenIdSplit[1], mavenIdSplit[2]);
         //
-        URL url = new URI(scheme, host, path + artifact, "", "").toURL();
-        return new NamedURL(url, artifact);
+        URI baseUri = new URI(mavenUrl);
+        if(mavenUrl.endsWith("/")) {
+            String scheme = baseUri.getScheme();
+            String host = baseUri.getHost();
+            int port = baseUri.getPort();
+            if (port != -1)
+                host = host + ":" + port;
+            String path = baseUri.getPath();
+            URL url = new URI(scheme, host, path + artifact, "", "").toURL();
+            return new NamedURL(url, artifact);
+        }
+        return new NamedURL(baseUri.toURL(), artifact);
     }
 
     @Override
     public String getArgsDescription() {
-        return "[minecraft version] [vanilla dir] [fabric installer file]";
+        return "[minecraft version] [vanilla dir] [fabric installer file] (loader version)";
     }
 
     @Override
     public String getUsageDescription() {
-        return "install quilt to client";
+        return "install fabric to client";
     }
 
     @Override
@@ -68,20 +71,24 @@ public class QuiltInstallerCommand extends Command {
         processArgs.add(IOHelper.resolveJavaBin(IOHelper.JVM_DIR).toString());
         processArgs.add("-jar");
         processArgs.add(fabricInstallerFile.toAbsolutePath().toString());
-        processArgs.add("install");
         processArgs.add("client");
+        processArgs.add("-dir");
+        processArgs.add(vanillaDir.toString());
+        processArgs.add("-mcversion");
         processArgs.add(version);
-        processArgs.add("--install-dir=".concat(vanillaDir.toString()));
-        processArgs.add("--no-profile");
+        if(args.length > 3) {
+            processArgs.add("-loader");
+            processArgs.add(args[3]);
+        }
         logger.debug("Launch {}", String.join(" ", processArgs));
         Process process = new ProcessBuilder(processArgs).inheritIO().start();
         process.waitFor();
         if (!Files.exists(vanillaDir.resolve("versions"))) {
-            throw new FileNotFoundException("versions not found. Quilt not installed");
+            throw new FileNotFoundException("versions not found. Fabric not installed");
         }
         Path fabricClientDir = Files.list(vanillaDir.resolve("versions")).findFirst().orElseThrow();
         Path fabricProfileFile = Files.list(fabricClientDir).filter(p -> p.getFileName().toString().endsWith(".json")).findFirst().orElseThrow();
-        logger.debug("Quilt profile {}", fabricProfileFile.toString());
+        logger.debug("Fabric profile {}", fabricProfileFile.toString());
         MinecraftProfile fabricProfile;
         try (Reader reader = IOHelper.newReader(fabricProfileFile)) {
             fabricProfile = Launcher.gsonManager.configGson.fromJson(reader, MinecraftProfile.class);
@@ -100,7 +107,7 @@ public class QuiltInstallerCommand extends Command {
         logger.info("Clearing...");
         IOHelper.deleteDir(vanillaDir.resolve("versions"), true);
         server.updatesManager.syncUpdatesDir(List.of(args[1]));
-        logger.info("Quilt installed successful. Please use `makeprofile` command");
+        logger.info("Fabric installed successful. Please use `makeprofile` command");
     }
 
     public static class MinecraftProfileLibrary {

@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper.helpers;
+package pro.gravit.launchserver.utils;
 
 import java.util.ArrayList;
 import java.util.List;

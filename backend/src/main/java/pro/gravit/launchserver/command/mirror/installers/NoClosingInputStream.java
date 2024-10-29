@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper.installers;
+package pro.gravit.launchserver.command.mirror.installers;
 
 import org.jetbrains.annotations.NotNull;
 

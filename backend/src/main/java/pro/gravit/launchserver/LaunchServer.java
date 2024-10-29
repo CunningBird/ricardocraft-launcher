@@ -154,7 +154,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         config.verify();
 
         // build hooks, anti-brutforce and other
-        mirrorManager = new MirrorManager();
+        mirrorManager = new MirrorManager(this);
         reconfigurableManager = new ReconfigurableManager();
         authHookManager = new AuthHookManager();
         configManager = new ConfigManager();

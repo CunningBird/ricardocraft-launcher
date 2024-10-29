@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper;
+package pro.gravit.launchserver.mirror;
 
 import com.google.gson.*;
 import pro.gravit.launchserver.utils.helper.IOHelper;

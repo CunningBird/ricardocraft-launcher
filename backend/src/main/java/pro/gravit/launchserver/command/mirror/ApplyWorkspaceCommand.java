@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper.commands;
+package pro.gravit.launchserver.command.mirror;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -6,8 +6,8 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.base.Downloader;
 import pro.gravit.launchserver.base.Launcher;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.MirrorHelperModule;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.MirrorWorkspace;
+import pro.gravit.launchserver.config.LaunchServerConfig;
+import pro.gravit.launchserver.mirror.MirrorWorkspace;
 import pro.gravit.launchserver.utils.helper.IOHelper;
 
 import java.io.Reader;
@@ -17,12 +17,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ApplyWorkspaceCommand extends Command {
-    private final MirrorHelperModule module;
+    private final LaunchServerConfig.MirrorConfig config;
     private final Logger logger = LogManager.getLogger(ApplyWorkspaceCommand.class);
 
-    public ApplyWorkspaceCommand(LaunchServer server, MirrorHelperModule module) {
+    public ApplyWorkspaceCommand(LaunchServer server) {
         super(server);
-        this.module = module;
+        this.config = server.config.mirrorConfig;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ApplyWorkspaceCommand extends Command {
             workspaceFilePath = Paths.get(args[0]);
         }
         if(url != null) {
-            workspaceFilePath = module.getConfigDir().resolve("workspace.json");
+            workspaceFilePath = server.mirrorManager.getTools().getConfigDir().resolve("workspace.json");
             logger.info("Download {} to {}", url, workspaceFilePath);
             Downloader.downloadFile(url, workspaceFilePath, null).getFuture().get();
         }
@@ -55,7 +55,7 @@ public class ApplyWorkspaceCommand extends Command {
         try(Reader reader = IOHelper.newReader(workspaceFilePath)) {
             workspace = Launcher.gsonManager.gson.fromJson(reader, MirrorWorkspace.class);
         }
-        Path workspacePath = module.getWorkspaceDir();
+        Path workspacePath = server.mirrorManager.getTools().getWorkspaceDir();
         if(Files.exists(workspacePath)) {
             logger.warn("THIS ACTION DELETE ALL FILES IN {}", workspacePath);
             if(!showApplyDialog("Continue?")) {
@@ -65,7 +65,7 @@ public class ApplyWorkspaceCommand extends Command {
         } else {
             Files.createDirectories(workspacePath);
         }
-        module.tools.applyWorkspace(workspace, workspaceFilePath);
+        server.mirrorManager.getTools().applyWorkspace(workspace, workspaceFilePath);
         logger.info("Complete");
     }
 }

@@ -19,6 +19,7 @@ import pro.gravit.launchserver.base.LauncherConfig;
 import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.ProGuardComponent;
+import pro.gravit.launchserver.mirror.MirrorWorkspace;
 import pro.gravit.launchserver.utils.helper.SecurityHelper;
 
 import java.util.*;
@@ -47,6 +48,7 @@ public final class LaunchServerConfig {
     public JarSignerConf sign;
     public OSSLSignCodeConfig osslSignCodeConfig;
     public RemoteControlConfig remoteControlConfig;
+    public MirrorConfig mirrorConfig;
     private transient LaunchServer server = null;
     private transient AuthProviderPair authDefault;
 
@@ -95,6 +97,8 @@ public final class LaunchServerConfig {
         newConfig.remoteControlConfig.enabled = true;
         newConfig.remoteControlConfig.list = new ArrayList<>();
         newConfig.remoteControlConfig.list.add(new RemoteControlConfig.RemoteControlToken(SecurityHelper.randomStringToken(), 0, true, new String[0]));
+
+        newConfig.mirrorConfig = new MirrorConfig();
 
         newConfig.components = new HashMap<>();
         AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
@@ -370,4 +374,12 @@ public final class LaunchServerConfig {
             }
         }
     }
+
+    public static class MirrorConfig {
+        public String curseforgeApiKey = "API_KEY";
+        public String workspaceFile;
+        public boolean deleteTmpDir;
+        public transient MirrorWorkspace workspace;
+    }
+
 }

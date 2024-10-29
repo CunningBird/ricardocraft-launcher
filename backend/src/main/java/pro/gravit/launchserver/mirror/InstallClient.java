@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper;
+package pro.gravit.launchserver.mirror;
 
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -8,13 +8,14 @@ import pro.gravit.launchserver.base.Launcher;
 import pro.gravit.launchserver.base.Downloader;
 import pro.gravit.launchserver.base.profiles.ClientProfile;
 import pro.gravit.launchserver.base.profiles.ClientProfileVersions;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.commands.DeDupLibrariesCommand;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.installers.FabricInstallerCommand;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.installers.QuiltInstallerCommand;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.modapi.CurseforgeAPI;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.modapi.ModrinthAPI;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.newforge.ForgeProfile;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.newforge.ForgeProfileModifier;
+import pro.gravit.launchserver.command.mirror.DeDupLibrariesCommand;
+import pro.gravit.launchserver.command.mirror.installers.FabricInstallerCommand;
+import pro.gravit.launchserver.command.mirror.installers.QuiltInstallerCommand;
+import pro.gravit.launchserver.config.LaunchServerConfig;
+import pro.gravit.launchserver.mirror.modapi.CurseforgeAPI;
+import pro.gravit.launchserver.mirror.modapi.ModrinthAPI;
+import pro.gravit.launchserver.mirror.newforge.ForgeProfile;
+import pro.gravit.launchserver.mirror.newforge.ForgeProfileModifier;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.profiles.MakeProfileCommand;
 import pro.gravit.launchserver.utils.helper.IOHelper;
@@ -38,7 +39,7 @@ import java.util.zip.ZipOutputStream;
 public class InstallClient {
     private static final Logger logger = LogManager.getLogger();
     private final LaunchServer launchServer;
-    private final Config config;
+    private final LaunchServerConfig.MirrorConfig config;
     private final Path workdir;
     private final String name;
     private final ClientProfile.Version version;
@@ -48,11 +49,11 @@ public class InstallClient {
     private final MirrorWorkspace mirrorWorkspace;
     private final VersionType versionType;
 
-    public InstallClient(MirrorHelperModule module, String name, ClientProfile.Version version, List<String> mods, VersionType versionType, MirrorWorkspace mirrorWorkspace) {
-        this.launchServer = module.server;
-        this.config = module.config;
-        this.workdir = module.getWorkspaceDir();
-        this.tools = module.tools;
+    public InstallClient(LaunchServer server, String name, ClientProfile.Version version, List<String> mods, VersionType versionType, MirrorWorkspace mirrorWorkspace) {
+        this.launchServer = server;
+        this.config = server.config.mirrorConfig;
+        this.workdir = server.mirrorManager.getTools().getWorkspaceDir();
+        this.tools = server.mirrorManager.getTools();
         this.name = name;
         this.version = version;
         this.mods = mods;

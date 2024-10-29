@@ -1,9 +1,9 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper.newforge;
+package pro.gravit.launchserver.mirror.newforge;
 
 import pro.gravit.launchserver.base.Launcher;
 import pro.gravit.launchserver.base.profiles.ClientProfile;
 import pro.gravit.launchserver.base.profiles.ClientProfileBuilder;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.helpers.ClientToolkit;
+import pro.gravit.launchserver.utils.ClientToolkit;
 import pro.gravit.launchserver.utils.helper.IOHelper;
 import pro.gravit.launchserver.utils.launch.LaunchOptions;
 

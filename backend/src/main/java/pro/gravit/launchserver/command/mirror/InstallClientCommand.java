@@ -1,22 +1,22 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper.commands;
+package pro.gravit.launchserver.command.mirror;
 
-import pro.gravit.launchserver.base.profiles.ClientProfile;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.InstallClient;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.MirrorHelperModule;
-import pro.gravit.launchserver.launchermodules.mirrorhelper.MirrorWorkspace;
 import pro.gravit.launchserver.LaunchServer;
+import pro.gravit.launchserver.base.profiles.ClientProfile;
 import pro.gravit.launchserver.command.Command;
+import pro.gravit.launchserver.config.LaunchServerConfig;
+import pro.gravit.launchserver.mirror.InstallClient;
+import pro.gravit.launchserver.mirror.MirrorWorkspace;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class InstallClientCommand extends Command {
-    private final MirrorHelperModule module;
+    private final LaunchServerConfig.MirrorConfig config;
 
-    public InstallClientCommand(LaunchServer server, MirrorHelperModule module) {
+    public InstallClientCommand(LaunchServer server) {
         super(server);
-        this.module = module;
+        this.config = server.config.mirrorConfig;
     }
 
     @Override
@@ -36,20 +36,20 @@ public class InstallClientCommand extends Command {
         ClientProfile.Version version = parseClientVersion(args[1]);
         InstallClient.VersionType versionType = InstallClient.VersionType.valueOf(args[2]);
         List<String> mods = new ArrayList<>();
-        MirrorWorkspace mirrorWorkspace = module.getWorkspace();
+        MirrorWorkspace mirrorWorkspace = config.workspace;
         if(mirrorWorkspace != null) {
             switch (versionType) {
                 case VANILLA -> {
                 }
-                case FABRIC -> mods.addAll(module.getWorkspace().fabricMods());
-                case FORGE -> mods.addAll(module.getWorkspace().forgeMods());
-                case QUILT -> mods.addAll(module.getWorkspace().quiltMods());
+                case FABRIC -> mods.addAll(config.workspace.fabricMods());
+                case FORGE -> mods.addAll(config.workspace.forgeMods());
+                case QUILT -> mods.addAll(config.workspace.quiltMods());
             }
         }
         if (args.length > 3) {
             mods = Arrays.stream(args[3].split(",")).toList();
         }
-        InstallClient run = new InstallClient(module, name, version, mods, versionType, mirrorWorkspace);
+        InstallClient run = new InstallClient(server, name, version, mods, versionType, mirrorWorkspace);
         run.run();
     }
 }

@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper.modapi;
+package pro.gravit.launchserver.mirror.modapi;
 
 import com.google.gson.JsonElement;
 import pro.gravit.launchserver.base.Launcher;

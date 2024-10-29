@@ -4,6 +4,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.basic.*;
 import pro.gravit.launchserver.command.GenerateCertificateCommand;
 import pro.gravit.launchserver.command.hash.*;
+import pro.gravit.launchserver.command.mirror.*;
 import pro.gravit.launchserver.command.modules.LoadModuleCommand;
 import pro.gravit.launchserver.command.modules.ModulesCommand;
 import pro.gravit.launchserver.command.profiles.ProfilesCommand;
@@ -15,6 +16,7 @@ import pro.gravit.launchserver.command.tools.SignJarCommand;
 import pro.gravit.launchserver.command.OSSLSignEXECommand;
 import pro.gravit.launchserver.command.unsafe.*;
 import pro.gravit.launchserver.utils.command.BaseCommandCategory;
+import pro.gravit.launchserver.utils.command.CommandCategory;
 import pro.gravit.launchserver.utils.command.basic.ClearCommand;
 import pro.gravit.launchserver.utils.command.basic.GCCommand;
 import pro.gravit.launchserver.utils.command.basic.HelpCommand;
@@ -71,7 +73,21 @@ public abstract class CommandHandler extends pro.gravit.launchserver.utils.comma
         unsafe.registerCommand("sendAuth", new SendAuthCommand(server));
         unsafe.registerCommand("patcher", new PatcherCommand(server));
         unsafe.registerCommand("cipherList", new CipherListCommand(server));
-        handler.registerCategory(new Category(unsafe, "Unsafe"));
+        Category unsafeCategory = new Category(unsafe, "Unsafe");
+        handler.registerCategory(unsafeCategory);
+
+        CommandCategory mirror = new BaseCommandCategory();
+        mirror.registerCommand("curseforge", new CurseforgeCommand(server));
+        mirror.registerCommand("installClient", new InstallClientCommand(server));
+        mirror.registerCommand("installMods", new InstallModCommand(server));
+        mirror.registerCommand("deduplibraries", new DeDupLibrariesCommand(server));
+        mirror.registerCommand("launchInstaller", new LaunchInstallerCommand(server));
+        mirror.registerCommand("lwjgldownload", new LwjglDownloadCommand(server));
+        mirror.registerCommand("patchauthlib", new PatchAuthlibCommand(server));
+        mirror.registerCommand("applyworkspace", new ApplyWorkspaceCommand(server));
+        mirror.registerCommand("workspace", new WorkspaceCommand(server));
+        Category category = new Category(mirror, "mirror");
+        handler.registerCategory(category);
 
         handler.registerCommand("generatecertificate", new GenerateCertificateCommand(server));
         handler.registerCommand("osslsignexe", new OSSLSignEXECommand(server));

@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper.installers;
+package pro.gravit.launchserver.command.mirror.installers;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -1,6 +1,5 @@
-package pro.gravit.launchserver.launchermodules.mirrorhelper.commands;
+package pro.gravit.launchserver.command.mirror;
 
-import pro.gravit.launchserver.launchermodules.mirrorhelper.MirrorHelperModule;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.utils.command.SubCommand;
@@ -11,14 +10,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class WorkspaceCommand extends Command {
-    private MirrorHelperModule module;
-    public WorkspaceCommand(LaunchServer server, MirrorHelperModule module) {
+
+    public WorkspaceCommand(LaunchServer server) {
         super(server);
         SubCommand clearClient = new SubCommand("[vanilla/forge/fabric/neoforge] [version]", "remove client cache with specific loader and version") {
             @Override
             public void invoke(String... args) throws Exception {
                 verifyArgs(args, 2);
-                Path target = module.getWorkspaceDir().resolve("clients").resolve(args[0]);
+                Path target = server.mirrorManager.getTools().getWorkspaceDir().resolve("clients").resolve(args[0]);
                 if(!Files.isDirectory(target)) {
                     throw new FileNotFoundException(target.toString());
                 }
