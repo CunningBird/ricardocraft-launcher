@@ -37,13 +37,6 @@ public class LauncherModuleLoader {
     }
 
     public void init() {
-        if (!IOHelper.isDir(modulesDir)) {
-            try {
-                Files.createDirectories(modulesDir);
-            } catch (IOException e) {
-                logger.error(e);
-            }
-        }
         MainBuildTask mainTask = server.launcherBinary.getTaskByClass(MainBuildTask.class).get();
         mainTask.preBuildHook.registerHook((buildContext) -> {
             for (ModuleEntity e : launcherModules) {

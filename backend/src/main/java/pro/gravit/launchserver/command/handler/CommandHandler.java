@@ -2,6 +2,7 @@ package pro.gravit.launchserver.command.handler;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.basic.*;
+import pro.gravit.launchserver.command.GenerateCertificateCommand;
 import pro.gravit.launchserver.command.hash.*;
 import pro.gravit.launchserver.command.modules.LoadModuleCommand;
 import pro.gravit.launchserver.command.modules.ModulesCommand;
@@ -60,5 +61,7 @@ public abstract class CommandHandler extends pro.gravit.launchserver.utils.comma
         tools.registerCommand("signDir", new SignDirCommand(server));
         Category toolsCategory = new Category(tools, "tools", "Other tools");
         handler.registerCategory(toolsCategory);
+
+        handler.registerCommand("generatecertificate", new GenerateCertificateCommand(server));
     }
 }

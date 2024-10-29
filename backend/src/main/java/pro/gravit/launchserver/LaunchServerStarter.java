@@ -51,7 +51,7 @@ public class LaunchServerStarter {
         //LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
         LogHelper.printVersion("LaunchServer");
         LogHelper.printLicense("LaunchServer");
-        Path dir = IOHelper.WORKING_DIR;
+        Path dir = Path.of(classloader.getResource("config/").toURI()); //IOHelper.WORKING_DIR;
         Path configFile, runtimeConfigFile;
         try {
             Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider");
@@ -94,13 +94,9 @@ public class LaunchServerStarter {
         printExperimentalBranch();
 
 
-        configFile = Path.of(classloader.getResource("LaunchServer.json").toURI());
+        configFile = dir.resolve("LaunchServer.json"); //Path.of(classloader.getResource("config/LaunchServer.json").toURI());
+        runtimeConfigFile = dir.resolve("RuntimeLaunchServer.json");
 
-        if (IOHelper.exists(dir.resolve("RuntimeLaunchServer.conf"))) {
-            runtimeConfigFile = dir.resolve("RuntimeLaunchServer.conf");
-        } else {
-            runtimeConfigFile = dir.resolve("RuntimeLaunchServer.json");
-        }
         CommandHandler localCommandHandler;
         try {
             Class.forName("org.jline.terminal.Terminal");
