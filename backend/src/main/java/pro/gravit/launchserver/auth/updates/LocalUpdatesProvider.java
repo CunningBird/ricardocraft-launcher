@@ -2,11 +2,10 @@ package pro.gravit.launchserver.auth.updates;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.core.hasher.HashedDir;
 import pro.gravit.launchserver.core.serialize.HInput;
 import pro.gravit.launchserver.core.serialize.HOutput;
-import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.modules.events.LaunchServerUpdatesSyncEvent;
 import pro.gravit.launchserver.utils.helper.IOHelper;
 
 import java.io.IOException;
@@ -123,7 +122,6 @@ public class LocalUpdatesProvider extends UpdatesProvider {
                 logger.error("Write updates cache failed", e);
             }
         }
-        server.modulesManager.invokeEvent(new LaunchServerUpdatesSyncEvent(server));
     }
 
     @Override

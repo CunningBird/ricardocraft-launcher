@@ -6,7 +6,6 @@ import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.auth.core.RejectAuthCoreProvider;
 import pro.gravit.launchserver.base.events.RequestEvent;
 import pro.gravit.launchserver.base.events.request.ProfilesRequestEvent;
-import pro.gravit.launchserver.base.modules.events.ClosePhase;
 import pro.gravit.launchserver.base.profiles.ClientProfile;
 import pro.gravit.launchserver.binary.EXELauncherBinary;
 import pro.gravit.launchserver.binary.JARLauncherBinary;
@@ -14,11 +13,8 @@ import pro.gravit.launchserver.binary.LauncherBinary;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.helper.SignHelper;
-import pro.gravit.launchserver.launchermodules.LauncherModuleLoader;
 import pro.gravit.launchserver.manangers.*;
 import pro.gravit.launchserver.manangers.hook.AuthHookManager;
-import pro.gravit.launchserver.modules.events.*;
-import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
 import pro.gravit.launchserver.socket.response.auth.RestoreResponse;
@@ -82,8 +78,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
      * The path to the folder with profiles
      */
     public final Path tmpDir;
-    public final Path modulesDir;
-    public final Path launcherModulesDir;
     public final Path librariesDir;
     /**
      * This object contains runtime configuration
@@ -99,7 +93,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final LauncherBinary launcherEXEBinary;
     // Server config
     public final AuthHookManager authHookManager;
-    public final LaunchServerModulesManager modulesManager;
     // Launcher binary
     public final MirrorManager mirrorManager;
     public final AuthManager authManager;
@@ -115,18 +108,16 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final NettyServerSocketHandler nettyServerSocketHandler;
     public final ScheduledExecutorService service;
     public final AtomicBoolean started = new AtomicBoolean(false);
-    public final LauncherModuleLoader launcherModuleLoader;
     private final Logger logger = LogManager.getLogger();
     public final int shardId;
     public LaunchServerConfig config;
 
-    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, LaunchServerModulesManager modulesManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager, int shardId) throws IOException {
+    public LaunchServer(LaunchServerDirectories directories, LaunchServerEnv env, LaunchServerConfig config, LaunchServerRuntimeConfig runtimeConfig, LaunchServerConfigManager launchServerConfigManager, KeyAgreementManager keyAgreementManager, CommandHandler commandHandler, CertificateManager certificateManager, int shardId) throws IOException {
         this.dir = directories.dir;
         this.tmpDir = directories.tmpDir;
         this.env = env;
         this.config = config;
         this.launchServerConfigManager = launchServerConfigManager;
-        this.modulesManager = modulesManager;
         this.updatesDir = directories.updatesDir;
         this.keyAgreementManager = keyAgreementManager;
         this.commandHandler = commandHandler;
@@ -136,8 +127,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         launcherLibraries = directories.launcherLibrariesDir;
         launcherLibrariesCompile = directories.launcherLibrariesCompileDir;
         launcherPack = directories.launcherPackDir;
-        modulesDir = directories.modules;
-        launcherModulesDir = directories.launcherModules;
         librariesDir = directories.librariesDir;
         this.shardId = shardId;
         if(!Files.isDirectory(launcherPack)) {
@@ -145,8 +134,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
 
         config.setLaunchServer(this);
-
-        modulesManager.invokeEvent(new NewLaunchServerInstanceEvent(this));
 
         // Print keypair fingerprints
 
@@ -168,9 +155,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
         pro.gravit.launchserver.command.handler.CommandHandler.registerCommands(commandHandler, this);
 
-        // init modules
-        modulesManager.invokeEvent(new LaunchServerInitPhase(this));
-
         // Set launcher EXE binary
         launcherBinary = new JARLauncherBinary(this);
         launcherEXEBinary = binary();
@@ -178,7 +162,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         launcherBinary.init();
         launcherEXEBinary.init();
         syncLauncherBinaries();
-        launcherModuleLoader = new LauncherModuleLoader(this);
+
         if (config.components != null) {
             logger.debug("Init components");
             config.components.forEach((k, v) -> {
@@ -188,14 +172,12 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             });
             logger.debug("Init components successful");
         }
-        launcherModuleLoader.init();
+
         nettyServerSocketHandler = new NettyServerSocketHandler(this);
         if(config.sign.checkCertificateExpired) {
             checkCertificateExpired();
             service.scheduleAtFixedRate(this::checkCertificateExpired, 24, 24, TimeUnit.HOURS);
         }
-        // post init modules
-        modulesManager.invokeEvent(new LaunchServerPostInitPhase(this));
     }
 
     public void reload(ReloadType type) throws Exception {
@@ -297,11 +279,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     }
 
     private LauncherBinary binary() {
-        LaunchServerLauncherExeInit event = new LaunchServerLauncherExeInit(this, null);
-        modulesManager.invokeEvent(event);
-        if(event.binary != null) {
-            return event.binary;
-        }
         return new EXELauncherBinary(this);
     }
 
@@ -316,7 +293,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         nettyServerSocketHandler.close();
         // Close handlers & providers
         config.close(ReloadType.FULL);
-        modulesManager.invokeEvent(new ClosePhase());
+
         logger.info("Save LaunchServer runtime config");
         launchServerConfigManager.writeRuntimeConfig(runtime);
         // Print last message before death :(
@@ -361,9 +338,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
                     // Sync updates dir
                     config.updatesProvider.syncInitially();
-
-
-                    modulesManager.invokeEvent(new LaunchServerProfilesSyncEvent(this));
                 } catch (IOException e) {
                     logger.error("Updates/Profiles not synced", e);
                 }
@@ -371,14 +345,8 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         }
         if (config.netty != null)
             rebindNettyServerSocket();
-        try {
-            modulesManager.fullInitializedLaunchServer(this);
-            modulesManager.invokeEvent(new LaunchServerFullInitEvent(this));
-            logger.info("LaunchServer started");
-        } catch (Throwable e) {
-            logger.error("LaunchServer startup failed", e);
-            JVMHelper.RUNTIME.exit(-1);
-        }
+
+        logger.info("LaunchServer started");
     }
 
     public void syncLauncherBinaries() throws IOException {
@@ -459,9 +427,13 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     }
 
     public static class LaunchServerDirectories {
-        public static final String UPDATES_NAME = "updates",
-                TRUSTSTORE_NAME = "truststore", LAUNCHERLIBRARIES_NAME = "launcher-libraries",
-                LAUNCHERLIBRARIESCOMPILE_NAME = "launcher-libraries-compile", LAUNCHERPACK_NAME = "launcher-pack", KEY_NAME = ".keys", MODULES = "modules", LAUNCHER_MODULES = "launcher-modules", LIBRARIES = "libraries";
+        public static final String UPDATES_NAME = "config/updates",
+                TRUSTSTORE_NAME = "config/truststore",
+                LAUNCHERLIBRARIES_NAME = "config/launcher-libraries",
+                LAUNCHERLIBRARIESCOMPILE_NAME = "config/launcher-libraries-compile",
+                LAUNCHERPACK_NAME = "config/launcher-pack",
+                KEY_NAME = "config/.keys",
+                LIBRARIES = "config/libraries";
         public Path updatesDir;
         public Path librariesDir;
         public Path launcherLibrariesDir;
@@ -471,8 +443,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         public Path dir;
         public Path trustStore;
         public Path tmpDir;
-        public Path modules;
-        public Path launcherModules;
 
         public void collect() {
             if (updatesDir == null) updatesDir = getPath(UPDATES_NAME);
@@ -483,8 +453,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             if (launcherPackDir == null)
                 launcherPackDir = getPath(LAUNCHERPACK_NAME);
             if (keyDirectory == null) keyDirectory = getPath(KEY_NAME);
-            if (modules == null) modules = getPath(MODULES);
-            if (launcherModules == null) launcherModules = getPath(LAUNCHER_MODULES);
             if (librariesDir == null) librariesDir = getPath(LIBRARIES);
             if (tmpDir == null)
                 tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve("launchserver-%s".formatted(SecurityHelper.randomStringToken()));

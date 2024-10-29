@@ -11,7 +11,6 @@ import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.launchserver.base.Launcher;
-import pro.gravit.launchserver.base.modules.events.PreConfigPhase;
 import pro.gravit.launchserver.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launchserver.base.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launchserver.base.request.auth.AuthRequest;
@@ -22,7 +21,6 @@ import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.core.LauncherTrustManager;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
-import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.WebSocketService;
 import pro.gravit.launchserver.utils.command.CommandHandler;
 import pro.gravit.launchserver.utils.command.JLineCommandHandler;
@@ -39,19 +37,15 @@ import java.security.cert.CertificateException;
 import java.util.List;
 
 public class LaunchServerStarter {
-    public static final boolean allowUnsigned = Boolean.getBoolean("launchserver.allowUnsigned");
     public static final boolean prepareMode = Boolean.getBoolean("launchserver.prepareMode");
     private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) throws Exception {
         JVMHelper.verifySystemProperties(LaunchServer.class, false);
 
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-
-        //LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
         LogHelper.printVersion("LaunchServer");
         LogHelper.printLicense("LaunchServer");
-        Path dir = IOHelper.WORKING_DIR; //Path.of(classloader.getResource("config/").toURI()); //IOHelper.WORKING_DIR;
+        Path dir = IOHelper.WORKING_DIR;
         Path configFile, runtimeConfigFile;
         try {
             Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider");
@@ -86,15 +80,13 @@ public class LaunchServerStarter {
         LaunchServerRuntimeConfig runtimeConfig;
         LaunchServerConfig config;
         LaunchServer.LaunchServerEnv env = LaunchServer.LaunchServerEnv.PRODUCTION;
-        LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(directories.modules, dir.resolve("config"), certificateManager.trustManager);
-        modulesManager.autoload();
-        modulesManager.initModules(null);
+
         registerAll();
-        initGson(modulesManager);
+        initGson();
         printExperimentalBranch();
 
 
-        configFile = dir.resolve("LaunchServer.json"); //Path.of(classloader.getResource("config/LaunchServer.json").toURI());
+        configFile = dir.resolve("LaunchServer.json");
         runtimeConfigFile = dir.resolve("RuntimeLaunchServer.json");
 
         CommandHandler localCommandHandler;
@@ -108,7 +100,7 @@ public class LaunchServerStarter {
             localCommandHandler = new StdCommandHandler(true);
             logger.warn("JLine2 isn't in classpath, using std");
         }
-        modulesManager.invokeEvent(new PreConfigPhase());
+
         generateConfigIfNotExists(configFile, localCommandHandler, env);
         logger.info("Reading LaunchServer config file");
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
@@ -132,7 +124,6 @@ public class LaunchServerStarter {
                 .setCommandHandler(localCommandHandler)
                 .setRuntimeConfig(runtimeConfig)
                 .setConfig(config)
-                .setModulesManager(modulesManager)
                 .setLaunchServerConfigManager(launchServerConfigManager)
                 .setCertificateManager(certificateManager)
                 .build();
@@ -160,8 +151,8 @@ public class LaunchServerStarter {
         }
     }
 
-    public static void initGson(LaunchServerModulesManager modulesManager) {
-        Launcher.gsonManager = new LaunchServerGsonManager(modulesManager);
+    public static void initGson() {
+        Launcher.gsonManager = new LaunchServerGsonManager();
         Launcher.gsonManager.initGson();
     }
 

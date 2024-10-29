@@ -20,10 +20,6 @@ import java.util.jar.JarFile;
 public class ClassMetadataReader implements Closeable {
     private final List<JarFile> cp;
 
-    public ClassMetadataReader(List<JarFile> cp) {
-        this.cp = cp;
-    }
-
     public ClassMetadataReader() {
         this.cp = new ArrayList<>();
     }

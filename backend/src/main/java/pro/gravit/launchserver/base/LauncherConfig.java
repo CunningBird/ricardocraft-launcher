@@ -1,21 +1,15 @@
 package pro.gravit.launchserver.base;
 
-import pro.gravit.launchserver.base.modules.LauncherModule;
-import pro.gravit.launchserver.base.modules.LauncherModulesManager;
 import pro.gravit.launchserver.core.LauncherInject;
 import pro.gravit.launchserver.core.LauncherInjectionConstructor;
 import pro.gravit.launchserver.core.LauncherTrustManager;
 import pro.gravit.launchserver.core.serialize.HInput;
 import pro.gravit.launchserver.core.serialize.HOutput;
 import pro.gravit.launchserver.core.serialize.stream.StreamObject;
-import pro.gravit.launchserver.utils.helper.JVMHelper;
-import pro.gravit.launchserver.utils.helper.LogHelper;
 import pro.gravit.launchserver.utils.helper.SecurityHelper;
 import pro.gravit.launchserver.utils.helper.VerifyHelper;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.security.cert.CertificateException;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
@@ -25,9 +19,6 @@ import java.util.*;
 public final class LauncherConfig extends StreamObject {
     @LauncherInject("launchercore.certificates")
     private static final List<byte[]> secureConfigCertificates = null;
-    @LauncherInject("launcher.legacymodules")
-    private static final List<Class<?>> modulesClasses = null;
-    private static final MethodType VOID_TYPE = MethodType.methodType(void.class);
     @LauncherInject("launcher.projectName")
     public final String projectName;
     @LauncherInject("launcher.port")
@@ -54,12 +45,6 @@ public final class LauncherConfig extends StreamObject {
     public LauncherEnvironment environment;
     @LauncherInject("runtimeconfig.buildNumber")
     public long buildNumber;
-
-    private static class ModernModulesClass {
-        @LauncherInject("launcher.modules")
-        private static final List<Class<?>> modulesClasses = null;
-    }
-
 
     @LauncherInjectionConstructor
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
@@ -120,20 +105,6 @@ public final class LauncherConfig extends StreamObject {
         secureCheckHash = null;
         passwordEncryptKey = null;
         runtimeEncryptKey = null;
-    }
-
-    public static void initModules(LauncherModulesManager modulesManager) {
-        if(JVMHelper.JVM_VERSION >= 17) {
-            modulesClasses.addAll(ModernModulesClass.modulesClasses);
-        }
-        for (Class<?> clazz : modulesClasses)
-            try {
-                modulesManager.loadModule((LauncherModule) MethodHandles.publicLookup().findConstructor(clazz, VOID_TYPE).invokeWithArguments(Collections.emptyList()));
-            } catch (Throwable e) {
-                LogHelper.error(e);
-            }
-        // This method should be called once at exec time.
-        modulesClasses.clear();
     }
 
     @Override
