@@ -13,6 +13,7 @@ import pro.gravit.launchserver.command.sync.*;
 import pro.gravit.launchserver.command.tools.SignDirCommand;
 import pro.gravit.launchserver.command.tools.SignJarCommand;
 import pro.gravit.launchserver.command.OSSLSignEXECommand;
+import pro.gravit.launchserver.command.unsafe.*;
 import pro.gravit.launchserver.utils.command.BaseCommandCategory;
 import pro.gravit.launchserver.utils.command.basic.ClearCommand;
 import pro.gravit.launchserver.utils.command.basic.GCCommand;
@@ -63,6 +64,14 @@ public abstract class CommandHandler extends pro.gravit.launchserver.utils.comma
         tools.registerCommand("signDir", new SignDirCommand(server));
         Category toolsCategory = new Category(tools, "tools", "Other tools");
         handler.registerCategory(toolsCategory);
+
+        BaseCommandCategory unsafe = new BaseCommandCategory();
+        unsafe.registerCommand("loadJar", new LoadJarCommand(server));
+        unsafe.registerCommand("registerComponent", new RegisterComponentCommand(server));
+        unsafe.registerCommand("sendAuth", new SendAuthCommand(server));
+        unsafe.registerCommand("patcher", new PatcherCommand(server));
+        unsafe.registerCommand("cipherList", new CipherListCommand(server));
+        handler.registerCategory(new Category(unsafe, "Unsafe"));
 
         handler.registerCommand("generatecertificate", new GenerateCertificateCommand(server));
         handler.registerCommand("osslsignexe", new OSSLSignEXECommand(server));
