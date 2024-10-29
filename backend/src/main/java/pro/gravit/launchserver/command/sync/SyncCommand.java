@@ -10,7 +10,6 @@ public class SyncCommand extends Command {
         this.childCommands.put("binaries", new SyncBinariesCommand(server));
         this.childCommands.put("updates", new SyncUpdatesCommand(server));
         this.childCommands.put("up", new SyncUPCommand(server));
-        this.childCommands.put("launchermodules", new SyncLauncherModulesCommand(server));
         this.childCommands.put("updatescache", new SyncUpdatesCacheCommand(server));
     }
 

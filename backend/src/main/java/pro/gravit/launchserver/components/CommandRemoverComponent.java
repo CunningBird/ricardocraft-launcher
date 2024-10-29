@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.components;
 
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.utils.command.Command;
+import pro.gravit.launchserver.command.utls.Command;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -11,7 +11,6 @@ import pro.gravit.launchserver.auth.protect.ProtectHandler;
 import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.auth.updates.UpdatesProvider;
 import pro.gravit.launchserver.base.Launcher;
-import pro.gravit.launchserver.base.modules.events.PreConfigPhase;
 import pro.gravit.launchserver.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launchserver.base.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launchserver.base.request.auth.AuthRequest;
@@ -22,14 +21,13 @@ import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.core.LauncherTrustManager;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
-import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
 import pro.gravit.launchserver.socket.WebSocketService;
-import pro.gravit.launchserver.utils.command.CommandHandler;
-import pro.gravit.launchserver.utils.command.JLineCommandHandler;
-import pro.gravit.launchserver.utils.command.StdCommandHandler;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.JVMHelper;
-import pro.gravit.launchserver.utils.helper.LogHelper;
+import pro.gravit.launchserver.command.utls.CommandHandler;
+import pro.gravit.launchserver.command.utls.JLineCommandHandler;
+import pro.gravit.launchserver.command.utls.StdCommandHandler;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.JVMHelper;
+import pro.gravit.launchserver.helper.LogHelper;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -39,16 +37,12 @@ import java.security.cert.CertificateException;
 import java.util.List;
 
 public class LaunchServerStarter {
-    public static final boolean allowUnsigned = Boolean.getBoolean("launchserver.allowUnsigned");
     public static final boolean prepareMode = Boolean.getBoolean("launchserver.prepareMode");
     private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) throws Exception {
         JVMHelper.verifySystemProperties(LaunchServer.class, false);
 
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-
-        //LogHelper.addOutput(IOHelper.WORKING_DIR.resolve("LaunchServer.log"));
         LogHelper.printVersion("LaunchServer");
         LogHelper.printLicense("LaunchServer");
         Path dir = IOHelper.WORKING_DIR;
@@ -86,21 +80,13 @@ public class LaunchServerStarter {
         LaunchServerRuntimeConfig runtimeConfig;
         LaunchServerConfig config;
         LaunchServer.LaunchServerEnv env = LaunchServer.LaunchServerEnv.PRODUCTION;
-        LaunchServerModulesManager modulesManager = new LaunchServerModulesManager(directories.modules, dir.resolve("config"), certificateManager.trustManager);
-        modulesManager.autoload();
-        modulesManager.initModules(null);
+
         registerAll();
-        initGson(modulesManager);
-        printExperimentalBranch();
+        initGson();
 
+        configFile = dir.resolve("LaunchServer.json");
+        runtimeConfigFile = dir.resolve("RuntimeLaunchServer.json");
 
-        configFile = Path.of(classloader.getResource("LaunchServer.json").toURI());
-
-        if (IOHelper.exists(dir.resolve("RuntimeLaunchServer.conf"))) {
-            runtimeConfigFile = dir.resolve("RuntimeLaunchServer.conf");
-        } else {
-            runtimeConfigFile = dir.resolve("RuntimeLaunchServer.json");
-        }
         CommandHandler localCommandHandler;
         try {
             Class.forName("org.jline.terminal.Terminal");
@@ -112,7 +98,8 @@ public class LaunchServerStarter {
             localCommandHandler = new StdCommandHandler(true);
             logger.warn("JLine2 isn't in classpath, using std");
         }
-        modulesManager.invokeEvent(new PreConfigPhase());
+
+        generateConfigIfNotExists(configFile, localCommandHandler, env);
         logger.info("Reading LaunchServer config file");
         try (BufferedReader reader = IOHelper.newReader(configFile)) {
             config = Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
@@ -135,7 +122,6 @@ public class LaunchServerStarter {
                 .setCommandHandler(localCommandHandler)
                 .setRuntimeConfig(runtimeConfig)
                 .setConfig(config)
-                .setModulesManager(modulesManager)
                 .setLaunchServerConfigManager(launchServerConfigManager)
                 .setCertificateManager(certificateManager)
                 .build();
@@ -163,8 +149,8 @@ public class LaunchServerStarter {
         }
     }
 
-    public static void initGson(LaunchServerModulesManager modulesManager) {
-        Launcher.gsonManager = new LaunchServerGsonManager(modulesManager);
+    public static void initGson() {
+        Launcher.gsonManager = new LaunchServerGsonManager();
         Launcher.gsonManager.initGson();
     }
 
@@ -184,24 +170,59 @@ public class LaunchServerStarter {
         UpdatesProvider.registerProviders();
     }
 
-    private static void printExperimentalBranch() {
-        try(Reader reader = IOHelper.newReader(IOHelper.getResourceURL("experimental-build.json"))) {
-            ExperimentalBuild info = Launcher.gsonManager.configGson.fromJson(reader, ExperimentalBuild.class);
-            if(info.features == null || info.features.isEmpty()) {
-                return;
+    public static void generateConfigIfNotExists(Path configFile, CommandHandler commandHandler, LaunchServer.LaunchServerEnv env) throws IOException {
+        if (IOHelper.isFile(configFile))
+            return;
+
+        // Create new config
+        logger.info("Creating LaunchServer config");
+
+
+        LaunchServerConfig newConfig = LaunchServerConfig.getDefault(env);
+        // Set server address
+        String address;
+        if (env.equals(LaunchServer.LaunchServerEnv.TEST)) {
+            address = "localhost";
+            newConfig.setProjectName("test");
+        } else {
+            address = System.getenv("ADDRESS");
+            if (address == null) {
+                address = System.getProperty("launchserver.address", null);
             }
-            logger.warn("This is experimental build. Please do not use this in production");
-            logger.warn("Experimental features: [{}]", String.join(",", info.features));
-            for(var e : info.info) {
-                logger.warn(e);
+            String projectName = System.getenv("PROJECTNAME");
+            if (projectName == null) {
+                projectName = System.getProperty("launchserver.projectname", null);
             }
-        } catch (Throwable e) {
-            logger.warn("Build information not found");
+            newConfig.setProjectName(projectName);
         }
-    }
+        if (address == null || address.isEmpty()) {
+            address = "localhost:9274";
+        }
+        if (newConfig.projectName == null || newConfig.projectName.isEmpty()) {
+            newConfig.projectName = "ricardocraft";
+        }
+        int port = 9274;
+        if(address.contains(":")) {
+            String portString = address.substring(address.indexOf(':')+1);
+            try {
+                port = Integer.parseInt(portString);
+            } catch (NumberFormatException e) {
+                logger.warn("Unknown port {}, using 9274", portString);
+            }
+        } else {
+            logger.info("Address {} doesn't contains port (you want to use nginx?)", address);
+        }
+        newConfig.netty.address = "ws://" + address + "/api";
+        newConfig.netty.downloadURL = "http://" + address + "/%dirname%/";
+        newConfig.netty.launcherURL = "http://" + address + "/Launcher.jar";
+        newConfig.netty.launcherEXEURL = "http://" + address + "/Launcher.exe";
+        newConfig.netty.binds[0].port = port;
 
-    record ExperimentalBuild(List<String> features, List<String> info) {
-
+        // Write LaunchServer config
+        logger.info("Writing LaunchServer config file");
+        try (BufferedWriter writer = IOHelper.newWriter(configFile)) {
+            Launcher.gsonManager.configGson.toJson(newConfig, writer);
+        }
     }
 
     private static class BasicLaunchServerConfigManager implements LaunchServer.LaunchServerConfigManager {

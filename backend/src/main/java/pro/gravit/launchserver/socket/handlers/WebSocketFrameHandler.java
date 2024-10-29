@@ -12,7 +12,7 @@ import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.NettyConnectContext;
 import pro.gravit.launchserver.socket.WebSocketService;
 import pro.gravit.launchserver.utils.BiHookSet;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;

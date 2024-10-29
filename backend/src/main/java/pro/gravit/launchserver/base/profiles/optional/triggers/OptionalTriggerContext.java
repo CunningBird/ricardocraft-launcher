@@ -3,7 +3,7 @@ package pro.gravit.launchserver.base.profiles.optional.triggers;
 import pro.gravit.launchserver.base.ClientPermissions;
 import pro.gravit.launchserver.base.profiles.ClientProfile;
 import pro.gravit.launchserver.base.profiles.PlayerProfile;
-import pro.gravit.launchserver.utils.helper.JavaHelper;
+import pro.gravit.launchserver.helper.JavaHelper;
 
 public interface OptionalTriggerContext {
     ClientProfile getProfile();

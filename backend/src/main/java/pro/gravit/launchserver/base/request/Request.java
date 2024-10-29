@@ -9,7 +9,7 @@ import pro.gravit.launchserver.base.request.auth.RestoreRequest;
 import pro.gravit.launchserver.base.request.websockets.StdWebSocketService;
 import pro.gravit.launchserver.base.request.websockets.WebSocketRequest;
 import pro.gravit.launchserver.core.LauncherNetworkAPI;
-import pro.gravit.launchserver.utils.helper.LogHelper;
+import pro.gravit.launchserver.helper.LogHelper;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

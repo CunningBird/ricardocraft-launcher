@@ -1,10 +1,10 @@
 package pro.gravit.launchserver.manangers;
 
 import pro.gravit.launchserver.Reconfigurable;
-import pro.gravit.launchserver.utils.command.Command;
-import pro.gravit.launchserver.utils.command.CommandException;
-import pro.gravit.launchserver.utils.command.basic.HelpCommand;
-import pro.gravit.launchserver.utils.helper.VerifyHelper;
+import pro.gravit.launchserver.command.utls.Command;
+import pro.gravit.launchserver.command.utls.CommandException;
+import pro.gravit.launchserver.command.basic.HelpCommand;
+import pro.gravit.launchserver.helper.VerifyHelper;
 
 import java.util.HashMap;
 import java.util.Map;

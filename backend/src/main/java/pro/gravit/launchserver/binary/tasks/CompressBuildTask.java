@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.binary.tasks;
 
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;

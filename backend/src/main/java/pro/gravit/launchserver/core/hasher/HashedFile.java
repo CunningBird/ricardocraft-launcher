@@ -3,10 +3,10 @@ package pro.gravit.launchserver.core.hasher;
 import pro.gravit.launchserver.core.LauncherNetworkAPI;
 import pro.gravit.launchserver.core.serialize.HInput;
 import pro.gravit.launchserver.core.serialize.HOutput;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
-import pro.gravit.launchserver.utils.helper.SecurityHelper.DigestAlgorithm;
-import pro.gravit.launchserver.utils.helper.VerifyHelper;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
+import pro.gravit.launchserver.helper.SecurityHelper.DigestAlgorithm;
+import pro.gravit.launchserver.helper.VerifyHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;

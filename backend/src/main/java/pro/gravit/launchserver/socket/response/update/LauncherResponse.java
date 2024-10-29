@@ -14,7 +14,7 @@ import pro.gravit.launchserver.socket.response.SimpleResponse;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.launchserver.socket.response.auth.RestoreResponse;
 import pro.gravit.launchserver.utils.Version;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;

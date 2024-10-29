@@ -6,8 +6,8 @@ import pro.gravit.launchserver.base.request.Request;
 import pro.gravit.launchserver.base.request.RequestException;
 import pro.gravit.launchserver.base.request.RequestService;
 import pro.gravit.launchserver.base.request.WebSocketEvent;
-import pro.gravit.launchserver.utils.helper.JVMHelper;
-import pro.gravit.launchserver.utils.helper.LogHelper;
+import pro.gravit.launchserver.helper.JVMHelper;
+import pro.gravit.launchserver.helper.LogHelper;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;

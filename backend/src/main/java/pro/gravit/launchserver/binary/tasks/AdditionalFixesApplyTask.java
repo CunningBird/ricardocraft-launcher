@@ -6,7 +6,7 @@ import org.objectweb.asm.tree.ClassNode;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.asm.ClassMetadataReader;
 import pro.gravit.launchserver.asm.SafeClassWriter;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.IOException;
 import java.io.InputStream;

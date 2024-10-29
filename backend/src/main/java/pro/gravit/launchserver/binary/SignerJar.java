@@ -5,7 +5,7 @@ import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.cms.CMSTypedData;
 import pro.gravit.launchserver.helper.SignHelper;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

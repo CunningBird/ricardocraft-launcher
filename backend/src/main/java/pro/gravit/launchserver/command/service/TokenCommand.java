@@ -7,7 +7,7 @@ import pro.gravit.launchserver.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.launchserver.utils.command.SubCommand;
+import pro.gravit.launchserver.command.utls.SubCommand;
 
 public class TokenCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();

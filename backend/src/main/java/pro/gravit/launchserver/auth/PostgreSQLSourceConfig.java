@@ -4,7 +4,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.postgresql.ds.PGSimpleDataSource;
-import pro.gravit.launchserver.utils.helper.VerifyHelper;
+import pro.gravit.launchserver.helper.VerifyHelper;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

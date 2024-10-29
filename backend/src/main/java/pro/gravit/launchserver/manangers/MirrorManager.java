@@ -3,8 +3,10 @@ package pro.gravit.launchserver.manangers;
 import com.google.gson.JsonElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.base.Launcher;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.mirror.WorkspaceTools;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -25,6 +27,11 @@ public class MirrorManager {
     private transient final Logger logger = LogManager.getLogger();
     private transient final HttpClient client = HttpClient.newBuilder().build();
     private Mirror defaultMirror;
+    private WorkspaceTools tools;
+
+    public MirrorManager(LaunchServer server) {
+        tools = new WorkspaceTools(server);
+    }
 
     public void addMirror(String mirror) {
         Mirror m = new Mirror(mirror);
@@ -42,6 +49,10 @@ public class MirrorManager {
 
     public Mirror getDefaultMirror() {
         return defaultMirror;
+    }
+
+    public WorkspaceTools getTools() {
+        return tools;
     }
 
     public void setDefaultMirror(Mirror m) {

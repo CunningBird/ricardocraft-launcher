@@ -1,7 +1,8 @@
 package pro.gravit.launchserver.binary;
 
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.binary.tasks.OSSLSignTask;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,4 +20,8 @@ public class EXELauncherBinary extends LauncherBinary {
         }
     }
 
+    @Override
+    public void init() {
+        tasks.add(new OSSLSignTask(server));
+    }
 }

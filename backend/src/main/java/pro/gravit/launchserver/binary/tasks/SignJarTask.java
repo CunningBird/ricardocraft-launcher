@@ -9,7 +9,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.binary.SignerJar;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.helper.SignHelper;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.File;
 import java.io.IOException;

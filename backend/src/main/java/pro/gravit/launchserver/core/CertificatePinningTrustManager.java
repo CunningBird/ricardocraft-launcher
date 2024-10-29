@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.core;
 
-import pro.gravit.launchserver.utils.helper.LogHelper;
+import pro.gravit.launchserver.helper.LogHelper;
 
 import javax.net.ssl.TrustManagerFactory;
 import java.io.ByteArrayInputStream;

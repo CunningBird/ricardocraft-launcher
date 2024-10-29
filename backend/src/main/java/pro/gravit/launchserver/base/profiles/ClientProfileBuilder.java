@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.base.profiles;
 
 import pro.gravit.launchserver.base.profiles.optional.OptionalFile;
-import pro.gravit.launchserver.utils.launch.LaunchOptions;
+import pro.gravit.launchserver.launch.LaunchOptions;
 
 import java.util.*;
 

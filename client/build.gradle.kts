@@ -33,6 +33,13 @@ dependencies {
     implementation("com.github.oshi:oshi-core:5.8.1")
     implementation("com.google.code.gson:gson:2.10.1")
 
+    implementation("io.sentry:sentry:8.0.0-alpha.4") {
+        exclude("org.slf4j")
+    }
+    implementation("io.sentry:sentry-log4j2:8.0.0-alpha.4") {
+        exclude("org.apache.logging.log4j")
+    }
+
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }

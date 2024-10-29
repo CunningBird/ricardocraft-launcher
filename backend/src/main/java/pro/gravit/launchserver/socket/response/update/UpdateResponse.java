@@ -7,7 +7,7 @@ import pro.gravit.launchserver.auth.protect.interfaces.ProfilesProtectHandler;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 public class UpdateResponse extends SimpleResponse {
     public String dirName;

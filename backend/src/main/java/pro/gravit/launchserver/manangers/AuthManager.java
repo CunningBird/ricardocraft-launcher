@@ -24,8 +24,8 @@ import pro.gravit.launchserver.auth.texture.TextureProvider;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.launchserver.socket.response.auth.RestoreResponse;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
 
 import javax.crypto.Cipher;
 import java.io.IOException;

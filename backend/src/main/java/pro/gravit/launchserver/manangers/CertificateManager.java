@@ -12,8 +12,8 @@ import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
 import pro.gravit.launchserver.core.LauncherTrustManager;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.JVMHelper;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.JVMHelper;
 
 import java.io.*;
 import java.net.URL;

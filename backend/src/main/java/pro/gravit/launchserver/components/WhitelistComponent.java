@@ -8,8 +8,8 @@ import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.launchserver.socket.response.auth.JoinServerResponse;
 import pro.gravit.launchserver.utils.HookException;
-import pro.gravit.launchserver.utils.command.Command;
-import pro.gravit.launchserver.utils.command.SubCommand;
+import pro.gravit.launchserver.command.utls.Command;
+import pro.gravit.launchserver.command.utls.SubCommand;
 
 import java.util.ArrayList;
 import java.util.List;

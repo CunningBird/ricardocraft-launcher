@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.base.profiles;
 
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -16,7 +16,7 @@ import pro.gravit.launchserver.auth.core.UserSession;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
-import pro.gravit.launchserver.utils.helper.LogHelper;
+import pro.gravit.launchserver.helper.LogHelper;
 
 import java.io.IOException;
 import java.time.Instant;

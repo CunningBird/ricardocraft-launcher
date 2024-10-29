@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.binary.tasks.SignJarTask;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.IOException;
 import java.nio.file.*;

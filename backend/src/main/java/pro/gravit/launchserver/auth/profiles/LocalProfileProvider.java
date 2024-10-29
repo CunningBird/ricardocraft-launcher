@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.base.Launcher;
 import pro.gravit.launchserver.base.profiles.ClientProfile;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

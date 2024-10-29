@@ -7,7 +7,7 @@ import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.WebSocketService;
 import pro.gravit.launchserver.socket.handlers.WebSocketFrameHandler;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.util.Base64;
 

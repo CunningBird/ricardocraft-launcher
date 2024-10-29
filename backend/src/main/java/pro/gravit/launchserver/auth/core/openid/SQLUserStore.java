@@ -3,7 +3,7 @@ package pro.gravit.launchserver.auth.core.openid;
 import pro.gravit.launchserver.base.ClientPermissions;
 import pro.gravit.launchserver.auth.HikariSQLSourceConfig;
 import pro.gravit.launchserver.auth.core.User;
-import pro.gravit.launchserver.utils.helper.LogHelper;
+import pro.gravit.launchserver.helper.LogHelper;
 
 import java.sql.SQLException;
 import java.util.UUID;

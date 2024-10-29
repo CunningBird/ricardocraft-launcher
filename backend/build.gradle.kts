@@ -53,6 +53,17 @@ dependencies {
         exclude("org.slf4j")
     }
 
+    implementation("io.sentry:sentry:8.0.0-alpha.4") {
+        exclude("org.slf4j")
+    }
+    implementation("io.sentry:sentry-log4j2:8.0.0-alpha.4") {
+        exclude("org.apache.logging.log4j")
+    }
+
+    implementation(platform("software.amazon.awssdk:bom:2.17.290"))
+    implementation("software.amazon.awssdk:s3")
+    implementation("software.amazon.awssdk:netty-nio-client")
+
     implementation("pro.gravit.utils.enfs:enfs:2.0.1-SNAPSHOT")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))

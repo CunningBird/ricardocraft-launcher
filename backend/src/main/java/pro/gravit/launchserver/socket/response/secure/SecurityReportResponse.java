@@ -1,9 +1,8 @@
 package pro.gravit.launchserver.socket.response.secure;
 
 import io.netty.channel.ChannelHandlerContext;
-import pro.gravit.launchserver.base.events.request.SecurityReportRequestEvent;
 import pro.gravit.launchserver.auth.protect.interfaces.SecureProtectHandler;
-import pro.gravit.launchserver.modules.events.security.SecurityReportModuleEvent;
+import pro.gravit.launchserver.base.events.request.SecurityReportRequestEvent;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.SimpleResponse;
 
@@ -25,7 +24,6 @@ public class SecurityReportResponse extends SimpleResponse {
             sendError("Method not allowed");
         } else {
             SecurityReportRequestEvent event = secureProtectHandler.onSecurityReport(this, client);
-            server.modulesManager.invokeEvent(new SecurityReportModuleEvent(event, this, client));
             sendResult(event);
         }
     }

@@ -5,8 +5,8 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.launchserver.utils.command.CommandHandler;
-import pro.gravit.launchserver.utils.helper.JVMHelper;
+import pro.gravit.launchserver.command.utls.CommandHandler;
+import pro.gravit.launchserver.helper.JVMHelper;
 
 public class ServerStatusCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();

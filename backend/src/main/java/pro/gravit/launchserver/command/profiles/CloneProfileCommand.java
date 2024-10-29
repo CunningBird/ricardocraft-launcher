@@ -2,17 +2,13 @@ package pro.gravit.launchserver.command.profiles;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launchserver.base.Launcher;
 import pro.gravit.launchserver.base.profiles.ClientProfile;
 import pro.gravit.launchserver.base.profiles.ClientProfileBuilder;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.launchserver.utils.helper.CommonHelper;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;

@@ -2,8 +2,8 @@ package pro.gravit.launchserver.auth.texture;
 
 import pro.gravit.launchserver.base.Launcher;
 import pro.gravit.launchserver.base.profiles.Texture;
-import pro.gravit.launchserver.utils.helper.CommonHelper;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.CommonHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

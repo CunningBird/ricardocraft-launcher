@@ -15,7 +15,7 @@ import pro.gravit.launchserver.core.hasher.HashedEntry;
 import pro.gravit.launchserver.core.hasher.HashedEntryAdapter;
 import pro.gravit.launchserver.utils.ProviderMap;
 import pro.gravit.launchserver.utils.UniversalJsonAdapter;
-import pro.gravit.launchserver.utils.helper.LogHelper;
+import pro.gravit.launchserver.helper.LogHelper;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;

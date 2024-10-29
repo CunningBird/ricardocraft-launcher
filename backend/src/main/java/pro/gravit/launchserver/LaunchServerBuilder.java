@@ -4,8 +4,7 @@ import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.KeyAgreementManager;
-import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
-import pro.gravit.launchserver.utils.command.CommandHandler;
+import pro.gravit.launchserver.command.utls.CommandHandler;
 
 import java.nio.file.Path;
 
@@ -14,7 +13,6 @@ public class LaunchServerBuilder {
     private LaunchServerRuntimeConfig runtimeConfig;
     private CommandHandler commandHandler;
     private LaunchServer.LaunchServerEnv env;
-    private LaunchServerModulesManager modulesManager;
     private LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
     private KeyAgreementManager keyAgreementManager;
     private CertificateManager certificateManager;
@@ -28,11 +26,6 @@ public class LaunchServerBuilder {
 
     public LaunchServerBuilder setEnv(LaunchServer.LaunchServerEnv env) {
         this.env = env;
-        return this;
-    }
-
-    public LaunchServerBuilder setModulesManager(LaunchServerModulesManager modulesManager) {
-        this.modulesManager = modulesManager;
         return this;
     }
 
@@ -77,7 +70,7 @@ public class LaunchServerBuilder {
         if(shardId == null) {
             shardId = Integer.parseInt(System.getProperty("launchserver.shardId", "0"));
         }
-        return new LaunchServer(directories, env, config, runtimeConfig, launchServerConfigManager, modulesManager, keyAgreementManager, commandHandler, certificateManager, shardId);
+        return new LaunchServer(directories, env, config, runtimeConfig, launchServerConfigManager, keyAgreementManager, commandHandler, certificateManager, shardId);
     }
 
     public LaunchServerBuilder setCertificateManager(CertificateManager certificateManager) {
