@@ -1,4 +1,4 @@
-package pro.gravit.launchserver.launchermodules.mojangsupport;
+package pro.gravit.launchserver.auth.core;
 
 import com.google.gson.JsonElement;
 import org.apache.logging.log4j.LogManager;
@@ -13,7 +13,6 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.utils.helper.CommonHelper;
 import pro.gravit.launchserver.utils.helper.QueryHelper;
-import pro.gravit.launchserver.auth.core.UserSession;
 import pro.gravit.launchserver.helper.HttpHelper;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
