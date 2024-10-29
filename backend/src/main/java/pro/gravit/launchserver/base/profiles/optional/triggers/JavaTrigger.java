@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.base.profiles.optional.triggers;
 
 import pro.gravit.launchserver.base.profiles.optional.OptionalFile;
-import pro.gravit.launchserver.utils.helper.JavaHelper;
+import pro.gravit.launchserver.helper.JavaHelper;
 
 public class JavaTrigger extends OptionalTrigger {
     public int minVersion;

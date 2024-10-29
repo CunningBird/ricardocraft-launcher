@@ -18,12 +18,12 @@ import pro.gravit.launchserver.manangers.hook.AuthHookManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.handlers.NettyServerSocketHandler;
 import pro.gravit.launchserver.socket.response.auth.RestoreResponse;
-import pro.gravit.launchserver.utils.command.Command;
-import pro.gravit.launchserver.utils.command.CommandHandler;
-import pro.gravit.launchserver.utils.command.SubCommand;
-import pro.gravit.launchserver.utils.helper.CommonHelper;
-import pro.gravit.launchserver.utils.helper.JVMHelper;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
+import pro.gravit.launchserver.command.utls.Command;
+import pro.gravit.launchserver.command.utls.CommandHandler;
+import pro.gravit.launchserver.command.utls.SubCommand;
+import pro.gravit.launchserver.helper.CommonHelper;
+import pro.gravit.launchserver.helper.JVMHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;

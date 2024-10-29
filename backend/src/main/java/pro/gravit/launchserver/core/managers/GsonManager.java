@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import pro.gravit.launchserver.core.hasher.HashedEntry;
 import pro.gravit.launchserver.core.hasher.HashedEntryAdapter;
-import pro.gravit.launchserver.utils.helper.CommonHelper;
+import pro.gravit.launchserver.helper.CommonHelper;
 
 public class GsonManager {
     public GsonBuilder gsonBuilder;

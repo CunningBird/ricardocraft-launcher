@@ -6,8 +6,8 @@ import pro.gravit.launchserver.base.Launcher;
 import pro.gravit.launchserver.core.serialize.HOutput;
 import pro.gravit.launchserver.core.serialize.stream.StreamObject;
 import pro.gravit.launchserver.binary.tasks.MainBuildTask;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
@@ -37,7 +37,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static pro.gravit.launchserver.utils.helper.IOHelper.newZipEntry;
+import static pro.gravit.launchserver.helper.IOHelper.newZipEntry;
 
 public class BuildContext {
     public final ZipOutputStream output;

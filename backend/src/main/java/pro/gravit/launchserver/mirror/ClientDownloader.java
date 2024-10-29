@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.mirror;
 
 import com.google.gson.*;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.IOException;
 import java.net.MalformedURLException;

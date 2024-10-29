@@ -20,7 +20,7 @@ import pro.gravit.launchserver.components.AuthLimiterComponent;
 import pro.gravit.launchserver.components.Component;
 import pro.gravit.launchserver.components.ProGuardComponent;
 import pro.gravit.launchserver.mirror.MirrorWorkspace;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
 
 import java.util.*;
 

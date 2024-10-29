@@ -13,14 +13,14 @@ import pro.gravit.launchserver.command.tools.SignDirCommand;
 import pro.gravit.launchserver.command.tools.SignJarCommand;
 import pro.gravit.launchserver.command.OSSLSignEXECommand;
 import pro.gravit.launchserver.command.unsafe.*;
-import pro.gravit.launchserver.utils.command.BaseCommandCategory;
-import pro.gravit.launchserver.utils.command.CommandCategory;
-import pro.gravit.launchserver.utils.command.basic.ClearCommand;
-import pro.gravit.launchserver.utils.command.basic.GCCommand;
-import pro.gravit.launchserver.utils.command.basic.HelpCommand;
+import pro.gravit.launchserver.command.utls.BaseCommandCategory;
+import pro.gravit.launchserver.command.utls.CommandCategory;
+import pro.gravit.launchserver.command.basic.ClearCommand;
+import pro.gravit.launchserver.command.basic.GCCommand;
+import pro.gravit.launchserver.command.basic.HelpCommand;
 
-public abstract class CommandHandler extends pro.gravit.launchserver.utils.command.CommandHandler {
-    public static void registerCommands(pro.gravit.launchserver.utils.command.CommandHandler handler, LaunchServer server) {
+public abstract class CommandHandler extends pro.gravit.launchserver.command.utls.CommandHandler {
+    public static void registerCommands(pro.gravit.launchserver.command.utls.CommandHandler handler, LaunchServer server) {
         BaseCommandCategory basic = new BaseCommandCategory();
         // Register basic commands
         basic.registerCommand("help", new HelpCommand(handler));

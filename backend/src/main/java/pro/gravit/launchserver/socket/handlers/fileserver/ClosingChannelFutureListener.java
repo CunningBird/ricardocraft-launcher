@@ -2,7 +2,7 @@ package pro.gravit.launchserver.socket.handlers.fileserver;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.Closeable;
 

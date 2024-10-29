@@ -16,8 +16,8 @@ import pro.gravit.launchserver.asm.InjectClassAcceptor;
 import pro.gravit.launchserver.asm.SafeClassWriter;
 import pro.gravit.launchserver.binary.BuildContext;
 import pro.gravit.launchserver.utils.HookException;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;

@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.core.serialize;
 
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.Flushable;
 import java.io.IOException;

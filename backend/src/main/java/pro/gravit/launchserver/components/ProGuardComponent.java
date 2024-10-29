@@ -5,12 +5,12 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.Reconfigurable;
 import pro.gravit.launchserver.binary.tasks.LauncherBuildTask;
-import pro.gravit.launchserver.utils.command.Command;
-import pro.gravit.launchserver.utils.command.SubCommand;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.JVMHelper;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
-import pro.gravit.launchserver.utils.helper.UnpackHelper;
+import pro.gravit.launchserver.command.utls.Command;
+import pro.gravit.launchserver.command.utls.SubCommand;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.JVMHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
+import pro.gravit.launchserver.helper.UnpackHelper;
 
 import java.io.*;
 import java.nio.file.FileVisitOption;

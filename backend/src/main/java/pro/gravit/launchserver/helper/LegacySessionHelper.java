@@ -2,7 +2,6 @@ package pro.gravit.launchserver.helper;
 
 import io.jsonwebtoken.Jwts;
 import pro.gravit.launchserver.auth.core.User;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
 
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;

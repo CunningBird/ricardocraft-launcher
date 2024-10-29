@@ -4,8 +4,8 @@ import pro.gravit.launchserver.base.Launcher;
 import pro.gravit.launchserver.base.profiles.ClientProfile;
 import pro.gravit.launchserver.base.profiles.ClientProfileBuilder;
 import pro.gravit.launchserver.utils.ClientToolkit;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.launch.LaunchOptions;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.launch.LaunchOptions;
 
 import java.io.IOException;
 import java.io.Reader;

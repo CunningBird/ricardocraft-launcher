@@ -6,9 +6,9 @@ import pro.gravit.launchserver.base.profiles.optional.OptionalFile;
 import pro.gravit.launchserver.base.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launchserver.core.LauncherNetworkAPI;
 import pro.gravit.launchserver.core.hasher.FileNameMatcher;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.VerifyHelper;
-import pro.gravit.launchserver.utils.launch.LaunchOptions;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.VerifyHelper;
+import pro.gravit.launchserver.launch.LaunchOptions;
 
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;

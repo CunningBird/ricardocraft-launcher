@@ -1,6 +1,5 @@
 package pro.gravit.launchserver.auth.core;
 
-import pro.gravit.launchserver.base.ClientPermissions;
 import pro.gravit.launchserver.base.request.secure.HardwareReportRequest;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.auth.AuthProviderPair;
@@ -9,7 +8,7 @@ import pro.gravit.launchserver.auth.SQLSourceConfig;
 import pro.gravit.launchserver.auth.core.interfaces.UserHardware;
 import pro.gravit.launchserver.auth.core.interfaces.provider.AuthSupportHardware;
 import pro.gravit.launchserver.auth.core.interfaces.session.UserSessionSupportHardware;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

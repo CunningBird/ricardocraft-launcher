@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.utils;
 
-import pro.gravit.launchserver.utils.helper.VerifyHelper;
+import pro.gravit.launchserver.helper.VerifyHelper;
 
 import java.util.Map;
 import java.util.Objects;

@@ -5,7 +5,7 @@ import pro.gravit.launchserver.base.events.request.SecurityReportRequestEvent;
 import pro.gravit.launchserver.base.events.request.VerifySecureLevelKeyRequestEvent;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.secure.SecurityReportResponse;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
 
 import java.security.Signature;
 import java.security.SignatureException;

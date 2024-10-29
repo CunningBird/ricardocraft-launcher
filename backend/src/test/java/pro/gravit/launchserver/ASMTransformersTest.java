@@ -8,7 +8,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import pro.gravit.launchserver.core.LauncherInject;
 import pro.gravit.launchserver.asm.InjectClassAcceptor;
-import pro.gravit.launchserver.utils.helper.JarHelper;
+import pro.gravit.launchserver.helper.JarHelper;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;

@@ -18,7 +18,7 @@ import pro.gravit.launchserver.helper.LegacySessionHelper;
 import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.sql.Connection;

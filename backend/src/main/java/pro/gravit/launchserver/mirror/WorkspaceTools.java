@@ -5,8 +5,8 @@ import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.base.Downloader;
 import pro.gravit.launchserver.base.profiles.ClientProfile;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

@@ -6,7 +6,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.base.Launcher;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.mirror.modapi.CurseforgeAPI;
-import pro.gravit.launchserver.utils.command.SubCommand;
+import pro.gravit.launchserver.command.utls.SubCommand;
 
 public class CurseforgeCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();

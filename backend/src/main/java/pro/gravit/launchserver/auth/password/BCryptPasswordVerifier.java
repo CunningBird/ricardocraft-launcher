@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.auth.password;
 
 import org.bouncycastle.crypto.generators.OpenBSDBCrypt;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
 
 public class BCryptPasswordVerifier extends PasswordVerifier {
     public int cost = 10;

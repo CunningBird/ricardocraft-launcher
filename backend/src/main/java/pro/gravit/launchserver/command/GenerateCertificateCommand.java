@@ -25,8 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import pro.gravit.launchserver.base.Launcher;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.config.LaunchServerConfig;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.io.OutputStream;

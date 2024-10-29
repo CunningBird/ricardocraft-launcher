@@ -1,8 +1,8 @@
 package pro.gravit.launchserver.manangers;
 
 import pro.gravit.launchserver.base.config.JsonConfigurable;
-import pro.gravit.launchserver.utils.helper.LogHelper;
-import pro.gravit.launchserver.utils.helper.VerifyHelper;
+import pro.gravit.launchserver.helper.LogHelper;
+import pro.gravit.launchserver.helper.VerifyHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;

@@ -3,9 +3,9 @@ package pro.gravit.launchserver.base;
 import pro.gravit.launchserver.base.profiles.ClientProfile;
 import pro.gravit.launchserver.core.managers.GsonManager;
 import pro.gravit.launchserver.core.serialize.HInput;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.JVMHelper;
-import pro.gravit.launchserver.utils.helper.LogHelper;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.JVMHelper;
+import pro.gravit.launchserver.helper.LogHelper;
 
 import java.io.IOException;
 import java.net.URL;

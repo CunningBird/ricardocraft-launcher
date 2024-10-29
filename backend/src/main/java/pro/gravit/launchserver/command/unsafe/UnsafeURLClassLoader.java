@@ -1,6 +1,6 @@
 package pro.gravit.launchserver.command.unsafe;
 
-import pro.gravit.launchserver.utils.helper.LogHelper;
+import pro.gravit.launchserver.helper.LogHelper;
 
 import java.net.URL;
 import java.net.URLClassLoader;

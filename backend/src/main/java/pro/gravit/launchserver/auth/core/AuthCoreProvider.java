@@ -26,8 +26,8 @@ import pro.gravit.launchserver.manangers.AuthManager;
 import pro.gravit.launchserver.socket.Client;
 import pro.gravit.launchserver.socket.response.auth.AuthResponse;
 import pro.gravit.launchserver.utils.ProviderMap;
-import pro.gravit.launchserver.utils.command.Command;
-import pro.gravit.launchserver.utils.command.SubCommand;
+import pro.gravit.launchserver.command.utls.Command;
+import pro.gravit.launchserver.command.utls.SubCommand;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

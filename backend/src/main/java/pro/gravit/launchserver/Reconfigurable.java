@@ -1,6 +1,6 @@
 package pro.gravit.launchserver;
 
-import pro.gravit.launchserver.utils.command.Command;
+import pro.gravit.launchserver.command.utls.Command;
 
 import java.util.HashMap;
 import java.util.Map;

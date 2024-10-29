@@ -2,7 +2,7 @@ package pro.gravit.launchserver.command.unsafe.patcher.impl;
 
 import org.objectweb.asm.*;
 import pro.gravit.launchserver.command.unsafe.patcher.ClassTransformerPatcher;
-import pro.gravit.launchserver.utils.helper.LogHelper;
+import pro.gravit.launchserver.helper.LogHelper;
 
 public class FindRemotePatcher extends ClassTransformerPatcher {
     @Override

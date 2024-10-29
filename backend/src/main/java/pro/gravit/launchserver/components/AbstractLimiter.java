@@ -3,8 +3,8 @@ package pro.gravit.launchserver.components;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.Reconfigurable;
-import pro.gravit.launchserver.utils.command.Command;
-import pro.gravit.launchserver.utils.command.SubCommand;
+import pro.gravit.launchserver.command.utls.Command;
+import pro.gravit.launchserver.command.utls.SubCommand;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -13,8 +13,8 @@ import pro.gravit.launchserver.auth.AuthException;
 import pro.gravit.launchserver.auth.core.AuthCoreProvider;
 import pro.gravit.launchserver.auth.core.User;
 import pro.gravit.launchserver.auth.core.UserSession;
-import pro.gravit.launchserver.utils.helper.CommonHelper;
-import pro.gravit.launchserver.utils.helper.QueryHelper;
+import pro.gravit.launchserver.helper.CommonHelper;
+import pro.gravit.launchserver.helper.QueryHelper;
 
 import java.io.IOException;
 import java.net.URI;

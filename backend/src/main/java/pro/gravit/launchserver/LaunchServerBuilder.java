@@ -4,7 +4,7 @@ import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.config.LaunchServerRuntimeConfig;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.KeyAgreementManager;
-import pro.gravit.launchserver.utils.command.CommandHandler;
+import pro.gravit.launchserver.command.utls.CommandHandler;
 
 import java.nio.file.Path;
 

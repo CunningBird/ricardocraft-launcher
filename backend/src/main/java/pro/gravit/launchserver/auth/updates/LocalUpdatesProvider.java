@@ -6,7 +6,7 @@ import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.core.hasher.HashedDir;
 import pro.gravit.launchserver.core.serialize.HInput;
 import pro.gravit.launchserver.core.serialize.HOutput;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;

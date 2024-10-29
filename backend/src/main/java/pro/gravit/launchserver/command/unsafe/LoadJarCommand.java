@@ -3,7 +3,7 @@ package pro.gravit.launchserver.command.unsafe;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.StarterAgent;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.launchserver.utils.helper.LogHelper;
+import pro.gravit.launchserver.helper.LogHelper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

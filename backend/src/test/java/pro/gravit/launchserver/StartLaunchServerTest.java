@@ -12,7 +12,7 @@ import pro.gravit.launchserver.impl.TestLaunchServerConfigManager;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.modules.impl.LaunchServerModulesManager;
-import pro.gravit.launchserver.utils.command.StdCommandHandler;
+import pro.gravit.launchserver.command.utls.StdCommandHandler;
 
 import java.nio.file.Path;
 import java.security.Security;

@@ -22,12 +22,12 @@ import pro.gravit.launchserver.core.LauncherTrustManager;
 import pro.gravit.launchserver.manangers.CertificateManager;
 import pro.gravit.launchserver.manangers.LaunchServerGsonManager;
 import pro.gravit.launchserver.socket.WebSocketService;
-import pro.gravit.launchserver.utils.command.CommandHandler;
-import pro.gravit.launchserver.utils.command.JLineCommandHandler;
-import pro.gravit.launchserver.utils.command.StdCommandHandler;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.JVMHelper;
-import pro.gravit.launchserver.utils.helper.LogHelper;
+import pro.gravit.launchserver.command.utls.CommandHandler;
+import pro.gravit.launchserver.command.utls.JLineCommandHandler;
+import pro.gravit.launchserver.command.utls.StdCommandHandler;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.JVMHelper;
+import pro.gravit.launchserver.helper.LogHelper;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -83,8 +83,6 @@ public class LaunchServerStarter {
 
         registerAll();
         initGson();
-        printExperimentalBranch();
-
 
         configFile = dir.resolve("LaunchServer.json");
         runtimeConfigFile = dir.resolve("RuntimeLaunchServer.json");
@@ -172,22 +170,6 @@ public class LaunchServerStarter {
         UpdatesProvider.registerProviders();
     }
 
-    private static void printExperimentalBranch() {
-        try(Reader reader = IOHelper.newReader(IOHelper.getResourceURL("experimental-build.json"))) {
-            ExperimentalBuild info = Launcher.gsonManager.configGson.fromJson(reader, ExperimentalBuild.class);
-            if(info.features == null || info.features.isEmpty()) {
-                return;
-            }
-            logger.warn("This is experimental build. Please do not use this in production");
-            logger.warn("Experimental features: [{}]", String.join(",", info.features));
-            for(var e : info.info) {
-                logger.warn(e);
-            }
-        } catch (Throwable e) {
-            logger.warn("Build information not found");
-        }
-    }
-
     public static void generateConfigIfNotExists(Path configFile, CommandHandler commandHandler, LaunchServer.LaunchServerEnv env) throws IOException {
         if (IOHelper.isFile(configFile))
             return;
@@ -241,10 +223,6 @@ public class LaunchServerStarter {
         try (BufferedWriter writer = IOHelper.newWriter(configFile)) {
             Launcher.gsonManager.configGson.toJson(newConfig, writer);
         }
-    }
-
-    record ExperimentalBuild(List<String> features, List<String> info) {
-
     }
 
     private static class BasicLaunchServerConfigManager implements LaunchServer.LaunchServerConfigManager {

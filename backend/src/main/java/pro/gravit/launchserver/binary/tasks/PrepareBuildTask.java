@@ -3,8 +3,8 @@ package pro.gravit.launchserver.binary.tasks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.UnpackHelper;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.UnpackHelper;
 
 import java.io.IOException;
 import java.nio.file.*;

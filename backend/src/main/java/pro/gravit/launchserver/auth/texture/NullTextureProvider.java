@@ -1,7 +1,7 @@
 package pro.gravit.launchserver.auth.texture;
 
 import pro.gravit.launchserver.base.profiles.Texture;
-import pro.gravit.launchserver.utils.helper.VerifyHelper;
+import pro.gravit.launchserver.helper.VerifyHelper;
 
 import java.io.IOException;
 import java.util.Objects;

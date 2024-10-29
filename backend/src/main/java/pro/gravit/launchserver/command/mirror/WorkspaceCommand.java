@@ -2,8 +2,8 @@ package pro.gravit.launchserver.command.mirror;
 
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.launchserver.utils.command.SubCommand;
-import pro.gravit.launchserver.utils.helper.IOHelper;
+import pro.gravit.launchserver.command.utls.SubCommand;
+import pro.gravit.launchserver.helper.IOHelper;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Files;

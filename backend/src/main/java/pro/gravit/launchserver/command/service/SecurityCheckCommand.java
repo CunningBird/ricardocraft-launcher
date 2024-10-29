@@ -11,8 +11,8 @@ import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.components.ProGuardComponent;
 import pro.gravit.launchserver.config.LaunchServerConfig;
 import pro.gravit.launchserver.helper.SignHelper;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.JVMHelper;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.JVMHelper;
 
 import java.io.File;
 import java.io.IOException;

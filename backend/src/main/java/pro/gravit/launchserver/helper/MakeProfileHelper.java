@@ -7,7 +7,6 @@ import pro.gravit.launchserver.base.profiles.optional.OptionalFile;
 import pro.gravit.launchserver.base.profiles.optional.actions.OptionalActionFile;
 import pro.gravit.launchserver.base.profiles.optional.actions.OptionalActionJvmArgs;
 import pro.gravit.launchserver.base.profiles.optional.triggers.OSTrigger;
-import pro.gravit.launchserver.utils.helper.JVMHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;

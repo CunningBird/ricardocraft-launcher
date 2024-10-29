@@ -2,7 +2,7 @@ package pro.gravit.launchserver.core.serialize.stream;
 
 import pro.gravit.launchserver.core.serialize.HInput;
 import pro.gravit.launchserver.core.serialize.HOutput;
-import pro.gravit.launchserver.utils.helper.VerifyHelper;
+import pro.gravit.launchserver.helper.VerifyHelper;
 
 import java.io.IOException;
 import java.util.HashMap;

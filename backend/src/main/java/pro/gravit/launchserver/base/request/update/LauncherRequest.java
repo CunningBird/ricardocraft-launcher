@@ -6,9 +6,9 @@ import pro.gravit.launchserver.base.request.Request;
 import pro.gravit.launchserver.base.request.RequestService;
 import pro.gravit.launchserver.base.request.websockets.WebSocketRequest;
 import pro.gravit.launchserver.core.LauncherNetworkAPI;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.LogHelper;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.LogHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;

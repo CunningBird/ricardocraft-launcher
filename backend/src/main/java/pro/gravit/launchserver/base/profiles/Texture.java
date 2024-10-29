@@ -2,8 +2,8 @@ package pro.gravit.launchserver.base.profiles;
 
 import pro.gravit.launchserver.core.serialize.HOutput;
 import pro.gravit.launchserver.core.serialize.stream.StreamObject;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

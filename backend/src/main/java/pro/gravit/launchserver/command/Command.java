@@ -7,7 +7,7 @@ import pro.gravit.launchserver.base.Launcher;
 import pro.gravit.launchserver.base.Downloader;
 import pro.gravit.launchserver.base.profiles.ClientProfile;
 import pro.gravit.launchserver.LaunchServer;
-import pro.gravit.launchserver.utils.command.CommandException;
+import pro.gravit.launchserver.command.utls.CommandException;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
-public abstract class Command extends pro.gravit.launchserver.utils.command.Command {
+public abstract class Command extends pro.gravit.launchserver.command.utls.Command {
     protected final LaunchServer server;
 
 
@@ -26,7 +26,7 @@ public abstract class Command extends pro.gravit.launchserver.utils.command.Comm
         this.server = server;
     }
 
-    public Command(Map<String, pro.gravit.launchserver.utils.command.Command> childCommands, LaunchServer server) {
+    public Command(Map<String, pro.gravit.launchserver.command.utls.Command> childCommands, LaunchServer server) {
         super(childCommands);
         this.server = server;
     }

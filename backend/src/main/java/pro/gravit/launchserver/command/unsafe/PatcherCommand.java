@@ -4,8 +4,8 @@ import pro.gravit.launchserver.command.unsafe.patcher.UnsafePatcher;
 import pro.gravit.launchserver.command.unsafe.patcher.impl.*;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.LogHelper;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.LogHelper;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;

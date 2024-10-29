@@ -3,7 +3,7 @@ package pro.gravit.launchserver.command.remotecontrol;
 import pro.gravit.launchserver.LaunchServer;
 import pro.gravit.launchserver.command.Command;
 import pro.gravit.launchserver.config.LaunchServerConfig;
-import pro.gravit.launchserver.utils.helper.LogHelper;
+import pro.gravit.launchserver.helper.LogHelper;
 
 public class ListCommand extends Command {
     public ListCommand(LaunchServer server) {

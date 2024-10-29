@@ -2,8 +2,8 @@ package pro.gravit.launchserver.auth.password;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pro.gravit.launchserver.utils.helper.IOHelper;
-import pro.gravit.launchserver.utils.helper.SecurityHelper;
+import pro.gravit.launchserver.helper.IOHelper;
+import pro.gravit.launchserver.helper.SecurityHelper;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
