@@ -24,15 +24,6 @@ public class KeyAgreementManager {
     public final String legacySalt;
     public final Path keyDirectory;
 
-    public KeyAgreementManager(ECPublicKey ecdsaPublicKey, ECPrivateKey ecdsaPrivateKey, RSAPublicKey rsaPublicKey, RSAPrivateKey rsaPrivateKey, String legacySalt) {
-        this.ecdsaPublicKey = ecdsaPublicKey;
-        this.ecdsaPrivateKey = ecdsaPrivateKey;
-        this.rsaPublicKey = rsaPublicKey;
-        this.rsaPrivateKey = rsaPrivateKey;
-        this.legacySalt = legacySalt;
-        this.keyDirectory = null;
-    }
-
     public KeyAgreementManager(Path keyDirectory) throws IOException, InvalidKeySpecException {
         this.keyDirectory = keyDirectory;
         Path ecdsaPublicKeyPath = keyDirectory.resolve("ecdsa_id.pub"), ecdsaPrivateKeyPath = keyDirectory.resolve("ecdsa_id");

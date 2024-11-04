@@ -1,0 +1,6 @@
+server:
+  port: 9274
+
+spring:
+  application:
+    name: bff

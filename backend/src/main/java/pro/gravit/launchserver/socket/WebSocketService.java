@@ -68,32 +68,43 @@ public class WebSocketService {
     }
 
     public static void registerResponses() {
+        // Auth
+        providers.register("additionalData", AdditionalDataResponse.class);
         providers.register("auth", AuthResponse.class);
         providers.register("checkServer", CheckServerResponse.class);
+        providers.register("currentUser", CurrentUserResponse.class);
+        providers.register("exit", ExitResponse.class);
+        providers.register("clientProfileKey", FetchClientProfileKeyResponse.class);
+        providers.register("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
         providers.register("joinServer", JoinServerResponse.class);
         providers.register("profiles", ProfilesResponse.class);
-        providers.register("launcher", LauncherResponse.class);
+        providers.register("refreshToken", RefreshTokenResponse.class);
+        providers.register("restore", RestoreResponse.class);
         providers.register("setProfile", SetProfileResponse.class);
+
+        // Update
+        providers.register("launcher", LauncherResponse.class);
         providers.register("update", UpdateResponse.class);
+
+        // Profile
         providers.register("batchProfileByUsername", BatchProfileByUsername.class);
         providers.register("profileByUsername", ProfileByUsername.class);
         providers.register("profileByUUID", ProfileByUUIDResponse.class);
-        providers.register("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
-        providers.register("exit", ExitResponse.class);
+
+        // Secure
         providers.register("getSecureLevelInfo", GetSecureLevelInfoResponse.class);
-        providers.register("verifySecureLevelKey", VerifySecureLevelKeyResponse.class);
-        providers.register("securityReport", SecurityReportResponse.class);
         providers.register("hardwareReport", HardwareReportResponse.class);
-        providers.register("currentUser", CurrentUserResponse.class);
+        providers.register("securityReport", SecurityReportResponse.class);
+        providers.register("verifySecureLevelKey", VerifySecureLevelKeyResponse.class);
+
+        // Management
         providers.register("features", FeaturesResponse.class);
-        providers.register("refreshToken", RefreshTokenResponse.class);
-        providers.register("restore", RestoreResponse.class);
-        providers.register("additionalData", AdditionalDataResponse.class);
-        providers.register("clientProfileKey", FetchClientProfileKeyResponse.class);
-        providers.register("getPublicKey", GetPublicKeyResponse.class);
-        providers.register("getAssetUploadUrl", GetAssetUploadInfoResponse.class);
-        providers.register("assetUploadInfo", AssetUploadInfoResponse.class);
         providers.register("getConnectUUID", GetConnectUUIDResponse.class);
+        providers.register("getPublicKey", GetPublicKeyResponse.class);
+
+        // Cabinet
+        providers.register("assetUploadInfo", AssetUploadInfoResponse.class);
+        providers.register("getAssetUploadUrl", GetAssetUploadInfoResponse.class);
     }
 
     public static String getIPFromContext(ChannelHandlerContext ctx) {

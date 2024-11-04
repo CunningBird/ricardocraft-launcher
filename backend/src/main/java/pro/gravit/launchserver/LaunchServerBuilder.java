@@ -49,11 +49,6 @@ public class LaunchServerBuilder {
         return this;
     }
 
-    public LaunchServerBuilder setShardId(Integer shardId) {
-        this.shardId = shardId;
-        return this;
-    }
-
     public LaunchServerBuilder setLaunchServerConfigManager(LaunchServer.LaunchServerConfigManager launchServerConfigManager) {
         this.launchServerConfigManager = launchServerConfigManager;
         return this;
@@ -61,9 +56,7 @@ public class LaunchServerBuilder {
 
     public LaunchServer build() throws Exception {
         directories.collect();
-        if (launchServerConfigManager == null) {
-            launchServerConfigManager = new NullLaunchServerConfigManager();
-        }
+        if (launchServerConfigManager == null) throw new Exception("launchServerConfigManager is null");
         if (keyAgreementManager == null) {
             keyAgreementManager = new KeyAgreementManager(directories.keyDirectory);
         }
@@ -80,27 +73,5 @@ public class LaunchServerBuilder {
 
     public void setKeyAgreementManager(KeyAgreementManager keyAgreementManager) {
         this.keyAgreementManager = keyAgreementManager;
-    }
-
-    private static class NullLaunchServerConfigManager implements LaunchServer.LaunchServerConfigManager {
-        @Override
-        public LaunchServerConfig readConfig() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public LaunchServerRuntimeConfig readRuntimeConfig() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void writeConfig(LaunchServerConfig config) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void writeRuntimeConfig(LaunchServerRuntimeConfig config) {
-            throw new UnsupportedOperationException();
-        }
     }
 }
