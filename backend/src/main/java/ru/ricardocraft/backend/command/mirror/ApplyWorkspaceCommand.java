@@ -6,9 +6,10 @@ import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.base.Downloader;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.config.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.mirror.MirrorWorkspace;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.properties.MirrorConfig;
 
 import java.io.Reader;
 import java.net.URI;
@@ -17,7 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ApplyWorkspaceCommand extends Command {
-    private final LaunchServerConfig.MirrorConfig config;
+    private final MirrorConfig config;
     private final Logger logger = LogManager.getLogger(ApplyWorkspaceCommand.class);
 
     public ApplyWorkspaceCommand(LaunchServer server) {

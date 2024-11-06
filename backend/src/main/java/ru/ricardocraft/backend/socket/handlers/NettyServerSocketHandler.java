@@ -3,7 +3,7 @@ package ru.ricardocraft.backend.socket.handlers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.LaunchServer;
-import ru.ricardocraft.backend.config.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.socket.LauncherNettyServer;
 
 import javax.net.ssl.SSLServerSocketFactory;

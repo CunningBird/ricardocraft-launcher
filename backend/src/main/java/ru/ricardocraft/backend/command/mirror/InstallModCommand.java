@@ -5,10 +5,11 @@ import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.config.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.mirror.InstallClient;
 import ru.ricardocraft.backend.mirror.modapi.CurseforgeAPI;
 import ru.ricardocraft.backend.mirror.modapi.ModrinthAPI;
+import ru.ricardocraft.backend.properties.MirrorConfig;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
@@ -19,7 +20,7 @@ import java.util.List;
 public class InstallModCommand extends Command {
 
     private static final Logger logger = LogManager.getLogger();
-    private final LaunchServerConfig.MirrorConfig config;
+    private final MirrorConfig config;
 
     public InstallModCommand(LaunchServer server) {
         super(server);

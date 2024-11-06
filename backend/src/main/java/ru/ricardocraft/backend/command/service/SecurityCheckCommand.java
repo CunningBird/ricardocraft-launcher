@@ -9,7 +9,7 @@ import ru.ricardocraft.backend.auth.protect.NoProtectHandler;
 import ru.ricardocraft.backend.auth.protect.StdProtectHandler;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.components.ProGuardComponent;
-import ru.ricardocraft.backend.config.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.helper.SignHelper;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.JVMHelper;

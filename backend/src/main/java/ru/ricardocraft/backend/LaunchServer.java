@@ -10,11 +10,15 @@ import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.binary.EXELauncherBinary;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.binary.LauncherBinary;
-import ru.ricardocraft.backend.config.LaunchServerConfig;
-import ru.ricardocraft.backend.config.LaunchServerRuntimeConfig;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerEnv;
+import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
+import ru.ricardocraft.backend.config.LaunchServerConfigManager;
+import ru.ricardocraft.backend.configuration.LaunchServerDirectories;
 import ru.ricardocraft.backend.helper.SignHelper;
 import ru.ricardocraft.backend.manangers.*;
 import ru.ricardocraft.backend.manangers.hook.AuthHookManager;
+import ru.ricardocraft.backend.properties.ReloadType;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 import ru.ricardocraft.backend.socket.response.auth.RestoreResponse;
@@ -23,7 +27,6 @@ import ru.ricardocraft.backend.command.utls.CommandHandler;
 import ru.ricardocraft.backend.command.utls.SubCommand;
 import ru.ricardocraft.backend.helper.CommonHelper;
 import ru.ricardocraft.backend.helper.JVMHelper;
-import ru.ricardocraft.backend.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -399,69 +402,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public void unregisterObject(String name, Object object) {
         if (object instanceof Reconfigurable) {
             reconfigurableManager.unregisterReconfigurable(name);
-        }
-    }
-
-
-    public enum ReloadType {
-        NO_AUTH,
-        NO_COMPONENTS,
-        FULL
-    }
-
-    public enum LaunchServerEnv {
-        TEST,
-        DEV,
-        DEBUG,
-        PRODUCTION
-    }
-
-    public interface LaunchServerConfigManager {
-        LaunchServerConfig readConfig() throws IOException;
-
-        LaunchServerRuntimeConfig readRuntimeConfig() throws IOException;
-
-        void writeConfig(LaunchServerConfig config) throws IOException;
-
-        void writeRuntimeConfig(LaunchServerRuntimeConfig config) throws IOException;
-    }
-
-    public static class LaunchServerDirectories {
-        public static final String UPDATES_NAME = "config/updates",
-                TRUSTSTORE_NAME = "config/truststore",
-                LAUNCHERLIBRARIES_NAME = "config/launcher-libraries",
-                LAUNCHERLIBRARIESCOMPILE_NAME = "config/launcher-libraries-compile",
-                LAUNCHERPACK_NAME = "config/launcher-pack",
-                KEY_NAME = "config/.keys",
-                LIBRARIES = "config/libraries";
-        public Path updatesDir;
-        public Path librariesDir;
-        public Path launcherLibrariesDir;
-        public Path launcherLibrariesCompileDir;
-        public Path launcherPackDir;
-        public Path keyDirectory;
-        public Path dir;
-        public Path trustStore;
-        public Path tmpDir;
-
-        public void collect() {
-            if (updatesDir == null) updatesDir = getPath(UPDATES_NAME);
-            if (trustStore == null) trustStore = getPath(TRUSTSTORE_NAME);
-            if (launcherLibrariesDir == null) launcherLibrariesDir = getPath(LAUNCHERLIBRARIES_NAME);
-            if (launcherLibrariesCompileDir == null)
-                launcherLibrariesCompileDir = getPath(LAUNCHERLIBRARIESCOMPILE_NAME);
-            if (launcherPackDir == null)
-                launcherPackDir = getPath(LAUNCHERPACK_NAME);
-            if (keyDirectory == null) keyDirectory = getPath(KEY_NAME);
-            if (librariesDir == null) librariesDir = getPath(LIBRARIES);
-            if (tmpDir == null)
-                tmpDir = Paths.get(System.getProperty("java.io.tmpdir")).resolve("launchserver-%s".formatted(SecurityHelper.randomStringToken()));
-        }
-
-        private Path getPath(String dirName) {
-            String property = System.getProperty("launchserver.dir." + dirName, null);
-            if (property == null) return dir.resolve(dirName);
-            else return Paths.get(property);
         }
     }
 }

@@ -2,7 +2,7 @@ package ru.ricardocraft.backend.command;
 
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.binary.tasks.OSSLSignTask;
-import ru.ricardocraft.backend.config.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

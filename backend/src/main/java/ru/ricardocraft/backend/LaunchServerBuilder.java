@@ -1,7 +1,10 @@
 package ru.ricardocraft.backend;
 
-import ru.ricardocraft.backend.config.LaunchServerConfig;
-import ru.ricardocraft.backend.config.LaunchServerRuntimeConfig;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerEnv;
+import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
+import ru.ricardocraft.backend.config.LaunchServerConfigManager;
+import ru.ricardocraft.backend.configuration.LaunchServerDirectories;
 import ru.ricardocraft.backend.manangers.CertificateManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.command.utls.CommandHandler;
@@ -12,11 +15,11 @@ public class LaunchServerBuilder {
     private LaunchServerConfig config;
     private LaunchServerRuntimeConfig runtimeConfig;
     private CommandHandler commandHandler;
-    private LaunchServer.LaunchServerEnv env;
-    private LaunchServer.LaunchServerDirectories directories = new LaunchServer.LaunchServerDirectories();
+    private LaunchServerEnv env;
+    private LaunchServerDirectories directories = new LaunchServerDirectories();
     private KeyAgreementManager keyAgreementManager;
     private CertificateManager certificateManager;
-    private LaunchServer.LaunchServerConfigManager launchServerConfigManager;
+    private LaunchServerConfigManager launchServerConfigManager;
     private Integer shardId;
 
     public LaunchServerBuilder setConfig(LaunchServerConfig config) {
@@ -24,7 +27,7 @@ public class LaunchServerBuilder {
         return this;
     }
 
-    public LaunchServerBuilder setEnv(LaunchServer.LaunchServerEnv env) {
+    public LaunchServerBuilder setEnv(LaunchServerEnv env) {
         this.env = env;
         return this;
     }
@@ -39,7 +42,7 @@ public class LaunchServerBuilder {
         return this;
     }
 
-    public LaunchServerBuilder setDirectories(LaunchServer.LaunchServerDirectories directories) {
+    public LaunchServerBuilder setDirectories(LaunchServerDirectories directories) {
         this.directories = directories;
         return this;
     }
@@ -49,7 +52,7 @@ public class LaunchServerBuilder {
         return this;
     }
 
-    public LaunchServerBuilder setLaunchServerConfigManager(LaunchServer.LaunchServerConfigManager launchServerConfigManager) {
+    public LaunchServerBuilder setLaunchServerConfigManager(LaunchServerConfigManager launchServerConfigManager) {
         this.launchServerConfigManager = launchServerConfigManager;
         return this;
     }

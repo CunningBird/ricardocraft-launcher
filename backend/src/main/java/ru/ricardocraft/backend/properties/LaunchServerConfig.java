@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.config;
+package ru.ricardocraft.backend.properties;
 
 import io.netty.channel.epoll.Epoll;
 import io.netty.handler.logging.LogLevel;
@@ -52,7 +52,7 @@ public final class LaunchServerConfig {
     private transient LaunchServer server = null;
     private transient AuthProviderPair authDefault;
 
-    public static LaunchServerConfig getDefault(LaunchServer.LaunchServerEnv env) {
+    public static LaunchServerConfig getDefault(LaunchServerEnv env) {
         LaunchServerConfig newConfig = new LaunchServerConfig();
         newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.6.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
         newConfig.env = LauncherConfig.LauncherEnvironment.STD;
@@ -181,7 +181,7 @@ public final class LaunchServerConfig {
         }
     }
 
-    public void init(LaunchServer.ReloadType type) {
+    public void init(ReloadType type) {
         Launcher.applyLauncherEnv(env);
         for (Map.Entry<String, AuthProviderPair> provider : auth.entrySet()) {
             provider.getValue().init(server, provider.getKey());
@@ -201,7 +201,7 @@ public final class LaunchServerConfig {
         if (components != null) {
             components.forEach((k, v) -> server.registerObject("component.".concat(k), v));
         }
-        if (!type.equals(LaunchServer.ReloadType.NO_AUTH)) {
+        if (!type.equals(ReloadType.NO_AUTH)) {
             for (AuthProviderPair pair : auth.values()) {
                 server.registerObject("auth.".concat(pair.name).concat(".core"), pair.core);
                 server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
@@ -210,16 +210,16 @@ public final class LaunchServerConfig {
         Arrays.stream(mirrors).forEach(server.mirrorManager::addMirror);
     }
 
-    public void close(LaunchServer.ReloadType type) {
+    public void close(ReloadType type) {
         try {
-            if (!type.equals(LaunchServer.ReloadType.NO_AUTH)) {
+            if (!type.equals(ReloadType.NO_AUTH)) {
                 for (AuthProviderPair pair : auth.values()) {
                     server.unregisterObject("auth.".concat(pair.name).concat(".core"), pair.core);
                     server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
                     pair.close();
                 }
             }
-            if (type.equals(LaunchServer.ReloadType.FULL)) {
+            if (type.equals(ReloadType.FULL)) {
                 components.forEach((k, component) -> {
                     server.unregisterObject("component.".concat(k), component);
                     if (component instanceof AutoCloseable autoCloseable) {
@@ -374,12 +374,4 @@ public final class LaunchServerConfig {
             }
         }
     }
-
-    public static class MirrorConfig {
-        public String curseforgeApiKey = "API_KEY";
-        public String workspaceFile;
-        public boolean deleteTmpDir;
-        public transient MirrorWorkspace workspace;
-    }
-
 }

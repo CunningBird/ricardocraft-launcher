@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.config;
+package ru.ricardocraft.backend.properties;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

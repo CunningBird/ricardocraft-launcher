@@ -16,7 +16,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.LaunchServer;
-import ru.ricardocraft.backend.config.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.socket.handlers.NettyIpForwardHandler;
 import ru.ricardocraft.backend.socket.handlers.NettyWebAPIHandler;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;

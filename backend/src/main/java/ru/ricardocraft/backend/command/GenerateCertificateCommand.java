@@ -24,7 +24,7 @@ import org.bouncycastle.pkcs.jcajce.JcaPKCS12SafeBagBuilder;
 import org.jetbrains.annotations.NotNull;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.LaunchServer;
-import ru.ricardocraft.backend.config.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper;
 

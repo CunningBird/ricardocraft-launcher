@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.binary.tasks;
 
 import ru.ricardocraft.backend.LaunchServer;
-import ru.ricardocraft.backend.config.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.LogHelper;
 

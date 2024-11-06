@@ -1,5 +1,12 @@
 package ru.ricardocraft.backend.helper;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import ru.ricardocraft.backend.LaunchServer;
+import ru.ricardocraft.backend.base.Launcher;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerEnv;
+
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import java.awt.image.BufferedImage;
@@ -60,6 +67,8 @@ public final class IOHelper {
     private static final Set<FileVisitOption> WALK_OPTIONS = Collections.singleton(FileVisitOption.FOLLOW_LINKS);
     // Other constants
     private static final Pattern CROSS_SEPARATOR_PATTERN = Pattern.compile(CROSS_SEPARATOR, Pattern.LITERAL);
+
+    private static final Logger logger = LogManager.getLogger();
 
     private IOHelper() {
     }
@@ -644,6 +653,61 @@ public final class IOHelper {
                 // ignore
             }
         };
+    }
+
+    public static void generateConfigIfNotExists(Path configFile, LaunchServerEnv env) throws IOException {
+        if (IOHelper.isFile(configFile))
+            return;
+
+        // Create new config
+        logger.info("Creating LaunchServer config");
+
+
+        LaunchServerConfig newConfig = LaunchServerConfig.getDefault(env);
+        // Set server address
+        String address;
+        if (env.equals(LaunchServerEnv.TEST)) {
+            address = "localhost";
+            newConfig.setProjectName("test");
+        } else {
+            address = System.getenv("ADDRESS");
+            if (address == null) {
+                address = System.getProperty("launchserver.address", null);
+            }
+            String projectName = System.getenv("PROJECTNAME");
+            if (projectName == null) {
+                projectName = System.getProperty("launchserver.projectname", null);
+            }
+            newConfig.setProjectName(projectName);
+        }
+        if (address == null || address.isEmpty()) {
+            address = "localhost:9274";
+        }
+        if (newConfig.projectName == null || newConfig.projectName.isEmpty()) {
+            newConfig.projectName = "ricardocraft";
+        }
+        int port = 9274;
+        if(address.contains(":")) {
+            String portString = address.substring(address.indexOf(':')+1);
+            try {
+                port = Integer.parseInt(portString);
+            } catch (NumberFormatException e) {
+                logger.warn("Unknown port {}, using 9274", portString);
+            }
+        } else {
+            logger.info("Address {} doesn't contains port (you want to use nginx?)", address);
+        }
+        newConfig.netty.address = "ws://" + address + "/api";
+        newConfig.netty.downloadURL = "http://" + address + "/%dirname%/";
+        newConfig.netty.launcherURL = "http://" + address + "/Launcher.jar";
+        newConfig.netty.launcherEXEURL = "http://" + address + "/Launcher.exe";
+        newConfig.netty.binds[0].port = port;
+
+        // Write LaunchServer config
+        logger.info("Writing LaunchServer config file");
+        try (BufferedWriter writer = IOHelper.newWriter(configFile)) {
+            Launcher.gsonManager.configGson.toJson(newConfig, writer);
+        }
     }
 
     private static class MoveFileVisitor implements FileVisitor<Path> {

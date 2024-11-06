@@ -11,7 +11,7 @@ import ru.ricardocraft.backend.base.profiles.ClientProfileVersions;
 import ru.ricardocraft.backend.command.mirror.DeDupLibrariesCommand;
 import ru.ricardocraft.backend.command.mirror.installers.FabricInstallerCommand;
 import ru.ricardocraft.backend.command.mirror.installers.QuiltInstallerCommand;
-import ru.ricardocraft.backend.config.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.mirror.modapi.CurseforgeAPI;
 import ru.ricardocraft.backend.mirror.modapi.ModrinthAPI;
 import ru.ricardocraft.backend.mirror.newforge.ForgeProfile;
@@ -20,6 +20,7 @@ import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.command.profiles.MakeProfileCommand;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.properties.MirrorConfig;
 
 import java.io.*;
 import java.net.URI;
@@ -39,7 +40,7 @@ import java.util.zip.ZipOutputStream;
 public class InstallClient {
     private static final Logger logger = LogManager.getLogger();
     private final LaunchServer launchServer;
-    private final LaunchServerConfig.MirrorConfig config;
+    private final MirrorConfig config;
     private final Path workdir;
     private final String name;
     private final ClientProfile.Version version;
