@@ -1,0 +1,40 @@
+package ru.ricardocraft.bff.socket.response.profile;
+
+import io.netty.channel.ChannelHandlerContext;
+import ru.ricardocraft.bff.base.events.request.ProfileByUUIDRequestEvent;
+import ru.ricardocraft.bff.auth.AuthProviderPair;
+import ru.ricardocraft.bff.auth.core.User;
+import ru.ricardocraft.bff.socket.Client;
+import ru.ricardocraft.bff.socket.response.SimpleResponse;
+
+import java.util.UUID;
+
+public class ProfileByUUIDResponse extends SimpleResponse {
+    public UUID uuid;
+    public String client;
+
+    @Override
+    public String getType() {
+        return "profileByUUID";
+    }
+
+    @Override
+    public void execute(ChannelHandlerContext ctx, Client client) {
+        AuthProviderPair pair;
+        if (client.auth == null) {
+            pair = server.config.getAuthProviderPair();
+        } else {
+            pair = client.auth;
+        }
+        if (pair == null) {
+            sendError("ProfileByUUIDResponse: AuthProviderPair is null");
+            return;
+        }
+        User user = pair.core.getUserByUUID(uuid);
+        if (user == null) {
+            sendError("User not found");
+            return;
+        }
+        sendResult(new ProfileByUUIDRequestEvent(server.authManager.getPlayerProfile(pair, uuid)));
+    }
+}
