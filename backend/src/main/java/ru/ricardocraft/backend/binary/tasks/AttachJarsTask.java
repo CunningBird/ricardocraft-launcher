@@ -1,7 +1,8 @@
 package ru.ricardocraft.backend.binary.tasks;
 
-import ru.ricardocraft.backend.LaunchServer;
+import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -12,12 +13,15 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class AttachJarsTask implements LauncherBuildTask {
-    private final LaunchServer srv;
+    private final JARLauncherBinary launcherBinary;
+    private final LaunchServerConfig config;
     private final List<Path> jars;
     private final List<String> exclusions;
 
-    public AttachJarsTask(LaunchServer srv) {
-        this.srv = srv;
+    public AttachJarsTask(JARLauncherBinary launcherBinary, LaunchServerConfig config) {
+        this.launcherBinary = launcherBinary;
+        this.config = config;
+
         jars = new ArrayList<>();
         exclusions = new ArrayList<>();
         exclusions.add("META-INF");
@@ -33,7 +37,7 @@ public class AttachJarsTask implements LauncherBuildTask {
 
     @Override
     public Path process(Path inputFile) throws IOException {
-        Path outputFile = srv.launcherBinary.nextPath("attached");
+        Path outputFile = launcherBinary.nextPath("attached");
         try (ZipInputStream input = IOHelper.newZipInput(inputFile);
              ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputFile))) {
             ZipEntry e = input.getNextEntry();
@@ -46,9 +50,9 @@ public class AttachJarsTask implements LauncherBuildTask {
                 IOHelper.transfer(input, output);
                 e = input.getNextEntry();
             }
-            attach(output, inputFile, srv.launcherBinary.coreLibs);
+            attach(output, inputFile, launcherBinary.coreLibs);
             attach(output, inputFile, jars);
-            for(var entry : srv.launcherBinary.files.entrySet()) {
+            for(var entry : launcherBinary.files.entrySet()) {
                 ZipEntry newEntry = IOHelper.newZipEntry(entry.getKey());
                 output.putNextEntry(newEntry);
                 IOHelper.transfer(entry.getValue(), output);
@@ -59,7 +63,7 @@ public class AttachJarsTask implements LauncherBuildTask {
 
     private void attach(ZipOutputStream output, Path inputFile, List<Path> lst) throws IOException {
         for (Path p : lst) {
-            AdditionalFixesApplyTask.apply(inputFile, p, output, srv, (e) -> filter(e.getName()), false);
+            AdditionalFixesApplyTask.apply(inputFile, p, output, config, (e) -> filter(e.getName()), false);
         }
     }
 

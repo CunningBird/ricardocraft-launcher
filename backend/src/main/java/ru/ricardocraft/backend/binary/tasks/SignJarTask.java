@@ -6,6 +6,7 @@ import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.operator.OperatorCreationException;
 import ru.ricardocraft.backend.LaunchServer;
+import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.binary.SignerJar;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.helper.SignHelper;
@@ -28,11 +29,11 @@ public class SignJarTask implements LauncherBuildTask {
 
     private static final Logger logger = LogManager.getLogger();
     private final LaunchServerConfig.JarSignerConf config;
-    private final LaunchServer srv;
+    private final JARLauncherBinary launcherBinary;
 
-    public SignJarTask(LaunchServerConfig.JarSignerConf config, LaunchServer srv) {
+    public SignJarTask(JARLauncherBinary launcherBinary, LaunchServerConfig.JarSignerConf config) {
         this.config = config;
-        this.srv = srv;
+        this.launcherBinary = launcherBinary;
     }
 
     public static CMSSignedDataGenerator gen(LaunchServerConfig.JarSignerConf config, KeyStore c) {
@@ -53,7 +54,7 @@ public class SignJarTask implements LauncherBuildTask {
 
     @Override
     public Path process(Path inputFile) throws IOException {
-        Path toRet = srv.launcherBinary.nextPath("signed");
+        Path toRet = launcherBinary.nextPath("signed");
         sign(config, inputFile, toRet);
         return toRet;
     }
@@ -85,7 +86,7 @@ public class SignJarTask implements LauncherBuildTask {
 
     private void autoSign(Path inputFile, Path signedFile) throws IOException {
         try (SignerJar output = new SignerJar(new ZipOutputStream(IOHelper.newOutput(signedFile)), () -> {
-            CertificateAutogenTask task = srv.launcherBinary.getTaskByClass(CertificateAutogenTask.class).get();
+            CertificateAutogenTask task = launcherBinary.getTaskByClass(CertificateAutogenTask.class).get();
             return task.signedDataGenerator;
         },
                 "AUTOGEN.SF", "AUTOGEN.EC");

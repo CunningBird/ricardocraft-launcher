@@ -1,6 +1,7 @@
 package ru.ricardocraft.backend.binary.tasks;
 
 import ru.ricardocraft.backend.LaunchServer;
+import ru.ricardocraft.backend.binary.EXELauncherBinary;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.LogHelper;
@@ -15,15 +16,16 @@ import java.util.List;
 import java.util.zip.ZipInputStream;
 
 public class OSSLSignTask implements LauncherBuildTask {
-    private final LaunchServer server;
+
+    private final EXELauncherBinary launcherEXEBinary;
     private final LaunchServerConfig.OSSLSignCodeConfig config;
     private LaunchServerConfig.JarSignerConf signConf;
 
-    public OSSLSignTask(LaunchServer server) {
-        this.server = server;
-        this.config = server.config.osslSignCodeConfig;
-        signConf = config.customConf;
-        if (signConf == null || !signConf.enabled) signConf = server.config.sign;
+    public OSSLSignTask(EXELauncherBinary launcherEXEBinary, LaunchServerConfig config) {
+        this.launcherEXEBinary = launcherEXEBinary;
+        this.config = config.osslSignCodeConfig;
+        signConf = this.config.customConf;
+        if (signConf == null || !signConf.enabled) signConf = config.sign;
         if (!signConf.enabled) throw new IllegalStateException("sign.enabled must be true");
         if (!signConf.keyStoreType.equals("PKCS12"))
             throw new IllegalStateException("sign.keyStoreType must be PKCS12");
@@ -113,7 +115,7 @@ public class OSSLSignTask implements LauncherBuildTask {
 
     @Override
     public Path process(Path inputFile) throws IOException {
-        Path resultFile = server.launcherEXEBinary.nextPath(getName());
+        Path resultFile = launcherEXEBinary.nextPath(getName());
         signLaunch4j(config, signConf, inputFile, resultFile);
         return resultFile;
     }

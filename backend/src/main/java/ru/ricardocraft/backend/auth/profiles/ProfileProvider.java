@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.auth.profiles;
 
+import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.utils.ProviderMap;
@@ -15,7 +15,7 @@ import java.util.UUID;
 public abstract class ProfileProvider {
     public static final ProviderMap<ProfileProvider> providers = new ProviderMap<>("ProfileProvider");
     private static boolean registredProviders = false;
-    protected transient LaunchServer server;
+    protected transient ProtectHandler handler;
 
     public static void registerProviders() {
         if (!registredProviders) {
@@ -24,8 +24,8 @@ public abstract class ProfileProvider {
         }
     }
 
-    public void init(LaunchServer server) {
-        this.server = server;
+    public void init(ProtectHandler protectHandler) {
+        this.handler = protectHandler;
     }
 
     public abstract void sync() throws IOException;
@@ -61,7 +61,7 @@ public abstract class ProfileProvider {
     public List<ClientProfile> getProfiles(Client client) {
         List<ClientProfile> profileList;
         Set<ClientProfile> serverProfiles = getProfiles();
-        if (server.config.protectHandler instanceof ProfilesProtectHandler protectHandler) {
+        if (this.handler instanceof ProfilesProtectHandler protectHandler) {
             profileList = new ArrayList<>(4);
             for (ClientProfile profile : serverProfiles) {
                 if (protectHandler.canGetProfile(profile, client)) {

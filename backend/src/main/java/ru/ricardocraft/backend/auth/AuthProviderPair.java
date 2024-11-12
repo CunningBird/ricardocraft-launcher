@@ -1,11 +1,16 @@
 package ru.ricardocraft.backend.auth;
 
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.auth.mix.MixProvider;
 import ru.ricardocraft.backend.auth.texture.TextureProvider;
+import ru.ricardocraft.backend.manangers.AuthManager;
+import ru.ricardocraft.backend.manangers.KeyAgreementManager;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -13,13 +18,13 @@ import java.util.Map;
 import java.util.Set;
 
 public final class AuthProviderPair {
-    private transient final Logger logger = LogManager.getLogger();
     public boolean isDefault = true;
     public AuthCoreProvider core;
     public TextureProvider textureProvider;
     public Map<String, MixProvider> mixes;
     public Map<String, String> links;
     public transient String name;
+    @Getter
     public transient Set<String> features;
     public String displayName;
     public boolean visible = true;
@@ -30,16 +35,6 @@ public final class AuthProviderPair {
     public AuthProviderPair(AuthCoreProvider core, TextureProvider textureProvider) {
         this.core = core;
         this.textureProvider = textureProvider;
-    }
-
-    public static Set<String> getFeatures(Class<?> clazz) {
-        Set<String> list = new HashSet<>();
-        getFeatures(clazz, list);
-        return list;
-    }
-
-    public Set<String> getFeatures() {
-        return features;
     }
 
     public static void getFeatures(Class<?> clazz, Set<String> list) {
@@ -71,23 +66,26 @@ public final class AuthProviderPair {
         return result;
     }
 
-    public void init(LaunchServer srv, String name) {
+    public void init(AuthManager authManager,
+                     LaunchServerConfig config,
+                     NettyServerSocketHandler nettyServerSocketHandler,
+                     KeyAgreementManager keyAgreementManager, String name) {
         this.name = name;
-        if (links != null) link(srv);
-        core.init(srv, this);
+        if (links != null) link(config);
+        core.init(authManager, config, nettyServerSocketHandler, keyAgreementManager, this);
         features = new HashSet<>();
         getFeatures(core.getClass(), features);
         if(mixes != null) {
             for(var m : mixes.values()) {
-                m.init(srv, core);
+                m.init(core);
                 getFeatures(m.getClass(), features);
             }
         }
     }
 
-    public void link(LaunchServer srv) {
+    public void link(LaunchServerConfig config) {
         links.forEach((k, v) -> {
-            AuthProviderPair pair = srv.config.getAuthProviderPair(v);
+            AuthProviderPair pair = config.getAuthProviderPair(v);
             if (pair == null) {
                 throw new NullPointerException("Auth %s link failed. Pair %s not found".formatted(name, v));
             }

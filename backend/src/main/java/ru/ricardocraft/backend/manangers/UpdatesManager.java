@@ -1,32 +1,29 @@
 package ru.ricardocraft.backend.manangers;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.core.hasher.HashedDir;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 
+@Component
+@RequiredArgsConstructor
 public class UpdatesManager {
-    private final LaunchServer server;
 
-    public UpdatesManager(LaunchServer server) {
-        this.server = server;
-    }
+    private final LaunchServerConfig config;
 
     @Deprecated
-    public void readUpdatesFromCache() throws IOException {
-
-    }
-
-    @Deprecated
-    public void readUpdatesDir() throws IOException {
+    public void readUpdatesFromCache() {
 
     }
 
     @Deprecated
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {
-        server.config.updatesProvider.sync(dirs);
+        config.updatesProvider.sync(dirs);
     }
 
     @Deprecated
@@ -36,7 +33,7 @@ public class UpdatesManager {
 
     @Deprecated
     public HashedDir getUpdate(String name) {
-        return server.config.updatesProvider.getUpdatesDir(name);
+        return config.updatesProvider.getUpdatesDir(name);
     }
 
     @Deprecated

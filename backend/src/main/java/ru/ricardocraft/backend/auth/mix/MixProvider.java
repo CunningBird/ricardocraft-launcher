@@ -8,7 +8,6 @@ import ru.ricardocraft.backend.utils.ProviderMap;
 
 public abstract class MixProvider implements  AutoCloseable{
     public static final ProviderMap<MixProvider> providers = new ProviderMap<>("MixProvider");
-    private static final Logger logger = LogManager.getLogger();
     private static boolean registredProviders = false;
 
     public static void registerProviders() {
@@ -18,7 +17,7 @@ public abstract class MixProvider implements  AutoCloseable{
         }
     }
 
-    public abstract void init(LaunchServer server, AuthCoreProvider core);
+    public abstract void init(AuthCoreProvider core);
 
     @SuppressWarnings("unchecked")
     public <T> T isSupport(Class<T> clazz) {

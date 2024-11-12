@@ -1,16 +1,24 @@
 package ru.ricardocraft.backend.binary;
 
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.binary.tasks.OSSLSignTask;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.IOException;
 import java.nio.file.Files;
 
+@Component
 public class EXELauncherBinary extends LauncherBinary {
 
-    public EXELauncherBinary(LaunchServer server) {
-        super(server, LauncherBinary.resolve(server, ".exe"), "Launcher-%s.exe");
+    private final LaunchServerConfig config;
+
+    @Autowired
+    public EXELauncherBinary(LaunchServerConfig config, LaunchServerDirectories directories) {
+        super(config, directories, LauncherBinary.resolve(config, ".exe"), "Launcher-%s.exe");
+        this.config = config;
     }
 
     @Override
@@ -18,10 +26,6 @@ public class EXELauncherBinary extends LauncherBinary {
         if (IOHelper.isFile(syncBinaryFile)) {
             Files.delete(syncBinaryFile);
         }
-    }
-
-    @Override
-    public void init() {
-        tasks.add(new OSSLSignTask(server));
+        tasks.add(new OSSLSignTask(this, config));
     }
 }

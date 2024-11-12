@@ -1,14 +1,14 @@
 package ru.ricardocraft.backend.manangers;
 
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.Reconfigurable;
 import ru.ricardocraft.backend.command.utls.Command;
-import ru.ricardocraft.backend.command.utls.CommandException;
-import ru.ricardocraft.backend.command.basic.HelpCommand;
 import ru.ricardocraft.backend.helper.VerifyHelper;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class ReconfigurableManager {
     private final HashMap<String, Command> RECONFIGURABLE = new HashMap<>();
 
@@ -21,22 +21,20 @@ public class ReconfigurableManager {
         RECONFIGURABLE.remove(name.toLowerCase());
     }
 
-    public void call(String name, String action, String[] args) throws Exception {
-        Command commands = RECONFIGURABLE.get(name);
-        if (commands == null) throw new CommandException("Reconfigurable %s not found".formatted(name));
-        Command command = commands.childCommands.get(action);
-        if (command == null) throw new CommandException("Action %s.%s not found".formatted(name, action));
-        command.invoke(args);
-    }
-
-    public void printHelp(String name) throws CommandException {
-        Command commands = RECONFIGURABLE.get(name);
-        if (commands == null) throw new CommandException("Reconfigurable %s not found".formatted(name));
-        HelpCommand.printSubCommandsHelp(name, commands);
-    }
-
     public Map<String, Command> getCommands() {
         return RECONFIGURABLE;
+    }
+
+    public void registerObject(String name, Object object) {
+        if (object instanceof Reconfigurable) {
+            registerReconfigurable(name, (Reconfigurable) object);
+        }
+    }
+
+    public void unregisterObject(String name, Object object) {
+        if (object instanceof Reconfigurable) {
+            unregisterReconfigurable(name);
+        }
     }
 
     private static class ReconfigurableVirtualCommand extends Command {

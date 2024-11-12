@@ -8,6 +8,7 @@ import ru.ricardocraft.backend.core.serialize.HOutput;
 import ru.ricardocraft.backend.core.serialize.stream.StreamObject;
 import ru.ricardocraft.backend.helper.SecurityHelper;
 import ru.ricardocraft.backend.helper.VerifyHelper;
+import ru.ricardocraft.backend.properties.LauncherEnvironment;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
@@ -119,9 +120,5 @@ public final class LauncherConfig extends StreamObject {
             output.writeString(entry.getKey(), 255);
             output.writeByteArray(entry.getValue(), SecurityHelper.CRYPTO_MAX_LENGTH);
         }
-    }
-
-    public enum LauncherEnvironment {
-        DEV, DEBUG, STD, PROD
     }
 }

@@ -23,7 +23,7 @@ public class UploadAssetMixProvider extends MixProvider implements AuthSupportAs
     }
 
     @Override
-    public void init(LaunchServer server, AuthCoreProvider core) {
+    public void init(AuthCoreProvider core) {
 
     }
 

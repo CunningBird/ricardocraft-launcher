@@ -30,6 +30,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter") {
         exclude("org.springframework.boot", "spring-boot-starter-logging")
     }
+    implementation("org.springframework.boot:spring-boot-starter-validation") {
+        exclude("org.springframework.boot", "spring-boot-starter-logging")
+    }
     implementation("io.projectreactor:reactor-core")
 
     implementation("me.tongfei:progressbar:0.10.1")

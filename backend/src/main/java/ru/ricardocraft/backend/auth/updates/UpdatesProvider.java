@@ -13,7 +13,6 @@ import java.util.Map;
 public abstract class UpdatesProvider {
     public static final ProviderMap<UpdatesProvider> providers = new ProviderMap<>("UpdatesProvider");
     private static boolean registredProviders = false;
-    protected transient LaunchServer server;
 
     public static void registerProviders() {
         if (!registredProviders) {
@@ -22,8 +21,7 @@ public abstract class UpdatesProvider {
         }
     }
 
-    public void init(LaunchServer server) {
-        this.server = server;
+    public void init() {
     }
 
     public void sync() throws IOException {

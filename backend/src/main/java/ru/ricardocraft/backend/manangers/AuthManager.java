@@ -2,8 +2,12 @@ package ru.ricardocraft.backend.manangers;
 
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
@@ -21,6 +25,8 @@ import ru.ricardocraft.backend.auth.core.interfaces.session.UserSessionSupportKe
 import ru.ricardocraft.backend.auth.core.interfaces.user.UserSupportProperties;
 import ru.ricardocraft.backend.auth.core.interfaces.user.UserSupportTextures;
 import ru.ricardocraft.backend.auth.texture.TextureProvider;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 import ru.ricardocraft.backend.socket.response.auth.RestoreResponse;
@@ -28,20 +34,29 @@ import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper;
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyAgreement;
 import java.io.IOException;
 import java.util.*;
 
+@Component
 public class AuthManager {
-    private transient final LaunchServer server;
-    private transient final Logger logger = LogManager.getLogger();
-    private transient final JwtParser checkServerTokenParser;
 
-    public AuthManager(LaunchServer server) {
-        this.server = server;
+    private final Logger logger = LogManager.getLogger();
+
+    private final KeyAgreementManager keyAgreementManager;
+    private final LaunchServerConfig launchServerConfig;
+    private final LaunchServerRuntimeConfig runtimeConfig;
+    private final JwtParser checkServerTokenParser;
+
+    @Autowired
+    public AuthManager(LaunchServerConfig launchServerConfig, LaunchServerRuntimeConfig runtimeConfig, KeyAgreementManager keyAgreementManager) {
+        this.keyAgreementManager = keyAgreementManager;
+        this.launchServerConfig = launchServerConfig;
+        this.runtimeConfig = runtimeConfig;
         this.checkServerTokenParser = Jwts.parser()
                 .requireIssuer("LaunchServer")
                 .require("tokenType", "checkServer")
-                .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
+                .verifyWith(keyAgreementManager.ecdsaPublicKey)
                 .build();
     }
 
@@ -52,7 +67,7 @@ public class AuthManager {
                 .claim("authId", authId)
                 .claim("tokenType", "checkServer")
                 .claim("isPublic", publicOnly)
-                .signWith(server.keyAgreementManager.ecdsaPrivateKey)
+                .signWith(keyAgreementManager.ecdsaPrivateKey)
                 .compact();
     }
 
@@ -117,14 +132,14 @@ public class AuthManager {
             context.client.coreObject = user;
             context.client.sessionObject = session;
             internalAuth(context.client, context.authType, context.pair, user.getUsername(), user.getUUID(), user.getPermissions(), true);
-            if (context.authType == AuthResponse.ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context)) {
+            if (context.authType == AuthResponse.ConnectTypes.CLIENT && launchServerConfig.protectHandler.allowGetAccessToken(context)) {
                 return AuthReport.ofMinecraftAccessToken(session.getMinecraftAccessToken(), session);
             }
             return AuthReport.ofMinecraftAccessToken(null, session);
         }
         String login = context.login;
         try {
-            AuthReport result = provider.authorize(login, context, password, context.authType == AuthResponse.ConnectTypes.CLIENT && server.config.protectHandler.allowGetAccessToken(context));
+            AuthReport result = provider.authorize(login, context, password, context.authType == AuthResponse.ConnectTypes.CLIENT && launchServerConfig.protectHandler.allowGetAccessToken(context));
             if (result == null || result.session == null || result.session.getUser() == null) {
                 logger.error("AuthCoreProvider {} method 'authorize' return null", context.pair.name);
                 throw new AuthException("Internal Auth Error");
@@ -284,7 +299,7 @@ public class AuthManager {
     private AuthRequest.AuthPasswordInterface tryDecryptPasswordPlain(AuthRequest.AuthPasswordInterface password) throws AuthException {
         if (password instanceof AuthAESPassword authAESPassword) {
             try {
-                return new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(server.runtime.passwordEncryptKey
+                return new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(runtimeConfig.passwordEncryptKey
                         , authAESPassword.password)));
             } catch (Exception ignored) {
                 throw new AuthException("Password decryption error");
@@ -292,7 +307,7 @@ public class AuthManager {
         }
         if (password instanceof AuthRSAPassword authRSAPassword) {
             try {
-                Cipher cipher = SecurityHelper.newRSADecryptCipher(server.keyAgreementManager.rsaPrivateKey);
+                Cipher cipher = SecurityHelper.newRSADecryptCipher(keyAgreementManager.rsaPrivateKey);
                 return new AuthPlainPassword(
                         IOHelper.decode(cipher.doFinal(authRSAPassword.password))
                 );

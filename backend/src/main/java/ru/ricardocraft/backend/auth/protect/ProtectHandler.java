@@ -1,6 +1,7 @@
 package ru.ricardocraft.backend.auth.protect;
 
-import ru.ricardocraft.backend.LaunchServer;
+import ru.ricardocraft.backend.manangers.KeyAgreementManager;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 import ru.ricardocraft.backend.utils.ProviderMap;
@@ -24,7 +25,7 @@ public abstract class ProtectHandler {
         return client.isAuth && client.type == AuthResponse.ConnectTypes.CLIENT;
     }
 
-    public void init(LaunchServer server) {
+    public void init(LaunchServerConfig config, KeyAgreementManager keyAgreementManager) {
 
     }
 

@@ -6,7 +6,9 @@ import org.objectweb.asm.tree.ClassNode;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.asm.ClassMetadataReader;
 import ru.ricardocraft.backend.asm.SafeClassWriter;
+import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,13 +20,15 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class AdditionalFixesApplyTask implements LauncherBuildTask {
-    private final LaunchServer server;
+    private final JARLauncherBinary launcherBinary;
+    private final LaunchServerConfig config;
 
-    public AdditionalFixesApplyTask(LaunchServer server) {
-        this.server = server;
+    public AdditionalFixesApplyTask(JARLauncherBinary launcherBinary, LaunchServerConfig config) {
+        this.launcherBinary = launcherBinary;
+        this.config = config;
     }
 
-    public static void apply(Path inputFile, Path addFile, ZipOutputStream output, LaunchServer srv, Predicate<ZipEntry> excluder, boolean needFixes) throws IOException {
+    public static void apply(Path inputFile, Path addFile, ZipOutputStream output, LaunchServerConfig config, Predicate<ZipEntry> excluder, boolean needFixes) throws IOException {
         try (ClassMetadataReader reader = new ClassMetadataReader()) {
             reader.getCp().add(new JarFile(inputFile.toFile()));
             try (ZipInputStream input = IOHelper.newZipInput(addFile)) {
@@ -39,7 +43,7 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
                     if (filename.endsWith(".class")) {
                         byte[] bytes;
                         if (needFixes) {
-                            bytes = classFix(input, reader, srv.config.launcher.stripLineNumbers);
+                            bytes = classFix(input, reader, config.launcher.stripLineNumbers);
                             output.write(bytes);
                         } else
                             IOHelper.transfer(input, output);
@@ -67,9 +71,9 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
 
     @Override
     public Path process(Path inputFile) throws IOException {
-        Path out = server.launcherBinary.nextPath("post-fixed");
+        Path out = launcherBinary.nextPath("post-fixed");
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(out))) {
-            apply(inputFile, inputFile, output, server, (e) -> false, true);
+            apply(inputFile, inputFile, output, config, (e) -> false, true);
         }
         return out;
     }

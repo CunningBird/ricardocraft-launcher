@@ -8,12 +8,15 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ErrorRequestEvent;
 import ru.ricardocraft.backend.base.events.request.ExitRequestEvent;
+import ru.ricardocraft.backend.base.events.request.LauncherRequestEvent;
 import ru.ricardocraft.backend.base.request.WebSocketEvent;
 import ru.ricardocraft.backend.LaunchServer;
+import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
 import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
@@ -38,6 +41,8 @@ import ru.ricardocraft.backend.utils.ProviderMap;
 import ru.ricardocraft.backend.helper.IOHelper;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,6 +50,9 @@ import java.util.function.BiConsumer;
 
 public class WebSocketService {
     public static final ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
+    public static final Map<String, RestoreResponse.ExtendedTokenProvider> restoreProviders = new HashMap<>();
+    private static boolean registeredProviders = false;
+
     public final ChannelGroup channels;
     public final HookSet<WebSocketRequestContext> hookBeforeParsing = new HookSet<>();
     public final HookSet<WebSocketRequestContext> hookBeforeExecute = new HookSet<>();
@@ -105,6 +113,16 @@ public class WebSocketService {
         // Cabinet
         providers.register("assetUploadInfo", AssetUploadInfoResponse.class);
         providers.register("getAssetUploadUrl", GetAssetUploadInfoResponse.class);
+    }
+
+    public static void registerProviders(LaunchServer server) {
+        if (!registeredProviders) {
+            restoreProviders.put(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, new LauncherResponse.LauncherTokenVerifier(server));
+            restoreProviders.put("publicKey", new AdvancedProtectHandler.PublicKeyTokenVerifier(server));
+            restoreProviders.put("hardware", new AdvancedProtectHandler.HardwareInfoTokenVerifier(server));
+            restoreProviders.put("checkServer", new AuthManager.CheckServerVerifier(server));
+            registeredProviders = true;
+        }
     }
 
     public static String getIPFromContext(ChannelHandlerContext ctx) {

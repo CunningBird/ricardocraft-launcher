@@ -1,8 +1,14 @@
 package ru.ricardocraft.backend.binary;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.binary.tasks.*;
+import ru.ricardocraft.backend.manangers.CertificateManager;
+import ru.ricardocraft.backend.manangers.KeyAgreementManager;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
+import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,37 +19,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Component
 public final class JARLauncherBinary extends LauncherBinary {
     public final AtomicLong count;
     public final Path runtimeDir;
-    public final Path buildDir;
+    public final Path buildDirectory;
     public final List<Path> coreLibs;
     public final List<Path> addonLibs;
 
     public final Map<String, Path> files;
 
-    public JARLauncherBinary(LaunchServer server) throws IOException {
-        super(server, resolve(server, ".jar"), "Launcher-%s.jar");
+    @Autowired
+    public JARLauncherBinary(LaunchServerConfig config,
+                             LaunchServerRuntimeConfig runtime,
+                             LaunchServerDirectories directories,
+                             KeyAgreementManager keyAgreementManager,
+                             CertificateManager certificateManager) throws IOException {
+        super(config, directories, resolve(config, ".jar"), "Launcher-%s.jar");
+
         count = new AtomicLong(0);
-        runtimeDir = server.dir.resolve(Launcher.RUNTIME_DIR);
-        buildDir = server.dir.resolve("build");
+        runtimeDir = directories.dir.resolve(Launcher.RUNTIME_DIR);
+        buildDirectory = directories.dir.resolve("build");
         coreLibs = new ArrayList<>();
         addonLibs = new ArrayList<>();
         files = new HashMap<>();
-        if (!Files.isDirectory(buildDir)) {
-            Files.deleteIfExists(buildDir);
-            Files.createDirectory(buildDir);
+        if (!Files.isDirectory(buildDirectory)) {
+            Files.deleteIfExists(buildDirectory);
+            Files.createDirectory(buildDirectory);
         }
-    }
 
-    @Override
-    public void init() {
-        tasks.add(new PrepareBuildTask(server));
-        if (!server.config.sign.enabled) tasks.add(new CertificateAutogenTask(server));
-        tasks.add(new MainBuildTask(server));
-        tasks.add(new AttachJarsTask(server));
-        tasks.add(new AdditionalFixesApplyTask(server));
-        if (server.config.launcher.compress) tasks.add(new CompressBuildTask(server));
-        tasks.add(new SignJarTask(server.config.sign, server));
+        tasks.add(new PrepareBuildTask(this, directories));
+        if (!config.sign.enabled) tasks.add(new CertificateAutogenTask(config, keyAgreementManager));
+        tasks.add(new MainBuildTask(this, config, runtime, keyAgreementManager, certificateManager));
+        tasks.add(new AttachJarsTask(this, config));
+        tasks.add(new AdditionalFixesApplyTask(this, config));
+        if (config.launcher.compress) tasks.add(new CompressBuildTask(this));
+        tasks.add(new SignJarTask(this, config.sign));
     }
 }

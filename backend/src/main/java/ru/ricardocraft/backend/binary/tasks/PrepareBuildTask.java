@@ -3,8 +3,11 @@ package ru.ricardocraft.backend.binary.tasks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.LaunchServer;
+import ru.ricardocraft.backend.binary.JARLauncherBinary;
+import ru.ricardocraft.backend.binary.LauncherBinary;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.UnpackHelper;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -14,13 +17,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PrepareBuildTask implements LauncherBuildTask {
-    private final LaunchServer server;
+    private final JARLauncherBinary launcherBinary;
+    private final LaunchServerDirectories directories;
     private final Path result;
     private transient final Logger logger = LogManager.getLogger();
 
-    public PrepareBuildTask(LaunchServer server) {
-        this.server = server;
-        result = server.launcherBinary.buildDir.resolve("Launcher-clean.jar");
+    public PrepareBuildTask(JARLauncherBinary launcherBinary, LaunchServerDirectories directories) {
+        this.launcherBinary = launcherBinary;
+        this.directories = directories;
+        result = launcherBinary.buildDirectory.resolve("Launcher-clean.jar");
     }
 
     @Override
@@ -30,22 +35,22 @@ public class PrepareBuildTask implements LauncherBuildTask {
 
     @Override
     public Path process(Path inputFile) throws IOException {
-        server.launcherBinary.coreLibs.clear();
-        server.launcherBinary.addonLibs.clear();
-        server.launcherBinary.files.clear();
-        IOHelper.walk(server.launcherLibraries, new ListFileVisitor(server.launcherBinary.coreLibs), false);
-        if(Files.isDirectory(server.launcherLibrariesCompile)) {
-            IOHelper.walk(server.launcherLibrariesCompile, new ListFileVisitor(server.launcherBinary.addonLibs), false);
+        launcherBinary.coreLibs.clear();
+        launcherBinary.addonLibs.clear();
+        launcherBinary.files.clear();
+        IOHelper.walk(directories.launcherLibrariesDir, new ListFileVisitor(launcherBinary.coreLibs), false);
+        if(Files.isDirectory(directories.launcherLibrariesCompileDir)) {
+            IOHelper.walk(directories.launcherLibrariesCompileDir, new ListFileVisitor(launcherBinary.addonLibs), false);
         }
-        try(Stream<Path> stream = Files.walk(server.launcherPack, FileVisitOption.FOLLOW_LINKS).filter((e) -> {
+        try(Stream<Path> stream = Files.walk(directories.launcherPackDir, FileVisitOption.FOLLOW_LINKS).filter((e) -> {
             try {
                 return !Files.isDirectory(e) && !Files.isHidden(e);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         })) {
-            var map = stream.collect(Collectors.toMap(k -> server.launcherPack.relativize(k).toString().replace("\\", "/"), (v) -> v));
-            server.launcherBinary.files.putAll(map);
+            var map = stream.collect(Collectors.toMap(k -> directories.launcherPackDir.relativize(k).toString().replace("\\", "/"), (v) -> v));
+            launcherBinary.files.putAll(map);
         }
         UnpackHelper.unpack(IOHelper.getResourceURL("Launcher.jar"), result);
         tryUnpack();
@@ -54,7 +59,7 @@ public class PrepareBuildTask implements LauncherBuildTask {
 
     public void tryUnpack() throws IOException {
         logger.info("Unpacking launcher native guard list and runtime");
-        UnpackHelper.unpackZipNoCheck("runtime.zip", server.launcherBinary.runtimeDir);
+        UnpackHelper.unpackZipNoCheck("runtime.zip", launcherBinary.runtimeDir);
     }
 
     private static final class ListFileVisitor extends SimpleFileVisitor<Path> {

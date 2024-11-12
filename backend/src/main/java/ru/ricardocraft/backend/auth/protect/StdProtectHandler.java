@@ -5,6 +5,8 @@ import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
+import ru.ricardocraft.backend.manangers.KeyAgreementManager;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 
@@ -21,7 +23,7 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
     }
 
     @Override
-    public void init(LaunchServer server) {
+    public void init(LaunchServerConfig config, KeyAgreementManager keyAgreementManager) {
         if (profileWhitelist != null && !profileWhitelist.isEmpty()) {
             logger.warn("profileWhitelist deprecated. Please use permission 'launchserver.profile.PROFILE_UUID.show' and 'launchserver.profile.PROFILE_UUID.enter'");
         }

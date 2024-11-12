@@ -264,12 +264,5 @@ public class LauncherTrustManager {
             this.rootCertificate = rootCertificate;
             this.exception = exception;
         }
-
-        public CheckClassResult(CheckClassResult orig) {
-            this.type = orig.type;
-            this.exception = orig.exception;
-            this.rootCertificate = orig.rootCertificate;
-            this.endCertificate = orig.endCertificate;
-        }
     }
 }

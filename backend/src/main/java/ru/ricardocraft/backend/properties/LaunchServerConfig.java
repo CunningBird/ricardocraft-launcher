@@ -2,11 +2,13 @@ package ru.ricardocraft.backend.properties;
 
 import io.netty.channel.epoll.Epoll;
 import io.netty.handler.logging.LogLevel;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
-import ru.ricardocraft.backend.auth.core.RejectAuthCoreProvider;
+import ru.ricardocraft.backend.auth.core.MemoryAuthCoreProvider;
 import ru.ricardocraft.backend.auth.profiles.LocalProfileProvider;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
@@ -15,28 +17,37 @@ import ru.ricardocraft.backend.auth.texture.RequestTextureProvider;
 import ru.ricardocraft.backend.auth.updates.LocalUpdatesProvider;
 import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
 import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.base.LauncherConfig;
 import ru.ricardocraft.backend.components.AuthLimiterComponent;
 import ru.ricardocraft.backend.components.Component;
 import ru.ricardocraft.backend.components.ProGuardComponent;
-import ru.ricardocraft.backend.mirror.MirrorWorkspace;
 import ru.ricardocraft.backend.helper.SecurityHelper;
+import ru.ricardocraft.backend.manangers.AuthManager;
+import ru.ricardocraft.backend.manangers.KeyAgreementManager;
+import ru.ricardocraft.backend.manangers.MirrorManager;
+import ru.ricardocraft.backend.manangers.ReconfigurableManager;
+import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 
 import java.util.*;
 
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+@org.springframework.stereotype.Component
 public final class LaunchServerConfig {
+
+    private transient final Logger logger = LogManager.getLogger();
+
     private final static List<String> oldMirrorList = List.of("https://mirror.gravit.pro/5.2.x/", "https://mirror.gravit.pro/5.3.x/",
             "https://mirror.gravitlauncher.com/5.2.x/", "https://mirror.gravitlauncher.com/5.3.x/", "https://mirror.gravitlauncher.com/5.4.x/",
             "https://mirror.gravitlauncher.com/5.5.x/");
-    private transient final Logger logger = LogManager.getLogger();
+
+    @Setter
     public String projectName;
     public String[] mirrors;
     public String binaryName;
     public boolean copyBinaries = true;
-    public LauncherConfig.LauncherEnvironment env;
+    public LauncherEnvironment env;
+
     public Map<String, AuthProviderPair> auth;
     // Handlers & Providers
     public ProtectHandler protectHandler;
@@ -49,71 +60,91 @@ public final class LaunchServerConfig {
     public OSSLSignCodeConfig osslSignCodeConfig;
     public RemoteControlConfig remoteControlConfig;
     public MirrorConfig mirrorConfig;
-    private transient LaunchServer server = null;
-    private transient AuthProviderPair authDefault;
 
-    public static LaunchServerConfig getDefault(LaunchServerEnv env) {
-        LaunchServerConfig newConfig = new LaunchServerConfig();
-        newConfig.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.6.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
-        newConfig.env = LauncherConfig.LauncherEnvironment.STD;
-        newConfig.auth = new HashMap<>();
-        AuthProviderPair a = new AuthProviderPair(new RejectAuthCoreProvider(),
+    private transient AuthProviderPair authDefault;
+    private transient ReconfigurableManager reconfigurableManager;
+    private transient MirrorManager mirrorManager;
+    private transient AuthManager authManager;
+    private transient NettyServerSocketHandler nettyServerSocketHandler;
+    private transient KeyAgreementManager keyAgreementManager;
+
+    public LaunchServerConfig() {
+        this.projectName = "ricardocraft";
+        this.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.6.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
+        this.env = LauncherEnvironment.STD;
+        this.auth = new HashMap<>();
+        AuthProviderPair a = new AuthProviderPair(new MemoryAuthCoreProvider(),
                 new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
         );
         a.displayName = "Default";
-        newConfig.auth.put("std", a);
-        newConfig.protectHandler = new StdProtectHandler();
-        newConfig.binaryName = "Launcher";
+        this.auth.put("std", a);
+        this.protectHandler = new StdProtectHandler();
+        this.binaryName = "Launcher";
 
-        newConfig.netty = new NettyConfig();
-        newConfig.netty.fileServerEnabled = true;
-        newConfig.netty.binds = new NettyBindAddress[]{new NettyBindAddress("0.0.0.0", 9274)};
-        newConfig.netty.performance = new NettyPerformanceConfig();
+        this.netty = new NettyConfig();
+        String address = "localhost";
+        this.netty.address = "ws://" + address + "/api";
+        this.netty.downloadURL = "http://" + address + "/%dirname%/";
+        this.netty.launcherURL = "http://" + address + "/Launcher.jar";
+        this.netty.launcherEXEURL = "http://" + address + "/Launcher.exe";
+
+        this.netty.binds = new NettyBindAddress[]{new NettyBindAddress("0.0.0.0", 9274)};
+        this.netty.binds[0].port = 9274;
+
+        this.netty.fileServerEnabled = true;
+
+        this.netty.performance = new NettyPerformanceConfig();
         try {
-            newConfig.netty.performance.usingEpoll = Epoll.isAvailable();
+            this.netty.performance.usingEpoll = Epoll.isAvailable();
         } catch (Throwable e) {
             // Epoll class line 51+ catch (Exception) but Error will be thrown by System.load
-            newConfig.netty.performance.usingEpoll = false;
+            this.netty.performance.usingEpoll = false;
         } // such as on ARM
-        newConfig.netty.performance.bossThread = 2;
-        newConfig.netty.performance.workerThread = 8;
-        newConfig.netty.performance.schedulerThread = 2;
+        this.netty.performance.bossThread = 2;
+        this.netty.performance.workerThread = 8;
+        this.netty.performance.schedulerThread = 2;
 
-        newConfig.launcher = new LauncherConf();
-        newConfig.launcher.compress = true;
-        newConfig.launcher.deleteTempFiles = true;
-        newConfig.launcher.stripLineNumbers = true;
-        newConfig.launcher.customJvmOptions.add("-Dfile.encoding=UTF-8");
+        this.launcher = new LauncherConf();
+        this.launcher.compress = true;
+        this.launcher.deleteTempFiles = true;
+        this.launcher.stripLineNumbers = true;
+        this.launcher.customJvmOptions.add("-Dfile.encoding=UTF-8");
 
-        newConfig.sign = new JarSignerConf();
+        this.sign = new JarSignerConf();
 
-        newConfig.osslSignCodeConfig = new OSSLSignCodeConfig();
-        newConfig.osslSignCodeConfig.timestampServer = "http://timestamp.sectigo.com";
-        newConfig.osslSignCodeConfig.osslsigncodePath = "osslsigncode";
-        newConfig.osslSignCodeConfig.customArgs.add("-h");
-        newConfig.osslSignCodeConfig.customArgs.add("sha256");
+        this.osslSignCodeConfig = new OSSLSignCodeConfig();
+        this.osslSignCodeConfig.timestampServer = "http://timestamp.sectigo.com";
+        this.osslSignCodeConfig.osslsigncodePath = "osslsigncode";
+        this.osslSignCodeConfig.customArgs.add("-h");
+        this.osslSignCodeConfig.customArgs.add("sha256");
 
-        newConfig.remoteControlConfig = new RemoteControlConfig();
-        newConfig.remoteControlConfig.enabled = true;
-        newConfig.remoteControlConfig.list = new ArrayList<>();
-        newConfig.remoteControlConfig.list.add(new RemoteControlConfig.RemoteControlToken(SecurityHelper.randomStringToken(), 0, true, new String[0]));
+        this.remoteControlConfig = new RemoteControlConfig();
+        this.remoteControlConfig.enabled = true;
+        this.remoteControlConfig.list = new ArrayList<>();
+        this.remoteControlConfig.list.add(new RemoteControlConfig.RemoteControlToken(SecurityHelper.randomStringToken(), 0, true, new String[0]));
 
-        newConfig.mirrorConfig = new MirrorConfig();
+        this.mirrorConfig = new MirrorConfig();
 
-        newConfig.components = new HashMap<>();
         AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
         authLimiterComponent.rateLimit = 3;
         authLimiterComponent.rateLimitMillis = SECONDS.toMillis(8);
         authLimiterComponent.message = "Превышен лимит авторизаций";
-        newConfig.components.put("authLimiter", authLimiterComponent);
+
         ProGuardComponent proGuardComponent = new ProGuardComponent();
-        newConfig.components.put("proguard", proGuardComponent);
-        newConfig.profileProvider = new LocalProfileProvider();
-        return newConfig;
+
+        this.components = new HashMap<>();
+        this.components.put("authLimiter", authLimiterComponent);
+        this.components.put("proguard", proGuardComponent);
+
+        this.verify();
     }
 
     public void setLaunchServer(LaunchServer server) {
-        this.server = server;
+        this.reconfigurableManager = server.reconfigurableManager;
+        this.mirrorManager = server.mirrorManager;
+        this.authManager = server.authManager;
+        this.nettyServerSocketHandler = server.nettyServerSocketHandler;
+        this.keyAgreementManager = server.keyAgreementManager;
     }
 
     public AuthProviderPair getAuthProviderPair(String name) {
@@ -129,18 +160,6 @@ public final class LaunchServerConfig {
             }
         }
         throw new IllegalStateException("Default AuthProviderPair not found");
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
-    public void setBinaryName(String binaryName) {
-        this.binaryName = binaryName;
-    }
-
-    public void setEnv(LauncherConfig.LauncherEnvironment env) {
-        this.env = env;
     }
 
     public void verify() {
@@ -184,44 +203,43 @@ public final class LaunchServerConfig {
     public void init(ReloadType type) {
         Launcher.applyLauncherEnv(env);
         for (Map.Entry<String, AuthProviderPair> provider : auth.entrySet()) {
-            provider.getValue().init(server, provider.getKey());
+            provider.getValue().init(authManager, this, nettyServerSocketHandler, keyAgreementManager, provider.getKey());
         }
         if (protectHandler != null) {
-            server.registerObject("protectHandler", protectHandler);
-            protectHandler.init(server);
+            reconfigurableManager.registerObject("protectHandler", protectHandler);
+            protectHandler.init(this, keyAgreementManager);
         }
         if (profileProvider != null) {
-            server.registerObject("profileProvider", profileProvider);
-            profileProvider.init(server);
+            reconfigurableManager.registerObject("profileProvider", profileProvider);
+            profileProvider.init(protectHandler);
         }
         if (updatesProvider != null) {
-            server.registerObject("updatesProvider", updatesProvider);
-            updatesProvider.init(server);
+            reconfigurableManager.registerObject("updatesProvider", updatesProvider);
         }
         if (components != null) {
-            components.forEach((k, v) -> server.registerObject("component.".concat(k), v));
+            components.forEach((k, v) -> reconfigurableManager.registerObject("component.".concat(k), v));
         }
         if (!type.equals(ReloadType.NO_AUTH)) {
             for (AuthProviderPair pair : auth.values()) {
-                server.registerObject("auth.".concat(pair.name).concat(".core"), pair.core);
-                server.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+                reconfigurableManager.registerObject("auth.".concat(pair.name).concat(".core"), pair.core);
+                reconfigurableManager.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
             }
         }
-        Arrays.stream(mirrors).forEach(server.mirrorManager::addMirror);
+        Arrays.stream(mirrors).forEach(mirrorManager::addMirror);
     }
 
     public void close(ReloadType type) {
         try {
             if (!type.equals(ReloadType.NO_AUTH)) {
                 for (AuthProviderPair pair : auth.values()) {
-                    server.unregisterObject("auth.".concat(pair.name).concat(".core"), pair.core);
-                    server.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+                    reconfigurableManager.unregisterObject("auth.".concat(pair.name).concat(".core"), pair.core);
+                    reconfigurableManager.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
                     pair.close();
                 }
             }
             if (type.equals(ReloadType.FULL)) {
                 components.forEach((k, component) -> {
-                    server.unregisterObject("component.".concat(k), component);
+                    reconfigurableManager.unregisterObject("component.".concat(k), component);
                     if (component instanceof AutoCloseable autoCloseable) {
                         try {
                             autoCloseable.close();
@@ -235,15 +253,15 @@ public final class LaunchServerConfig {
             logger.error(e);
         }
         if (protectHandler != null) {
-            server.unregisterObject("protectHandler", protectHandler);
+            reconfigurableManager.unregisterObject("protectHandler", protectHandler);
             protectHandler.close();
         }
         if (profileProvider != null) {
-            server.unregisterObject("profileProvider", profileProvider);
+            reconfigurableManager.unregisterObject("profileProvider", profileProvider);
             profileProvider.close();
         }
         if (updatesProvider != null) {
-            server.unregisterObject("updatesProvider", updatesProvider);
+            reconfigurableManager.unregisterObject("updatesProvider", updatesProvider);
             updatesProvider.close();
         }
     }
@@ -302,10 +320,6 @@ public final class LaunchServerConfig {
         public int maxWebSocketRequestBytes = 1024 * 1024;
         public boolean disableThreadSafeClientObject;
         public NettyExecutorType executorType = NettyExecutorType.VIRTUAL_THREADS;
-
-        public enum NettyExecutorType {
-            NONE, DEFAULT, WORK_STEAL, VIRTUAL_THREADS
-        }
     }
 
     public static class NettyBindAddress {
@@ -332,7 +346,6 @@ public final class LaunchServerConfig {
         public LaunchServerConfig.JarSignerConf customConf;
 
         public boolean checkSignSize = true;
-        public boolean checkCorrectSign = true;
         public boolean checkCorrectJar = true;
     }
 
@@ -354,23 +367,13 @@ public final class LaunchServerConfig {
             public long permissions;
             public boolean allowAll;
             public boolean startWithMode;
-            public List<String> commands = new ArrayList<>();
-
-            public RemoteControlToken(String token, long permissions, boolean allowAll, List<String> commands) {
-                this.token = token;
-                this.permissions = permissions;
-                this.allowAll = allowAll;
-                this.commands = commands;
-            }
+            public List<String> commands;
 
             public RemoteControlToken(String token, long permissions, boolean allowAll, String[] commands) {
                 this.token = token;
                 this.permissions = permissions;
                 this.allowAll = allowAll;
                 this.commands = Arrays.asList(commands.clone());
-            }
-
-            public RemoteControlToken() {
             }
         }
     }

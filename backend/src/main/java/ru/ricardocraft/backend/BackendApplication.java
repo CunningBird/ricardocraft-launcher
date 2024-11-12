@@ -2,9 +2,12 @@ package ru.ricardocraft.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ConfigurableApplicationContext;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 @SpringBootApplication
+@EnableConfigurationProperties(LaunchServerProperties.class)
 public class BackendApplication {
 
     public static void main(String[] args) {

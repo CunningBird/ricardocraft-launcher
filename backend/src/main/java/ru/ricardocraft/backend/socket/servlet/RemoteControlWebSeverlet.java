@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LogEvent;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.config.log4j.LogAppender;
+import ru.ricardocraft.backend.helper.LogAppender;
 import ru.ricardocraft.backend.socket.NettyConnectContext;
 import ru.ricardocraft.backend.socket.handlers.NettyWebAPIHandler;
 

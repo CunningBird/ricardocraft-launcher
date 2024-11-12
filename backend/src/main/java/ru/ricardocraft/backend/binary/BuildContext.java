@@ -1,5 +1,7 @@
 package ru.ricardocraft.backend.binary;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.base.Launcher;
@@ -46,7 +48,11 @@ public class BuildContext {
     public final HashSet<String> fileList;
     public final HashSet<String> clientModules;
     public final HashSet<String> legacyClientModules;
+    @Setter
+    @Getter
     private Path runtimeDir;
+    @Setter
+    @Getter
     private boolean deleteRuntimeDir;
 
     public BuildContext(ZipOutputStream output, List<JarFile> readerClassPath, MainBuildTask task, Path runtimeDir) {
@@ -59,31 +65,12 @@ public class BuildContext {
         legacyClientModules = new HashSet<>();
     }
 
-    public void pushFile(String filename, InputStream inputStream) throws IOException {
-        ZipEntry zip = IOHelper.newZipEntry(filename);
-        output.putNextEntry(zip);
-        IOHelper.transfer(inputStream, output);
-        output.closeEntry();
-        fileList.add(filename);
-    }
-
     public void pushFile(String filename, StreamObject object) throws IOException {
         ZipEntry zip = IOHelper.newZipEntry(filename);
         output.putNextEntry(zip);
         object.write(new HOutput(output));
         output.closeEntry();
         fileList.add(filename);
-    }
-
-    public void pushFile(String filename, Object object, Type type) throws IOException {
-        ZipEntry zip = IOHelper.newZipEntry(filename);
-        output.putNextEntry(zip);
-        try (BufferedWriter w = IOHelper.newWriter(IOHelper.nonClosing(output))) {
-            Launcher.gsonManager.gson.toJson(object, type);
-        }
-        output.closeEntry();
-        fileList.add(filename);
-        pushBytes(filename, IOHelper.encode(Launcher.gsonManager.gson.toJson(object, type)));
     }
 
     public void pushDir(Path dir, String targetDir, Map<String, byte[]> hashMap, boolean hidden) throws IOException {
@@ -94,24 +81,8 @@ public class BuildContext {
         IOHelper.walk(dir, new EncryptedRuntimeDirVisitor(output, aesHexKey, hashMap, dir, targetDir), hidden);
     }
 
-    public void pushBytes(String filename, byte[] bytes) throws IOException {
-        ZipEntry zip = IOHelper.newZipEntry(filename);
-        output.putNextEntry(zip);
-        output.write(bytes);
-        output.closeEntry();
-        fileList.add(filename);
-    }
-
     public void pushJarFile(Path jarfile, Predicate<ZipEntry> filter, Predicate<String> needTransform) throws IOException {
         pushJarFile(jarfile.toUri().toURL(), filter, needTransform);
-    }
-
-    public Path getRuntimeDir() {
-        return runtimeDir;
-    }
-
-    public void setRuntimeDir(Path runtimeDir) {
-        this.runtimeDir = runtimeDir;
     }
 
     public void pushJarFile(URL jarfile, Predicate<ZipEntry> filter, Predicate<String> needTransform) throws IOException {
@@ -142,14 +113,6 @@ public class BuildContext {
         }
 
 
-    }
-
-    public boolean isDeleteRuntimeDir() {
-        return deleteRuntimeDir;
-    }
-
-    public void setDeleteRuntimeDir(boolean deleteRuntimeDir) {
-        this.deleteRuntimeDir = deleteRuntimeDir;
     }
 
     private final static class RuntimeDirVisitor extends SimpleFileVisitor<Path> {

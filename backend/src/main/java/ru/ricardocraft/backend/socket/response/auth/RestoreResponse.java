@@ -1,42 +1,25 @@
 package ru.ricardocraft.backend.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
-import ru.ricardocraft.backend.base.events.request.LauncherRequestEvent;
-import ru.ricardocraft.backend.base.events.request.RestoreRequestEvent;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.auth.core.UserSession;
-import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
-import ru.ricardocraft.backend.manangers.AuthManager;
+import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
+import ru.ricardocraft.backend.base.events.request.RestoreRequestEvent;
 import ru.ricardocraft.backend.socket.Client;
+import ru.ricardocraft.backend.socket.WebSocketService;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
-import ru.ricardocraft.backend.socket.response.update.LauncherResponse;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class RestoreResponse extends SimpleResponse {
-    public static Map<String, ExtendedTokenProvider> providers = new HashMap<>();
-    private static boolean registeredProviders = false;
     public String authId;
     public String accessToken;
     public Map<String, String> extended;
     public boolean needUserInfo;
-
-    public static void registerProviders(LaunchServer server) {
-        if (!registeredProviders) {
-            providers.put(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, new LauncherResponse.LauncherTokenVerifier(server));
-            providers.put("publicKey", new AdvancedProtectHandler.PublicKeyTokenVerifier(server));
-            providers.put("hardware", new AdvancedProtectHandler.HardwareInfoTokenVerifier(server));
-            providers.put("checkServer", new AuthManager.CheckServerVerifier(server));
-            registeredProviders = true;
-        }
-    }
 
     @Override
     public String getType() {
@@ -87,7 +70,7 @@ public class RestoreResponse extends SimpleResponse {
         List<String> invalidTokens = new ArrayList<>(4);
         if (extended != null) {
             extended.forEach((k, v) -> {
-                ExtendedTokenProvider provider = providers.get(k);
+                ExtendedTokenProvider provider = WebSocketService.restoreProviders.get(k);
                 if (provider == null) return;
                 if (!provider.accept(client, pair, v)) {
                     invalidTokens.add(k);

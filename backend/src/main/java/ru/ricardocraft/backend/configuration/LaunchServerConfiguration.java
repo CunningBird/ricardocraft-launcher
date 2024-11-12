@@ -8,20 +8,20 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.ricardocraft.backend.LaunchServer;
-import ru.ricardocraft.backend.LaunchServerBuilder;
-import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.command.utls.CommandHandler;
 import ru.ricardocraft.backend.command.utls.JLineCommandHandler;
 import ru.ricardocraft.backend.command.utls.StdCommandHandler;
-import ru.ricardocraft.backend.config.BasicLaunchServerConfigManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.config.LaunchServerConfigManager;
-import ru.ricardocraft.backend.properties.LaunchServerEnv;
-import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 import ru.ricardocraft.backend.core.LauncherTrustManager;
+import ru.ricardocraft.backend.core.managers.GsonManager;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.JVMHelper;
+import ru.ricardocraft.backend.manangers.BasicLaunchServerConfigManager;
 import ru.ricardocraft.backend.manangers.CertificateManager;
+import ru.ricardocraft.backend.manangers.KeyAgreementManager;
+import ru.ricardocraft.backend.manangers.LaunchServerConfigManager;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
+import ru.ricardocraft.backend.properties.LaunchServerEnv;
+import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Security;
 import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
 
 @Configuration
 @RequiredArgsConstructor
@@ -36,9 +37,7 @@ public class LaunchServerConfiguration {
 
     private static final Logger logger = LogManager.getLogger();
 
-    LaunchServerEnv env = LaunchServerEnv.PRODUCTION;
-
-    Path dir = IOHelper.WORKING_DIR;
+    private final Path dir = IOHelper.WORKING_DIR;
 
     @PostConstruct
     public void init() {
@@ -47,11 +46,20 @@ public class LaunchServerConfiguration {
     }
 
     @Bean
-    public LaunchServerDirectories directories() {
+    public LaunchServerEnv getEnv() {
+        return LaunchServerEnv.PRODUCTION;
+    }
+
+    @Bean
+    public LaunchServerDirectories directories() throws IOException {
         LaunchServerDirectories directories = new LaunchServerDirectories();
 
         directories.dir = dir;
         directories.collect();
+
+        if (!Files.isDirectory(directories.launcherPackDir)) {
+            Files.createDirectories(directories.launcherPackDir);
+        }
 
         return directories;
     }
@@ -97,18 +105,7 @@ public class LaunchServerConfiguration {
     }
 
     @Bean
-    public LaunchServerConfig launchServerConfig() throws IOException {
-        Path configFile;
-        configFile = dir.resolve("LaunchServer.json");
-
-        IOHelper.generateConfigIfNotExists(configFile, env);
-        logger.info("Reading LaunchServer config file");
-        BufferedReader reader = IOHelper.newReader(configFile);
-        return Launcher.gsonManager.gson.fromJson(reader, LaunchServerConfig.class);
-    }
-
-    @Bean
-    public LaunchServerRuntimeConfig runtimeConfig() throws IOException {
+    public LaunchServerRuntimeConfig runtimeConfig(GsonManager gsonManager) throws IOException {
         LaunchServerRuntimeConfig runtimeConfig;
 
         Path runtimeConfigFile;
@@ -121,9 +118,11 @@ public class LaunchServerConfiguration {
         } else {
             logger.info("Reading LaunchServer runtime config file");
             try (BufferedReader reader = IOHelper.newReader(runtimeConfigFile)) {
-                runtimeConfig = Launcher.gsonManager.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
+                runtimeConfig = gsonManager.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
             }
         }
+
+        runtimeConfig.verify();
 
         return runtimeConfig;
     }
@@ -137,21 +136,7 @@ public class LaunchServerConfiguration {
     }
 
     @Bean
-    public LaunchServer launchServer(LaunchServerDirectories directories,
-                                     CertificateManager certificateManager,
-                                     CommandHandler commandHandler,
-                                     LaunchServerConfig config,
-                                     LaunchServerRuntimeConfig runtimeConfig,
-                                     LaunchServerConfigManager launchServerConfigManager) throws Exception {
-
-        return new LaunchServerBuilder()
-                .setDirectories(directories)
-                .setEnv(env)
-                .setCommandHandler(commandHandler)
-                .setRuntimeConfig(runtimeConfig)
-                .setConfig(config)
-                .setLaunchServerConfigManager(launchServerConfigManager)
-                .setCertificateManager(certificateManager)
-                .build();
+    public KeyAgreementManager keyAgreementManager(LaunchServerDirectories directories) throws IOException, InvalidKeySpecException {
+        return new KeyAgreementManager(directories.keyDirectory);
     }
 }

@@ -1,33 +1,31 @@
 package ru.ricardocraft.backend.manangers;
 
-import ru.ricardocraft.backend.LaunchServer;
+import jakarta.annotation.PostConstruct;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.utils.Version;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Getter
+@RequiredArgsConstructor
+@Component
 public class FeaturesManager {
-    private final Map<String, String> map;
 
-    public FeaturesManager(LaunchServer server) {
-        map = new HashMap<>();
+    private final Map<String, String> map = new HashMap<>();
+
+    private final LaunchServerConfig config;
+
+    @PostConstruct
+    public void init() {
         addFeatureInfo("version", Version.getVersion().getVersionString());
-        addFeatureInfo("projectName", server.config.projectName);
-    }
-
-    public Map<String, String> getMap() {
-        return map;
-    }
-
-    public String getFeatureInfo(String name) {
-        return map.get(name);
+        addFeatureInfo("projectName", config.projectName);
     }
 
     public void addFeatureInfo(String name, String featureInfo) {
         map.put(name, featureInfo);
-    }
-
-    public String removeFeatureInfo(String name) {
-        return map.remove(name);
     }
 }

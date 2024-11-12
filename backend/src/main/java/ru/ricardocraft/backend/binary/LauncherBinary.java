@@ -4,6 +4,8 @@ import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.binary.tasks.LauncherBuildTask;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -11,18 +13,18 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class LauncherBinary extends BinaryPipeline {
-    public final LaunchServer server;
+    public final LaunchServerConfig config;
     public final Path syncBinaryFile;
     private volatile byte[] digest;
 
-    protected LauncherBinary(LaunchServer server, Path binaryFile, String nameFormat) {
-        super(server.tmpDir.resolve("build"), nameFormat);
-        this.server = server;
+    protected LauncherBinary(LaunchServerConfig config, LaunchServerDirectories directories, Path binaryFile, String nameFormat) {
+        super(directories.tmpDir.resolve("build"), nameFormat);
+        this.config = config;
         syncBinaryFile = binaryFile;
     }
 
-    public static Path resolve(LaunchServer server, String ext) {
-        return Path.of(server.config.binaryName + ext);
+    public static Path resolve(LaunchServerConfig config, String ext) {
+        return Path.of(config.binaryName + ext);
     }
 
     public void build() throws IOException {
@@ -40,7 +42,7 @@ public abstract class LauncherBinary extends BinaryPipeline {
             logger.info("Task {} processed from {} millis", task.getName(), time_task);
         }
         long time_end = System.currentTimeMillis();
-        server.config.updatesProvider.upload(null, Map.of(syncBinaryFile.toString(), thisPath), true);
+        config.updatesProvider.upload(null, Map.of(syncBinaryFile.toString(), thisPath), true);
         IOHelper.deleteDir(buildDir, false);
         logger.info("Build successful from {} millis", time_end - time_start);
     }
@@ -53,13 +55,10 @@ public abstract class LauncherBinary extends BinaryPipeline {
         return digest;
     }
 
-    public void init() {
-    }
-
     public final boolean sync() throws IOException {
         try {
             var target = syncBinaryFile.toString();
-            var path = server.config.updatesProvider.download(null, List.of(target)).get(target);
+            var path = config.updatesProvider.download(null, List.of(target)).get(target);
             digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, IOHelper.read(path));
             return true;
         } catch (Throwable e) {

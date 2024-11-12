@@ -12,7 +12,10 @@ import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.core.interfaces.user.UserSupportTextures;
 import ru.ricardocraft.backend.manangers.AuthManager;
+import ru.ricardocraft.backend.manangers.KeyAgreementManager;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.socket.Client;
+import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 import ru.ricardocraft.backend.helper.SecurityHelper;
 
@@ -159,7 +162,10 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public void init(LaunchServer server, AuthProviderPair pair) {
+    public void init(AuthManager authManager,
+                     LaunchServerConfig config,
+                     NettyServerSocketHandler nettyServerSocketHandler,
+                     KeyAgreementManager keyAgreementManager, AuthProviderPair pair) {
         client = HttpClient.newBuilder().build();
     }
 

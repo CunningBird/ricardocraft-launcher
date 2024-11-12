@@ -6,6 +6,7 @@ import ru.ricardocraft.backend.core.serialize.HInput;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.JVMHelper;
 import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.properties.LauncherEnvironment;
 
 import java.io.IOException;
 import java.net.URL;
@@ -83,7 +84,7 @@ public final class Launcher {
         return UUID_PATTERN.matcher(uuid.toString()).replaceAll("");
     }
 
-    public static void applyLauncherEnv(LauncherConfig.LauncherEnvironment env) {
+    public static void applyLauncherEnv(LauncherEnvironment env) {
         switch (env) {
             case DEV:
                 LogHelper.setDevEnabled(true);

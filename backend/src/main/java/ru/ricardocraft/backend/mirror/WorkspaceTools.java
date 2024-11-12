@@ -1,12 +1,17 @@
 package ru.ricardocraft.backend.mirror;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.base.Downloader;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
+import ru.ricardocraft.backend.command.utls.CommandHandler;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,10 +33,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+@Component
+@RequiredArgsConstructor
 public class WorkspaceTools {
-    private final LaunchServer server;
+
     private final Logger logger = LogManager.getLogger(WorkspaceTools.class);
+
     private static final Map<String, BuildInCommand> buildInCommands = new HashMap<>();
+
     static {
         buildInCommands.put("%download", new DownloadCommand());
         buildInCommands.put("%findJar", new FindJar());
@@ -40,9 +49,11 @@ public class WorkspaceTools {
         buildInCommands.put("%updateGradle", new UpdateGradle());
     }
 
-    public WorkspaceTools(LaunchServer server) {
-        this.server = server;
-    }
+    private final LaunchServerConfig config;
+
+    private final CommandHandler commandHandler;
+
+    private final LaunchServerDirectories directories;
 
     public void applyWorkspace(MirrorWorkspace workspace, Path workspaceFilePath) throws Exception {
         Path workspacePath = getWorkspaceDir();
@@ -113,12 +124,12 @@ public class WorkspaceTools {
                 Downloader.downloadFile(new URI(e.getValue().url()), target, null).getFuture().get();
             }
             logger.info("Install lwjgl3 directory");
-            server.commandHandler.findCommand("lwjgldownload").invoke(workspace.lwjgl3version(), "mirrorhelper-tmp-lwjgl3");
+            commandHandler.findCommand("lwjgldownload").invoke(workspace.lwjgl3version(), "mirrorhelper-tmp-lwjgl3");
             Path lwjgl3Path = workspacePath.resolve("workdir").resolve("lwjgl3");
-            IOHelper.move(server.updatesDir.resolve("mirrorhelper-tmp-lwjgl3"), lwjgl3Path);
-            Files.deleteIfExists(server.updatesDir.resolve("mirrorhelper-tmp-lwjgl3"));
+            IOHelper.move(directories.updatesDir.resolve("mirrorhelper-tmp-lwjgl3"), lwjgl3Path);
+            Files.deleteIfExists(directories.updatesDir.resolve("mirrorhelper-tmp-lwjgl3"));
             logger.info("Save config");
-            server.config.mirrorConfig.workspaceFile = workspaceFilePath.toString();
+            config.mirrorConfig.workspaceFile = workspaceFilePath.toString();
         } finally {
             IOHelper.deleteDir(tmp, true);
         }
@@ -142,7 +153,7 @@ public class WorkspaceTools {
                         throw new IllegalArgumentException(String.format("Build-in command %s not found", cmd.getFirst()));
                     }
                     List<String> cmdArgs = cmd.subList(1, cmd.size());
-                    buildInCommand.run(cmdArgs, context, server, workdir);
+                    buildInCommand.run(cmdArgs, context, workdir);
                 } else {
                     ProcessBuilder builder = new ProcessBuilder(cmd);
                     builder.inheritIO();
@@ -183,7 +194,7 @@ public class WorkspaceTools {
         public void update() {
             variables.put("scripttmpdir", scriptBuildDir.toString());
             variables.put("clientdir", targetClientDir.toString());
-            variables.put("projectname", server.config.projectName);
+            variables.put("projectname", config.projectName);
         }
         public String replace(String str) {
             if(str == null) {
@@ -201,13 +212,13 @@ public class WorkspaceTools {
     }
 
     private interface BuildInCommand {
-        void run(List<String> args, BuildContext context, LaunchServer server, Path workdir) throws Exception;
+        void run(List<String> args, BuildContext context, Path workdir) throws Exception;
     }
 
     private static final class DownloadCommand implements BuildInCommand {
 
         @Override
-        public void run(List<String> args, BuildContext context, LaunchServer server, Path workdir) throws Exception {
+        public void run(List<String> args, BuildContext context, Path workdir) throws Exception {
             URI uri = new URI(args.get(0));
             Path target = Path.of(args.get(1));
             context.logger.info("Download {} to {}", uri, target);
@@ -218,7 +229,7 @@ public class WorkspaceTools {
     private static final class FindJar implements BuildInCommand {
 
         @Override
-        public void run(List<String> args, BuildContext context, LaunchServer server, Path workdir) throws Exception {
+        public void run(List<String> args, BuildContext context, Path workdir) throws Exception {
             Path filePath = context.targetClientDir.resolve(args.get(0));
             String varName = args.get(1);
             if(Files.notExists(filePath)) {
@@ -240,7 +251,7 @@ public class WorkspaceTools {
     private static final class FetchManifestValue implements BuildInCommand {
 
         @Override
-        public void run(List<String> args, BuildContext context, LaunchServer server, Path workdir) throws Exception {
+        public void run(List<String> args, BuildContext context, Path workdir) throws Exception {
             Path filePath = context.targetClientDir.resolve(args.get(0));
             String[] splited = args.get(1).split(",");
             String varName = args.get(2);
@@ -269,7 +280,7 @@ public class WorkspaceTools {
     private static final class UpdateGradle implements BuildInCommand {
 
         @Override
-        public void run(List<String> args, BuildContext context, LaunchServer server, Path workdir) throws Exception {
+        public void run(List<String> args, BuildContext context, Path workdir) throws Exception {
             var repoDir = args.get(0);
             var toVersion = args.get(1);
             var propertiesPath = Path.of(repoDir).resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.properties");
@@ -287,7 +298,7 @@ public class WorkspaceTools {
     private static final class If implements BuildInCommand {
 
         @Override
-        public void run(List<String> args, BuildContext context, LaunchServer server, Path workdir) throws Exception {
+        public void run(List<String> args, BuildContext context, Path workdir) throws Exception {
             int ArgOffset = 1;
             boolean ifValue;
             if(args.get(0).equals("version")) {

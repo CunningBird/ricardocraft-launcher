@@ -68,8 +68,8 @@ public class LocalUpdatesProvider extends UpdatesProvider {
     }
 
     @Override
-    public void init(LaunchServer server) {
-        super.init(server);
+    public void init() {
+        super.init();
         try {
             if (!IOHelper.isDir(Path.of(updatesDir)))
                 Files.createDirectory(Path.of(updatesDir));

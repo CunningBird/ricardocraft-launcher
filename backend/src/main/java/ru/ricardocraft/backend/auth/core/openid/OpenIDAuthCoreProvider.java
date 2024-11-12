@@ -14,7 +14,10 @@ import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.manangers.AuthManager;
+import ru.ricardocraft.backend.manangers.KeyAgreementManager;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.socket.Client;
+import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 import ru.ricardocraft.backend.helper.LogHelper;
 
@@ -112,7 +115,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
                 .subject(user.getUUID().toString())
                 .claim("preferred_username", user.getUsername())
                 .expiration(Date.from(Instant.now().plus(24, ChronoUnit.HOURS)))
-                .signWith(server.keyAgreementManager.ecdsaPrivateKey)
+                .signWith(keyAgreementManager.ecdsaPrivateKey)
                 .compact();
     }
 
@@ -120,7 +123,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
         try {
             var parser = Jwts.parser()
                     .requireIssuer("LaunchServer")
-                    .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
+                    .verifyWith(keyAgreementManager.ecdsaPublicKey)
                     .build();
             var claims = parser.parseSignedClaims(accessToken);
             var username = claims.getPayload().get("preferred_username", String.class);
@@ -131,9 +134,11 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
         }
     }
 
-    @Override
-    public void init(LaunchServer server, AuthProviderPair pair) {
-        super.init(server, pair);
+    public void init(AuthManager authManager,
+                     LaunchServerConfig config,
+                     NettyServerSocketHandler nettyServerSocketHandler,
+                     KeyAgreementManager keyAgreementManager, AuthProviderPair pair) {
+        super.init(authManager, config, nettyServerSocketHandler, keyAgreementManager, pair);
         this.sqlSourceConfig.init();
         this.sqlUserStore = new SQLUserStore(sqlSourceConfig);
         this.sqlUserStore.init();

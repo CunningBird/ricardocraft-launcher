@@ -1,12 +1,14 @@
 package ru.ricardocraft.backend.manangers;
 
 import com.google.gson.JsonElement;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.mirror.WorkspaceTools;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.mirror.WorkspaceTools;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -22,15 +24,19 @@ import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@Component
 public class MirrorManager {
     protected final ArrayList<Mirror> list = new ArrayList<>();
     private transient final Logger logger = LogManager.getLogger();
     private transient final HttpClient client = HttpClient.newBuilder().build();
+    @Getter
     private Mirror defaultMirror;
-    private WorkspaceTools tools;
+    @Getter
+    private final WorkspaceTools tools;
 
-    public MirrorManager(LaunchServer server) {
-        tools = new WorkspaceTools(server);
+    @Autowired
+    public MirrorManager(WorkspaceTools tools) {
+        this.tools = tools;
     }
 
     public void addMirror(String mirror) {
@@ -38,33 +44,6 @@ public class MirrorManager {
         m.enabled = true;
         if (defaultMirror == null) defaultMirror = m;
         list.add(m);
-    }
-
-    public void addMirror(String mirror, boolean enabled) {
-        Mirror m = new Mirror(mirror);
-        m.enabled = enabled;
-        if (defaultMirror == null && enabled) defaultMirror = m;
-        list.add(m);
-    }
-
-    public Mirror getDefaultMirror() {
-        return defaultMirror;
-    }
-
-    public WorkspaceTools getTools() {
-        return tools;
-    }
-
-    public void setDefaultMirror(Mirror m) {
-        defaultMirror = m;
-    }
-
-    public void disableMirror(int index) {
-        list.get(index).enabled = false;
-    }
-
-    public void enableMirror(int index) {
-        list.get(index).enabled = true;
     }
 
     public int size() {
