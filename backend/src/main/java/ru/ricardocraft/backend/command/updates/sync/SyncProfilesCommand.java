@@ -2,16 +2,24 @@ package ru.ricardocraft.backend.command.updates.sync;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 
 import java.io.IOException;
 
+@Component
 public final class SyncProfilesCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
 
-    public SyncProfilesCommand(LaunchServer server) {
-        super(server);
+    private transient final LaunchServerConfig config;
+    private transient final NettyServerSocketHandler nettyServerSocketHandler;
+
+    public SyncProfilesCommand(LaunchServerConfig config, NettyServerSocketHandler nettyServerSocketHandler) {
+        super();
+        this.config = config;
+        this.nettyServerSocketHandler = nettyServerSocketHandler;
     }
 
     @Override
@@ -26,7 +34,7 @@ public final class SyncProfilesCommand extends Command {
 
     @Override
     public void invoke(String... args) throws IOException {
-        server.syncProfilesDir();
+        config.profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
         logger.info("Profiles successfully resynced");
     }
 }

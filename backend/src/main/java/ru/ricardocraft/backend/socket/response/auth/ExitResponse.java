@@ -2,11 +2,10 @@ package ru.ricardocraft.backend.socket.response.auth;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import ru.ricardocraft.backend.base.events.RequestEvent;
-import ru.ricardocraft.backend.base.events.request.ExitRequestEvent;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportExit;
+import ru.ricardocraft.backend.base.events.RequestEvent;
+import ru.ricardocraft.backend.base.events.request.ExitRequestEvent;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
@@ -17,7 +16,7 @@ public class ExitResponse extends SimpleResponse {
     public boolean exitAll;
     public String username;
 
-    public static void exit(LaunchServer server, WebSocketFrameHandler wsHandler, Channel channel, ExitRequestEvent.ExitReason reason) {
+    public static void exit(WebSocketFrameHandler wsHandler, Channel channel, ExitRequestEvent.ExitReason reason) {
 
         Client chClient = wsHandler.getClient();
         Client newCusClient = new Client();
@@ -73,7 +72,7 @@ public class ExitResponse extends SimpleResponse {
             service.forEachActiveChannels(((channel, webSocketFrameHandler) -> {
                 Client client1 = webSocketFrameHandler.getClient();
                 if (client1 != null && client.isAuth && client.username != null && client1.username.equals(username)) {
-                    exit(server, webSocketFrameHandler, channel, ExitRequestEvent.ExitReason.SERVER);
+                    exit(webSocketFrameHandler, channel, ExitRequestEvent.ExitReason.SERVER);
                 }
             }));
             sendResult(new ExitRequestEvent(ExitRequestEvent.ExitReason.NO_EXIT));

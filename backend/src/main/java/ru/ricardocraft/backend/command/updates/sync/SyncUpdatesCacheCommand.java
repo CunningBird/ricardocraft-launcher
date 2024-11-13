@@ -1,11 +1,19 @@
 package ru.ricardocraft.backend.command.updates.sync;
 
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.manangers.UpdatesManager;
 
+@Component
 public class SyncUpdatesCacheCommand extends Command {
-    public SyncUpdatesCacheCommand(LaunchServer server) {
-        super(server);
+
+    private transient final UpdatesManager updatesManager;
+
+    @Autowired
+    public SyncUpdatesCacheCommand(UpdatesManager updatesManager) {
+        super();
+        this.updatesManager = updatesManager;
     }
 
     @Override
@@ -20,6 +28,6 @@ public class SyncUpdatesCacheCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        server.updatesManager.readUpdatesFromCache();
+        updatesManager.readUpdatesFromCache();
     }
 }

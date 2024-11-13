@@ -6,34 +6,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.core.RejectAuthCoreProvider;
-import ru.ricardocraft.backend.base.events.RequestEvent;
-import ru.ricardocraft.backend.base.events.request.ProfilesRequestEvent;
+import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.binary.EXELauncherBinary;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;
-import ru.ricardocraft.backend.binary.LauncherBinary;
-import ru.ricardocraft.backend.command.GenerateCertificateCommand;
-import ru.ricardocraft.backend.command.OSSLSignEXECommand;
-import ru.ricardocraft.backend.command.basic.*;
-import ru.ricardocraft.backend.command.updates.DownloadAssetCommand;
-import ru.ricardocraft.backend.command.updates.DownloadClientCommand;
-import ru.ricardocraft.backend.command.updates.IndexAssetCommand;
-import ru.ricardocraft.backend.command.updates.UnindexAssetCommand;
-import ru.ricardocraft.backend.command.mirror.*;
-import ru.ricardocraft.backend.command.updates.profile.ProfilesCommand;
-import ru.ricardocraft.backend.command.remotecontrol.RemoteControlCommand;
-import ru.ricardocraft.backend.command.service.*;
-import ru.ricardocraft.backend.command.updates.sync.SyncCommand;
-import ru.ricardocraft.backend.command.tools.SignDirCommand;
-import ru.ricardocraft.backend.command.tools.SignJarCommand;
-import ru.ricardocraft.backend.command.unsafe.*;
-import ru.ricardocraft.backend.command.utls.*;
-import ru.ricardocraft.backend.manangers.LaunchServerConfigManager;
+import ru.ricardocraft.backend.command.utls.Command;
+import ru.ricardocraft.backend.command.utls.CommandHandler;
+import ru.ricardocraft.backend.command.utls.SubCommand;
+import ru.ricardocraft.backend.components.AuthLimiterComponent;
+import ru.ricardocraft.backend.components.ProGuardComponent;
+import ru.ricardocraft.backend.components.WhitelistComponent;
 import ru.ricardocraft.backend.helper.CommonHelper;
 import ru.ricardocraft.backend.helper.JVMHelper;
 import ru.ricardocraft.backend.helper.SignHelper;
 import ru.ricardocraft.backend.manangers.*;
-import ru.ricardocraft.backend.manangers.AuthHookManager;
 import ru.ricardocraft.backend.properties.*;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
@@ -44,7 +30,7 @@ import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -64,7 +50,6 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
 
     public final AtomicBoolean started = new AtomicBoolean(false);
     public final ScheduledExecutorService service;
-    public final int shardId;
 
     public final Path dir;
     public final Path tmpDir;
@@ -93,9 +78,10 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     public final EXELauncherBinary launcherEXEBinary;
     public final NettyServerSocketHandler nettyServerSocketHandler;
 
+    public Map<String, ru.ricardocraft.backend.components.Component> components;
+
     @Autowired
-    public LaunchServer(LaunchServerProperties launchServerProperties,
-                        LaunchServerDirectories directories,
+    public LaunchServer(LaunchServerDirectories directories,
                         LaunchServerConfig config,
                         LaunchServerEnv env,
                         LaunchServerRuntimeConfig runtimeConfig,
@@ -110,10 +96,14 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                         AuthManager authManager,
                         UpdatesManager updatesManager,
                         JARLauncherBinary launcherBinary,
-                        EXELauncherBinary launcherEXEBinary) throws IOException {
+                        EXELauncherBinary launcherEXEBinary,
+                        NettyServerSocketHandler nettyServerSocketHandler,
+
+                        AuthLimiterComponent authLimiterComponent,
+                        ProGuardComponent proGuardComponent,
+                        WhitelistComponent whitelistComponent) throws IOException {
 
         this.service = Executors.newScheduledThreadPool(config.netty.performance.schedulerThread);
-        this.shardId = Integer.parseInt(System.getProperty("launchserver.shardId", "0"));
 
         this.dir = directories.dir;
         this.tmpDir = directories.tmpDir;
@@ -138,26 +128,17 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         this.authManager = authManager;
         this.updatesManager = updatesManager;
 
-        registerCommands(commandHandler, this);
-
         this.launcherBinary = launcherBinary;
         this.launcherEXEBinary = launcherEXEBinary;
-        syncLauncherBinaries();
 
-        if (config.components != null) {
-            logger.debug("Init components");
-            config.components.forEach((k, v) -> {
-                logger.debug("Init component {}", k);
-                v.setComponentName(k);
-                v.init(this);
-            });
-            logger.debug("Init components successful");
-        }
+        this.nettyServerSocketHandler = nettyServerSocketHandler;
 
-        nettyServerSocketHandler = new NettyServerSocketHandler(this);
+        this.components = new HashMap<>();
+        this.components.put("authLimiter", authLimiterComponent);
+        this.components.put("proguard", proGuardComponent);
+        this.components.put("whitelist", whitelistComponent);
 
-        config.setLaunchServer(this);
-        config.init(ReloadType.FULL);
+        init(config, ReloadType.FULL);
 
         if (config.sign.checkCertificateExpired) {
             checkCertificateExpired();
@@ -236,7 +217,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
             CommonHelper.newThread("Profiles and updates sync", true, () -> {
                 try {
                     // Sync profiles dir
-                    syncProfilesDir();
+                    config.profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
 
                     // Sync updates dir
                     config.updatesProvider.syncInitially();
@@ -258,7 +239,7 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         logger.info("Close server socket");
         nettyServerSocketHandler.close();
         // Close handlers & providers
-        config.close(ReloadType.FULL);
+        close(config, ReloadType.FULL);
 
         logger.info("Save LaunchServer runtime config");
         launchServerConfigManager.writeRuntimeConfig(runtime);
@@ -267,28 +248,18 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
     }
 
     public void reload(ReloadType type) throws Exception {
-        config.close(type);
+        close(config, type);
         Map<String, AuthProviderPair> pairs = null;
         if (type.equals(ReloadType.NO_AUTH)) {
             pairs = config.auth;
         }
         logger.info("Reading LaunchServer config file");
         config = launchServerConfigManager.readConfig();
-        config.setLaunchServer(this);
         if (type.equals(ReloadType.NO_AUTH)) {
             config.auth = pairs;
         }
         config.verify();
-        config.init(type);
-        if (type.equals(ReloadType.FULL) && config.components != null) {
-            logger.debug("Init components");
-            config.components.forEach((k, v) -> {
-                logger.debug("Init component {}", k);
-                v.setComponentName(k);
-                v.init(this);
-            });
-            logger.debug("Init components successful");
-        }
+        init(config, type);
         if (!type.equals(ReloadType.NO_AUTH)) {
             nettyServerSocketHandler.nettyServer.service.forEachActiveChannels((channel, wsHandler) -> {
                 Client client = wsHandler.getClient();
@@ -296,6 +267,72 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
                     client.auth = config.getAuthProviderPair(client.auth_id);
                 }
             });
+        }
+    }
+
+    public void init(LaunchServerConfig config, ReloadType type) {
+        Launcher.applyLauncherEnv(config.env);
+        for (Map.Entry<String, AuthProviderPair> provider : config.auth.entrySet()) {
+            provider.getValue().init(authManager, config, nettyServerSocketHandler, keyAgreementManager, provider.getKey());
+        }
+        if (config.protectHandler != null) {
+            reconfigurableManager.registerObject("protectHandler", config.protectHandler);
+            config.protectHandler.init(config, keyAgreementManager);
+        }
+        if (config.profileProvider != null) {
+            reconfigurableManager.registerObject("profileProvider", config.profileProvider);
+            config.profileProvider.init(config.protectHandler);
+        }
+        if (config.updatesProvider != null) {
+            reconfigurableManager.registerObject("updatesProvider", config.updatesProvider);
+        }
+        if (components != null) {
+            components.forEach((k, v) -> reconfigurableManager.registerObject("component.".concat(k), v));
+        }
+        if (!type.equals(ReloadType.NO_AUTH)) {
+            for (AuthProviderPair pair : config.auth.values()) {
+                reconfigurableManager.registerObject("auth.".concat(pair.name).concat(".core"), pair.core);
+                reconfigurableManager.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+            }
+        }
+        Arrays.stream(config.mirrors).forEach(mirrorManager::addMirror);
+    }
+
+    public void close(LaunchServerConfig config, ReloadType type) {
+        try {
+            if (!type.equals(ReloadType.NO_AUTH)) {
+                for (AuthProviderPair pair : config.auth.values()) {
+                    reconfigurableManager.unregisterObject("auth.".concat(pair.name).concat(".core"), pair.core);
+                    reconfigurableManager.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
+                    pair.close();
+                }
+            }
+            if (type.equals(ReloadType.FULL)) {
+                components.forEach((k, component) -> {
+                    reconfigurableManager.unregisterObject("component.".concat(k), component);
+                    if (component instanceof AutoCloseable autoCloseable) {
+                        try {
+                            autoCloseable.close();
+                        } catch (Exception e) {
+                            logger.error(e);
+                        }
+                    }
+                });
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
+        if (config.protectHandler != null) {
+            reconfigurableManager.unregisterObject("protectHandler", config.protectHandler);
+            config.protectHandler.close();
+        }
+        if (config.profileProvider != null) {
+            reconfigurableManager.unregisterObject("profileProvider", config.profileProvider);
+            config.profileProvider.close();
+        }
+        if (config.updatesProvider != null) {
+            reconfigurableManager.unregisterObject("updatesProvider", config.updatesProvider);
+            config.updatesProvider.close();
         }
     }
 
@@ -316,119 +353,5 @@ public final class LaunchServer implements Runnable, AutoCloseable, Reconfigurab
         } catch (Throwable e) {
             logger.error("Can't get certificate expire date", e);
         }
-    }
-
-    public void buildLauncherBinaries() throws IOException {
-        launcherBinary.build();
-        launcherEXEBinary.build();
-    }
-
-    public void syncLauncherBinaries() throws IOException {
-        logger.info("Syncing launcher binaries");
-
-        // Syncing launcher binary
-        logger.info("Syncing launcher binary file");
-        if (!launcherBinary.sync()) logger.warn("Missing launcher binary file");
-
-        // Syncing launcher EXE binary
-        logger.info("Syncing launcher EXE binary file");
-        if (!launcherEXEBinary.sync()) logger.warn("Missing launcher EXE binary file");
-    }
-
-    public void syncProfilesDir() throws IOException {
-        logger.info("Syncing profiles dir");
-        config.profileProvider.sync();
-        if (config.netty.sendProfileUpdatesEvent) {
-            sendUpdateProfilesEvent();
-        }
-    }
-
-    public void syncUpdatesDir(Collection<String> dirs) throws IOException {
-        updatesManager.syncUpdatesDir(dirs);
-    }
-
-    private void sendUpdateProfilesEvent() {
-        if (nettyServerSocketHandler == null || nettyServerSocketHandler.nettyServer == null || nettyServerSocketHandler.nettyServer.service == null) {
-            return;
-        }
-        nettyServerSocketHandler.nettyServer.service.forEachActiveChannels((ch, handler) -> {
-            Client client = handler.getClient();
-            if (client == null || !client.isAuth) {
-                return;
-            }
-            ProfilesRequestEvent event = new ProfilesRequestEvent(config.profileProvider.getProfiles(client));
-            event.requestUUID = RequestEvent.eventUUID;
-            handler.service.sendObject(ch, event);
-        });
-    }
-
-    private void registerCommands(CommandHandler handler, LaunchServer server) {
-        BaseCommandCategory basic = new BaseCommandCategory();
-        // Register basic commands
-        basic.registerCommand("build", new BuildCommand(server));
-        basic.registerCommand("clear", new ClearCommand(handler));
-        basic.registerCommand("debug", new DebugCommand(server));
-        basic.registerCommand("gc", new GCCommand());
-        basic.registerCommand("help", new HelpCommand(handler));
-        basic.registerCommand("stop", new StopCommand(server));
-        basic.registerCommand("version", new VersionCommand(server));
-        CommandHandler.Category basicCategory = new CommandHandler.Category(basic, "basic", "Base LaunchServer commands");
-        handler.registerCategory(basicCategory);
-
-        // Register sync commands
-        BaseCommandCategory updates = new BaseCommandCategory();
-        updates.registerCommand("profile", new ProfilesCommand(server));
-        updates.registerCommand("sync", new SyncCommand(server));
-        updates.registerCommand("indexAsset", new IndexAssetCommand(server));
-        updates.registerCommand("unindexAsset", new UnindexAssetCommand(server));
-        updates.registerCommand("downloadAsset", new DownloadAssetCommand(server));
-        updates.registerCommand("downloadClient", new DownloadClientCommand(server));
-        CommandHandler.Category updatesCategory = new CommandHandler.Category(updates, "updates", "Update and Sync Management");
-        handler.registerCategory(updatesCategory);
-
-        //Register service commands
-        BaseCommandCategory service = new BaseCommandCategory();
-        service.registerCommand("config", new ConfigCommand(server));
-        service.registerCommand("serverStatus", new ServerStatusCommand(server));
-        service.registerCommand("notify", new NotifyCommand(server));
-        service.registerCommand("component", new ComponentCommand(server));
-        service.registerCommand("clients", new ClientsCommand(server));
-        service.registerCommand("securitycheck", new SecurityCheckCommand(server));
-        service.registerCommand("token", new TokenCommand(server));
-        CommandHandler.Category serviceCategory = new CommandHandler.Category(service, "service", "Managing LaunchServer Components");
-        handler.registerCategory(serviceCategory);
-
-        //Register tools commands
-        BaseCommandCategory tools = new BaseCommandCategory();
-        tools.registerCommand("signJar", new SignJarCommand(server));
-        tools.registerCommand("signDir", new SignDirCommand(server));
-        CommandHandler.Category toolsCategory = new CommandHandler.Category(tools, "tools", "Other tools");
-        handler.registerCategory(toolsCategory);
-
-        BaseCommandCategory unsafe = new BaseCommandCategory();
-        unsafe.registerCommand("loadJar", new LoadJarCommand(server));
-        unsafe.registerCommand("registerComponent", new RegisterComponentCommand(server));
-        unsafe.registerCommand("sendAuth", new SendAuthCommand(server));
-        unsafe.registerCommand("patcher", new PatcherCommand(server));
-        unsafe.registerCommand("cipherList", new CipherListCommand(server));
-        CommandHandler.Category unsafeCategory = new CommandHandler.Category(unsafe, "Unsafe");
-        handler.registerCategory(unsafeCategory);
-
-        BaseCommandCategory mirror = new BaseCommandCategory();
-        mirror.registerCommand("curseforge", new CurseforgeCommand(server));
-        mirror.registerCommand("installClient", new InstallClientCommand(server));
-        mirror.registerCommand("installMods", new InstallModCommand(server));
-        mirror.registerCommand("deduplibraries", new DeDupLibrariesCommand(server));
-        mirror.registerCommand("launchInstaller", new LaunchInstallerCommand(server));
-        mirror.registerCommand("lwjgldownload", new LwjglDownloadCommand(server));
-        mirror.registerCommand("patchauthlib", new PatchAuthlibCommand(server));
-        mirror.registerCommand("applyworkspace", new ApplyWorkspaceCommand(server));
-        mirror.registerCommand("workspace", new WorkspaceCommand(server));
-        CommandHandler.Category category = new CommandHandler.Category(mirror, "mirror");
-        handler.registerCategory(category);
-
-        handler.registerCommand("generatecertificate", new GenerateCertificateCommand(server));
-        handler.registerCommand("osslsignexe", new OSSLSignEXECommand(server));
-        handler.registerCommand("remotecontrol", new RemoteControlCommand(server));
     }
 }

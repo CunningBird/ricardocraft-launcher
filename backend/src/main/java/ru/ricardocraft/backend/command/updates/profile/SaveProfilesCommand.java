@@ -1,18 +1,25 @@
 package ru.ricardocraft.backend.command.updates.profile;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 
 import java.util.UUID;
 
+@Component
 public class SaveProfilesCommand extends Command {
-    private transient final Logger logger = LogManager.getLogger();
 
-    public SaveProfilesCommand(LaunchServer server) {
-        super(server);
+    private transient final LaunchServerConfig config;
+    private transient final NettyServerSocketHandler nettyServerSocketHandler;
+
+    @Autowired
+    public SaveProfilesCommand(LaunchServerConfig config, NettyServerSocketHandler nettyServerSocketHandler) {
+        super();
+        this.config = config;
+        this.nettyServerSocketHandler = nettyServerSocketHandler;
     }
 
     @Override
@@ -33,13 +40,13 @@ public class SaveProfilesCommand extends Command {
                 ClientProfile profile;
                 try {
                     UUID uuid = UUID.fromString(profileName);
-                    profile = server.config.profileProvider.getProfile(uuid);
+                    profile = config.profileProvider.getProfile(uuid);
                 } catch (IllegalArgumentException ex) {
-                    profile = server.config.profileProvider.getProfile(profileName);
+                    profile = config.profileProvider.getProfile(profileName);
                 }
-                server.config.profileProvider.addProfile(profile);
+                config.profileProvider.addProfile(profile);
             }
-            server.syncProfilesDir();
+            config.profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
         }
     }
 

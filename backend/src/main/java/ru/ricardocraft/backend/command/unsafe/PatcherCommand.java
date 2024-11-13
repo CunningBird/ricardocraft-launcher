@@ -1,11 +1,13 @@
 package ru.ricardocraft.backend.command.unsafe;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.unsafe.patcher.UnsafePatcher;
 import ru.ricardocraft.backend.command.unsafe.patcher.impl.*;
-import ru.ricardocraft.backend.LaunchServer;
-import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -15,11 +17,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class PatcherCommand extends Command {
     public static Map<String, UnsafePatcher> patchers = new HashMap<>();
 
-    public PatcherCommand(LaunchServer server) {
-        super(server);
+    private transient final LaunchServerDirectories directories;
+
+    @Autowired
+    public PatcherCommand(LaunchServerDirectories directories) {
+        super();
+        this.directories = directories;
     }
 
     @Override
@@ -67,7 +74,7 @@ public class PatcherCommand extends Command {
         }
         if (!IOHelper.exists(target))
             throw new IllegalStateException("Target path not exist");
-        Path tempFile = server.dir.resolve("build").resolve("patcher.tmp.jar");
+        Path tempFile = directories.dir.resolve("build").resolve("patcher.tmp.jar");
         if (IOHelper.isFile(target)) {
             patcher.processFile(target, tempFile, testMode);
         } else if (IOHelper.isDir(target)) {

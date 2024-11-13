@@ -22,11 +22,17 @@ import org.bouncycastle.pkcs.bc.BcPKCS12MacCalculatorBuilder;
 import org.bouncycastle.pkcs.bc.BcPKCS12PBEOutputEncryptorBuilder;
 import org.bouncycastle.pkcs.jcajce.JcaPKCS12SafeBagBuilder;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.LaunchServer;
+import ru.ricardocraft.backend.manangers.CertificateManager;
+import ru.ricardocraft.backend.manangers.KeyAgreementManager;
+import ru.ricardocraft.backend.manangers.LaunchServerConfigManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -39,10 +45,28 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
+@Component
 public class GenerateCertificateCommand extends Command {
     private final Logger logger = LogManager.getLogger(GenerateCertificateCommand.class);
-    public GenerateCertificateCommand(LaunchServer server) {
-        super(server);
+
+    private transient final LaunchServerConfig config;
+    private transient final LaunchServerDirectories directories;
+    private transient final CertificateManager certificateManager;
+    private transient final KeyAgreementManager keyAgreementManager;
+    private transient final LaunchServerConfigManager launchServerConfigManager;
+
+    @Autowired
+    public GenerateCertificateCommand(LaunchServerConfig config,
+                                      LaunchServerDirectories directories,
+                                      CertificateManager certificateManager,
+                                      KeyAgreementManager keyAgreementManager,
+                                      LaunchServerConfigManager launchServerConfigManager) {
+        super();
+        this.config = config;
+        this.directories = directories;
+        this.certificateManager = certificateManager;
+        this.keyAgreementManager = keyAgreementManager;
+        this.launchServerConfigManager = launchServerConfigManager;
     }
 
     @Override
@@ -57,10 +81,10 @@ public class GenerateCertificateCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        String projectName = server.config.projectName;
-        Path targetDir = server.keyAgreementManager.keyDirectory;
-        if(targetDir == null) {
-            targetDir = server.dir;
+        String projectName = config.projectName;
+        Path targetDir = keyAgreementManager.keyDirectory;
+        if (targetDir == null) {
+            targetDir = directories.dir;
         }
         targetDir = targetDir.resolve("certs");
         Files.createDirectories(targetDir);
@@ -77,11 +101,11 @@ public class GenerateCertificateCommand extends Command {
         logger.info("Generate ending certificate");
         GeneratedCertificate endCert = generateEndCertificate(projectName, rootCA.certificate().getSubject(), rootCA.pair.getPrivate(), startDate);
         logger.info("Save certificates to disk");
-        server.certificateManager.writeCertificate(rootCACrtPath, rootCA.certificate());
-        server.certificateManager.writePrivateKey(rootCAKeyPath, rootCA.pair().getPrivate());
+        certificateManager.writeCertificate(rootCACrtPath, rootCA.certificate());
+        certificateManager.writePrivateKey(rootCAKeyPath, rootCA.pair().getPrivate());
 
-        server.certificateManager.writeCertificate(codeSignCrtPath, rootCA.certificate());
-        server.certificateManager.writePrivateKey(codeSignKeyPath, rootCA.pair().getPrivate());
+        certificateManager.writeCertificate(codeSignCrtPath, rootCA.certificate());
+        certificateManager.writePrivateKey(codeSignKeyPath, rootCA.pair().getPrivate());
 
         logger.info("Prepare PKCS#12 keystore");
         String passwd = SecurityHelper.randomStringToken();
@@ -102,15 +126,15 @@ public class GenerateCertificateCommand extends Command {
         logger.info("Configuration: {}", Launcher.gsonManager.configGson.toJson(conf));
         logger.info("KeyAlias may be incorrect. Usage: 'keytool -storepass {} -keystore {} -list' for check alias", passwd, conf.keyStore);
         logger.warn("Must save your store password");
-        if (!server.config.sign.enabled) {
+        if (!config.sign.enabled) {
             logger.info("Write config");
-            server.config.sign = conf;
+            config.sign = conf;
             logger.info("Add your RootCA to truststore");
-            Path pathToRootCA = server.dir.resolve("truststore").resolve(projectName.concat("RootCA.crt"));
+            Path pathToRootCA = directories.dir.resolve("truststore").resolve(projectName.concat("RootCA.crt"));
             Files.deleteIfExists(pathToRootCA);
             Files.copy(rootCACrtPath, pathToRootCA);
-            server.certificateManager.readTrustStore(targetDir.resolve("truststore"));
-            server.launchServerConfigManager.writeConfig(server.config);
+            certificateManager.readTrustStore(targetDir.resolve("truststore"));
+            launchServerConfigManager.writeConfig(config);
         } else {
             Path pathToRootCA = targetDir.resolve("truststore").resolve(projectName.concat("RootCA.crt"));
             Files.deleteIfExists(pathToRootCA);

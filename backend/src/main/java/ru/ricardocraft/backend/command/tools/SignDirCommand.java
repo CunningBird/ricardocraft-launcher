@@ -2,21 +2,35 @@ package ru.ricardocraft.backend.command.tools;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.binary.JARLauncherBinary;
+import ru.ricardocraft.backend.binary.LauncherBinary;
 import ru.ricardocraft.backend.binary.tasks.SignJarTask;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Optional;
 
+@Component
 public class SignDirCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
 
-    public SignDirCommand(LaunchServer server) {
-        super(server);
+    private transient final LaunchServerConfig config;
+    private transient final LaunchServerDirectories directories;
+    private transient final LauncherBinary launcherBinary;
+
+    @Autowired
+    public SignDirCommand(LaunchServerConfig config, LaunchServerDirectories directories, JARLauncherBinary launcherBinary) {
+        super();
+        this.config = config;
+        this.directories = directories;
+        this.launcherBinary = launcherBinary;
     }
 
     @Override
@@ -35,7 +49,7 @@ public class SignDirCommand extends Command {
         Path targetDir = Paths.get(args[0]);
         if (!IOHelper.isDir(targetDir))
             throw new IllegalArgumentException("%s not directory".formatted(targetDir));
-        Optional<SignJarTask> task = server.launcherBinary.getTaskByClass(SignJarTask.class);
+        Optional<SignJarTask> task = launcherBinary.getTaskByClass(SignJarTask.class);
         if (task.isEmpty()) throw new IllegalStateException("SignJarTask not found");
         IOHelper.walk(targetDir, new SignJarVisitor(task.get()), true);
         logger.info("Success signed");
@@ -51,9 +65,9 @@ public class SignDirCommand extends Command {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (file.toFile().getName().endsWith(".jar")) {
-                Path tmpSign = server.dir.resolve("build").resolve(file.toFile().getName());
+                Path tmpSign = directories.dir.resolve("build").resolve(file.toFile().getName());
                 logger.info("Signing jar {}", file.toString());
-                task.sign(server.config.sign, file, tmpSign);
+                task.sign(config.sign, file, tmpSign);
                 Files.deleteIfExists(file);
                 Files.move(tmpSign, file);
             }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.base.Downloader;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
+import ru.ricardocraft.backend.command.mirror.LwjglDownloadCommand;
 import ru.ricardocraft.backend.command.utls.CommandHandler;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper;
@@ -51,7 +52,7 @@ public class WorkspaceTools {
 
     private final LaunchServerConfig config;
 
-    private final CommandHandler commandHandler;
+    private final LwjglDownloadCommand lwjglDownloadCommand;
 
     private final LaunchServerDirectories directories;
 
@@ -124,7 +125,7 @@ public class WorkspaceTools {
                 Downloader.downloadFile(new URI(e.getValue().url()), target, null).getFuture().get();
             }
             logger.info("Install lwjgl3 directory");
-            commandHandler.findCommand("lwjgldownload").invoke(workspace.lwjgl3version(), "mirrorhelper-tmp-lwjgl3");
+            lwjglDownloadCommand.invoke(workspace.lwjgl3version(), "mirrorhelper-tmp-lwjgl3");
             Path lwjgl3Path = workspacePath.resolve("workdir").resolve("lwjgl3");
             IOHelper.move(directories.updatesDir.resolve("mirrorhelper-tmp-lwjgl3"), lwjgl3Path);
             Files.deleteIfExists(directories.updatesDir.resolve("mirrorhelper-tmp-lwjgl3"));

@@ -2,19 +2,27 @@ package ru.ricardocraft.backend.command.updates.sync;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.manangers.UpdatesManager;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+@Component
 public final class SyncUpdatesCommand extends Command {
+
     private transient final Logger logger = LogManager.getLogger();
 
-    public SyncUpdatesCommand(LaunchServer server) {
-        super(server);
+    private transient final UpdatesManager updatesManager;
+
+    @Autowired
+    public SyncUpdatesCommand(UpdatesManager updatesManager) {
+        super();
+        this.updatesManager = updatesManager;
     }
 
     @Override
@@ -36,7 +44,7 @@ public final class SyncUpdatesCommand extends Command {
         }
 
         // Hash updates dir
-        server.syncUpdatesDir(dirs);
+        updatesManager.syncUpdatesDir(dirs);
         logger.info("Updates dir successfully resynced");
     }
 }

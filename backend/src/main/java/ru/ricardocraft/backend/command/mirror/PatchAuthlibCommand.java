@@ -2,8 +2,10 @@ package ru.ricardocraft.backend.command.mirror;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -18,11 +20,16 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+@Component
 public class PatchAuthlibCommand extends Command {
     private static final Logger logger = LogManager.getLogger();
 
-    public PatchAuthlibCommand(LaunchServer server) {
-        super(server);
+    private transient final LaunchServerDirectories directories;
+
+    @Autowired
+    public PatchAuthlibCommand(LaunchServerDirectories directories) {
+        super();
+        this.directories = directories;
     }
 
     @Override
@@ -38,7 +45,7 @@ public class PatchAuthlibCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 2);
-        Path dir = server.updatesDir.resolve(args[0]);
+        Path dir = directories.updatesDir.resolve(args[0]);
         Path originalAuthlib;
         if (Files.isDirectory(dir)) {
             Optional<Path> authlibDir = Files.list(dir.resolve("libraries/com/mojang/authlib")).findFirst();
@@ -57,7 +64,7 @@ public class PatchAuthlibCommand extends Command {
         if (Files.notExists(launcherAuthlib)) {
             throw new FileNotFoundException(launcherAuthlib.toString());
         }
-        Path mergedFile = server.tmpDir.resolve("merged.jar");
+        Path mergedFile = directories.tmpDir.resolve("merged.jar");
         logger.info("Merge {} and {} into {}", launcherAuthlib, originalAuthlib, mergedFile);
         try (ZipOutputStream output = new ZipOutputStream(new FileOutputStream(mergedFile.toFile()))) {
             Set<String> files = new HashSet<>();

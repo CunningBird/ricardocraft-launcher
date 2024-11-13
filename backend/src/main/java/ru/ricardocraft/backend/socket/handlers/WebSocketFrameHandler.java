@@ -5,6 +5,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.concurrent.ScheduledFuture;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.LaunchServer;
@@ -19,27 +21,19 @@ import java.util.concurrent.TimeUnit;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
-    public final LaunchServer srv;
     public final WebSocketService service;
     public final BiHookSet<ChannelHandlerContext, WebSocketFrame> hooks = new BiHookSet<>();
     private final UUID connectUUID = UUID.randomUUID();
     private transient final Logger logger = LogManager.getLogger();
     public NettyConnectContext context;
+    @Setter
+    @Getter
     private Client client;
     private ScheduledFuture<?> future;
 
-    public WebSocketFrameHandler(NettyConnectContext context, LaunchServer srv, WebSocketService service) {
+    public WebSocketFrameHandler(NettyConnectContext context, WebSocketService service) {
         this.context = context;
-        this.srv = srv;
         this.service = service;
-    }
-
-    public Client getClient() {
-        return client;
-    }
-
-    public void setClient(Client client) {
-        this.client = client;
     }
 
     public final UUID getConnectUUID() {

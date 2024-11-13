@@ -26,9 +26,9 @@ public class BatchProfileByUsername extends SimpleResponse {
         for (int i = 0; i < list.length; ++i) {
             AuthProviderPair pair = client.auth;
             if (pair == null) {
-                pair = server.config.getAuthProviderPair();
+                pair = config.getAuthProviderPair();
             }
-            result.playerProfiles[i] = server.authManager.getPlayerProfile(pair, list[i].username);
+            result.playerProfiles[i] = authManager.getPlayerProfile(pair, list[i].username);
         }
         sendResult(result);
     }

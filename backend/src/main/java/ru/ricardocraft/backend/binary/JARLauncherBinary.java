@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.binary;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Component
 public final class JARLauncherBinary extends LauncherBinary {
+
     public final AtomicLong count;
     public final Path runtimeDir;
     public final Path buildDirectory;
@@ -55,5 +57,11 @@ public final class JARLauncherBinary extends LauncherBinary {
         tasks.add(new AdditionalFixesApplyTask(this, config));
         if (config.launcher.compress) tasks.add(new CompressBuildTask(this));
         tasks.add(new SignJarTask(this, config.sign));
+    }
+
+    @PostConstruct
+    public void check() throws IOException {
+        logger.info("Syncing launcher binary file");
+        if (!sync()) logger.warn("Missing launcher binary file");
     }
 }

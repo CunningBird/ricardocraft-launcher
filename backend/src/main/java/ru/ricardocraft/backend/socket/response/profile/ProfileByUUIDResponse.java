@@ -22,7 +22,7 @@ public class ProfileByUUIDResponse extends SimpleResponse {
     public void execute(ChannelHandlerContext ctx, Client client) {
         AuthProviderPair pair;
         if (client.auth == null) {
-            pair = server.config.getAuthProviderPair();
+            pair = config.getAuthProviderPair();
         } else {
             pair = client.auth;
         }
@@ -35,6 +35,6 @@ public class ProfileByUUIDResponse extends SimpleResponse {
             sendError("User not found");
             return;
         }
-        sendResult(new ProfileByUUIDRequestEvent(server.authManager.getPlayerProfile(pair, uuid)));
+        sendResult(new ProfileByUUIDRequestEvent(authManager.getPlayerProfile(pair, uuid)));
     }
 }

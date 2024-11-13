@@ -35,9 +35,9 @@ public class RestoreResponse extends SimpleResponse {
         AuthProviderPair pair;
         if (!client.isAuth) {
             if (authId == null) {
-                pair = server.config.getAuthProviderPair();
+                pair = config.getAuthProviderPair();
             } else {
-                pair = server.config.getAuthProviderPair(authId);
+                pair = config.getAuthProviderPair(authId);
             }
         } else {
             pair = client.auth;
@@ -65,7 +65,7 @@ public class RestoreResponse extends SimpleResponse {
             }
             client.coreObject = user;
             client.sessionObject = session;
-            server.authManager.internalAuth(client, client.type == null ? AuthResponse.ConnectTypes.API : client.type, pair, user.getUsername(), user.getUUID(), user.getPermissions(), true);
+            authManager.internalAuth(client, client.type == null ? AuthResponse.ConnectTypes.API : client.type, pair, user.getUsername(), user.getUUID(), user.getPermissions(), true);
         }
         List<String> invalidTokens = new ArrayList<>(4);
         if (extended != null) {
@@ -78,7 +78,7 @@ public class RestoreResponse extends SimpleResponse {
             });
         }
         if (needUserInfo && client.isAuth) {
-            sendResult(new RestoreRequestEvent(CurrentUserResponse.collectUserInfoFromClient(server, client), invalidTokens));
+            sendResult(new RestoreRequestEvent(CurrentUserResponse.collectUserInfoFromClient(authManager, client), invalidTokens));
         } else {
             sendResult(new RestoreRequestEvent(invalidTokens));
         }

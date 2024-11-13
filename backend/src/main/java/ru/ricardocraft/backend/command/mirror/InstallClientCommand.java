@@ -1,22 +1,54 @@
 package ru.ricardocraft.backend.command.mirror;
 
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.command.mirror.installers.FabricInstallerCommand;
+import ru.ricardocraft.backend.command.mirror.installers.QuiltInstallerCommand;
+import ru.ricardocraft.backend.command.updates.profile.MakeProfileCommand;
+import ru.ricardocraft.backend.manangers.MirrorManager;
+import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.mirror.InstallClient;
 import ru.ricardocraft.backend.mirror.MirrorWorkspace;
-import ru.ricardocraft.backend.properties.MirrorConfig;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Component
 public class InstallClientCommand extends Command {
-    private final MirrorConfig config;
+    private final transient LaunchServerConfig config;
+    private final transient LaunchServerDirectories directories;
+    private final transient UpdatesManager updatesManager;
+    private final transient MirrorManager mirrorManager;
 
-    public InstallClientCommand(LaunchServer server) {
-        super(server);
-        this.config = server.config.mirrorConfig;
+    private final transient FabricInstallerCommand fabricInstallerCommand;
+    private final transient QuiltInstallerCommand quiltInstallerCommand;
+    private final transient DeDupLibrariesCommand deDupLibrariesCommand;
+    private final transient MakeProfileCommand makeProfileCommand;
+
+    @Autowired
+    public InstallClientCommand(LaunchServerConfig config,
+                                LaunchServerDirectories directories,
+                                UpdatesManager updatesManager,
+                                MirrorManager mirrorManager,
+                                FabricInstallerCommand fabricInstallerCommand,
+                                QuiltInstallerCommand quiltInstallerCommand,
+                                DeDupLibrariesCommand deDupLibrariesCommand,
+                                MakeProfileCommand makeProfileCommand) {
+        super();
+        this.config = config;
+        this.directories = directories;
+        this.updatesManager = updatesManager;
+        this.mirrorManager = mirrorManager;
+
+        this.fabricInstallerCommand = fabricInstallerCommand;
+        this.quiltInstallerCommand = quiltInstallerCommand;
+        this.deDupLibrariesCommand = deDupLibrariesCommand;
+        this.makeProfileCommand = makeProfileCommand;
     }
 
     @Override
@@ -36,20 +68,22 @@ public class InstallClientCommand extends Command {
         ClientProfile.Version version = parseClientVersion(args[1]);
         InstallClient.VersionType versionType = InstallClient.VersionType.valueOf(args[2]);
         List<String> mods = new ArrayList<>();
-        MirrorWorkspace mirrorWorkspace = config.workspace;
+        MirrorWorkspace mirrorWorkspace = config.mirrorConfig.workspace;
         if(mirrorWorkspace != null) {
             switch (versionType) {
                 case VANILLA -> {
                 }
-                case FABRIC -> mods.addAll(config.workspace.fabricMods());
-                case FORGE -> mods.addAll(config.workspace.forgeMods());
-                case QUILT -> mods.addAll(config.workspace.quiltMods());
+                case FABRIC -> mods.addAll(config.mirrorConfig.workspace.fabricMods());
+                case FORGE -> mods.addAll(config.mirrorConfig.workspace.forgeMods());
+                case QUILT -> mods.addAll(config.mirrorConfig.workspace.quiltMods());
             }
         }
         if (args.length > 3) {
             mods = Arrays.stream(args[3].split(",")).toList();
         }
-        InstallClient run = new InstallClient(server, name, version, mods, versionType, mirrorWorkspace);
+        InstallClient run = new InstallClient(config, directories, updatesManager, mirrorManager,
+                fabricInstallerCommand, quiltInstallerCommand, deDupLibrariesCommand, makeProfileCommand,
+                name, version, mods, versionType, mirrorWorkspace);
         run.run();
     }
 }

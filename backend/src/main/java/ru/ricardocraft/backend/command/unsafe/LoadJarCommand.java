@@ -1,6 +1,7 @@
 package ru.ricardocraft.backend.command.unsafe;
 
-import ru.ricardocraft.backend.LaunchServer;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.StarterAgent;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.helper.LogHelper;
@@ -9,10 +10,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.jar.JarFile;
 
+@Component
+@NoArgsConstructor
 public class LoadJarCommand extends Command {
-    public LoadJarCommand(LaunchServer server) {
-        super(server);
-    }
 
     @Override
     public String getArgsDescription() {

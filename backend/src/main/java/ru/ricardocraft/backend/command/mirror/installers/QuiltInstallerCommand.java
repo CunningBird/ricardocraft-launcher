@@ -2,10 +2,14 @@ package ru.ricardocraft.backend.command.mirror.installers;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.manangers.UpdatesManager;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -21,11 +25,18 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class QuiltInstallerCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
 
-    public QuiltInstallerCommand(LaunchServer server) {
-        super(server);
+    private transient final LaunchServerDirectories directories;
+    private transient final UpdatesManager updatesManager;
+
+    @Autowired
+    public QuiltInstallerCommand(LaunchServerDirectories directories, UpdatesManager updatesManager) {
+        super();
+        this.directories = directories;
+        this.updatesManager = updatesManager;
     }
 
     public static NamedURL makeURL(String mavenUrl, String mavenId) throws URISyntaxException, MalformedURLException {
@@ -59,7 +70,7 @@ public class QuiltInstallerCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 3);
         String version = args[0];
-        Path vanillaDir = server.updatesDir.resolve(args[1]);
+        Path vanillaDir = directories.updatesDir.resolve(args[1]);
         if (!Files.exists(vanillaDir)) {
             throw new FileNotFoundException(vanillaDir.toString());
         }
@@ -99,7 +110,7 @@ public class QuiltInstallerCommand extends Command {
         }
         logger.info("Clearing...");
         IOHelper.deleteDir(vanillaDir.resolve("versions"), true);
-        server.updatesManager.syncUpdatesDir(List.of(args[1]));
+        updatesManager.syncUpdatesDir(List.of(args[1]));
         logger.info("Quilt installed successful. Please use `makeprofile` command");
     }
 

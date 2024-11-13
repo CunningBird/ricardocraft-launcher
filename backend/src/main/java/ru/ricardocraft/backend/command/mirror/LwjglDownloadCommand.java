@@ -3,10 +3,12 @@ package ru.ricardocraft.backend.command.mirror;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.JVMHelper;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.*;
 import java.net.URI;
@@ -19,11 +21,15 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@Component
 public class LwjglDownloadCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
 
-    public LwjglDownloadCommand(LaunchServer server) {
-        super(server);
+    private transient final LaunchServerDirectories directories;
+    @Autowired
+    public LwjglDownloadCommand(LaunchServerDirectories directories) {
+        super();
+        this.directories = directories;
     }
 
     public static OSArchPair getFromLwjglNativeName(String name) {
@@ -73,7 +79,7 @@ public class LwjglDownloadCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 2);
         String version = args[0];
-        Path clientDir = server.updatesDir.resolve(args[1]);
+        Path clientDir = directories.updatesDir.resolve(args[1]);
         Path lwjglDir = clientDir.resolve("libraries").resolve("org").resolve("lwjgl");
         Path natives = clientDir.resolve("natives");
         List<String> components = List.of("lwjgl", "lwjgl-stb", "lwjgl-opengl", "lwjgl-openal", "lwjgl-glfw", "lwjgl-tinyfd", "lwjgl-jemalloc");

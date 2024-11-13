@@ -26,9 +26,9 @@ public class RefreshTokenResponse extends SimpleResponse {
         AuthProviderPair pair;
         if (!client.isAuth) {
             if (authId == null) {
-                pair = server.config.getAuthProviderPair();
+                pair = config.getAuthProviderPair();
             } else {
-                pair = server.config.getAuthProviderPair(authId);
+                pair = config.getAuthProviderPair(authId);
             }
         } else {
             pair = client.auth;

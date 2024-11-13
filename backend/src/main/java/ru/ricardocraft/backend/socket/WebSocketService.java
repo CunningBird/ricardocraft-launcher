@@ -16,7 +16,11 @@ import ru.ricardocraft.backend.base.events.request.ExitRequestEvent;
 import ru.ricardocraft.backend.base.events.request.LauncherRequestEvent;
 import ru.ricardocraft.backend.base.request.WebSocketEvent;
 import ru.ricardocraft.backend.LaunchServer;
-import ru.ricardocraft.backend.manangers.AuthManager;
+import ru.ricardocraft.backend.binary.EXELauncherBinary;
+import ru.ricardocraft.backend.binary.JARLauncherBinary;
+import ru.ricardocraft.backend.manangers.*;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
 import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
@@ -58,16 +62,48 @@ public class WebSocketService {
     public final HookSet<WebSocketRequestContext> hookBeforeExecute = new HookSet<>();
     public final HookSet<WebSocketRequestContext> hookComplete = new HookSet<>();
     public final BiHookSet<Channel, Object> hookSend = new BiHookSet<>();
-    private final LaunchServer server;
+
+    public transient final LaunchServerRuntimeConfig runtimeConfig;
+    public transient final LaunchServerConfig config;
+    public transient final AuthManager authManager;
+    public transient final AuthHookManager authHookManager;
+    public transient final UpdatesManager updatesManager;
+    public transient final KeyAgreementManager keyAgreementManager;
+    public transient final JARLauncherBinary launcherBinary;
+    public transient final EXELauncherBinary exeLauncherBinary;
+    public transient final FeaturesManager featuresManager;
+    public transient final int shardId;
+
     private final Gson gson;
     private transient final Logger logger = LogManager.getLogger();
+
     private ExecutorService executors;
 
-    public WebSocketService(ChannelGroup channels, LaunchServer server) {
+    public WebSocketService(ChannelGroup channels,
+                            LaunchServerRuntimeConfig runtimeConfig,
+                            LaunchServerConfig config,
+                            AuthManager authManager,
+                            AuthHookManager authHookManager,
+                            UpdatesManager updatesManager,
+                            KeyAgreementManager keyAgreementManager,
+                            JARLauncherBinary launcherBinary,
+                            EXELauncherBinary exeLauncherBinary,
+                            FeaturesManager featuresManager,
+                            int shardId) {
+        this.runtimeConfig = runtimeConfig;
         this.channels = channels;
-        this.server = server;
+        this.config = config;
+        this.authManager = authManager;
+        this.authHookManager = authHookManager;
+        this.updatesManager = updatesManager;
+        this.keyAgreementManager = keyAgreementManager;
+        this.launcherBinary = launcherBinary;
+        this.exeLauncherBinary = exeLauncherBinary;
+        this.featuresManager = featuresManager;
+        this.shardId = shardId;
+
         this.gson = Launcher.gsonManager.gson;
-        executors = switch (server.config.netty.performance.executorType) {
+        executors = switch (config.netty.performance.executorType) {
             case NONE -> null;
             case DEFAULT -> Executors.newCachedThreadPool();
             case WORK_STEAL -> Executors.newWorkStealingPool();
@@ -153,7 +189,7 @@ public class WebSocketService {
     public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip, UUID connectUUID) {
         String request = frame.text();
         WebSocketRequestContext context = new WebSocketRequestContext(ctx, request, client, ip, connectUUID);
-        if(hookBeforeParsing.hook(context)) {
+        if (hookBeforeParsing.hook(context)) {
             return;
         }
         WebSocketServerResponse response = gson.fromJson(request, WebSocketServerResponse.class);
@@ -164,9 +200,9 @@ public class WebSocketService {
             sendObject(ctx.channel(), event, WebSocketEvent.class);
             return;
         }
-        var safeStatus = server.config.netty.performance.disableThreadSafeClientObject ?
+        var safeStatus = config.netty.performance.disableThreadSafeClientObject ?
                 WebSocketServerResponse.ThreadSafeStatus.NONE : response.getThreadSafeStatus();
-        if(executors == null) {
+        if (executors == null) {
             process(safeStatus, client, ip, context, response);
         } else {
             executors.submit(() -> process(safeStatus, client, ip, context, response));
@@ -205,7 +241,15 @@ public class WebSocketService {
         }
         ChannelHandlerContext ctx = context.context;
         if (response instanceof SimpleResponse simpleResponse) {
-            simpleResponse.server = server;
+
+            simpleResponse.config = config;
+            simpleResponse.authManager = authManager;
+            simpleResponse.authHookManager = authHookManager;
+            simpleResponse.updatesManager = updatesManager;
+            simpleResponse.keyAgreementManager = keyAgreementManager;
+            simpleResponse.launcherBinary = launcherBinary;
+            simpleResponse.exeLauncherBinary = exeLauncherBinary;
+
             simpleResponse.service = this;
             simpleResponse.ctx = ctx;
             if (ip != null) simpleResponse.ip = ip;
@@ -230,7 +274,7 @@ public class WebSocketService {
     }
 
     public void sendObject(Channel channel, Object obj) {
-        if(hookSend.hook(channel, obj)) {
+        if (hookSend.hook(channel, obj)) {
             return;
         }
         String msg = gson.toJson(obj, WebSocketEvent.class);
@@ -241,7 +285,7 @@ public class WebSocketService {
     }
 
     public void sendObject(Channel channel, Object obj, Type type) {
-        if(hookSend.hook(channel, obj)) {
+        if (hookSend.hook(channel, obj)) {
             return;
         }
         String msg = gson.toJson(obj, type);
@@ -264,7 +308,7 @@ public class WebSocketService {
             if (wsHandler == null) continue;
             Client client = wsHandler.getClient();
             if (client == null || !userUuid.equals(client.uuid)) continue;
-            if(hookSend.hook(ch, obj)) {
+            if (hookSend.hook(ch, obj)) {
                 continue;
             }
             String msg = gson.toJson(obj, type);
@@ -295,7 +339,7 @@ public class WebSocketService {
             if (wsHandler == null) continue;
             Client client = wsHandler.getClient();
             if (client == null || !userUuid.equals(client.uuid)) continue;
-            ExitResponse.exit(server, wsHandler, ch, ExitRequestEvent.ExitReason.SERVER);
+            ExitResponse.exit(wsHandler, ch, ExitRequestEvent.ExitReason.SERVER);
             if (isClose) ch.close();
             result = true;
         }
@@ -308,7 +352,7 @@ public class WebSocketService {
             WebSocketFrameHandler wsHandler = ch.pipeline().get(WebSocketFrameHandler.class);
             if (wsHandler == null) continue;
             if (connectUuid.equals(wsHandler.getConnectUUID())) {
-                ExitResponse.exit(server, wsHandler, ch, ExitRequestEvent.ExitReason.SERVER);
+                ExitResponse.exit(wsHandler, ch, ExitRequestEvent.ExitReason.SERVER);
                 if (isClose) ch.close();
                 return true;
             }
@@ -326,7 +370,7 @@ public class WebSocketService {
             if (wsHandler.context != null && wsHandler.context.ip != null) clientIp = wsHandler.context.ip;
             else clientIp = IOHelper.getIP(ch.remoteAddress());
             if (ip.equals(clientIp)) {
-                ExitResponse.exit(server, wsHandler, ch, ExitRequestEvent.ExitReason.SERVER);
+                ExitResponse.exit(wsHandler, ch, ExitRequestEvent.ExitReason.SERVER);
                 if (isClose) ch.close();
                 result = true;
             }
@@ -335,7 +379,7 @@ public class WebSocketService {
     }
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj) {
-        if(hookSend.hook(ctx.channel(), obj)) {
+        if (hookSend.hook(ctx.channel(), obj)) {
             return;
         }
         String msg = gson.toJson(obj, WebSocketEvent.class);
@@ -346,7 +390,7 @@ public class WebSocketService {
     }
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj, Type type) {
-        if(hookSend.hook(ctx.channel(), obj)) {
+        if (hookSend.hook(ctx.channel(), obj)) {
             return;
         }
         String msg = gson.toJson(obj, type);

@@ -45,24 +45,24 @@ public class LauncherResponse extends SimpleResponse {
             bytes = digest;
         if (launcher_type == 1) // JAR
         {
-            byte[] hash = server.launcherBinary.getDigest();
+            byte[] hash = launcherBinary.getDigest();
             if (hash == null)
-                service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, server.config.netty.launcherURL));
+                service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, config.netty.launcherURL));
             if (Arrays.equals(bytes, hash) && checkSecure(secureHash, secureSalt)) {
                 client.checkSign = true;
-                sendResult(new LauncherRequestEvent(false, server.config.netty.launcherURL, createLauncherExtendedToken(), server.config.netty.security.launcherTokenExpire*1000));
+                sendResult(new LauncherRequestEvent(false, config.netty.launcherURL, createLauncherExtendedToken(), config.netty.security.launcherTokenExpire*1000));
             } else {
-                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherURL, null, 0));
+                sendResultAndClose(new LauncherRequestEvent(true, config.netty.launcherURL, null, 0));
             }
         } else if (launcher_type == 2) //EXE
         {
-            byte[] hash = server.launcherEXEBinary.getDigest();
-            if (hash == null) sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL));
+            byte[] hash = exeLauncherBinary.getDigest();
+            if (hash == null) sendResultAndClose(new LauncherRequestEvent(true, config.netty.launcherEXEURL));
             if (Arrays.equals(bytes, hash) && checkSecure(secureHash, secureSalt)) {
                 client.checkSign = true;
-                sendResult(new LauncherRequestEvent(false, server.config.netty.launcherEXEURL, createLauncherExtendedToken(), server.config.netty.security.launcherTokenExpire*1000));
+                sendResult(new LauncherRequestEvent(false, config.netty.launcherEXEURL, createLauncherExtendedToken(), config.netty.security.launcherTokenExpire*1000));
             } else {
-                sendResultAndClose(new LauncherRequestEvent(true, server.config.netty.launcherEXEURL, null, 0));
+                sendResultAndClose(new LauncherRequestEvent(true, config.netty.launcherEXEURL, null, 0));
             }
         } else sendError("Request launcher type error");
     }
@@ -71,15 +71,15 @@ public class LauncherResponse extends SimpleResponse {
         return Jwts.builder()
                 .setIssuer("LaunchServer")
                 .claim("checkSign", true)
-                .setExpiration(Date.from(LocalDateTime.now().plusSeconds(server.config.netty.security.launcherTokenExpire).toInstant(ZoneOffset.UTC)))
-                .signWith(server.keyAgreementManager.ecdsaPrivateKey, SignatureAlgorithm.ES256)
+                .setExpiration(Date.from(LocalDateTime.now().plusSeconds(config.netty.security.launcherTokenExpire).toInstant(ZoneOffset.UTC)))
+                .signWith(keyAgreementManager.ecdsaPrivateKey, SignatureAlgorithm.ES256)
                 .compact();
     }
 
     private boolean checkSecure(String hash, String salt) {
         if (hash == null || salt == null) return false;
         byte[] normal_hash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
-                server.runtime.clientCheckSecret.concat(".").concat(salt));
+                runtimeConfig.clientCheckSecret.concat(".").concat(salt));
         byte[] launcher_hash = Base64.getDecoder().decode(hash);
         return Arrays.equals(normal_hash, launcher_hash);
     }

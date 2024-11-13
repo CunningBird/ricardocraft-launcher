@@ -1,34 +1,25 @@
 package ru.ricardocraft.backend.command;
 
+import lombok.NoArgsConstructor;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
-import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.Downloader;
+import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.command.utls.CommandException;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
+@NoArgsConstructor
 public abstract class Command extends ru.ricardocraft.backend.command.utls.Command {
-    protected final LaunchServer server;
 
-
-    protected Command(LaunchServer server) {
-        super();
-        this.server = server;
-    }
-
-    public Command(Map<String, ru.ricardocraft.backend.command.utls.Command> childCommands, LaunchServer server) {
+    public Command(Map<String, ru.ricardocraft.backend.command.utls.Command> childCommands) {
         super(childCommands);
-        this.server = server;
     }
 
     protected ClientProfile.Version parseClientVersion(String arg) throws CommandException {
@@ -36,12 +27,6 @@ public abstract class Command extends ru.ricardocraft.backend.command.utls.Comma
             throw new CommandException("ClientVersion can't be empty");
         }
         return Launcher.gsonManager.gson.fromJson(arg, ClientProfile.Version.class);
-    }
-
-    protected boolean showApplyDialog(String text) throws IOException {
-        System.out.printf("%s [Y/N]:", text);
-        String response = server.commandHandler.readLine().toLowerCase(Locale.ROOT);
-        return response.equals("y");
     }
 
     protected Downloader downloadWithProgressBar(String taskName, List<Downloader.SizedFile> list, String baseUrl, Path targetDir) throws Exception {

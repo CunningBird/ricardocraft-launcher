@@ -1,11 +1,22 @@
 package ru.ricardocraft.backend.command.basic;
 
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.binary.EXELauncherBinary;
+import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.command.Command;
 
+@Component
 public final class BuildCommand extends Command {
-    public BuildCommand(LaunchServer server) {
-        super(server);
+
+    public final JARLauncherBinary launcherBinary;
+    public final EXELauncherBinary launcherEXEBinary;
+
+    @Autowired
+    public BuildCommand(JARLauncherBinary launcherBinary, EXELauncherBinary launcherEXEBinary) {
+        super();
+        this.launcherBinary = launcherBinary;
+        this.launcherEXEBinary = launcherEXEBinary;
     }
 
     @Override
@@ -20,7 +31,10 @@ public final class BuildCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        server.buildLauncherBinaries();
-        server.syncLauncherBinaries();
+        launcherBinary.build();
+        launcherEXEBinary.build();
+
+        launcherBinary.check();
+        launcherEXEBinary.check();
     }
 }

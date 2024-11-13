@@ -3,6 +3,8 @@ package ru.ricardocraft.backend.command.updates;
 import com.google.gson.JsonElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.profiles.ClientProfileBuilder;
@@ -12,18 +14,41 @@ import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.helper.MakeProfileHelper;
 import ru.ricardocraft.backend.command.utls.CommandException;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.manangers.MirrorManager;
+import ru.ricardocraft.backend.manangers.UpdatesManager;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
+import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.UUID;
 
+@Component
 public final class DownloadClientCommand extends Command {
 
     private transient final Logger logger = LogManager.getLogger();
 
-    public DownloadClientCommand(LaunchServer server) {
-        super(server);
+    private transient final LaunchServerConfig config;
+    private transient final LaunchServerDirectories directories;
+    private transient final MirrorManager mirrorManager;
+    private transient final UpdatesManager updatesManager;
+
+    private transient final NettyServerSocketHandler nettyServerSocketHandler;
+
+    @Autowired
+    public DownloadClientCommand(LaunchServerConfig config,
+                                 LaunchServerDirectories directories,
+                                 MirrorManager mirrorManager,
+                                 UpdatesManager updatesManager,
+                                 NettyServerSocketHandler nettyServerSocketHandler) {
+        super();
+        this.config = config;
+        this.directories = directories;
+        this.mirrorManager = mirrorManager;
+        this.updatesManager = updatesManager;
+        this.nettyServerSocketHandler = nettyServerSocketHandler;
     }
 
     @Override
@@ -42,7 +67,7 @@ public final class DownloadClientCommand extends Command {
         //Version version = Version.byName(args[0]);
         String versionName = args[0];
         String dirName = IOHelper.verifyFileName(args[1] != null ? args[1] : args[0]);
-        Path clientDir = server.updatesDir.resolve(dirName);
+        Path clientDir = directories.updatesDir.resolve(dirName);
 
         boolean isMirrorClientDownload = false;
         if (args.length > 2) {
@@ -52,14 +77,14 @@ public final class DownloadClientCommand extends Command {
         // Download required client
         logger.info("Downloading client, it may take some time");
         //HttpDownloader.downloadZip(server.mirrorManager.getDefaultMirror().getClientsURL(version.name), clientDir);
-        server.mirrorManager.downloadZip(clientDir, "clients/%s.zip", versionName);
+        mirrorManager.downloadZip(clientDir, "clients/%s.zip", versionName);
 
         // Create profile file
         logger.info("Creaing profile file: '{}'", dirName);
         ClientProfile clientProfile = null;
         if (isMirrorClientDownload) {
             try {
-                JsonElement clientJson = server.mirrorManager.jsonRequest(null, "GET", "clients/%s.json", versionName);
+                JsonElement clientJson = mirrorManager.jsonRequest(null, "GET", "clients/%s.json", versionName);
                 clientProfile = Launcher.gsonManager.configGson.fromJson(clientJson, ClientProfile.class);
                 var builder = new ClientProfileBuilder(clientProfile);
                 builder.setTitle(dirName);
@@ -96,11 +121,11 @@ public final class DownloadClientCommand extends Command {
                 isMirrorClientDownload = true;
             }
         }
-        server.config.profileProvider.addProfile(clientProfile);
+        config.profileProvider.addProfile(clientProfile);
 
         // Finished
-        server.syncProfilesDir();
-        server.syncUpdatesDir(Collections.singleton(dirName));
+        config.profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
+        updatesManager.syncUpdatesDir(Collections.singleton(dirName));
         logger.info("Client successfully downloaded: '{}'", dirName);
     }
 }

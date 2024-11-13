@@ -1,17 +1,23 @@
 package ru.ricardocraft.backend.command.mirror;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.mirror.installers.FabricInstallerCommand;
 import ru.ricardocraft.backend.command.mirror.installers.ForgeInstallerCommand;
 import ru.ricardocraft.backend.command.mirror.installers.QuiltInstallerCommand;
-import ru.ricardocraft.backend.LaunchServer;
-import ru.ricardocraft.backend.command.Command;
 
+@Component
 public class LaunchInstallerCommand extends Command {
-    public LaunchInstallerCommand(LaunchServer server) {
-        super(server);
-        childCommands.put("fabric", new FabricInstallerCommand(server));
-        childCommands.put("forge", new ForgeInstallerCommand(server));
-        childCommands.put("quilt", new QuiltInstallerCommand(server));
+
+    @Autowired
+    public LaunchInstallerCommand(FabricInstallerCommand fabricInstallerCommand,
+                                  ForgeInstallerCommand forgeInstallerCommand,
+                                  QuiltInstallerCommand quiltInstallerCommand) {
+        super();
+        childCommands.put("fabric", fabricInstallerCommand);
+        childCommands.put("forge", forgeInstallerCommand);
+        childCommands.put("quilt", quiltInstallerCommand);
     }
 
     @Override

@@ -14,6 +14,6 @@ public class FeaturesResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        sendResult(new FeaturesRequestEvent(server.featuresManager.getMap()));
+        sendResult(new FeaturesRequestEvent(featuresManager.getMap()));
     }
 }

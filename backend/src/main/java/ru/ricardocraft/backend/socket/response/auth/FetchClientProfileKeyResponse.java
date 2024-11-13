@@ -24,7 +24,7 @@ public class FetchClientProfileKeyResponse extends SimpleResponse {
         if (session instanceof UserSessionSupportKeys support) {
             keys = support.getClientProfileKeys();
         } else {
-            keys = server.authManager.createClientProfileKeys(client.uuid);
+            keys = authManager.createClientProfileKeys(client.uuid);
         }
         sendResult(new FetchClientProfileKeyRequestEvent(keys.publicKey(), keys.privateKey(), keys.signature(), keys.expiresAt(), keys.refreshedAfter()));
     }

@@ -2,18 +2,16 @@ package ru.ricardocraft.backend.command.service;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.utls.CommandHandler;
 import ru.ricardocraft.backend.helper.JVMHelper;
 
+@Component
 public class ServerStatusCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
-
-    public ServerStatusCommand(LaunchServer server) {
-        super(server);
-    }
 
     @Override
     public String getArgsDescription() {
@@ -36,13 +34,5 @@ public class ServerStatusCommand extends Command {
         long days = (uptime / 60 / 60 / 24);
         logger.info("Uptime: {} days {} hours {} minutes {} seconds", days, hour, min, second);
         logger.info("Uptime (double): {}", (double) JVMHelper.RUNTIME_MXBEAN.getUptime() / 1000);
-        int commands = server.commandHandler.getBaseCategory().commandsMap().size();
-        for (CommandHandler.Category category : server.commandHandler.getCategories()) {
-            commands += category.category.commandsMap().size();
-        }
-        logger.info("Commands: {}({} categories)", commands, server.commandHandler.getCategories().size() + 1);
-        for (AuthProviderPair pair : server.config.auth.values()) {
-        }
-
     }
 }

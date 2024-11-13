@@ -1,11 +1,16 @@
 package ru.ricardocraft.backend.command.service;
 
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.manangers.ReconfigurableManager;
 
+@Component
 public class ConfigCommand extends Command {
-    public ConfigCommand(LaunchServer server) {
-        super(server.reconfigurableManager.getCommands(), server);
+
+    @Autowired
+    public ConfigCommand(ReconfigurableManager reconfigurableManager) {
+        super(reconfigurableManager.getCommands());
     }
 
     @Override

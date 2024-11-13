@@ -2,20 +2,26 @@ package ru.ricardocraft.backend.command.service;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
+import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
 import ru.ricardocraft.backend.helper.IOHelper;
 
 import java.util.Base64;
 
+@Component
 public class ClientsCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
 
-    public ClientsCommand(LaunchServer server) {
-        super(server);
+    private transient final NettyServerSocketHandler nettyServerSocketHandler;
+
+    public ClientsCommand(NettyServerSocketHandler nettyServerSocketHandler) {
+        super();
+        this.nettyServerSocketHandler = nettyServerSocketHandler;
     }
 
     @Override
@@ -30,7 +36,7 @@ public class ClientsCommand extends Command {
 
     @Override
     public void invoke(String... args) {
-        WebSocketService service = server.nettyServerSocketHandler.nettyServer.service;
+        WebSocketService service = nettyServerSocketHandler.nettyServer.service;
         service.channels.forEach((channel -> {
             WebSocketFrameHandler frameHandler = channel.pipeline().get(WebSocketFrameHandler.class);
             if (frameHandler == null) {

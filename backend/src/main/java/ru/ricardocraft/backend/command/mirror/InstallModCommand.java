@@ -2,6 +2,8 @@ package ru.ricardocraft.backend.command.mirror;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
@@ -9,6 +11,7 @@ import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.mirror.InstallClient;
 import ru.ricardocraft.backend.mirror.modapi.CurseforgeAPI;
 import ru.ricardocraft.backend.mirror.modapi.ModrinthAPI;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 import ru.ricardocraft.backend.properties.MirrorConfig;
 
 import java.io.FileNotFoundException;
@@ -17,14 +20,18 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
+@Component
 public class InstallModCommand extends Command {
 
     private static final Logger logger = LogManager.getLogger();
     private final MirrorConfig config;
+    private final LaunchServerDirectories directories;
 
-    public InstallModCommand(LaunchServer server) {
-        super(server);
-        this.config = server.config.mirrorConfig;
+    @Autowired
+    public InstallModCommand(LaunchServerConfig config, LaunchServerDirectories directories) {
+        super();
+        this.config = config.mirrorConfig;
+        this.directories = directories;
     }
 
     @Override
@@ -40,7 +47,7 @@ public class InstallModCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 4);
-        Path dir = server.updatesDir.resolve(args[0]);
+        Path dir = directories.updatesDir.resolve(args[0]);
         if (Files.notExists(dir)) {
             throw new FileNotFoundException(dir.toString());
         }

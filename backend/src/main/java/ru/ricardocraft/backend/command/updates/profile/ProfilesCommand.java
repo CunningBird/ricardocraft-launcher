@@ -1,16 +1,24 @@
 package ru.ricardocraft.backend.command.updates.profile;
 
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
 
+@Component
 public class ProfilesCommand extends Command {
-    public ProfilesCommand(LaunchServer server) {
-        super(server);
-        this.childCommands.put("make", new MakeProfileCommand(server));
-        this.childCommands.put("save", new SaveProfilesCommand(server));
-        this.childCommands.put("clone", new CloneProfileCommand(server));
-        this.childCommands.put("list", new ListProfilesCommand(server));
-        this.childCommands.put("delete", new DeleteProfileCommand(server));
+
+    @Autowired
+    public ProfilesCommand(MakeProfileCommand makeProfileCommand,
+                           SaveProfilesCommand saveProfilesCommand,
+                           CloneProfileCommand cloneProfileCommand,
+                           ListProfilesCommand listProfilesCommand,
+                           DeleteProfileCommand deleteProfileCommand) {
+        super();
+        this.childCommands.put("make", makeProfileCommand);
+        this.childCommands.put("save", saveProfilesCommand);
+        this.childCommands.put("clone", cloneProfileCommand);
+        this.childCommands.put("list", listProfilesCommand);
+        this.childCommands.put("delete", deleteProfileCommand);
     }
 
     @Override

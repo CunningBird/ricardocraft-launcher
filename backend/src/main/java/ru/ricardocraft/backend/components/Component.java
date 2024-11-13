@@ -11,14 +11,11 @@ public abstract class Component {
     public static void registerComponents() {
         if (!registredComp) {
             providers.register("authLimiter", AuthLimiterComponent.class);
-            providers.register("commandRemover", CommandRemoverComponent.class);
             providers.register("proguard", ProGuardComponent.class);
             providers.register("whitelist", WhitelistComponent.class);
             registredComp = true;
         }
     }
-
-    public abstract void init(LaunchServer launchServer);
 
     public final void setComponentName(String s) {
         this.componentName = s;

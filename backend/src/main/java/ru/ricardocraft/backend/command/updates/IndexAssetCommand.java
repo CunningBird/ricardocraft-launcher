@@ -3,6 +3,8 @@ package ru.ricardocraft.backend.command.updates;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.command.Command;
@@ -10,6 +12,9 @@ import ru.ricardocraft.backend.command.utls.CommandException;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper.DigestAlgorithm;
+import ru.ricardocraft.backend.manangers.UpdatesManager;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -20,14 +25,23 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 
+@Component
 public final class IndexAssetCommand extends Command {
+
+    private transient final Logger logger = LogManager.getLogger();
+
+    private transient final LaunchServerDirectories directories;
+    private transient final UpdatesManager updatesManager;
+
     public static final String INDEXES_DIR = "indexes";
     public static final String OBJECTS_DIR = "objects";
     private static final String JSON_EXTENSION = ".json";
-    private transient final Logger logger = LogManager.getLogger();
 
-    public IndexAssetCommand(LaunchServer server) {
-        super(server);
+    @Autowired
+    public IndexAssetCommand(LaunchServerDirectories directories, UpdatesManager updatesManager) {
+        super();
+        this.directories = directories;
+        this.updatesManager = updatesManager;
     }
 
     public static Path resolveIndexFile(Path assetDir, String name) {
@@ -54,8 +68,8 @@ public final class IndexAssetCommand extends Command {
         String inputAssetDirName = IOHelper.verifyFileName(args[0]);
         String indexFileName = IOHelper.verifyFileName(args[1]);
         String outputAssetDirName = IOHelper.verifyFileName(args[2]);
-        Path inputAssetDir = server.updatesDir.resolve(inputAssetDirName);
-        Path outputAssetDir = server.updatesDir.resolve(outputAssetDirName);
+        Path inputAssetDir = directories.updatesDir.resolve(inputAssetDirName);
+        Path outputAssetDir = directories.updatesDir.resolve(outputAssetDirName);
         if (outputAssetDir.equals(inputAssetDir))
             throw new CommandException("Unindexed and indexed asset dirs can't be same");
 
@@ -78,7 +92,7 @@ public final class IndexAssetCommand extends Command {
         }
 
         // Finished
-        server.syncUpdatesDir(Collections.singleton(outputAssetDirName));
+        updatesManager.syncUpdatesDir(Collections.singleton(outputAssetDirName));
         logger.info("Asset successfully indexed: '{}'", inputAssetDirName);
     }
 

@@ -1,16 +1,24 @@
 package ru.ricardocraft.backend.command.updates.sync;
 
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
 
+@Component
 public class SyncCommand extends Command {
-    public SyncCommand(LaunchServer server) {
-        super(server);
-        this.childCommands.put("profiles", new SyncProfilesCommand(server));
-        this.childCommands.put("binaries", new SyncBinariesCommand(server));
-        this.childCommands.put("updates", new SyncUpdatesCommand(server));
-        this.childCommands.put("up", new SyncUPCommand(server));
-        this.childCommands.put("updatescache", new SyncUpdatesCacheCommand(server));
+
+    @Autowired
+    public SyncCommand(SyncProfilesCommand syncProfilesCommand,
+                       SyncBinariesCommand syncBinariesCommand,
+                       SyncUpdatesCommand syncUpdatesCommand,
+                       SyncUPCommand syncUPCommand,
+                       SyncUpdatesCacheCommand syncUpdatesCacheCommand) {
+        super();
+        this.childCommands.put("profiles", syncProfilesCommand);
+        this.childCommands.put("binaries", syncBinariesCommand);
+        this.childCommands.put("updates", syncUpdatesCommand);
+        this.childCommands.put("up", syncUPCommand);
+        this.childCommands.put("updatescache", syncUpdatesCacheCommand);
     }
 
     @Override

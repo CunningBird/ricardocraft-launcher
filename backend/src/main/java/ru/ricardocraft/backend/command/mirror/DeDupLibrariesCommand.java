@@ -2,9 +2,12 @@ package ru.ricardocraft.backend.command.mirror;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,11 +19,16 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Component
 public class DeDupLibrariesCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
 
-    public DeDupLibrariesCommand(LaunchServer server) {
-        super(server);
+    private transient final LaunchServerDirectories directories;
+
+    @Autowired
+    public DeDupLibrariesCommand(LaunchServerDirectories directories) {
+        super();
+        this.directories = directories;
     }
 
     @Override
@@ -37,7 +45,7 @@ public class DeDupLibrariesCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
-        Path dir = server.updatesDir.resolve(args[0]).resolve("libraries");
+        Path dir = directories.updatesDir.resolve(args[0]).resolve("libraries");
         if (!Files.isDirectory(dir)) {
             throw new FileNotFoundException(dir.toString());
         }

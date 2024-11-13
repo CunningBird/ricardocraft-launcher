@@ -2,8 +2,11 @@ package ru.ricardocraft.backend.components;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.Reconfigurable;
+import ru.ricardocraft.backend.binary.JARLauncherBinary;
+import ru.ricardocraft.backend.binary.LauncherBinary;
 import ru.ricardocraft.backend.binary.tasks.LauncherBuildTask;
 import ru.ricardocraft.backend.command.utls.Command;
 import ru.ricardocraft.backend.command.utls.SubCommand;
@@ -11,6 +14,8 @@ import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.JVMHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper;
 import ru.ricardocraft.backend.helper.UnpackHelper;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.*;
 import java.nio.file.FileVisitOption;
@@ -28,6 +33,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+@org.springframework.stereotype.Component
 public class ProGuardComponent extends Component implements AutoCloseable, Reconfigurable {
     private static final Logger logger = LogManager.getLogger();
     public String modeAfter = "MainBuild";
@@ -35,13 +41,25 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
     public List<String> jvmArgs = new ArrayList<>();
     public boolean enabled = true;
     public boolean mappings = true;
+
+    private transient final JARLauncherBinary launcherBinary;
+
     public transient ProguardConf proguardConf;
-    private transient LaunchServer launchServer;
     private transient ProGuardBuildTask buildTask;
     private transient ProGuardMultiReleaseFixer fixerTask;
 
-    public ProGuardComponent() {
+    @Autowired
+    public ProGuardComponent(JARLauncherBinary launcherBinary, LaunchServerConfig launchServerConfig, LaunchServerDirectories directories) {
         this.jvmArgs.add("-Xmx512M");
+        setComponentName("proguard");
+
+        this.launcherBinary = launcherBinary;
+
+        proguardConf = new ProguardConf(launcherBinary, launchServerConfig, directories, this);
+        this.buildTask = new ProGuardBuildTask(launcherBinary, directories, proguardConf, this);
+        this.fixerTask = new ProGuardMultiReleaseFixer(launcherBinary, this, "ProGuard.".concat(componentName));
+        launcherBinary.addAfter((v) -> v.getName().startsWith(modeAfter), buildTask);
+        launcherBinary.addAfter((v) -> v.getName().equals("ProGuard.".concat(componentName)), fixerTask);
     }
 
     public static boolean checkFXJMods(Path path) {
@@ -78,19 +96,9 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
     }
 
     @Override
-    public void init(LaunchServer launchServer) {
-        this.launchServer = launchServer;
-        proguardConf = new ProguardConf(launchServer, this);
-        this.buildTask = new ProGuardBuildTask(launchServer, proguardConf, this);
-        this.fixerTask = new ProGuardMultiReleaseFixer(launchServer, this, "ProGuard.".concat(componentName));
-        launchServer.launcherBinary.addAfter((v) -> v.getName().startsWith(modeAfter), buildTask);
-        launchServer.launcherBinary.addAfter((v) -> v.getName().equals("ProGuard.".concat(componentName)), fixerTask);
-    }
-
-    @Override
     public void close() {
-        if (launchServer != null && buildTask != null) {
-            launchServer.launcherBinary.tasks.remove(buildTask);
+        if (buildTask != null) {
+            launcherBinary.tasks.remove(buildTask);
         }
     }
 
@@ -121,12 +129,12 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
     }
 
     public static class ProGuardMultiReleaseFixer implements LauncherBuildTask {
-        private final LaunchServer server;
+        private final JARLauncherBinary launcherBinary;
         private final ProGuardComponent component;
         private final String proguardTaskName;
 
-        public ProGuardMultiReleaseFixer(LaunchServer server, ProGuardComponent component, String proguardTaskName) {
-            this.server = server;
+        public ProGuardMultiReleaseFixer(JARLauncherBinary launcherBinary, ProGuardComponent component, String proguardTaskName) {
+            this.launcherBinary = launcherBinary;
             this.component = component;
             this.proguardTaskName = proguardTaskName;
         }
@@ -141,13 +149,13 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             if (!component.enabled) {
                 return inputFile;
             }
-            LauncherBuildTask task = server.launcherBinary.getTaskBefore((x) -> proguardTaskName.equals(x.getName())).get();
-            Path lastPath = server.launcherBinary.nextPath(task);
+            LauncherBuildTask task = launcherBinary.getTaskBefore((x) -> proguardTaskName.equals(x.getName())).get();
+            Path lastPath = launcherBinary.nextPath(task);
             if(Files.notExists(lastPath)) {
                 logger.error("{} not exist. Multi-Release JAR fix not applied!", lastPath);
                 return inputFile;
             }
-            Path outputPath = server.launcherBinary.nextPath(this);
+            Path outputPath = launcherBinary.nextPath(this);
             try(ZipOutputStream output = new ZipOutputStream(new FileOutputStream(outputPath.toFile()))) {
                 try(ZipInputStream input = new ZipInputStream(new FileInputStream(inputFile.toFile()))) {
                     ZipEntry entry = input.getNextEntry();
@@ -177,12 +185,18 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
     }
 
     public static class ProGuardBuildTask implements LauncherBuildTask {
-        private final LaunchServer server;
+
+        private final LaunchServerDirectories directories;
+        private final JARLauncherBinary launcherBinary;
         private final ProGuardComponent component;
         private final ProguardConf proguardConf;
 
-        public ProGuardBuildTask(LaunchServer server, ProguardConf conf, ProGuardComponent component) {
-            this.server = server;
+        public ProGuardBuildTask(JARLauncherBinary launcherBinary,
+                                 LaunchServerDirectories directories,
+                                 ProguardConf conf,
+                                 ProGuardComponent component) {
+            this.directories = directories;
+            this.launcherBinary = launcherBinary;
             this.component = component;
             this.proguardConf = conf;
         }
@@ -194,7 +208,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
 
         @Override
         public Path process(Path inputFile) throws IOException {
-            Path outputJar = server.launcherBinary.nextLowerPath(this);
+            Path outputJar = launcherBinary.nextLowerPath(this);
             if (component.enabled) {
                 if (!checkJMods(IOHelper.JVM_DIR.resolve("jmods"))) {
                     throw new RuntimeException("Java path: %s is not JDK! Please install JDK".formatted(IOHelper.JVM_DIR));
@@ -213,7 +227,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                     args.add(IOHelper.resolveJavaBin(IOHelper.JVM_DIR).toAbsolutePath().toString());
                     args.addAll(component.jvmArgs);
                     args.add("-cp");
-                    try(Stream<Path> files = Files.walk(server.librariesDir, FileVisitOption.FOLLOW_LINKS)) {
+                    try(Stream<Path> files = Files.walk(directories.librariesDir, FileVisitOption.FOLLOW_LINKS)) {
                         args.add(files
                                 .filter(e -> e.getFileName().toString().endsWith(".jar"))
                                 .map(path -> path.toAbsolutePath().toString())
@@ -261,16 +275,19 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
         public final Path config;
         public final Path mappings;
         public final Path words;
-        public transient final LaunchServer srv;
+
+        private transient final LaunchServerConfig launchServerConfig;
+        private transient final JARLauncherBinary launcherBinary;
         private transient final ProGuardComponent component;
 
-        public ProguardConf(LaunchServer srv, ProGuardComponent component) {
+        public ProguardConf(JARLauncherBinary launcherBinary, LaunchServerConfig launchServerConfig, LaunchServerDirectories directories, ProGuardComponent component) {
             this.component = component;
-            this.proguard = srv.dir.resolve(component.dir);
+            this.proguard = directories.dir.resolve(component.dir);
             config = proguard.resolve("proguard.config");
             mappings = proguard.resolve("mappings.pro");
             words = proguard.resolve("random.pro");
-            this.srv = srv;
+            this.launcherBinary = launcherBinary;
+            this.launchServerConfig = launchServerConfig;
         }
 
         private static String generateString(SecureRandom rand, String lowString, String upString, int il) {
@@ -296,11 +313,11 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                     confStrs.add("-libraryjars '%s'".formatted(path.toAbsolutePath()));
                 }
             }
-            srv.launcherBinary.coreLibs.stream()
+            launcherBinary.coreLibs.stream()
                     .map(e -> "-libraryjars '" + e.toAbsolutePath() + "'")
                     .forEach(confStrs::add);
 
-            srv.launcherBinary.addonLibs.stream()
+            launcherBinary.addonLibs.stream()
                     .map(e -> "-libraryjars '" + e.toAbsolutePath() + "'")
                     .forEach(confStrs::add);
             confStrs.add("-classobfuscationdictionary '" + words.toFile().getName() + "'");
@@ -319,7 +336,7 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
             SecureRandom rand = SecurityHelper.newRandom();
             rand.setSeed(SecureRandom.getSeed(32));
             try (PrintWriter out = new PrintWriter(new OutputStreamWriter(IOHelper.newOutput(words), IOHelper.UNICODE_CHARSET))) {
-                String projectName = srv.config.projectName.replaceAll("\\W", "");
+                String projectName = launchServerConfig.projectName.replaceAll("\\W", "");
                 String lowName = projectName.toLowerCase();
                 String upName = projectName.toUpperCase();
                 for (int i = 0; i < Short.MAX_VALUE; i++) out.println(generateString(rand, lowName, upName, 14));

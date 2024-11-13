@@ -2,19 +2,24 @@ package ru.ricardocraft.backend.command.mirror;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.mirror.modapi.CurseforgeAPI;
 import ru.ricardocraft.backend.command.utls.SubCommand;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
+@Component
 public class CurseforgeCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
     private final CurseforgeAPI api;
 
-    public CurseforgeCommand(LaunchServer server) {
-        super(server);
-        this.api = new CurseforgeAPI(server.config.mirrorConfig.curseforgeApiKey);
+    @Autowired
+    public CurseforgeCommand(LaunchServerConfig config) {
+        super();
+        this.api = new CurseforgeAPI(config.mirrorConfig.curseforgeApiKey);
         this.childCommands.put("getMod", new SubCommand("[modId]", "Get mod info by id") {
             @Override
             public void invoke(String... args) throws Exception {

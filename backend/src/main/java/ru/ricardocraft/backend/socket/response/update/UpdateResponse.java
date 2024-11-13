@@ -19,7 +19,7 @@ public class UpdateResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (server.config.protectHandler instanceof ProfilesProtectHandler profilesProtectHandler && !profilesProtectHandler.canGetUpdates(dirName, client)) {
+        if (config.protectHandler instanceof ProfilesProtectHandler profilesProtectHandler && !profilesProtectHandler.canGetUpdates(dirName, client)) {
             sendError("Access denied");
             return;
         }
@@ -27,15 +27,15 @@ public class UpdateResponse extends SimpleResponse {
             sendError("Invalid request");
             return;
         }
-        HashedDir dir = server.updatesManager.getUpdate(dirName);
+        HashedDir dir = updatesManager.getUpdate(dirName);
         if (dir == null) {
             sendError("Directory %s not found".formatted(dirName));
             return;
         }
-        String url = server.config.netty.downloadURL.replace("%dirname%", IOHelper.urlEncode(dirName));
+        String url = config.netty.downloadURL.replace("%dirname%", IOHelper.urlEncode(dirName));
         boolean zip = false;
-        if (server.config.netty.bindings.get(dirName) != null) {
-            LaunchServerConfig.NettyUpdatesBind bind = server.config.netty.bindings.get(dirName);
+        if (config.netty.bindings.get(dirName) != null) {
+            LaunchServerConfig.NettyUpdatesBind bind = config.netty.bindings.get(dirName);
             url = bind.url;
             zip = bind.zip;
         }

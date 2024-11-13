@@ -1,10 +1,13 @@
 package ru.ricardocraft.backend.command.basic;
 
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.utls.Command;
 import ru.ricardocraft.backend.helper.JVMHelper;
 import ru.ricardocraft.backend.helper.LogHelper;
 
+@Component
 public class GCCommand extends Command {
+
     @Override
     public String getArgsDescription() {
         return null;

@@ -32,18 +32,18 @@ public class AuthResponse extends SimpleResponse {
         try {
             AuthRequestEvent result = new AuthRequestEvent();
             AuthProviderPair pair;
-            if (auth_id == null || auth_id.isEmpty()) pair = server.config.getAuthProviderPair();
-            else pair = server.config.getAuthProviderPair(auth_id);
+            if (auth_id == null || auth_id.isEmpty()) pair = config.getAuthProviderPair();
+            else pair = config.getAuthProviderPair(auth_id);
             if (pair == null) {
                 sendError("auth_id incorrect");
                 return;
             }
-            AuthContext context = server.authManager.makeAuthContext(clientData, authType, pair, login, client, ip);
-            server.authManager.check(context);
-            password = server.authManager.decryptPassword(password);
-            server.authHookManager.preHook.hook(context, clientData);
-            context.report = server.authManager.auth(context, password);
-            server.authHookManager.postHook.hook(context, clientData);
+            AuthContext context = authManager.makeAuthContext(clientData, authType, pair, login, client, ip);
+            authManager.check(context);
+            password = authManager.decryptPassword(password);
+            authHookManager.preHook.hook(context, clientData);
+            context.report = authManager.auth(context, password);
+            authHookManager.postHook.hook(context, clientData);
             result.permissions = context.report.session() != null ? (context.report.session().getUser() != null ? context.report.session().getUser().getPermissions() : null) : null;
             if (context.report.isUsingOAuth()) {
                 result.oauth = new AuthRequestEvent.OAuthRequestEvent(context.report.oauthAccessToken(), context.report.oauthRefreshToken(), context.report.oauthExpire());
@@ -51,7 +51,7 @@ public class AuthResponse extends SimpleResponse {
             if (context.report.minecraftAccessToken() != null) {
                 result.accessToken = context.report.minecraftAccessToken();
             }
-            result.playerProfile = server.authManager.getPlayerProfile(clientData);
+            result.playerProfile = authManager.getPlayerProfile(clientData);
             sendResult(result);
         } catch (AuthException | HookException e) {
             sendError(e.getMessage());

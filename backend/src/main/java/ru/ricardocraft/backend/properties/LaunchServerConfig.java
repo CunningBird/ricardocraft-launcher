@@ -20,6 +20,7 @@ import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.components.AuthLimiterComponent;
 import ru.ricardocraft.backend.components.Component;
 import ru.ricardocraft.backend.components.ProGuardComponent;
+import ru.ricardocraft.backend.components.WhitelistComponent;
 import ru.ricardocraft.backend.helper.SecurityHelper;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
@@ -30,7 +31,6 @@ import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 import java.util.*;
 
 import static java.util.concurrent.TimeUnit.HOURS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 @org.springframework.stereotype.Component
 public final class LaunchServerConfig {
@@ -51,7 +51,6 @@ public final class LaunchServerConfig {
     public Map<String, AuthProviderPair> auth;
     // Handlers & Providers
     public ProtectHandler protectHandler;
-    public Map<String, Component> components;
     public ProfileProvider profileProvider = new LocalProfileProvider();
     public UpdatesProvider updatesProvider = new LocalUpdatesProvider();
     public NettyConfig netty;
@@ -62,11 +61,6 @@ public final class LaunchServerConfig {
     public MirrorConfig mirrorConfig;
 
     private transient AuthProviderPair authDefault;
-    private transient ReconfigurableManager reconfigurableManager;
-    private transient MirrorManager mirrorManager;
-    private transient AuthManager authManager;
-    private transient NettyServerSocketHandler nettyServerSocketHandler;
-    private transient KeyAgreementManager keyAgreementManager;
 
     public LaunchServerConfig() {
         this.projectName = "ricardocraft";
@@ -125,26 +119,8 @@ public final class LaunchServerConfig {
 
         this.mirrorConfig = new MirrorConfig();
 
-        AuthLimiterComponent authLimiterComponent = new AuthLimiterComponent();
-        authLimiterComponent.rateLimit = 3;
-        authLimiterComponent.rateLimitMillis = SECONDS.toMillis(8);
-        authLimiterComponent.message = "Превышен лимит авторизаций";
-
-        ProGuardComponent proGuardComponent = new ProGuardComponent();
-
-        this.components = new HashMap<>();
-        this.components.put("authLimiter", authLimiterComponent);
-        this.components.put("proguard", proGuardComponent);
-
         this.verify();
-    }
-
-    public void setLaunchServer(LaunchServer server) {
-        this.reconfigurableManager = server.reconfigurableManager;
-        this.mirrorManager = server.mirrorManager;
-        this.authManager = server.authManager;
-        this.nettyServerSocketHandler = server.nettyServerSocketHandler;
-        this.keyAgreementManager = server.keyAgreementManager;
+//        this.init(ReloadType.FULL);
     }
 
     public AuthProviderPair getAuthProviderPair(String name) {
@@ -197,72 +173,6 @@ public final class LaunchServerConfig {
                     }
                 }
             }
-        }
-    }
-
-    public void init(ReloadType type) {
-        Launcher.applyLauncherEnv(env);
-        for (Map.Entry<String, AuthProviderPair> provider : auth.entrySet()) {
-            provider.getValue().init(authManager, this, nettyServerSocketHandler, keyAgreementManager, provider.getKey());
-        }
-        if (protectHandler != null) {
-            reconfigurableManager.registerObject("protectHandler", protectHandler);
-            protectHandler.init(this, keyAgreementManager);
-        }
-        if (profileProvider != null) {
-            reconfigurableManager.registerObject("profileProvider", profileProvider);
-            profileProvider.init(protectHandler);
-        }
-        if (updatesProvider != null) {
-            reconfigurableManager.registerObject("updatesProvider", updatesProvider);
-        }
-        if (components != null) {
-            components.forEach((k, v) -> reconfigurableManager.registerObject("component.".concat(k), v));
-        }
-        if (!type.equals(ReloadType.NO_AUTH)) {
-            for (AuthProviderPair pair : auth.values()) {
-                reconfigurableManager.registerObject("auth.".concat(pair.name).concat(".core"), pair.core);
-                reconfigurableManager.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
-            }
-        }
-        Arrays.stream(mirrors).forEach(mirrorManager::addMirror);
-    }
-
-    public void close(ReloadType type) {
-        try {
-            if (!type.equals(ReloadType.NO_AUTH)) {
-                for (AuthProviderPair pair : auth.values()) {
-                    reconfigurableManager.unregisterObject("auth.".concat(pair.name).concat(".core"), pair.core);
-                    reconfigurableManager.unregisterObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
-                    pair.close();
-                }
-            }
-            if (type.equals(ReloadType.FULL)) {
-                components.forEach((k, component) -> {
-                    reconfigurableManager.unregisterObject("component.".concat(k), component);
-                    if (component instanceof AutoCloseable autoCloseable) {
-                        try {
-                            autoCloseable.close();
-                        } catch (Exception e) {
-                            logger.error(e);
-                        }
-                    }
-                });
-            }
-        } catch (Exception e) {
-            logger.error(e);
-        }
-        if (protectHandler != null) {
-            reconfigurableManager.unregisterObject("protectHandler", protectHandler);
-            protectHandler.close();
-        }
-        if (profileProvider != null) {
-            reconfigurableManager.unregisterObject("profileProvider", profileProvider);
-            profileProvider.close();
-        }
-        if (updatesProvider != null) {
-            reconfigurableManager.unregisterObject("updatesProvider", updatesProvider);
-            updatesProvider.close();
         }
     }
 

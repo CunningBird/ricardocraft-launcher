@@ -2,31 +2,38 @@ package ru.ricardocraft.backend.components;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.ricardocraft.backend.Reconfigurable;
+import ru.ricardocraft.backend.command.utls.Command;
+import ru.ricardocraft.backend.command.utls.SubCommand;
+import ru.ricardocraft.backend.manangers.AuthHookManager;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 import ru.ricardocraft.backend.socket.response.auth.JoinServerResponse;
 import ru.ricardocraft.backend.utils.HookException;
-import ru.ricardocraft.backend.command.utls.Command;
-import ru.ricardocraft.backend.command.utls.SubCommand;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@org.springframework.stereotype.Component
 public class WhitelistComponent extends Component implements AutoCloseable, Reconfigurable {
     private transient final Logger logger = LogManager.getLogger();
     public String message = "auth.message.techwork";
     public boolean enabled = true;
     public List<String> whitelist = new ArrayList<>();
-    private transient LaunchServer server;
 
-    @Override
-    public void init(LaunchServer launchServer) {
-        this.server = launchServer;
-        this.server.authHookManager.preHook.registerHook(this::hookAuth);
-        this.server.authHookManager.joinServerHook.registerHook(this::hookJoin);
+    private final transient AuthHookManager authHookManager;
+
+    @Autowired
+    public WhitelistComponent(AuthHookManager authHookManager) {
+        this.authHookManager = authHookManager;
+        this.authHookManager.preHook.registerHook(this::hookAuth);
+        this.authHookManager.joinServerHook.registerHook(this::hookJoin);
+
+        whitelist.add("CunningBird"); // TODO delete this component
+
+        setComponentName("whitelist");
     }
 
     public boolean hookAuth(AuthResponse.AuthContext context, Client client) throws HookException {
@@ -49,8 +56,8 @@ public class WhitelistComponent extends Component implements AutoCloseable, Reco
 
     @Override
     public void close() {
-        this.server.authHookManager.preHook.unregisterHook(this::hookAuth);
-        this.server.authHookManager.joinServerHook.unregisterHook(this::hookJoin);
+        this.authHookManager.preHook.unregisterHook(this::hookAuth);
+        this.authHookManager.joinServerHook.unregisterHook(this::hookJoin);
     }
 
     @Override

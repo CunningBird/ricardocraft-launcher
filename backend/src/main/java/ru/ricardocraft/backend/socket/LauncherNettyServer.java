@@ -15,13 +15,17 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.LaunchServer;
+import org.jetbrains.annotations.NotNull;
+import ru.ricardocraft.backend.binary.EXELauncherBinary;
+import ru.ricardocraft.backend.binary.JARLauncherBinary;
+import ru.ricardocraft.backend.manangers.*;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
+import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 import ru.ricardocraft.backend.socket.handlers.NettyIpForwardHandler;
 import ru.ricardocraft.backend.socket.handlers.NettyWebAPIHandler;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
 import ru.ricardocraft.backend.socket.handlers.fileserver.FileServerHandler;
-import ru.ricardocraft.backend.socket.servlet.RemoteControlWebSeverlet;
 import ru.ricardocraft.backend.utils.BiHookSet;
 
 import java.net.InetSocketAddress;
@@ -35,44 +39,64 @@ public class LauncherNettyServer implements AutoCloseable {
     public final WebSocketService service;
     public final BiHookSet<NettyConnectContext, SocketChannel> pipelineHook = new BiHookSet<>();
 
-    public LauncherNettyServer(LaunchServer server) {
-        LaunchServerConfig.NettyConfig config = server.config.netty;
-        NettyObjectFactory.setUsingEpoll(config.performance.usingEpoll);
+    public LauncherNettyServer(LaunchServerDirectories directories,
+                               LaunchServerRuntimeConfig runtimeConfig,
+                               LaunchServerConfig config,
+                               AuthManager authManager,
+                               AuthHookManager authHookManager,
+                               UpdatesManager updatesManager,
+                               KeyAgreementManager keyAgreementManager,
+                               JARLauncherBinary launcherBinary,
+                               EXELauncherBinary exeLauncherBinary,
+                               FeaturesManager featuresManager) {
+
+        LaunchServerConfig.NettyConfig nettyConfig = config.netty;
+        NettyObjectFactory.setUsingEpoll(nettyConfig.performance.usingEpoll);
         Logger logger = LogManager.getLogger();
-        if (config.performance.usingEpoll) {
+        if (nettyConfig.performance.usingEpoll) {
             logger.debug("Netty: Epoll enabled");
         }
-        if (config.performance.usingEpoll && !Epoll.isAvailable()) {
+        if (nettyConfig.performance.usingEpoll && !Epoll.isAvailable()) {
             logger.error("Epoll is not available: (netty,perfomance.usingEpoll configured wrongly)", Epoll.unavailabilityCause());
         }
-        bossGroup = NettyObjectFactory.newEventLoopGroup(config.performance.bossThread, "LauncherNettyServer.bossGroup");
-        workerGroup = NettyObjectFactory.newEventLoopGroup(config.performance.workerThread, "LauncherNettyServer.workerGroup");
+        bossGroup = NettyObjectFactory.newEventLoopGroup(nettyConfig.performance.bossThread, "LauncherNettyServer.bossGroup");
+        workerGroup = NettyObjectFactory.newEventLoopGroup(nettyConfig.performance.workerThread, "LauncherNettyServer.workerGroup");
         serverBootstrap = new ServerBootstrap();
-        service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE), server);
+        service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE),
+                runtimeConfig,
+                config,
+                authManager,
+                authHookManager,
+                updatesManager,
+                keyAgreementManager,
+                launcherBinary,
+                exeLauncherBinary,
+                featuresManager,
+                Integer.parseInt(System.getProperty("launchserver.shardId", "0")));
         serverBootstrap.group(bossGroup, workerGroup)
                 .channelFactory(NettyObjectFactory.getServerSocketChannelFactory())
-                .handler(new LoggingHandler(config.logLevel))
+                .handler(new LoggingHandler(nettyConfig.logLevel))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    public void initChannel(SocketChannel ch) {
+                    public void initChannel(@NotNull SocketChannel ch) {
                         ChannelPipeline pipeline = ch.pipeline();
                         NettyConnectContext context = new NettyConnectContext();
                         pipeline.addLast("http-codec", new HttpServerCodec());
-                        pipeline.addLast("http-codec-compressor", new HttpObjectAggregator(server.config.netty.performance.maxWebSocketRequestBytes));
-                        if (server.config.netty.ipForwarding) // default false
+                        pipeline.addLast("http-codec-compressor", new HttpObjectAggregator(config.netty.performance.maxWebSocketRequestBytes));
+                        if (config.netty.ipForwarding) // default false
                             pipeline.addLast("forward-http", new NettyIpForwardHandler(context));
                         pipeline.addLast("websock-comp", new WebSocketServerCompressionHandler());
-                        pipeline.addLast("websock-codec", new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true, server.config.netty.performance.maxWebSocketRequestBytes));
-                        if (!server.config.netty.disableWebApiInterface) // default false
+                        pipeline.addLast("websock-codec", new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true, config.netty.performance.maxWebSocketRequestBytes));
+                        if (!config.netty.disableWebApiInterface) // default false
                             pipeline.addLast("webapi", new NettyWebAPIHandler(context));
-                        if (server.config.netty.fileServerEnabled) // default true
-                            pipeline.addLast("fileserver", new FileServerHandler(server.updatesDir, true, config.showHiddenFiles));
-                        pipeline.addLast("launchserver", new WebSocketFrameHandler(context, server, service));
+                        if (config.netty.fileServerEnabled) // default true
+                            pipeline.addLast("fileserver", new FileServerHandler(directories.updatesDir, true, nettyConfig.showHiddenFiles));
+                        pipeline.addLast("launchserver", new WebSocketFrameHandler(context, service));
                         pipelineHook.hook(context, ch);
                     }
                 });
 
-        NettyWebAPIHandler.addNewSeverlet("remotecontrol/command", new RemoteControlWebSeverlet(server));
+//        NettyWebAPIHandler.addNewSeverlet("remotecontrol/command", new RemoteControlWebServlet(config));
     }
 
     public void bind(InetSocketAddress address) {

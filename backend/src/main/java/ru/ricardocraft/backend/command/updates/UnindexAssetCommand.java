@@ -5,10 +5,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.utls.CommandException;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.manangers.UpdatesManager;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.BufferedReader;
 import java.nio.file.Files;
@@ -16,11 +20,18 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 
+@Component
 public final class UnindexAssetCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
 
-    public UnindexAssetCommand(LaunchServer server) {
-        super(server);
+    private transient final LaunchServerDirectories directories;
+    private transient final UpdatesManager updatesManager;
+
+    @Autowired
+    public UnindexAssetCommand(LaunchServerDirectories directories, UpdatesManager updatesManager) {
+        super();
+        this.directories = directories;
+        this.updatesManager = updatesManager;
     }
 
     @Override
@@ -39,8 +50,8 @@ public final class UnindexAssetCommand extends Command {
         String inputAssetDirName = IOHelper.verifyFileName(args[0]);
         String indexFileName = IOHelper.verifyFileName(args[1]);
         String outputAssetDirName = IOHelper.verifyFileName(args[2]);
-        Path inputAssetDir = server.updatesDir.resolve(inputAssetDirName);
-        Path outputAssetDir = server.updatesDir.resolve(outputAssetDirName);
+        Path inputAssetDir = directories.updatesDir.resolve(inputAssetDirName);
+        Path outputAssetDir = directories.updatesDir.resolve(outputAssetDirName);
         if (outputAssetDir.equals(inputAssetDir))
             throw new CommandException("Indexed and unindexed asset dirs can't be same");
 
@@ -68,7 +79,7 @@ public final class UnindexAssetCommand extends Command {
         }
 
         // Finished
-        server.syncUpdatesDir(Collections.singleton(outputAssetDirName));
+        updatesManager.syncUpdatesDir(Collections.singleton(outputAssetDirName));
         logger.info("Asset successfully unindexed: '{}'", inputAssetDirName);
     }
 }

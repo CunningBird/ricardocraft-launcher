@@ -11,6 +11,8 @@ import ru.ricardocraft.backend.base.profiles.ClientProfileVersions;
 import ru.ricardocraft.backend.command.mirror.DeDupLibrariesCommand;
 import ru.ricardocraft.backend.command.mirror.installers.FabricInstallerCommand;
 import ru.ricardocraft.backend.command.mirror.installers.QuiltInstallerCommand;
+import ru.ricardocraft.backend.manangers.MirrorManager;
+import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.mirror.modapi.CurseforgeAPI;
 import ru.ricardocraft.backend.mirror.modapi.ModrinthAPI;
 import ru.ricardocraft.backend.mirror.newforge.ForgeProfile;
@@ -19,6 +21,8 @@ import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.command.updates.profile.MakeProfileCommand;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 import ru.ricardocraft.backend.properties.MirrorConfig;
 
 import java.io.*;
@@ -38,8 +42,17 @@ import java.util.zip.ZipOutputStream;
 
 public class InstallClient {
     private static final Logger logger = LogManager.getLogger();
-    private final LaunchServer launchServer;
-    private final MirrorConfig config;
+
+    private final transient LaunchServerConfig config;
+    private final transient LaunchServerDirectories directories;
+    private final transient UpdatesManager updatesManager;
+
+    private final transient FabricInstallerCommand fabricInstallerCommand;
+    private final transient QuiltInstallerCommand quiltInstallerCommand;
+    private final transient DeDupLibrariesCommand deDupLibrariesCommand;
+    private final transient MakeProfileCommand makeProfileCommand;
+
+    private final MirrorConfig mirrorConfig;
     private final Path workdir;
     private final String name;
     private final ClientProfile.Version version;
@@ -49,11 +62,32 @@ public class InstallClient {
     private final MirrorWorkspace mirrorWorkspace;
     private final VersionType versionType;
 
-    public InstallClient(LaunchServer server, String name, ClientProfile.Version version, List<String> mods, VersionType versionType, MirrorWorkspace mirrorWorkspace) {
-        this.launchServer = server;
-        this.config = server.config.mirrorConfig;
-        this.workdir = server.mirrorManager.getTools().getWorkspaceDir();
-        this.tools = server.mirrorManager.getTools();
+    public InstallClient(LaunchServerConfig config,
+                         LaunchServerDirectories directories,
+                         UpdatesManager updatesManager,
+                         MirrorManager mirrorManager,
+                         FabricInstallerCommand fabricInstallerCommand,
+                         QuiltInstallerCommand quiltInstallerCommand,
+                         DeDupLibrariesCommand deDupLibrariesCommand,
+                         MakeProfileCommand makeProfileCommand,
+                         String name,
+                         ClientProfile.Version version,
+                         List<String> mods,
+                         VersionType versionType,
+                         MirrorWorkspace mirrorWorkspace) {
+        this.config = config;
+        this.directories = directories;
+        this.updatesManager = updatesManager;
+
+        this.fabricInstallerCommand = fabricInstallerCommand;
+        this.quiltInstallerCommand = quiltInstallerCommand;
+        this.deDupLibrariesCommand = deDupLibrariesCommand;
+        this.makeProfileCommand = makeProfileCommand;
+
+        this.mirrorConfig = config.mirrorConfig;
+        this.workdir = mirrorManager.getTools().getWorkspaceDir();
+        this.tools = mirrorManager.getTools();
+
         this.name = name;
         this.version = version;
         this.mods = mods;
@@ -77,17 +111,17 @@ public class InstallClient {
     public static void installMod(ModrinthAPI api, Path modsDir, String slug, String loader, ClientProfile.Version version) throws Exception {
         var list = api.getMod(slug);
         var mod = api.getModByGameVersion(list, version.toString(), loader);
-        if(mod == null) {
+        if (mod == null) {
             throw new RuntimeException("Mod '%s' not supported game version '%s'".formatted(slug, version.toString()));
         }
         ModrinthAPI.ModVersionFileData file = null;
-        for(var e : mod.files()) {
+        for (var e : mod.files()) {
             file = e;
-            if(e.primary()) {
+            if (e.primary()) {
                 break;
             }
         }
-        if(file == null) {
+        if (file == null) {
             throw new RuntimeException("Mod '%s' not found suitable file".formatted(slug));
         }
         URI url = new URI(file.url());
@@ -151,12 +185,12 @@ public class InstallClient {
     }
 
     public void run() throws Exception {
-        if(mirrorWorkspace == null) {
+        if (mirrorWorkspace == null) {
             throw new RuntimeException("Workspace not found! Please use 'applyworkspace'");
         }
         logger.info("Install client {} {}", version.toString(), versionType);
         Path originalMinecraftProfile = null;
-        Path clientPath = launchServer.updatesDir.resolve(name);
+        Path clientPath = directories.updatesDir.resolve(name);
         {
             Path fetchDir = workdir.resolve("clients").resolve("vanilla").resolve(version.toString());
             if (Files.notExists(fetchDir)) {
@@ -181,8 +215,7 @@ public class InstallClient {
         }
         {
             if (versionType == VersionType.FABRIC) {
-                FabricInstallerCommand fabricInstallerCommand = new FabricInstallerCommand(launchServer);
-                if(mirrorWorkspace == null || mirrorWorkspace.fabricLoaderVersion() == null) {
+                if (mirrorWorkspace == null || mirrorWorkspace.fabricLoaderVersion() == null) {
                     fabricInstallerCommand.invoke(version.toString(), name, workdir.resolve("installers").resolve("fabric-installer.jar").toAbsolutePath().toString());
                 } else {
                     fabricInstallerCommand.invoke(version.toString(), name, workdir.resolve("installers").resolve("fabric-installer.jar").toAbsolutePath().toString(), mirrorWorkspace.fabricLoaderVersion());
@@ -190,31 +223,30 @@ public class InstallClient {
                 Files.createDirectories(clientPath.resolve("mods"));
                 logger.info("Fabric installed");
             } else if (versionType == VersionType.QUILT) {
-                QuiltInstallerCommand quiltInstallerCommand = new QuiltInstallerCommand(launchServer);
                 quiltInstallerCommand.invoke(version.toString(), name, workdir.resolve("installers").resolve("quilt-installer.jar").toAbsolutePath().toString());
                 Files.createDirectories(clientPath.resolve("mods"));
                 logger.info("Quilt installed");
             } else if (versionType == VersionType.FORGE || versionType == VersionType.NEOFORGE) {
                 String forgePrefix = versionType == VersionType.NEOFORGE ? "neoforge" : "forge";
                 boolean noGui = true;
-                Path forgeInstaller = workdir.resolve("installers").resolve(forgePrefix+"-" + version + "-installer-nogui.jar");
-                if(Files.notExists(forgeInstaller)) {
+                Path forgeInstaller = workdir.resolve("installers").resolve(forgePrefix + "-" + version + "-installer-nogui.jar");
+                if (Files.notExists(forgeInstaller)) {
                     logger.warn("{} not found", forgeInstaller.toAbsolutePath().toString());
-                    forgeInstaller = workdir.resolve("installers").resolve(forgePrefix+"-" + version + "-installer.jar");
+                    forgeInstaller = workdir.resolve("installers").resolve(forgePrefix + "-" + version + "-installer.jar");
                     noGui = false;
                 }
-                if(Files.notExists(forgeInstaller)) {
+                if (Files.notExists(forgeInstaller)) {
                     throw new FileNotFoundException(forgeInstaller.toAbsolutePath().toString());
                 }
                 Path tmpDir = workdir.resolve("clients").resolve(forgePrefix).resolve(version.toString());
-                if(Files.notExists(tmpDir)) {
+                if (Files.notExists(tmpDir)) {
                     Files.createDirectories(tmpDir);
                     Files.createDirectories(tmpDir.resolve("versions"));
                     IOHelper.transfer("{\"profiles\": {}}".getBytes(StandardCharsets.UTF_8), tmpDir.resolve("launcher_profiles.json"), false);
                     int counter = 5;
                     do {
                         Process forgeProcess;
-                        if(noGui) {
+                        if (noGui) {
                             logger.info("Install forge client into {} (no gui)", tmpDir.toAbsolutePath().toString());
                             forgeProcess = new ProcessBuilder()
                                     .command("java", "-jar", forgeInstaller.toAbsolutePath().toString(), "--installClient", tmpDir.toAbsolutePath().toString())
@@ -240,14 +272,14 @@ public class InstallClient {
                 {
                     Path forgeClientDir;
                     try (Stream<Path> stream = Files.list(tmpDir.resolve("versions"))
-                                 .filter(x -> {
-                                     String fname = x.getFileName().toString().toLowerCase(Locale.ROOT);
-                                     return  fname.contains("forge") || fname.contains("cleanroom");
-                                 })) {
+                            .filter(x -> {
+                                String fname = x.getFileName().toString().toLowerCase(Locale.ROOT);
+                                return fname.contains("forge") || fname.contains("cleanroom");
+                            })) {
                         forgeClientDir = stream.findFirst().orElseThrow();
                     }
                     Path forgeProfileFile;
-                    try(Stream<Path> stream = Files.list(forgeClientDir).filter(p -> p.getFileName().toString().endsWith(".json"))) {
+                    try (Stream<Path> stream = Files.list(forgeClientDir).filter(p -> p.getFileName().toString().endsWith(".json"))) {
                         forgeProfileFile = stream.findFirst().orElseThrow();
                     }
                     originalMinecraftProfile = forgeProfileFile;
@@ -262,8 +294,8 @@ public class InstallClient {
                         if (libUrl == null || libUrl.isEmpty()) {
                             libUrl = "https://libraries.minecraft.net/";
                         }
-                        if(name.endsWith("@jar")) {
-                            name = name.substring(0, name.length()-4);
+                        if (name.endsWith("@jar")) {
+                            name = name.substring(0, name.length() - 4);
                         }
                         FabricInstallerCommand.NamedURL url = FabricInstallerCommand.makeURL(libUrl, name);
                         Path file = clientPath.resolve("libraries").resolve(url.name);
@@ -283,7 +315,7 @@ public class InstallClient {
                         }
                     }
                 }
-                if(config.deleteTmpDir) {
+                if (mirrorConfig.deleteTmpDir) {
                     IOHelper.deleteDir(tmpDir, true);
                 }
                 Files.createDirectories(clientPath.resolve("mods"));
@@ -291,14 +323,14 @@ public class InstallClient {
             }
         }
         {
-            for(var entry : mirrorWorkspace.build().entrySet()) {
+            for (var entry : mirrorWorkspace.build().entrySet()) {
                 var k = entry.getKey();
                 var v = entry.getValue();
-                if(!v.check(versionType, version)) {
+                if (!v.check(versionType, version)) {
                     continue;
                 }
                 Path target = workdir.resolve(v.path());
-                if(entry.getValue().dynamic() || Files.notExists(target)) {
+                if (entry.getValue().dynamic() || Files.notExists(target)) {
                     logger.info("Build {}", k);
                     try {
                         tools.build(k, v, clientPath);
@@ -334,7 +366,7 @@ public class InstallClient {
                     try {
                         long id = Long.parseLong(modId);
                         if (curseforgeApi == null) {
-                            curseforgeApi = new CurseforgeAPI(config.curseforgeApiKey);
+                            curseforgeApi = new CurseforgeAPI(mirrorConfig.curseforgeApiKey);
                         }
                         installMod(curseforgeApi, modsDir, id, version);
                         continue;
@@ -354,7 +386,7 @@ public class InstallClient {
         for (var m : mirrorWorkspace.multiMods().entrySet()) {
             var k = m.getKey();
             var v = m.getValue();
-            if(!v.check(versionType, version)) {
+            if (!v.check(versionType, version)) {
                 continue;
             }
             Path file = workdir.resolve("multimods").resolve(k.concat(".jar"));
@@ -368,30 +400,28 @@ public class InstallClient {
             logger.info("MultiMods installed");
         }
         {
-            DeDupLibrariesCommand deDupLibrariesCommand = new DeDupLibrariesCommand(launchServer);
             deDupLibrariesCommand.invoke(clientPath.toAbsolutePath().toString(), "false");
             logger.info("deduplibraries completed");
         }
         {
-            MakeProfileCommand makeProfileCommand = new MakeProfileCommand(launchServer);
             makeProfileCommand.invoke(name, version.toString(), name);
             logger.info("makeprofile completed");
         }
-        if((versionType == VersionType.FORGE || versionType == VersionType.NEOFORGE) && version.compareTo(ClientProfileVersions.MINECRAFT_1_17) >= 0) {
-            ClientProfile profile = launchServer.config.profileProvider.getProfile(name);
+        if ((versionType == VersionType.FORGE || versionType == VersionType.NEOFORGE) && version.compareTo(ClientProfileVersions.MINECRAFT_1_17) >= 0) {
+            ClientProfile profile = config.profileProvider.getProfile(name);
             logger.info("Run ForgeProfileModifier");
             ForgeProfileModifier modifier = new ForgeProfileModifier(originalMinecraftProfile, profile, clientPath);
             profile = modifier.build();
-            launchServer.config.profileProvider.addProfile(profile);
+            config.profileProvider.addProfile(profile);
         }
         if (versionType == VersionType.FORGE && version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) == 0) {
-            ClientProfile profile = launchServer.config.profileProvider.getProfile(name);
+            ClientProfile profile = config.profileProvider.getProfile(name);
             logger.info("Run ForgeProfileModifierCleanRoom");
             ForgeProfileModifier modifier = new ForgeProfileModifier(originalMinecraftProfile, profile, clientPath);
             profile = modifier.buildCleanRoom();
-            launchServer.config.profileProvider.addProfile(profile);
+            config.profileProvider.addProfile(profile);
         }
-        launchServer.syncUpdatesDir(Collections.singleton(name));
+        updatesManager.syncUpdatesDir(Collections.singleton(name));
         logger.info("Completed");
     }
 
@@ -408,11 +438,11 @@ public class InstallClient {
             pathToLauncherAuthlib = workdir.resolve("authlib").resolve("LauncherAuthlib3-1.19.jar");
         } else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_20) < 0) {
             pathToLauncherAuthlib = workdir.resolve("authlib").resolve("LauncherAuthlib3-1.19.1.jar");
-        } else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_20_2) < 0)  {
+        } else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_20_2) < 0) {
             pathToLauncherAuthlib = workdir.resolve("authlib").resolve("LauncherAuthlib4.jar");
-        } else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_20_3) < 0)  {
+        } else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_20_3) < 0) {
             pathToLauncherAuthlib = workdir.resolve("authlib").resolve("LauncherAuthlib5.jar");
-        } else  {
+        } else {
             pathToLauncherAuthlib = workdir.resolve("authlib").resolve("LauncherAuthlib6.jar");
         }
         return pathToLauncherAuthlib;
@@ -421,6 +451,7 @@ public class InstallClient {
     private void copyDir(Path source, Path target) throws IOException {
         copyDir(source, target, path -> true);
     }
+
     private void copyDir(Path source, Path target, Predicate<Path> predicate) throws IOException {
         if (Files.notExists(source)) {
             return;

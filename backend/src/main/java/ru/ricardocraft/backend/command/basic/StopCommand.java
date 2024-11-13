@@ -1,13 +1,11 @@
 package ru.ricardocraft.backend.command.basic;
 
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.helper.JVMHelper;
 
+@Component
 public final class StopCommand extends Command {
-    public StopCommand(LaunchServer server) {
-        super(server);
-    }
 
     @Override
     public String getArgsDescription() {

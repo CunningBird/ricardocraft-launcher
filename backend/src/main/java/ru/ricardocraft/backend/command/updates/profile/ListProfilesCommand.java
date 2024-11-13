@@ -2,13 +2,23 @@ package ru.ricardocraft.backend.command.updates.profile;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
+@Component
 public class ListProfilesCommand extends Command {
+
     private final transient Logger logger = LogManager.getLogger(ListProfilesCommand.class);
-    public ListProfilesCommand(LaunchServer server) {
-        super(server);
+
+    private transient final LaunchServerConfig config;
+
+    @Autowired
+    public ListProfilesCommand(LaunchServerConfig server) {
+        super();
+        this.config = server;
     }
 
     @Override
@@ -23,7 +33,7 @@ public class ListProfilesCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        for(var profile : server.getProfiles()) {
+        for(var profile : config.profileProvider.getProfiles()) {
             logger.info("{} ({}) {}", profile.getTitle(), profile.getVersion().toString(), profile.isLimited() ? "limited" : "");
         }
     }

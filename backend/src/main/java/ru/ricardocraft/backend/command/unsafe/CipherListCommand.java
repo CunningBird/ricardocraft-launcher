@@ -1,16 +1,16 @@
 package ru.ricardocraft.backend.command.unsafe;
 
-import ru.ricardocraft.backend.LaunchServer;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.helper.LogHelper;
 
 import java.security.Provider;
 import java.security.Security;
 
+@Component
+@NoArgsConstructor
 public class CipherListCommand extends Command {
-    public CipherListCommand(LaunchServer server) {
-        super(server);
-    }
 
     @Override
     public String getArgsDescription() {

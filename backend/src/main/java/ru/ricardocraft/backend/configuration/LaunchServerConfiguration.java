@@ -8,9 +8,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.ricardocraft.backend.LaunchServer;
-import ru.ricardocraft.backend.command.utls.CommandHandler;
-import ru.ricardocraft.backend.command.utls.JLineCommandHandler;
-import ru.ricardocraft.backend.command.utls.StdCommandHandler;
 import ru.ricardocraft.backend.core.LauncherTrustManager;
 import ru.ricardocraft.backend.core.managers.GsonManager;
 import ru.ricardocraft.backend.helper.IOHelper;
@@ -87,21 +84,6 @@ public class LaunchServerConfiguration {
         }
 
         return new CertificateManager();
-    }
-
-    @Bean
-    public CommandHandler commandHandler() {
-        try {
-            Class.forName("org.jline.terminal.Terminal");
-            // JLine2 available
-            CommandHandler commandHandler = new JLineCommandHandler();
-            logger.info("JLine2 terminal enabled");
-            return commandHandler;
-        } catch (Exception ignored) {
-            CommandHandler commandHandler = new StdCommandHandler(true);
-            logger.warn("JLine2 isn't in classpath, using std");
-            return commandHandler;
-        }
     }
 
     @Bean

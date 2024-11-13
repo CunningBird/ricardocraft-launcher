@@ -2,10 +2,13 @@ package ru.ricardocraft.backend.command.mirror.installers;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.*;
 import java.net.URI;
@@ -18,12 +21,16 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@Component
 public class ForgeInstallerCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
-    private final boolean forgeNoConfirm = Boolean.parseBoolean(System.getProperty("modules.unsafecommandspack.forgeinstaller.noconfirm", "false"));
 
-    public ForgeInstallerCommand(LaunchServer server) {
-        super(server);
+    private transient final LaunchServerDirectories directories;
+
+    @Autowired
+    public ForgeInstallerCommand(LaunchServerDirectories directories) {
+        super();
+        this.directories = directories;
     }
 
     @Override
@@ -39,7 +46,7 @@ public class ForgeInstallerCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 2);
-        Path dir = server.updatesDir.resolve(args[0]);
+        Path dir = directories.updatesDir.resolve(args[0]);
         if (!Files.exists(dir)) {
             throw new FileNotFoundException(dir.toString());
         }
@@ -50,9 +57,6 @@ public class ForgeInstallerCommand extends Command {
         logger.info("If possible please consider moving to Fabric");
         logger.info("Forge is supported by advertising when downloading and installing. Please do not use AdBlock when downloading it, this will help the project");
         logger.error("FORGE INSTALLER COMMAND IS WORK IN PROGRESS!");
-        if (!forgeNoConfirm && !showApplyDialog("Continue?")) {
-            return;
-        }
 
         ForgeInstallManifest forgeInstallManifest = null;
         try (ZipInputStream input = IOHelper.newZipInput(forgeInstaller)) {
@@ -133,14 +137,6 @@ public class ForgeInstallerCommand extends Command {
     public static class ServerAndClientValue {
         public String client;
         public String server;
-
-        public ServerAndClientValue() {
-        }
-
-        public ServerAndClientValue(String client, String server) {
-            this.client = client;
-            this.server = server;
-        }
 
         public ServerAndClientValue(String client) {
             this.client = client;

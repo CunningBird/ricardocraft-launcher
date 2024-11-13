@@ -3,12 +3,16 @@ package ru.ricardocraft.backend.command.updates;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.Downloader;
 import ru.ricardocraft.backend.HttpRequester;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.manangers.MirrorManager;
+import ru.ricardocraft.backend.manangers.UpdatesManager;
+import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.Writer;
 import java.nio.file.Files;
@@ -18,13 +22,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Component
 public final class DownloadAssetCommand extends Command {
     private static final String MINECRAFT_VERSIONS_URL = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
     private static final String RESOURCES_DOWNLOAD_URL = "https://resources.download.minecraft.net/";
     private transient final Logger logger = LogManager.getLogger();
 
-    public DownloadAssetCommand(LaunchServer server) {
-        super(server);
+    private transient final LaunchServerDirectories directories;
+    private transient final MirrorManager mirrorManager;
+    private transient final UpdatesManager updatesManager;
+
+    @Autowired
+    public DownloadAssetCommand(LaunchServerDirectories directories, MirrorManager mirrorManager, UpdatesManager updatesManager) {
+        super();
+        this.directories = directories;
+        this.mirrorManager = mirrorManager;
+        this.updatesManager = updatesManager;
     }
 
     @Override
@@ -44,7 +57,7 @@ public final class DownloadAssetCommand extends Command {
         String versionName = args[0];
         String dirName = IOHelper.verifyFileName(args.length > 1 ? args[1] : "assets");
         String type = args.length > 2 ? args[2] : "mojang";
-        Path assetDir = server.updatesDir.resolve(dirName);
+        Path assetDir = directories.updatesDir.resolve(dirName);
 
         // Create asset dir
         if (Files.notExists(assetDir)) {
@@ -109,11 +122,11 @@ public final class DownloadAssetCommand extends Command {
             // Download required asset
             logger.info("Downloading asset, it may take some time");
             //HttpDownloader.downloadZip(server.mirrorManager.getDefaultMirror().getAssetsURL(version.name), assetDir);
-            server.mirrorManager.downloadZip(assetDir, "assets/%s.zip", versionName);
+            mirrorManager.downloadZip(assetDir, "assets/%s.zip", versionName);
         }
 
         // Finished
-        server.syncUpdatesDir(Collections.singleton(dirName));
+        updatesManager.syncUpdatesDir(Collections.singleton(dirName));
         logger.info("Asset successfully downloaded: '{}'", dirName);
     }
 

@@ -26,7 +26,7 @@ public class JoinServerResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (!server.config.protectHandler.allowJoinServer(client)) {
+        if (!config.protectHandler.allowJoinServer(client)) {
             sendError("Permissions denied");
             return;
         }
@@ -36,15 +36,15 @@ public class JoinServerResponse extends SimpleResponse {
         }
         boolean success;
         try {
-            server.authHookManager.joinServerHook.hook(this, client);
-            if (server.config.protectHandler instanceof JoinServerProtectHandler joinServerProtectHandler) {
+            authHookManager.joinServerHook.hook(this, client);
+            if (config.protectHandler instanceof JoinServerProtectHandler joinServerProtectHandler) {
                 success = joinServerProtectHandler.onJoinServer(serverID, username, uuid, client);
                 if (!success) {
                     sendResult(new JoinServerRequestEvent(false));
                     return;
                 }
             }
-            success = server.authManager.joinServer(client, username, uuid, accessToken, serverID);
+            success = authManager.joinServer(client, username, uuid, accessToken, serverID);
             if (success) {
                 logger.debug("joinServer: {} accessToken: {} serverID: {}", username, accessToken, serverID);
             }

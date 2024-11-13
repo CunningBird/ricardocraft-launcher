@@ -32,8 +32,8 @@ public class CheckServerResponse extends SimpleResponse {
         }
         CheckServerRequestEvent result = new CheckServerRequestEvent();
         try {
-            server.authHookManager.checkServerHook.hook(this, pClient);
-            AuthManager.CheckServerReport report = server.authManager.checkServer(pClient, username, serverID);
+            authHookManager.checkServerHook.hook(this, pClient);
+            AuthManager.CheckServerReport report = authManager.checkServer(pClient, username, serverID);
             if (report == null) {
                 sendError("User not verified");
                 return;
@@ -49,7 +49,7 @@ public class CheckServerResponse extends SimpleResponse {
                     result.hardwareId = supportHardware.getHardwareId();
                 }
             }
-            server.authHookManager.postCheckServerHook.hook(report, pClient);
+            authHookManager.postCheckServerHook.hook(report, pClient);
             logger.debug("checkServer: {} uuid: {} serverID: {}", result.playerProfile == null ? null : result.playerProfile.username, result.uuid, serverID);
         } catch (AuthException | HookException e) {
             sendError(e.getMessage());
