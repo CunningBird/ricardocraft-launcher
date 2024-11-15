@@ -16,7 +16,6 @@ import ru.ricardocraft.backend.helper.QueryHelper;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 
 import java.io.IOException;
 import java.net.URI;

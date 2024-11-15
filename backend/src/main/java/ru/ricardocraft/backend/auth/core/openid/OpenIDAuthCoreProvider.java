@@ -18,8 +18,6 @@ import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
-import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 
 import java.io.IOException;
 import java.time.Instant;

@@ -10,7 +10,6 @@ import ru.ricardocraft.backend.auth.core.interfaces.UserHardware;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportGetAllUsers;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportHardware;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportRegistration;
-import ru.ricardocraft.backend.auth.core.openid.OpenIDAuthCoreProvider;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
 import ru.ricardocraft.backend.base.request.auth.AuthRequest;
@@ -24,8 +23,6 @@ import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
-import ru.ricardocraft.backend.utils.ProviderMap;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

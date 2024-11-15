@@ -1,23 +1,13 @@
 package ru.ricardocraft.backend.base.request.websockets;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.events.NotificationEvent;
 import ru.ricardocraft.backend.base.events.request.*;
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.base.profiles.optional.actions.OptionalAction;
-import ru.ricardocraft.backend.base.profiles.optional.triggers.OptionalTrigger;
 import ru.ricardocraft.backend.base.request.WebSocketEvent;
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
-import ru.ricardocraft.backend.base.request.auth.GetAvailabilityAuthRequest;
-import ru.ricardocraft.backend.core.hasher.HashedEntry;
-import ru.ricardocraft.backend.core.hasher.HashedEntryAdapter;
 import ru.ricardocraft.backend.helper.LogHelper;
 import ru.ricardocraft.backend.utils.ProviderMap;
-import ru.ricardocraft.backend.utils.UniversalJsonAdapter;
 
-import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;

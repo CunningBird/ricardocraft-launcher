@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
 import ru.ricardocraft.backend.core.hasher.HashedDir;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 import java.io.IOException;
 import java.util.Collection;

@@ -1,9 +1,7 @@
 package ru.ricardocraft.backend.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import ru.ricardocraft.backend.socket.WebSocketService;
 
 //@Controller

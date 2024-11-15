@@ -12,7 +12,6 @@ import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
 import ru.ricardocraft.backend.base.profiles.PlayerProfile;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.manangers.AuthManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;

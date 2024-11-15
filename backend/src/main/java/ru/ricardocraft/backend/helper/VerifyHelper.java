@@ -2,7 +2,6 @@ package ru.ricardocraft.backend.helper;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.DoublePredicate;
 import java.util.function.IntPredicate;
 import java.util.function.LongPredicate;
 import java.util.function.Predicate;

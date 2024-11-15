@@ -31,7 +31,6 @@ import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.service.auth.RestoreResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
-import ru.ricardocraft.backend.socket.response.auth.RestoreResponse;
 
 import javax.crypto.Cipher;
 import java.io.IOException;

@@ -5,7 +5,6 @@ import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 
 import java.io.IOException;
 import java.util.UUID;
