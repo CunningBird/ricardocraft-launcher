@@ -3,6 +3,7 @@ package ru.ricardocraft.backend.auth.core;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.manangers.AuthManager;
+import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 
@@ -26,17 +27,17 @@ public class RejectAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponse.AuthContext context) {
+    public AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponseService.AuthContext context) {
         return null;
     }
 
     @Override
-    public void verifyAuth(AuthResponse.AuthContext context) throws AuthException {
+    public void verifyAuth(AuthResponseService.AuthContext context) throws AuthException {
         throw new AuthException("Please configure AuthCoreProvider");
     }
 
     @Override
-    public AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
+    public AuthManager.AuthReport authorize(String login, AuthResponseService.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
         throw new AuthException("Please configure AuthCoreProvider");
     }
 

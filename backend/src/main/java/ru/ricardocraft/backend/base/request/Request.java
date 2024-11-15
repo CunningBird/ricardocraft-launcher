@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.base.request;
 
+import lombok.Getter;
 import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
 import ru.ricardocraft.backend.base.events.request.CurrentUserRequestEvent;
 import ru.ricardocraft.backend.base.events.request.RefreshTokenRequestEvent;
@@ -23,6 +24,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     private static final List<ExtendedTokenCallback> extendedTokenCallbacks = new ArrayList<>(4);
     private static final List<BiConsumer<String, AuthRequestEvent.OAuthRequestEvent>> oauthChangeHandlers = new ArrayList<>(4);
 
+    @Getter
     private static volatile RequestService requestService;
     private static volatile AuthRequestEvent.OAuthRequestEvent oauth;
     private static volatile Map<String, ExtendedToken> extendedTokens;
@@ -55,14 +57,6 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         }
     }
 
-    public static RequestService getRequestService() {
-        return requestService;
-    }
-
-    public static void setRequestService(RequestService service) {
-        requestService = service;
-    }
-
     public static boolean isAvailable() {
         return requestService != null;
     }
@@ -80,22 +74,6 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         }
     }
 
-    public static AuthRequestEvent.OAuthRequestEvent getOAuth() {
-        return oauth;
-    }
-
-    public static String getAuthId() {
-        return authId;
-    }
-
-    public static Map<String, ExtendedToken> getExtendedTokens() {
-        if (extendedTokens != null) {
-            return Collections.unmodifiableMap(extendedTokens);
-        } else {
-            return null;
-        }
-    }
-
     public static Map<String, String> getStringExtendedTokens() {
         if(extendedTokens != null) {
             Map<String, String> map = new HashMap<>();
@@ -108,30 +86,11 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         }
     }
 
-    public static void clearExtendedTokens() {
-        if (extendedTokens != null) {
-            extendedTokens.clear();
-        }
-    }
-
     public static void addExtendedToken(String name, ExtendedToken token) {
         if (extendedTokens == null) {
             extendedTokens = new ConcurrentHashMap<>();
         }
         extendedTokens.put(name, token);
-    }
-
-    public static void addAllExtendedToken(Map<String, ExtendedToken> map) {
-        if (extendedTokens == null) {
-            extendedTokens = new ConcurrentHashMap<>();
-        }
-        extendedTokens.putAll(map);
-    }
-
-    public static void setOAuth(String authId, AuthRequestEvent.OAuthRequestEvent event, long tokenExpiredTime) {
-        oauth = event;
-        Request.authId = authId;
-        Request.tokenExpiredTime = tokenExpiredTime;
     }
 
     public static boolean isTokenExpired() {
@@ -140,22 +99,12 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         return System.currentTimeMillis() > tokenExpiredTime;
     }
 
-    public static long getTokenExpiredTime() {
-        return tokenExpiredTime;
-    }
-
     public static String getAccessToken() {
         return oauth == null ? null : oauth.accessToken;
     }
 
     public static String getRefreshToken() {
         return oauth == null ? null : oauth.refreshToken;
-    }
-
-    public static void reconnect() throws Exception {
-
-        getRequestService().open();
-        restore();
     }
 
     public static RequestRestoreReport restore() throws Exception {
@@ -229,26 +178,6 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
             }
         }
         return tokens;
-    }
-
-    public static void requestError(String message) throws RequestException {
-        throw new RequestException(message);
-    }
-
-    public void addExtendedTokenCallback(ExtendedTokenCallback cb) {
-        extendedTokenCallbacks.add(cb);
-    }
-
-    public void removeExtendedTokenCallback(ExtendedTokenCallback cb) {
-        extendedTokenCallbacks.remove(cb);
-    }
-
-    public void addOAuthChangeHandler(BiConsumer<String, AuthRequestEvent.OAuthRequestEvent> eventHandler) {
-        oauthChangeHandlers.add(eventHandler);
-    }
-
-    public void removeOAuthChangeHandler(BiConsumer<String, AuthRequestEvent.OAuthRequestEvent> eventHandler) {
-        oauthChangeHandlers.remove(eventHandler);
     }
 
     public R request() throws Exception {

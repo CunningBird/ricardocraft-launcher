@@ -16,11 +16,11 @@ import java.util.Base64;
 public class ClientsCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
 
-    private transient final NettyServerSocketHandler nettyServerSocketHandler;
+    private transient final WebSocketService service;
 
-    public ClientsCommand(NettyServerSocketHandler nettyServerSocketHandler) {
+    public ClientsCommand(WebSocketService service) {
         super();
-        this.nettyServerSocketHandler = nettyServerSocketHandler;
+        this.service = service;
     }
 
     @Override
@@ -35,7 +35,6 @@ public class ClientsCommand extends Command {
 
     @Override
     public void invoke(String... args) {
-        WebSocketService service = nettyServerSocketHandler.nettyServer.service;
         service.channels.forEach((channel -> {
             WebSocketFrameHandler frameHandler = channel.pipeline().get(WebSocketFrameHandler.class);
             if (frameHandler == null) {

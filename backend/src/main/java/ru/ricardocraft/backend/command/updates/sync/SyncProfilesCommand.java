@@ -14,17 +14,11 @@ import java.io.IOException;
 public final class SyncProfilesCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
 
-    private transient final LaunchServerConfig config;
     private transient final ProfileProvider profileProvider;
-    private transient final NettyServerSocketHandler nettyServerSocketHandler;
 
-    public SyncProfilesCommand(LaunchServerConfig config,
-                               ProfileProvider profileProvider,
-                               NettyServerSocketHandler nettyServerSocketHandler) {
+    public SyncProfilesCommand(ProfileProvider profileProvider) {
         super();
-        this.config = config;
         this.profileProvider = profileProvider;
-        this.nettyServerSocketHandler = nettyServerSocketHandler;
     }
 
     @Override
@@ -39,7 +33,7 @@ public final class SyncProfilesCommand extends Command {
 
     @Override
     public void invoke(String... args) throws IOException {
-        profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
+        profileProvider.syncProfilesDir();
         logger.info("Profiles successfully resynced");
     }
 }

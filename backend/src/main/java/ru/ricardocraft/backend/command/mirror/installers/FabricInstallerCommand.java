@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.core.managers.GsonManager;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
@@ -30,12 +31,16 @@ public class FabricInstallerCommand extends Command {
 
     private transient final LaunchServerDirectories directories;
     private transient final UpdatesManager updatesManager;
+    private transient final GsonManager gsonManager;
 
     @Autowired
-    public FabricInstallerCommand(LaunchServerDirectories directories, UpdatesManager updatesManager) {
+    public FabricInstallerCommand(LaunchServerDirectories directories,
+                                  UpdatesManager updatesManager,
+                                  GsonManager gsonManager) {
         super();
         this.directories = directories;
         this.updatesManager = updatesManager;
+        this.gsonManager = gsonManager;
     }
 
     public static NamedURL makeURL(String mavenUrl, String mavenId) throws URISyntaxException, MalformedURLException {
@@ -101,7 +106,7 @@ public class FabricInstallerCommand extends Command {
         logger.debug("Fabric profile {}", fabricProfileFile.toString());
         MinecraftProfile fabricProfile;
         try (Reader reader = IOHelper.newReader(fabricProfileFile)) {
-            fabricProfile = Launcher.gsonManager.configGson.fromJson(reader, MinecraftProfile.class);
+            fabricProfile = gsonManager.configGson.fromJson(reader, MinecraftProfile.class);
         }
         for (MinecraftProfileLibrary library : fabricProfile.libraries) {
             NamedURL url = makeURL(library.url, library.name);

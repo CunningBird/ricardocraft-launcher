@@ -22,6 +22,7 @@ import ru.ricardocraft.backend.command.utls.SubCommand;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 import ru.ricardocraft.backend.utils.ProviderMap;
@@ -57,15 +58,15 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
 
     public abstract UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired;
 
-    public abstract AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponse.AuthContext context /* may be null */);
+    public abstract AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponseService.AuthContext context /* may be null */);
 
-    public void verifyAuth(AuthResponse.AuthContext context) throws AuthException {
+    public void verifyAuth(AuthResponseService.AuthContext context) throws AuthException {
         // None
     }
 
-    public abstract AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context /* may be null */, AuthRequest.AuthPasswordInterface password /* may be null */, boolean minecraftAccess) throws IOException;
+    public abstract AuthManager.AuthReport authorize(String login, AuthResponseService.AuthContext context /* may be null */, AuthRequest.AuthPasswordInterface password /* may be null */, boolean minecraftAccess) throws IOException;
 
-    public AuthManager.AuthReport authorize(User user, AuthResponse.AuthContext context /* may be null */, AuthRequest.AuthPasswordInterface password /* may be null */, boolean minecraftAccess) throws IOException {
+    public AuthManager.AuthReport authorize(User user, AuthResponseService.AuthContext context /* may be null */, AuthRequest.AuthPasswordInterface password /* may be null */, boolean minecraftAccess) throws IOException {
         return authorize(user.getUsername(), context, password, minecraftAccess);
     }
 

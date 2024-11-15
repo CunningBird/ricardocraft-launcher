@@ -12,41 +12,21 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.auth.AuthProviders;
-import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
-import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ErrorRequestEvent;
-import ru.ricardocraft.backend.base.events.request.ExitRequestEvent;
 import ru.ricardocraft.backend.base.request.WebSocketEvent;
-import ru.ricardocraft.backend.binary.EXELauncherBinary;
-import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.core.managers.GsonManager;
 import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.manangers.*;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
 import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.auth.*;
-import ru.ricardocraft.backend.socket.response.cabinet.AssetUploadInfoResponse;
-import ru.ricardocraft.backend.socket.response.cabinet.GetAssetUploadInfoResponse;
-import ru.ricardocraft.backend.socket.response.management.FeaturesResponse;
-import ru.ricardocraft.backend.socket.response.management.GetConnectUUIDResponse;
-import ru.ricardocraft.backend.socket.response.management.GetPublicKeyResponse;
-import ru.ricardocraft.backend.socket.response.profile.BatchProfileByUsername;
-import ru.ricardocraft.backend.socket.response.profile.ProfileByUUIDResponse;
-import ru.ricardocraft.backend.socket.response.profile.ProfileByUsername;
-import ru.ricardocraft.backend.socket.response.secure.GetSecureLevelInfoResponse;
-import ru.ricardocraft.backend.socket.response.secure.HardwareReportResponse;
-import ru.ricardocraft.backend.socket.response.secure.SecurityReportResponse;
-import ru.ricardocraft.backend.socket.response.secure.VerifySecureLevelKeyResponse;
-import ru.ricardocraft.backend.socket.response.update.LauncherResponse;
-import ru.ricardocraft.backend.socket.response.update.UpdateResponse;
 import ru.ricardocraft.backend.utils.BiHookSet;
 import ru.ricardocraft.backend.utils.HookSet;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -56,75 +36,37 @@ import java.util.function.BiConsumer;
 @Component
 public class WebSocketService {
 
-    public final ChannelGroup channels;
-    public final HookSet<WebSocketRequestContext> hookBeforeParsing = new HookSet<>();
-    public final HookSet<WebSocketRequestContext> hookBeforeExecute = new HookSet<>();
-    public final HookSet<WebSocketRequestContext> hookComplete = new HookSet<>();
-    public final BiHookSet<Channel, Object> hookSend = new BiHookSet<>();
-
-    public transient final LaunchServerConfig config;
-    public transient final AuthProviders authProviders;
-    public transient final AuthManager authManager;
-
-    public transient final AuthHookManager authHookManager;
-    public transient final UpdatesManager updatesManager;
-    public transient final KeyAgreementManager keyAgreementManager;
-    public transient final JARLauncherBinary launcherBinary;
-
-    public transient final EXELauncherBinary exeLauncherBinary;
-    public transient final FeaturesManager featuresManager;
-    public transient final ProtectHandler protectHandler;
-    public transient final ProfileProvider profileProvider;
-    public transient final Map<String, RestoreResponse.ExtendedTokenProvider> restoreProviders;
-
-    private final Gson gson;
     private transient final Logger logger = LogManager.getLogger();
 
+    public final ChannelGroup channels;
+    private final HookSet<WebSocketRequestContext> hookBeforeParsing = new HookSet<>();
+    private final HookSet<WebSocketRequestContext> hookBeforeExecute = new HookSet<>();
+    private final HookSet<WebSocketRequestContext> hookComplete = new HookSet<>();
+    private final BiHookSet<Channel, Object> hookSend = new BiHookSet<>();
     private final ExecutorService executors;
 
+    private final Map<Class<? extends SimpleResponse>, AbstractResponseService> services = new HashMap<>();
+
+    private transient final LaunchServerConfig config;
+
+    private transient final Gson gson;
+
     @Autowired
-    public WebSocketService(LaunchServerConfig config,
-
-                            AuthProviders authProviders,
-                            AuthManager authManager,
-
-                            AuthHookManager authHookManager,
-                            UpdatesManager updatesManager,
-                            KeyAgreementManager keyAgreementManager,
-                            JARLauncherBinary launcherBinary,
-
-                            EXELauncherBinary exeLauncherBinary,
-                            FeaturesManager featuresManager,
-                            ProtectHandler protectHandler,
-                            ProfileProvider profileProvider,
-                            Map<String, RestoreResponse.ExtendedTokenProvider> restoreProviders,
-
-                            GsonManager gsonManager) {
+    public WebSocketService(LaunchServerConfig config, GsonManager gsonManager) {
         this.channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-
-        this.config = config;
-
-        this.authProviders = authProviders;
-        this.authManager = authManager;
-
-        this.authHookManager = authHookManager;
-        this.updatesManager = updatesManager;
-        this.keyAgreementManager = keyAgreementManager;
-        this.launcherBinary = launcherBinary;
-
-        this.exeLauncherBinary = exeLauncherBinary;
-        this.featuresManager = featuresManager;
-        this.protectHandler = protectHandler;
-        this.profileProvider = profileProvider;
-        this.restoreProviders = restoreProviders;
-
-        this.gson = gsonManager.gson;
         executors = switch (config.netty.performance.executorType) {
             case NONE -> null;
             case DEFAULT -> Executors.newCachedThreadPool();
             case WORK_STEAL -> Executors.newWorkStealingPool();
             case VIRTUAL_THREADS -> Executors.newVirtualThreadPerTaskExecutor();
         };
+
+        this.config = config;
+        this.gson = gsonManager.gson;
+    }
+
+    public void registerService(Class<? extends SimpleResponse> responseClass, AbstractResponseService service) {
+        services.put(responseClass, service);
     }
 
     public static String getIPFromContext(ChannelHandlerContext ctx) {
@@ -177,9 +119,7 @@ public class WebSocketService {
 
     private void process(WebSocketServerResponse.ThreadSafeStatus safeStatus, Client client, String ip, WebSocketRequestContext context, WebSocketServerResponse response) {
         switch (safeStatus) {
-            case NONE -> {
-                process(context, response, client, ip);
-            }
+            case NONE -> process(context, response, client, ip);
             case READ -> {
                 var lock = client.lock.readLock();
                 lock.lock();
@@ -207,31 +147,12 @@ public class WebSocketService {
         }
         ChannelHandlerContext ctx = context.context;
         if (response instanceof SimpleResponse simpleResponse) {
-
-            simpleResponse.config = config;
-            simpleResponse.authProviders = authProviders;
-            simpleResponse.authManager = authManager;
-
-            simpleResponse.authHookManager = authHookManager;
-            simpleResponse.updatesManager = updatesManager;
-            simpleResponse.keyAgreementManager = keyAgreementManager;
-            simpleResponse.launcherBinary = launcherBinary;
-
-            simpleResponse.exeLauncherBinary = exeLauncherBinary;
-            simpleResponse.featuresManager = featuresManager;
-            simpleResponse.protectHandler = protectHandler;
-            simpleResponse.profileProvider = profileProvider;
-            simpleResponse.restoreProviders = restoreProviders;
-            simpleResponse.shardId = Integer.parseInt(System.getProperty("launchserver.shardId", "0"));
-
-            simpleResponse.service = this;
-            simpleResponse.ctx = ctx;
             if (ip != null) simpleResponse.ip = ip;
             else simpleResponse.ip = IOHelper.getIP(ctx.channel().remoteAddress());
             simpleResponse.connectUUID = context.connectUUID;
         }
         try {
-            response.execute(ctx, client);
+            services.get(response.getClass()).execute(response, ctx, client);
         } catch (Throwable e) {
             context.exception = e;
             logger.error("WebSocket request processing failed", e);
@@ -303,53 +224,6 @@ public class WebSocketService {
             }
         }
         return null;
-    }
-
-    public boolean kickByUserUUID(UUID userUuid, boolean isClose) {
-        boolean result = false;
-        for (Channel ch : channels) {
-            if (ch == null || ch.pipeline() == null) continue;
-            WebSocketFrameHandler wsHandler = ch.pipeline().get(WebSocketFrameHandler.class);
-            if (wsHandler == null) continue;
-            Client client = wsHandler.getClient();
-            if (client == null || !userUuid.equals(client.uuid)) continue;
-            ExitResponse.exit(wsHandler, ch, ExitRequestEvent.ExitReason.SERVER);
-            if (isClose) ch.close();
-            result = true;
-        }
-        return result;
-    }
-
-    public boolean kickByConnectUUID(UUID connectUuid, boolean isClose) {
-        for (Channel ch : channels) {
-            if (ch == null || ch.pipeline() == null) continue;
-            WebSocketFrameHandler wsHandler = ch.pipeline().get(WebSocketFrameHandler.class);
-            if (wsHandler == null) continue;
-            if (connectUuid.equals(wsHandler.getConnectUUID())) {
-                ExitResponse.exit(wsHandler, ch, ExitRequestEvent.ExitReason.SERVER);
-                if (isClose) ch.close();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean kickByIP(String ip, boolean isClose) {
-        boolean result = false;
-        for (Channel ch : channels) {
-            if (ch == null || ch.pipeline() == null) continue;
-            WebSocketFrameHandler wsHandler = ch.pipeline().get(WebSocketFrameHandler.class);
-            if (wsHandler == null) continue;
-            String clientIp;
-            if (wsHandler.context != null && wsHandler.context.ip != null) clientIp = wsHandler.context.ip;
-            else clientIp = IOHelper.getIP(ch.remoteAddress());
-            if (ip.equals(clientIp)) {
-                ExitResponse.exit(wsHandler, ch, ExitRequestEvent.ExitReason.SERVER);
-                if (isClose) ch.close();
-                result = true;
-            }
-        }
-        return result;
     }
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj) {

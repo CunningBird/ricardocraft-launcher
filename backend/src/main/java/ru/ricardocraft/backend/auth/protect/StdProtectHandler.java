@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
+import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 
@@ -17,7 +18,7 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
     public List<String> allowUpdates = new ArrayList<>();
 
     @Override
-    public boolean allowGetAccessToken(AuthResponse.AuthContext context) {
+    public boolean allowGetAccessToken(AuthResponseService.AuthContext context) {
         return (context.authType == AuthResponse.ConnectTypes.CLIENT) && context.client.checkSign;
     }
 

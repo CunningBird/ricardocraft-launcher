@@ -12,19 +12,12 @@ import java.util.UUID;
 
 @Component
 public class SaveProfilesCommand extends Command {
-
-    private transient final LaunchServerConfig config;
     private transient final ProfileProvider profileProvider;
-    private transient final NettyServerSocketHandler nettyServerSocketHandler;
 
     @Autowired
-    public SaveProfilesCommand(LaunchServerConfig config,
-                               ProfileProvider profileProvider,
-                               NettyServerSocketHandler nettyServerSocketHandler) {
+    public SaveProfilesCommand(ProfileProvider profileProvider) {
         super();
-        this.config = config;
         this.profileProvider = profileProvider;
-        this.nettyServerSocketHandler = nettyServerSocketHandler;
     }
 
     @Override
@@ -51,7 +44,7 @@ public class SaveProfilesCommand extends Command {
                 }
                 profileProvider.addProfile(profile);
             }
-            profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
+            profileProvider.syncProfilesDir();
         }
     }
 

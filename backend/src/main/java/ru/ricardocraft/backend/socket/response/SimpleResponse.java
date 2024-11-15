@@ -1,58 +1,9 @@
 package ru.ricardocraft.backend.socket.response;
 
-import io.netty.channel.ChannelHandlerContext;
-import ru.ricardocraft.backend.auth.AuthProviders;
-import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
-import ru.ricardocraft.backend.auth.protect.ProtectHandler;
-import ru.ricardocraft.backend.base.events.RequestEvent;
-import ru.ricardocraft.backend.base.events.request.ErrorRequestEvent;
-import ru.ricardocraft.backend.binary.EXELauncherBinary;
-import ru.ricardocraft.backend.binary.JARLauncherBinary;
-import ru.ricardocraft.backend.manangers.*;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.auth.RestoreResponse;
-
-import java.util.Map;
 import java.util.UUID;
 
 public abstract class SimpleResponse implements WebSocketServerResponse {
     public UUID requestUUID;
-
-    public transient LaunchServerConfig config;
-    public transient AuthProviders authProviders;
-    public transient AuthManager authManager;
-
-    public transient AuthHookManager authHookManager;
-    public transient UpdatesManager updatesManager;
-    public transient KeyAgreementManager keyAgreementManager;
-    public transient JARLauncherBinary launcherBinary;
-
-    public transient EXELauncherBinary exeLauncherBinary;
-    public transient FeaturesManager featuresManager;
-    public transient ProtectHandler protectHandler;
-    public transient ProfileProvider profileProvider;
-    public transient Map<String, RestoreResponse.ExtendedTokenProvider> restoreProviders;
-    public transient int shardId;
-
-    public transient WebSocketService service;
-    public transient ChannelHandlerContext ctx;
     public transient UUID connectUUID;
     public transient String ip;
-
-    public void sendResult(RequestEvent result) {
-        result.requestUUID = requestUUID;
-        service.sendObject(ctx.channel(), result);
-    }
-
-    public void sendResultAndClose(RequestEvent result) {
-        result.requestUUID = requestUUID;
-        service.sendObjectAndClose(ctx, result);
-    }
-
-    public void sendError(String errorMessage) {
-        ErrorRequestEvent event = new ErrorRequestEvent(errorMessage);
-        event.requestUUID = requestUUID;
-        service.sendObject(ctx.channel(), event);
-    }
 }

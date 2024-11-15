@@ -16,21 +16,15 @@ import java.io.IOException;
 public final class SyncUPCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
 
-    private transient final LaunchServerConfig config;
     private transient final ProfileProvider profileProvider;
     private transient final UpdatesManager updatesManager;
-    private transient final NettyServerSocketHandler nettyServerSocketHandler;
 
     @Autowired
-    public SyncUPCommand(LaunchServerConfig config,
-                         ProfileProvider profileProvider,
-                         UpdatesManager updatesManager,
-                         NettyServerSocketHandler nettyServerSocketHandler) {
+    public SyncUPCommand(ProfileProvider profileProvider,
+                         UpdatesManager updatesManager) {
         super();
-        this.config = config;
         this.profileProvider = profileProvider;
         this.updatesManager = updatesManager;
-        this.nettyServerSocketHandler = nettyServerSocketHandler;
     }
 
     @Override
@@ -45,7 +39,7 @@ public final class SyncUPCommand extends Command {
 
     @Override
     public void invoke(String... args) throws IOException {
-        profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
+        profileProvider.syncProfilesDir();
         logger.info("Profiles successfully resynced");
 
         updatesManager.syncUpdatesDir(null);

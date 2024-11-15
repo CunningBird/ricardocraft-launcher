@@ -27,6 +27,8 @@ import ru.ricardocraft.backend.base.request.auth.password.*;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.service.auth.AuthResponseService;
+import ru.ricardocraft.backend.service.auth.RestoreResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 import ru.ricardocraft.backend.socket.response.auth.RestoreResponse;
@@ -85,11 +87,11 @@ public class AuthManager {
      *
      * @return AuthContext instance
      */
-    public AuthResponse.AuthContext makeAuthContext(Client client, AuthResponse.ConnectTypes authType, AuthProviderPair pair, String login, String profileName, String ip) {
+    public AuthResponseService.AuthContext makeAuthContext(Client client, AuthResponse.ConnectTypes authType, AuthProviderPair pair, String login, String profileName, String ip) {
         Objects.requireNonNull(client, "Client must be not null");
         Objects.requireNonNull(authType, "authType must be not null");
         Objects.requireNonNull(pair, "AuthProviderPair must be not null");
-        return new AuthResponse.AuthContext(client, login, profileName, ip, authType, pair);
+        return new AuthResponseService.AuthContext(client, login, profileName, ip, authType, pair);
     }
 
     /**
@@ -98,7 +100,7 @@ public class AuthManager {
      * @param context Auth context
      * @throws AuthException auth not possible
      */
-    public void check(AuthResponse.AuthContext context) throws AuthException {
+    public void check(AuthResponseService.AuthContext context) throws AuthException {
         if (context.authType == AuthResponse.ConnectTypes.CLIENT && !context.client.checkSign) {
             throw new AuthException("Don't skip Launcher Update");
         }
@@ -114,7 +116,7 @@ public class AuthManager {
      * @param password User password
      * @return Access token
      */
-    public AuthReport auth(AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password) throws AuthException {
+    public AuthReport auth(AuthResponseService.AuthContext context, AuthRequest.AuthPasswordInterface password) throws AuthException {
         AuthCoreProvider provider = context.pair.core;
         provider.verifyAuth(context);
         if (password instanceof AuthOAuthPassword password1) {
@@ -320,7 +322,7 @@ public class AuthManager {
     public record CheckServerTokenInfo(String serverName, String authId, boolean isPublic) {
     }
 
-    public static class CheckServerVerifier implements RestoreResponse.ExtendedTokenProvider {
+    public static class CheckServerVerifier implements RestoreResponseService.ExtendedTokenProvider {
         private final AuthProviders authProviders;
         private final AuthManager authManager;
 

@@ -17,20 +17,14 @@ public class MakeProfileCommand extends Command {
     private transient final Logger logger = LogManager.getLogger();
 
     private transient final LaunchServerDirectories directories;
-    private transient final LaunchServerConfig config;
     private transient final ProfileProvider profileProvider;
-    private transient final NettyServerSocketHandler nettyServerSocketHandler;
 
     @Autowired
     public MakeProfileCommand(LaunchServerDirectories directories,
-                              LaunchServerConfig config,
-                              ProfileProvider profileProvider,
-                              NettyServerSocketHandler nettyServerSocketHandler) {
+                              ProfileProvider profileProvider) {
         super();
         this.directories = directories;
-        this.config = config;
         this.profileProvider = profileProvider;
-        this.nettyServerSocketHandler = nettyServerSocketHandler;
     }
 
     @Override
@@ -54,6 +48,6 @@ public class MakeProfileCommand extends Command {
         ClientProfile profile = MakeProfileHelper.makeProfile(version, args[0], options);
         profileProvider.addProfile(profile);
         logger.info("Profile {} created", args[0]);
-        profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
+        profileProvider.syncProfilesDir();
     }
 }

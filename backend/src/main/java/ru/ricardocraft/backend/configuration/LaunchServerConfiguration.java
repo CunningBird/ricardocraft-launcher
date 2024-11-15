@@ -17,8 +17,8 @@ import ru.ricardocraft.backend.helper.JVMHelper;
 import ru.ricardocraft.backend.manangers.*;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 import ru.ricardocraft.backend.properties.LaunchServerEnv;
-import ru.ricardocraft.backend.socket.response.auth.RestoreResponse;
-import ru.ricardocraft.backend.socket.response.update.LauncherResponse;
+import ru.ricardocraft.backend.service.auth.RestoreResponseService;
+import ru.ricardocraft.backend.service.update.LauncherResponseService;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -48,11 +48,11 @@ public class LaunchServerConfiguration {
     }
 
     @Bean
-    public Map<String, RestoreResponse.ExtendedTokenProvider> restoreProviders(AuthProviders authProviders,
-                                                                               AuthManager authManager,
-                                                                               KeyAgreementManager keyAgreementManager) {
-        Map<String, RestoreResponse.ExtendedTokenProvider> restoreProviders = new HashMap<>();
-        restoreProviders.put(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, new LauncherResponse.LauncherTokenVerifier(keyAgreementManager));
+    public Map<String, RestoreResponseService.ExtendedTokenProvider> restoreProviders(AuthProviders authProviders,
+                                                                                      AuthManager authManager,
+                                                                                      KeyAgreementManager keyAgreementManager) {
+        Map<String, RestoreResponseService.ExtendedTokenProvider> restoreProviders = new HashMap<>();
+        restoreProviders.put(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, new LauncherResponseService.LauncherTokenVerifier(keyAgreementManager));
         restoreProviders.put("publicKey", new AdvancedProtectHandler.PublicKeyTokenVerifier(keyAgreementManager));
         restoreProviders.put("hardware", new AdvancedProtectHandler.HardwareInfoTokenVerifier(keyAgreementManager));
         restoreProviders.put("checkServer", new AuthManager.CheckServerVerifier(authManager, authProviders));

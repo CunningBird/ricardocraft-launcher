@@ -1,14 +1,6 @@
 package ru.ricardocraft.backend.socket.response.auth;
 
-import io.netty.channel.ChannelHandlerContext;
-import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
-import ru.ricardocraft.backend.base.events.request.SetProfileRequestEvent;
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
-import ru.ricardocraft.backend.utils.HookException;
-
-import java.util.Collection;
 
 public class SetProfileResponse extends SimpleResponse {
     public String client;
@@ -16,29 +8,6 @@ public class SetProfileResponse extends SimpleResponse {
     @Override
     public String getType() {
         return "setProfile";
-    }
-
-    @Override
-    public void execute(ChannelHandlerContext ctx, Client client) {
-        try {
-            authHookManager.setProfileHook.hook(this, client);
-        } catch (HookException e) {
-            sendError(e.getMessage());
-        }
-        Collection<ClientProfile> profiles = profileProvider.getProfiles();
-        for (ClientProfile p : profiles) {
-            if (p.getTitle().equals(this.client)) {
-                if (protectHandler instanceof ProfilesProtectHandler profilesProtectHandler &&
-                        !profilesProtectHandler.canChangeProfile(p, client)) {
-                    sendError("Access denied");
-                    return;
-                }
-                client.profile = p;
-                sendResult(new SetProfileRequestEvent(p));
-                return;
-            }
-        }
-        sendError("Profile not found");
     }
 
     @Override

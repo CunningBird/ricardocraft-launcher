@@ -16,6 +16,7 @@ import ru.ricardocraft.backend.helper.LogHelper;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
@@ -57,7 +58,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public AuthManager.AuthReport refreshAccessToken(String oldRefreshToken, AuthResponse.AuthContext context) {
+    public AuthManager.AuthReport refreshAccessToken(String oldRefreshToken, AuthResponseService.AuthContext context) {
         var tokens = openIDAuthenticator.refreshAccessToken(oldRefreshToken);
         var accessToken = tokens.accessToken();
         var refreshToken = tokens.refreshToken();
@@ -76,7 +77,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public AuthManager.AuthReport authorize(String login, AuthResponse.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
+    public AuthManager.AuthReport authorize(String login, AuthResponseService.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
         if (password == null) {
             throw AuthException.wrongPassword();
         }

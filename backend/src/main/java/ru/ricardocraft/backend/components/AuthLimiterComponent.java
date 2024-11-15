@@ -3,6 +3,7 @@ package ru.ricardocraft.backend.components;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.manangers.AuthHookManager;
+import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 import ru.ricardocraft.backend.utils.HookException;
@@ -27,7 +28,7 @@ public class AuthLimiterComponent extends IPLimiter implements AutoCloseable {
         setComponentName("authLimiter");
     }
 
-    public boolean preAuthHook(AuthResponse.AuthContext context, Client client) {
+    public boolean preAuthHook(AuthResponseService.AuthContext context, Client client) {
         if (!check(context.ip)) {
             throw new HookException(message);
         }

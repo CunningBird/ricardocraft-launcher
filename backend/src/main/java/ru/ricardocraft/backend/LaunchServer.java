@@ -109,7 +109,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         CommonHelper.newThread("Profiles and updates sync", true, () -> {
             try {
                 // Sync profiles dir
-                profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
+                profileProvider.syncProfilesDir();
                 // Sync updates dir
                 updatesProvider.syncInitially();
             } catch (IOException e) {

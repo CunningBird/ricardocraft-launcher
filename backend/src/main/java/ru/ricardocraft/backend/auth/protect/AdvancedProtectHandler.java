@@ -9,17 +9,14 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.core.interfaces.UserHardware;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportHardware;
-import ru.ricardocraft.backend.auth.protect.interfaces.HardwareProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.JoinServerProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.SecureProtectHandler;
 import ru.ricardocraft.backend.base.events.request.GetSecureLevelInfoRequestEvent;
-import ru.ricardocraft.backend.base.events.request.HardwareReportRequestEvent;
 import ru.ricardocraft.backend.base.events.request.VerifySecureLevelKeyRequestEvent;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.service.auth.RestoreResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.response.auth.RestoreResponse;
-import ru.ricardocraft.backend.socket.response.secure.HardwareReportResponse;
 
 import java.util.Base64;
 import java.util.Date;
@@ -28,7 +25,7 @@ import java.util.UUID;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Component
-public class AdvancedProtectHandler extends StdProtectHandler implements SecureProtectHandler, HardwareProtectHandler, JoinServerProtectHandler {
+public class AdvancedProtectHandler extends StdProtectHandler implements SecureProtectHandler, JoinServerProtectHandler {
     private transient final Logger logger = LogManager.getLogger();
     public boolean enableHardwareFeature;
 
@@ -49,43 +46,6 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     @Override
     public boolean allowGetSecureLevelInfo(Client client) {
         return client.checkSign;
-    }
-
-    @Override
-    public void onHardwareReport(HardwareReportResponse response, Client client) {
-        if (!enableHardwareFeature) {
-            response.sendResult(new HardwareReportRequestEvent());
-            return;
-        }
-        if (!client.isAuth || client.trustLevel == null || client.trustLevel.publicKey == null) {
-            response.sendError("Access denied");
-            return;
-        }
-        if(client.trustLevel.hardwareInfo != null) {
-            response.sendResult(new HardwareReportRequestEvent(createHardwareToken(client.username, client.trustLevel.hardwareInfo), SECONDS.toMillis(config.netty.security.hardwareTokenExpire)));
-            return;
-        }
-        logger.debug("HardwareInfo received");
-        {
-            var authSupportHardware = client.auth.isSupport(AuthSupportHardware.class);
-            if (authSupportHardware != null) {
-                UserHardware hardware = authSupportHardware.getHardwareInfoByData(response.hardware);
-                if (hardware == null) {
-                    hardware = authSupportHardware.createHardwareInfo(response.hardware, client.trustLevel.publicKey);
-                } else {
-                    authSupportHardware.addPublicKeyToHardwareInfo(hardware, client.trustLevel.publicKey);
-                }
-                authSupportHardware.connectUserAndHardware(client.sessionObject, hardware);
-                if (hardware.isBanned()) {
-                    throw new SecurityException("Your hardware banned");
-                }
-                client.trustLevel.hardwareInfo = hardware;
-                response.sendResult(new HardwareReportRequestEvent(createHardwareToken(client.username, hardware), SECONDS.toMillis(config.netty.security.hardwareTokenExpire)));
-            } else {
-                logger.error("AuthCoreProvider not supported hardware");
-                response.sendError("AuthCoreProvider not supported hardware");
-            }
-        }
     }
 
     @Override
@@ -134,7 +94,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 .compact();
     }
 
-    public static class HardwareInfoTokenVerifier implements RestoreResponse.ExtendedTokenProvider {
+    public static class HardwareInfoTokenVerifier implements RestoreResponseService.ExtendedTokenProvider {
         private transient final Logger logger = LogManager.getLogger();
         private final JwtParser parser;
 
@@ -166,7 +126,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         }
     }
 
-    public static class PublicKeyTokenVerifier implements RestoreResponse.ExtendedTokenProvider {
+    public static class PublicKeyTokenVerifier implements RestoreResponseService.ExtendedTokenProvider {
         private transient final Logger logger = LogManager.getLogger();
         private final JwtParser parser;
 

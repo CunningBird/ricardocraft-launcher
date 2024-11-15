@@ -25,23 +25,17 @@ import java.util.stream.Stream;
 public class CloneProfileCommand extends Command {
     private final transient Logger logger = LogManager.getLogger(CloneProfileCommand.class);
 
-    private transient final LaunchServerConfig config;
     private transient final LaunchServerDirectories directories;
     private transient final ProfileProvider profileProvider;
-    private transient final NettyServerSocketHandler nettyServerSocketHandler;
     private transient final UpdatesManager updatesManager;
 
     @Autowired
-    public CloneProfileCommand(LaunchServerConfig config,
-                               LaunchServerDirectories directories,
+    public CloneProfileCommand(LaunchServerDirectories directories,
                                ProfileProvider profileProvider,
-                               NettyServerSocketHandler nettyServerSocketHandler,
                                UpdatesManager updatesManager) {
         super();
-        this.config = config;
         this.directories = directories;
         this.profileProvider = profileProvider;
-        this.nettyServerSocketHandler = nettyServerSocketHandler;
         this.updatesManager = updatesManager;
     }
 
@@ -87,7 +81,7 @@ public class CloneProfileCommand extends Command {
         profile = builder.createClientProfile();
         profileProvider.addProfile(profile);
         logger.info("Profile {} cloned from {}", args[1], args[0]);
-        profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
+        profileProvider.syncProfilesDir();
         updatesManager.syncUpdatesDir(List.of(args[1]));
     }
 }

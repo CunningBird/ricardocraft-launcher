@@ -30,28 +30,21 @@ public final class DownloadClientCommand extends Command {
 
     private transient final Logger logger = LogManager.getLogger();
 
-    private transient final LaunchServerConfig config;
     private transient final LaunchServerDirectories directories;
     private transient final MirrorManager mirrorManager;
     private transient final UpdatesManager updatesManager;
     private transient final ProfileProvider profileProvider;
 
-    private transient final NettyServerSocketHandler nettyServerSocketHandler;
-
     @Autowired
-    public DownloadClientCommand(LaunchServerConfig config,
-                                 LaunchServerDirectories directories,
+    public DownloadClientCommand(LaunchServerDirectories directories,
                                  MirrorManager mirrorManager,
                                  UpdatesManager updatesManager,
-                                 ProfileProvider profileProvider,
-                                 NettyServerSocketHandler nettyServerSocketHandler) {
+                                 ProfileProvider profileProvider) {
         super();
-        this.config = config;
         this.directories = directories;
         this.mirrorManager = mirrorManager;
         this.updatesManager = updatesManager;
         this.profileProvider = profileProvider;
-        this.nettyServerSocketHandler = nettyServerSocketHandler;
     }
 
     @Override
@@ -127,7 +120,7 @@ public final class DownloadClientCommand extends Command {
         profileProvider.addProfile(clientProfile);
 
         // Finished
-        profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
+        profileProvider.syncProfilesDir();
         updatesManager.syncUpdatesDir(Collections.singleton(dirName));
         logger.info("Client successfully downloaded: '{}'", dirName);
     }

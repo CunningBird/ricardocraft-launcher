@@ -3,14 +3,17 @@ package ru.ricardocraft.backend.auth.profiles;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
 import ru.ricardocraft.backend.base.Launcher;
+import ru.ricardocraft.backend.base.events.RequestEvent;
+import ru.ricardocraft.backend.base.events.request.ProfilesRequestEvent;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.socket.Client;
+import ru.ricardocraft.backend.socket.WebSocketService;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -26,11 +29,15 @@ public class LocalProfileProvider extends ProfileProvider {
     private transient volatile Map<Path, ClientProfile> profilesMap;
     private transient volatile Set<ClientProfile> profilesList; // Cache
 
+    private final transient LaunchServerConfig config;
     private final transient ProtectHandler handler;
+    private final transient WebSocketService service;
 
     @Autowired
-    public LocalProfileProvider(ProtectHandler handler) {
+    public LocalProfileProvider(LaunchServerConfig config, ProtectHandler handler, WebSocketService service) {
+        this.config = config;
         this.handler = handler;
+        this.service = service;
     }
 
     @Override
@@ -55,15 +62,15 @@ public class LocalProfileProvider extends ProfileProvider {
         Path profilesDirPath = Path.of(profilesDir);
         ClientProfile oldProfile;
         Path target = null;
-        for(var e : profilesMap.entrySet()) {
-            if(e.getValue().getUUID().equals(profile.getUUID())) {
+        for (var e : profilesMap.entrySet()) {
+            if (e.getValue().getUUID().equals(profile.getUUID())) {
                 target = e.getKey();
             }
         }
-        if(target == null) {
-            target = profilesDirPath.resolve(profile.getTitle()+".json");
+        if (target == null) {
+            target = profilesDirPath.resolve(profile.getTitle() + ".json");
             oldProfile = profilesMap.get(target);
-            if(oldProfile != null && !oldProfile.getUUID().equals(profile.getUUID())) {
+            if (oldProfile != null && !oldProfile.getUUID().equals(profile.getUUID())) {
                 throw new FileAlreadyExistsException(target.toString());
             }
         }
@@ -75,8 +82,8 @@ public class LocalProfileProvider extends ProfileProvider {
 
     @Override
     public void deleteProfile(ClientProfile profile) throws IOException {
-        for(var e : profilesMap.entrySet()) {
-            if(e.getValue().getUUID().equals(profile.getUUID())) {
+        for (var e : profilesMap.entrySet()) {
+            if (e.getValue().getUUID().equals(profile.getUUID())) {
                 Files.deleteIfExists(e.getKey());
                 profilesMap.remove(e.getKey());
                 profilesList.remove(e.getValue());
@@ -86,8 +93,8 @@ public class LocalProfileProvider extends ProfileProvider {
     }
 
     private void addProfile(Path path, ClientProfile profile) {
-        for(var e : profilesMap.entrySet()) {
-            if(e.getValue().getUUID().equals(profile.getUUID())) {
+        for (var e : profilesMap.entrySet()) {
+            if (e.getValue().getUUID().equals(profile.getUUID())) {
                 profilesMap.remove(e.getKey());
                 profilesList.remove(e.getValue());
                 break;
@@ -112,6 +119,22 @@ public class LocalProfileProvider extends ProfileProvider {
             profileList = List.copyOf(serverProfiles);
         }
         return profileList;
+    }
+
+    @Override
+    public void syncProfilesDir() throws IOException {
+        this.sync();
+        if (config.netty.sendProfileUpdatesEvent) {
+            service.forEachActiveChannels((ch, handler) -> {
+                Client client = handler.getClient();
+                if (client == null || !client.isAuth) {
+                    return;
+                }
+                ProfilesRequestEvent event = new ProfilesRequestEvent(this.getProfiles(client));
+                event.requestUUID = RequestEvent.eventUUID;
+                handler.service.sendObject(ch, event);
+            });
+        }
     }
 
     private static final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
