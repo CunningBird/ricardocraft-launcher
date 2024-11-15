@@ -235,9 +235,6 @@ public class SecurityCheckCommand extends Command {
                 if (Files.exists(this.directories.dir.resolve("LaunchServerConfig.json")) && checkOtherReadOrWriteAccess(this.directories.dir.resolve("LaunchServerConfig.json"))) {
                     logger.warn("Write or read access to LaunchServerConfig.json. Please use 'chmod 600 LaunchServerConfig.json'");
                 }
-                if (Files.exists(this.directories.dir.resolve("LaunchServerRuntimeConfig.json")) && checkOtherReadOrWriteAccess(this.directories.dir.resolve("LaunchServerRuntimeConfig.json"))) {
-                    logger.warn("Write or read access to LaunchServerRuntimeConfig.json. Please use 'chmod 600 LaunchServerRuntimeConfig.json'");
-                }
             } catch (IOException e) {
                 logger.error(e);
             }

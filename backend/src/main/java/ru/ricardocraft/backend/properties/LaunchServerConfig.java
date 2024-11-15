@@ -3,8 +3,6 @@ package ru.ricardocraft.backend.properties;
 import io.netty.channel.epoll.Epoll;
 import io.netty.handler.logging.LogLevel;
 import lombok.Setter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.helper.SecurityHelper;
 
 import java.util.*;
@@ -13,12 +11,6 @@ import static java.util.concurrent.TimeUnit.HOURS;
 
 @org.springframework.stereotype.Component
 public final class LaunchServerConfig {
-
-    private transient final Logger logger = LogManager.getLogger();
-
-    private final static List<String> oldMirrorList = List.of("https://mirror.gravit.pro/5.2.x/", "https://mirror.gravit.pro/5.3.x/",
-            "https://mirror.gravitlauncher.com/5.2.x/", "https://mirror.gravitlauncher.com/5.3.x/", "https://mirror.gravitlauncher.com/5.4.x/",
-            "https://mirror.gravitlauncher.com/5.5.x/");
 
     @Setter
     public String projectName;
@@ -32,6 +24,7 @@ public final class LaunchServerConfig {
     public OSSLSignCodeConfig osslSignCodeConfig;
     public RemoteControlConfig remoteControlConfig;
     public MirrorConfig mirrorConfig;
+    public RuntimeConfig runtimeConfig;
 
     public LaunchServerConfig() {
         this.projectName = "ricardocraft";
@@ -83,23 +76,6 @@ public final class LaunchServerConfig {
         this.remoteControlConfig.list.add(new RemoteControlConfig.RemoteControlToken(SecurityHelper.randomStringToken(), 0, true, new String[0]));
 
         this.mirrorConfig = new MirrorConfig();
-
-        this.verify();
-//        this.init(ReloadType.FULL);
-    }
-
-    public void verify() {
-        {
-            boolean updateMirror = Boolean.getBoolean("launchserver.config.disableUpdateMirror");
-            if (!updateMirror) {
-                for (int i = 0; i < mirrors.length; ++i) {
-                    if (mirrors[i] != null && oldMirrorList.contains(mirrors[i])) {
-                        logger.warn("Replace mirror '{}' to 'https://mirror.gravitlauncher.com/5.6.x/'. If you really need to use original url, use '-Dlaunchserver.config.disableUpdateMirror=true'", mirrors[i]);
-                        mirrors[i] = "https://mirror.gravitlauncher.com/5.6.x/";
-                    }
-                }
-            }
-        }
     }
 
     public static class TextureProviderConfig {
@@ -217,5 +193,14 @@ public final class LaunchServerConfig {
                 this.commands = Arrays.asList(commands.clone());
             }
         }
+    }
+
+    public static class RuntimeConfig {
+        public String passwordEncryptKey = SecurityHelper.randomStringToken();
+        public String runtimeEncryptKey = SecurityHelper.randomStringAESKey();
+        public String unlockSecret;
+        public String registerApiKey = SecurityHelper.randomStringToken();
+        public String clientCheckSecret = SecurityHelper.randomStringToken();
+        public long buildNumber = 0;
     }
 }

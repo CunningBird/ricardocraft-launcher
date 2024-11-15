@@ -10,7 +10,6 @@ import ru.ricardocraft.backend.manangers.CertificateManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
-import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,7 +33,6 @@ public final class JARLauncherBinary extends LauncherBinary {
 
     @Autowired
     public JARLauncherBinary(LaunchServerConfig config,
-                             LaunchServerRuntimeConfig runtime,
                              LaunchServerDirectories directories,
                              KeyAgreementManager keyAgreementManager,
                              CertificateManager certificateManager,
@@ -54,7 +52,7 @@ public final class JARLauncherBinary extends LauncherBinary {
 
         tasks.add(new PrepareBuildTask(this, directories));
         if (!config.sign.enabled) tasks.add(new CertificateAutogenTask(config, keyAgreementManager));
-        tasks.add(new MainBuildTask(this, config, runtime, keyAgreementManager, certificateManager));
+        tasks.add(new MainBuildTask(this, config, keyAgreementManager, certificateManager));
         tasks.add(new AttachJarsTask(this, config));
         tasks.add(new AdditionalFixesApplyTask(this, config));
         if (config.launcher.compress) tasks.add(new CompressBuildTask(this));

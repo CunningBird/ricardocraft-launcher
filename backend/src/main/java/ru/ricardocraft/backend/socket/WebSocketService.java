@@ -5,11 +5,13 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.LaunchServer;
-import ru.ricardocraft.backend.auth.AuthProviderPair;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
@@ -22,10 +24,10 @@ import ru.ricardocraft.backend.base.events.request.LauncherRequestEvent;
 import ru.ricardocraft.backend.base.request.WebSocketEvent;
 import ru.ricardocraft.backend.binary.EXELauncherBinary;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;
+import ru.ricardocraft.backend.core.managers.GsonManager;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.manangers.*;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
 import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
@@ -56,6 +58,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
+@Component
 public class WebSocketService {
     public static final ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
     public static final Map<String, RestoreResponse.ExtendedTokenProvider> restoreProviders = new HashMap<>();
@@ -68,7 +71,6 @@ public class WebSocketService {
     public final BiHookSet<Channel, Object> hookSend = new BiHookSet<>();
 
     public transient final LaunchServerConfig config;
-    public transient final LaunchServerRuntimeConfig runtimeConfig;
     public transient final AuthProviders authProviders;
     public transient final AuthManager authManager;
 
@@ -87,10 +89,9 @@ public class WebSocketService {
 
     private final ExecutorService executors;
 
-    public WebSocketService(ChannelGroup channels,
+    @Autowired
+    public WebSocketService(LaunchServerConfig config,
 
-                            LaunchServerConfig config,
-                            LaunchServerRuntimeConfig runtimeConfig,
                             AuthProviders authProviders,
                             AuthManager authManager,
 
@@ -102,11 +103,13 @@ public class WebSocketService {
                             EXELauncherBinary exeLauncherBinary,
                             FeaturesManager featuresManager,
                             ProtectHandler protectHandler,
-                            ProfileProvider profileProvider) {
-        this.channels = channels;
+                            ProfileProvider profileProvider,
+
+                            GsonManager gsonManager) {
+        this.channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
         this.config = config;
-        this.runtimeConfig = runtimeConfig;
+
         this.authProviders = authProviders;
         this.authManager = authManager;
 
@@ -120,7 +123,7 @@ public class WebSocketService {
         this.protectHandler = protectHandler;
         this.profileProvider = profileProvider;
 
-        this.gson = Launcher.gsonManager.gson;
+        this.gson = gsonManager.gson;
         executors = switch (config.netty.performance.executorType) {
             case NONE -> null;
             case DEFAULT -> Executors.newCachedThreadPool();
@@ -263,7 +266,6 @@ public class WebSocketService {
         if (response instanceof SimpleResponse simpleResponse) {
 
             simpleResponse.config = config;
-            simpleResponse.runtimeConfig = runtimeConfig;
             simpleResponse.authProviders = authProviders;
             simpleResponse.authManager = authManager;
 

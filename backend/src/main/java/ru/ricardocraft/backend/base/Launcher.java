@@ -4,26 +4,17 @@ import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.core.managers.GsonManager;
 import ru.ricardocraft.backend.core.serialize.HInput;
 import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.JVMHelper;
 import ru.ricardocraft.backend.helper.LogHelper;
 import ru.ricardocraft.backend.properties.LauncherEnvironment;
 
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.NoSuchFileException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 public final class Launcher {
 
-    // Authlib constants
-
-
-    // Used to determine from clientside is launched from launcher
-    public static final AtomicBoolean LAUNCHED = new AtomicBoolean(false);
     public static final String RUNTIME_DIR = "runtime";
 
     // Constants
@@ -32,7 +23,6 @@ public final class Launcher {
     private static final Pattern UUID_PATTERN = Pattern.compile("-", Pattern.LITERAL);
     public static ClientProfile profile;
     public static GsonManager gsonManager;
-
 
     public static LauncherConfig getConfig() {
         LauncherConfig config = CONFIG.get();
@@ -51,34 +41,6 @@ public final class Launcher {
     public static void setConfig(LauncherConfig cfg) {
         CONFIG.set(cfg);
     }
-
-
-    public static URL getResourceURL(String name) throws IOException {
-        LauncherConfig config = getConfig();
-        byte[] validDigest = config.runtime.get(name);
-        if (validDigest == null)
-            throw new NoSuchFileException(name);
-
-        // Resolve URL and verify digest
-        URL url = IOHelper.getResourceURL(RUNTIME_DIR + '/' + name);
-
-        // Return verified URL
-        return url;
-    }
-
-    public static URL getResourceURL(String name, String prefix) throws IOException {
-        LauncherConfig config = getConfig();
-        byte[] validDigest = config.runtime.get(name);
-        if (validDigest == null)
-            throw new NoSuchFileException(name);
-
-        // Resolve URL and verify digest
-        URL url = IOHelper.getResourceURL(prefix + '/' + name);
-
-        // Return verified URL
-        return url;
-    }
-
 
     public static String toHash(UUID uuid) {
         return UUID_PATTERN.matcher(uuid.toString()).replaceAll("");
@@ -103,9 +65,5 @@ public final class Launcher {
                 LogHelper.setDevEnabled(false);
                 break;
         }
-    }
-
-    public static String makeSpecialGuardDirName(JVMHelper.ARCH arch, JVMHelper.OS os) {
-        return String.format("%s-%s", arch.name, os.name);
     }
 }

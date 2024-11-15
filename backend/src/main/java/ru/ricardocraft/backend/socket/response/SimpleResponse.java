@@ -10,7 +10,6 @@ import ru.ricardocraft.backend.binary.EXELauncherBinary;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.manangers.*;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 import ru.ricardocraft.backend.socket.WebSocketService;
 
 import java.util.UUID;
@@ -19,7 +18,6 @@ public abstract class SimpleResponse implements WebSocketServerResponse {
     public UUID requestUUID;
 
     public transient LaunchServerConfig config;
-    public transient LaunchServerRuntimeConfig runtimeConfig;
     public transient AuthProviders authProviders;
     public transient AuthManager authManager;
 

@@ -5,26 +5,17 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
-import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.concurrent.GlobalEventExecutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import ru.ricardocraft.backend.auth.AuthProviders;
-import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
-import ru.ricardocraft.backend.auth.protect.ProtectHandler;
-import ru.ricardocraft.backend.binary.EXELauncherBinary;
-import ru.ricardocraft.backend.binary.JARLauncherBinary;
-import ru.ricardocraft.backend.manangers.*;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
-import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 import ru.ricardocraft.backend.socket.handlers.NettyIpForwardHandler;
 import ru.ricardocraft.backend.socket.handlers.NettyWebAPIHandler;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
@@ -35,6 +26,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 public class LauncherNettyServer implements AutoCloseable {
+
     private static final String WEBSOCKET_PATH = "/api";
     public final ServerBootstrap serverBootstrap;
     public final EventLoopGroup bossGroup;
@@ -42,54 +34,26 @@ public class LauncherNettyServer implements AutoCloseable {
     public final WebSocketService service;
     public final BiHookSet<NettyConnectContext, SocketChannel> pipelineHook = new BiHookSet<>();
 
-    public LauncherNettyServer(LaunchServerDirectories directories,
+    public LauncherNettyServer(LaunchServerConfig config,
+                               LaunchServerDirectories directories,
+                               WebSocketService service) {
+        this.service = service;
 
-                               LaunchServerConfig config,
-                               LaunchServerRuntimeConfig runtimeConfig,
-                               AuthProviders authProviders,
-                               AuthManager authManager,
-
-                               AuthHookManager authHookManager,
-                               UpdatesManager updatesManager,
-                               KeyAgreementManager keyAgreementManager,
-                               JARLauncherBinary launcherBinary,
-
-                               EXELauncherBinary exeLauncherBinary,
-                               FeaturesManager featuresManager,
-                               ProtectHandler protectHandler,
-                               ProfileProvider profileProvider) {
-
-        LaunchServerConfig.NettyConfig nettyConfig = config.netty;
-        NettyObjectFactory.setUsingEpoll(nettyConfig.performance.usingEpoll);
+        NettyObjectFactory.setUsingEpoll(config.netty.performance.usingEpoll);
         Logger logger = LogManager.getLogger();
-        if (nettyConfig.performance.usingEpoll) {
+        if (config.netty.performance.usingEpoll) {
             logger.debug("Netty: Epoll enabled");
         }
-        if (nettyConfig.performance.usingEpoll && !Epoll.isAvailable()) {
+        if (config.netty.performance.usingEpoll && !Epoll.isAvailable()) {
             logger.error("Epoll is not available: (netty,perfomance.usingEpoll configured wrongly)", Epoll.unavailabilityCause());
         }
-        bossGroup = NettyObjectFactory.newEventLoopGroup(nettyConfig.performance.bossThread, "LauncherNettyServer.bossGroup");
-        workerGroup = NettyObjectFactory.newEventLoopGroup(nettyConfig.performance.workerThread, "LauncherNettyServer.workerGroup");
+
+        bossGroup = NettyObjectFactory.newEventLoopGroup(config.netty.performance.bossThread, "LauncherNettyServer.bossGroup");
+        workerGroup = NettyObjectFactory.newEventLoopGroup(config.netty.performance.workerThread, "LauncherNettyServer.workerGroup");
         serverBootstrap = new ServerBootstrap();
-        service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE),
-                config,
-                runtimeConfig,
-                authProviders,
-                authManager,
-
-                authHookManager,
-                updatesManager,
-                keyAgreementManager,
-                launcherBinary,
-
-                exeLauncherBinary,
-                featuresManager,
-                protectHandler,
-                profileProvider
-                );
         serverBootstrap.group(bossGroup, workerGroup)
                 .channelFactory(NettyObjectFactory.getServerSocketChannelFactory())
-                .handler(new LoggingHandler(nettyConfig.logLevel))
+                .handler(new LoggingHandler(config.netty.logLevel))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(@NotNull SocketChannel ch) {
@@ -104,7 +68,7 @@ public class LauncherNettyServer implements AutoCloseable {
                         if (!config.netty.disableWebApiInterface) // default false
                             pipeline.addLast("webapi", new NettyWebAPIHandler(context));
                         if (config.netty.fileServerEnabled) // default true
-                            pipeline.addLast("fileserver", new FileServerHandler(directories.updatesDir, true, nettyConfig.showHiddenFiles));
+                            pipeline.addLast("fileserver", new FileServerHandler(directories.updatesDir, true, config.netty.showHiddenFiles));
                         pipeline.addLast("launchserver", new WebSocketFrameHandler(context, service));
                         pipelineHook.hook(context, ch);
                     }

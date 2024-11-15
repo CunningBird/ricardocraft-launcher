@@ -7,7 +7,6 @@ import ru.ricardocraft.backend.auth.texture.TextureProvider;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 
 import java.io.IOException;
 import java.util.HashSet;

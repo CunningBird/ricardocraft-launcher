@@ -39,6 +39,9 @@ public final class LogHelper {
         } else {
             impl = new SimpleLogHelperImpl();
         }
+        impl.setDevEnabled(true);
+        impl.setStacktraceEnabled(true);
+        impl.setDebugEnabled(true);
     }
 
     private LogHelper() {

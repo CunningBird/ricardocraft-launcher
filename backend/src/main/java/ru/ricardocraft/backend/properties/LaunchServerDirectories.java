@@ -1,10 +1,15 @@
 package ru.ricardocraft.backend.properties;
 
+import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@Component
 public class LaunchServerDirectories {
     public static final String UPDATES_NAME = "config/updates",
             TRUSTSTORE_NAME = "config/truststore",
@@ -22,6 +27,15 @@ public class LaunchServerDirectories {
     public Path dir;
     public Path trustStore;
     public Path tmpDir;
+
+    public LaunchServerDirectories() throws IOException {
+        dir = IOHelper.WORKING_DIR;
+        collect();
+
+        if (!Files.isDirectory(launcherPackDir)) {
+            Files.createDirectories(launcherPackDir);
+        }
+    }
 
     public void collect() {
         if (updatesDir == null) updatesDir = getPath(UPDATES_NAME);

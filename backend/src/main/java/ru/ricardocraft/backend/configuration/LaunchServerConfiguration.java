@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.core.LauncherTrustManager;
-import ru.ricardocraft.backend.core.managers.GsonManager;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.JVMHelper;
 import ru.ricardocraft.backend.manangers.BasicLaunchServerConfigManager;
@@ -18,11 +17,8 @@ import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.manangers.LaunchServerConfigManager;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 import ru.ricardocraft.backend.properties.LaunchServerEnv;
-import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Security;
 import java.security.cert.CertificateException;
@@ -45,20 +41,6 @@ public class LaunchServerConfiguration {
     @Bean
     public LaunchServerEnv getEnv() {
         return LaunchServerEnv.PRODUCTION;
-    }
-
-    @Bean
-    public LaunchServerDirectories directories() throws IOException {
-        LaunchServerDirectories directories = new LaunchServerDirectories();
-
-        directories.dir = dir;
-        directories.collect();
-
-        if (!Files.isDirectory(directories.launcherPackDir)) {
-            Files.createDirectories(directories.launcherPackDir);
-        }
-
-        return directories;
     }
 
     @Bean
@@ -87,34 +69,10 @@ public class LaunchServerConfiguration {
     }
 
     @Bean
-    public LaunchServerRuntimeConfig runtimeConfig(GsonManager gsonManager) throws IOException {
-        LaunchServerRuntimeConfig runtimeConfig;
-
-        Path runtimeConfigFile;
-        runtimeConfigFile = dir.resolve("RuntimeLaunchServer.json");
-
-        if (!Files.exists(runtimeConfigFile)) {
-            logger.info("Reset LaunchServer runtime config file");
-            runtimeConfig = new LaunchServerRuntimeConfig();
-            runtimeConfig.reset();
-        } else {
-            logger.info("Reading LaunchServer runtime config file");
-            try (BufferedReader reader = IOHelper.newReader(runtimeConfigFile)) {
-                runtimeConfig = gsonManager.gson.fromJson(reader, LaunchServerRuntimeConfig.class);
-            }
-        }
-
-        runtimeConfig.verify();
-
-        return runtimeConfig;
-    }
-
-    @Bean
     public LaunchServerConfigManager launchServerConfigManager() {
-        Path runtimeConfigFile = dir.resolve("RuntimeLaunchServer.json");
         Path configFile = dir.resolve("LaunchServer.json");
 
-        return new BasicLaunchServerConfigManager(configFile, runtimeConfigFile);
+        return new BasicLaunchServerConfigManager(configFile);
     }
 
     @Bean

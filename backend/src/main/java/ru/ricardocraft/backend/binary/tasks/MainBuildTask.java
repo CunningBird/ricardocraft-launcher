@@ -20,7 +20,6 @@ import ru.ricardocraft.backend.helper.SecurityHelper;
 import ru.ricardocraft.backend.manangers.CertificateManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 import ru.ricardocraft.backend.utils.HookException;
 
 import java.io.IOException;
@@ -41,7 +40,6 @@ public class MainBuildTask implements LauncherBuildTask {
 
     private final JARLauncherBinary launcherBinary;
     private final LaunchServerConfig config;
-    private final LaunchServerRuntimeConfig runtime;
     private final KeyAgreementManager keyAgreementManager;
     private final CertificateManager certificateManager;
 
@@ -49,13 +47,11 @@ public class MainBuildTask implements LauncherBuildTask {
 
     public MainBuildTask(JARLauncherBinary launcherBinary,
                          LaunchServerConfig config,
-                         LaunchServerRuntimeConfig runtime,
                          KeyAgreementManager keyAgreementManager,
                          CertificateManager certificateManager) {
 
         this.launcherBinary = launcherBinary;
         this.config = config;
-        this.runtime = runtime;
         this.keyAgreementManager = keyAgreementManager;
         this.certificateManager = certificateManager;
 
@@ -89,7 +85,7 @@ public class MainBuildTask implements LauncherBuildTask {
             Map<String, byte[]> runtime = new HashMap<>(256);
             // Write launcher guard dir
             if (config.launcher.encryptRuntime) {
-                context.pushEncryptedDir(context.getRuntimeDir(), Launcher.RUNTIME_DIR, this.runtime.runtimeEncryptKey, runtime, false);
+                context.pushEncryptedDir(context.getRuntimeDir(), Launcher.RUNTIME_DIR, this.config.runtimeConfig.runtimeEncryptKey, runtime, false);
             } else {
                 context.pushDir(context.getRuntimeDir(), Launcher.RUNTIME_DIR, runtime, false);
             }
@@ -135,21 +131,21 @@ public class MainBuildTask implements LauncherBuildTask {
         properties.put("launcher.memory", config.launcher.memoryLimit);
         properties.put("launcher.customJvmOptions", config.launcher.customJvmOptions);
         if (config.launcher.encryptRuntime) {
-            if (runtime.runtimeEncryptKey == null)
-                runtime.runtimeEncryptKey = SecurityHelper.randomStringToken();
-            properties.put("runtimeconfig.runtimeEncryptKey", runtime.runtimeEncryptKey);
+            if (config.runtimeConfig.runtimeEncryptKey == null)
+                config.runtimeConfig.runtimeEncryptKey = SecurityHelper.randomStringToken();
+            properties.put("runtimeconfig.runtimeEncryptKey", config.runtimeConfig.runtimeEncryptKey);
         }
         properties.put("launcher.certificatePinning", config.launcher.certificatePinning);
-        properties.put("runtimeconfig.passwordEncryptKey", runtime.passwordEncryptKey);
+        properties.put("runtimeconfig.passwordEncryptKey", config.runtimeConfig.passwordEncryptKey);
         String launcherSalt = SecurityHelper.randomStringToken();
         byte[] launcherSecureHash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
-                runtime.clientCheckSecret.concat(".").concat(launcherSalt));
+                config.runtimeConfig.clientCheckSecret.concat(".").concat(launcherSalt));
         properties.put("runtimeconfig.secureCheckHash", Base64.getEncoder().encodeToString(launcherSecureHash));
         properties.put("runtimeconfig.secureCheckSalt", launcherSalt);
-        if (runtime.unlockSecret == null) runtime.unlockSecret = SecurityHelper.randomStringToken();
-        properties.put("runtimeconfig.unlockSecret", runtime.unlockSecret);
-        runtime.buildNumber++;
-        properties.put("runtimeconfig.buildNumber", runtime.buildNumber);
+        if (config.runtimeConfig.unlockSecret == null) config.runtimeConfig.unlockSecret = SecurityHelper.randomStringToken();
+        properties.put("runtimeconfig.unlockSecret", config.runtimeConfig.unlockSecret);
+        config.runtimeConfig.buildNumber++;
+        properties.put("runtimeconfig.buildNumber", config.runtimeConfig.buildNumber);
     }
 
     public byte[] transformClass(byte[] bytes, String classname, BuildContext context) {

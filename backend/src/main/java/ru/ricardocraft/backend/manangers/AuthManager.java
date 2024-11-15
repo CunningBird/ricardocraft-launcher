@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.AuthProviders;
@@ -28,7 +27,6 @@ import ru.ricardocraft.backend.base.request.auth.password.*;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 import ru.ricardocraft.backend.socket.response.auth.RestoreResponse;
@@ -44,18 +42,15 @@ public class AuthManager {
 
     private final KeyAgreementManager keyAgreementManager;
     private final LaunchServerConfig launchServerConfig;
-    private final LaunchServerRuntimeConfig runtimeConfig;
     private final ProtectHandler protectHandler;
     private final JwtParser checkServerTokenParser;
 
     @Autowired
     public AuthManager(LaunchServerConfig launchServerConfig,
-                       LaunchServerRuntimeConfig runtimeConfig,
                        ProtectHandler protectHandler,
                        KeyAgreementManager keyAgreementManager) {
         this.keyAgreementManager = keyAgreementManager;
         this.launchServerConfig = launchServerConfig;
-        this.runtimeConfig = runtimeConfig;
         this.protectHandler = protectHandler;
         this.checkServerTokenParser = Jwts.parser()
                 .requireIssuer("LaunchServer")
@@ -303,7 +298,7 @@ public class AuthManager {
     private AuthRequest.AuthPasswordInterface tryDecryptPasswordPlain(AuthRequest.AuthPasswordInterface password) throws AuthException {
         if (password instanceof AuthAESPassword authAESPassword) {
             try {
-                return new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(runtimeConfig.passwordEncryptKey
+                return new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(launchServerConfig.runtimeConfig.passwordEncryptKey
                         , authAESPassword.password)));
             } catch (Exception ignored) {
                 throw new AuthException("Password decryption error");

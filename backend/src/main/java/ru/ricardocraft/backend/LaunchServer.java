@@ -9,23 +9,16 @@ import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
-import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.command.utls.CommandHandler;
 import ru.ricardocraft.backend.components.AuthLimiterComponent;
 import ru.ricardocraft.backend.components.ProGuardComponent;
 import ru.ricardocraft.backend.helper.CommonHelper;
 import ru.ricardocraft.backend.helper.JVMHelper;
-import ru.ricardocraft.backend.manangers.*;
+import ru.ricardocraft.backend.manangers.ReconfigurableManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
-import ru.ricardocraft.backend.properties.LauncherEnvironment;
 import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -37,63 +30,53 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
     private final Logger logger = LogManager.getLogger();
 
-    public final AtomicBoolean started = new AtomicBoolean(false);
-    public final ScheduledExecutorService service;
+    private final AtomicBoolean started = new AtomicBoolean(false);
 
-    public LaunchServerConfig config;
-    public final LaunchServerRuntimeConfig runtime;
-    public final CommandHandler commandHandler;
+    private final LaunchServerConfig config;
 
-    private final ProtectHandler protectHandler;
+    private final AuthProviders authProviders;
     private final ProfileProvider profileProvider;
     private final UpdatesProvider updatesProvider;
 
-    private final AuthProviders authProviders;
+    private final CommandHandler commandHandler;
+    private final ProtectHandler protectHandler;
+    private final NettyServerSocketHandler nettyServerSocketHandler;
+
     private final AuthLimiterComponent authLimiterComponent;
     private final ProGuardComponent proGuardComponent;
 
-    public final LaunchServerConfigManager launchServerConfigManager;
-    public final ReconfigurableManager reconfigurableManager;
-
-    public final NettyServerSocketHandler nettyServerSocketHandler;
+    private final ReconfigurableManager reconfigurableManager;
 
     @Autowired
-    public LaunchServer(ProtectHandler protectHandler,
+    public LaunchServer(LaunchServerConfig config,
+
+                        AuthProviders authProviders,
                         ProfileProvider profileProvider,
                         UpdatesProvider updatesProvider,
 
-                        AuthProviders authProviders,
-                        LaunchServerConfig config,
-                        LaunchServerRuntimeConfig runtimeConfig,
-                        LaunchServerConfigManager launchServerConfigManager,
                         CommandHandler commandHandler,
-                        ReconfigurableManager reconfigurableManager,
-                        MirrorManager mirrorManager,
+                        ProtectHandler protectHandler,
                         NettyServerSocketHandler nettyServerSocketHandler,
+
+                        ReconfigurableManager reconfigurableManager,
 
                         AuthLimiterComponent authLimiterComponent,
                         ProGuardComponent proGuardComponent) throws IOException {
 
-        this.service = Executors.newScheduledThreadPool(config.netty.performance.schedulerThread);
+        this.config = config;
 
-        this.protectHandler = protectHandler;
+        this.authProviders = authProviders;
         this.profileProvider = profileProvider;
         this.updatesProvider = updatesProvider;
+
+        this.commandHandler = commandHandler;
+        this.protectHandler = protectHandler;
+        this.nettyServerSocketHandler = nettyServerSocketHandler;
 
         this.authLimiterComponent = authLimiterComponent;
         this.proGuardComponent = proGuardComponent;
 
-        this.config = config;
-        this.runtime = runtimeConfig;
-        this.commandHandler = commandHandler;
-
-        this.authProviders = authProviders;
-        this.launchServerConfigManager = launchServerConfigManager;
         this.reconfigurableManager = reconfigurableManager;
-
-        this.nettyServerSocketHandler = nettyServerSocketHandler;
-
-        Launcher.applyLauncherEnv(LauncherEnvironment.DEV);
 
         reconfigurableManager.registerObject("component.authLimiter", authLimiterComponent);
         reconfigurableManager.registerObject("component.proguard", proGuardComponent);
@@ -106,10 +89,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             reconfigurableManager.registerObject("auth.".concat(pair.name).concat(".core"), pair.core);
             reconfigurableManager.registerObject("auth.".concat(pair.name).concat(".texture"), pair.textureProvider);
         }
-
-        Arrays.stream(config.mirrors).forEach(mirrorManager::addMirror);
-
-        reconfigurableManager.registerObject("launchServer", this);
     }
 
     @Override
@@ -147,7 +126,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     }
 
     public void close() throws Exception {
-        service.shutdownNow();
         logger.info("Close server socket");
         nettyServerSocketHandler.close();
 
@@ -169,9 +147,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         reconfigurableManager.unregisterObject("protectHandler", protectHandler);
         reconfigurableManager.unregisterObject("profileProvider", profileProvider);
         reconfigurableManager.unregisterObject("updatesProvider", updatesProvider);
-
-        logger.info("Save LaunchServer runtime config");
-        launchServerConfigManager.writeRuntimeConfig(runtime);
 
         logger.info("LaunchServer stopped");
     }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.mirror.WorkspaceTools;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -35,8 +36,10 @@ public class MirrorManager {
     private final WorkspaceTools tools;
 
     @Autowired
-    public MirrorManager(WorkspaceTools tools) {
+    public MirrorManager(LaunchServerConfig config, WorkspaceTools tools) {
         this.tools = tools;
+
+        Arrays.stream(config.mirrors).forEach(this::addMirror);
     }
 
     public void addMirror(String mirror) {

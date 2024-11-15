@@ -80,7 +80,7 @@ public class LauncherResponse extends SimpleResponse {
     private boolean checkSecure(String hash, String salt) {
         if (hash == null || salt == null) return false;
         byte[] normal_hash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
-                runtimeConfig.clientCheckSecret.concat(".").concat(salt));
+                config.runtimeConfig.clientCheckSecret.concat(".").concat(salt));
         byte[] launcher_hash = Base64.getDecoder().decode(hash);
         return Arrays.equals(normal_hash, launcher_hash);
     }
