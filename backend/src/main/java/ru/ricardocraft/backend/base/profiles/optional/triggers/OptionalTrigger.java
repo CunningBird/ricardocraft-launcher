@@ -1,22 +1,10 @@
 package ru.ricardocraft.backend.base.profiles.optional.triggers;
 
 import ru.ricardocraft.backend.base.profiles.optional.OptionalFile;
-import ru.ricardocraft.backend.utils.ProviderMap;
 
 public abstract class OptionalTrigger {
-    public static ProviderMap<OptionalTrigger> providers = new ProviderMap<>("OptionalTriggers");
-    private static boolean isRegisteredProviders = false;
     public boolean required;
     public boolean inverted;
-
-    public static void registerProviders() {
-        if (!isRegisteredProviders) {
-            providers.register("java", JavaTrigger.class);
-            providers.register("os", OSTrigger.class);
-            providers.register("arch", ArchTrigger.class);
-            isRegisteredProviders = true;
-        }
-    }
 
     protected abstract boolean isTriggered(OptionalFile optional, OptionalTriggerContext context);
 

@@ -8,21 +8,25 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.ricardocraft.backend.LaunchServer;
+import ru.ricardocraft.backend.auth.AuthProviders;
+import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
+import ru.ricardocraft.backend.base.events.request.LauncherRequestEvent;
 import ru.ricardocraft.backend.core.LauncherTrustManager;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.JVMHelper;
-import ru.ricardocraft.backend.manangers.BasicLaunchServerConfigManager;
-import ru.ricardocraft.backend.manangers.CertificateManager;
-import ru.ricardocraft.backend.manangers.KeyAgreementManager;
-import ru.ricardocraft.backend.manangers.LaunchServerConfigManager;
+import ru.ricardocraft.backend.manangers.*;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 import ru.ricardocraft.backend.properties.LaunchServerEnv;
+import ru.ricardocraft.backend.socket.response.auth.RestoreResponse;
+import ru.ricardocraft.backend.socket.response.update.LauncherResponse;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
@@ -41,6 +45,18 @@ public class LaunchServerConfiguration {
     @Bean
     public LaunchServerEnv getEnv() {
         return LaunchServerEnv.PRODUCTION;
+    }
+
+    @Bean
+    public Map<String, RestoreResponse.ExtendedTokenProvider> restoreProviders(AuthProviders authProviders,
+                                                                               AuthManager authManager,
+                                                                               KeyAgreementManager keyAgreementManager) {
+        Map<String, RestoreResponse.ExtendedTokenProvider> restoreProviders = new HashMap<>();
+        restoreProviders.put(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, new LauncherResponse.LauncherTokenVerifier(keyAgreementManager));
+        restoreProviders.put("publicKey", new AdvancedProtectHandler.PublicKeyTokenVerifier(keyAgreementManager));
+        restoreProviders.put("hardware", new AdvancedProtectHandler.HardwareInfoTokenVerifier(keyAgreementManager));
+        restoreProviders.put("checkServer", new AuthManager.CheckServerVerifier(authManager, authProviders));
+        return restoreProviders;
     }
 
     @Bean

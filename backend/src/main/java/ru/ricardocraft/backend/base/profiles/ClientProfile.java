@@ -1,6 +1,7 @@
 package ru.ricardocraft.backend.base.profiles;
 
 import com.google.gson.*;
+import lombok.Getter;
 import ru.ricardocraft.backend.base.profiles.optional.OptionalDepend;
 import ru.ricardocraft.backend.base.profiles.optional.OptionalFile;
 import ru.ricardocraft.backend.base.profiles.optional.triggers.OptionalTrigger;
@@ -21,8 +22,10 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private String title;
     @LauncherNetworkAPI
     private UUID uuid;
+    @Getter
     @LauncherNetworkAPI
     private Version version;
+    @Getter
     @LauncherNetworkAPI
     private String info;
     @LauncherNetworkAPI
@@ -58,9 +61,11 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private Map<String, String> properties;
     @LauncherNetworkAPI
     private List<ServerProfile> servers;
+    @Getter
     @LauncherNetworkAPI
     private ClassLoaderConfig classLoaderConfig;
 
+    @Getter
     @LauncherNetworkAPI
     private List<CompatibilityFlags> flags;
     @LauncherNetworkAPI
@@ -71,6 +76,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private int maxJavaVersion = 999;
     @LauncherNetworkAPI
     private ProfileDefaultSettings settings = new ProfileDefaultSettings();
+    @Getter
     @LauncherNetworkAPI
     private boolean limited;
     // Client launcher
@@ -266,14 +272,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return title;
     }
 
-    public String getInfo() {
-        return info;
-    }
-
-    public Version getVersion() {
-        return version;
-    }
-
     @Deprecated
     public boolean isUpdateFastCheck() {
         return true;
@@ -376,18 +374,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @Override
     public int hashCode() {
         return Objects.hash(uuid);
-    }
-
-    public ClassLoaderConfig getClassLoaderConfig() {
-        return classLoaderConfig;
-    }
-
-    public boolean isLimited() {
-        return limited;
-    }
-
-    public List<CompatibilityFlags> getFlags() {
-        return flags;
     }
 
     public enum ClassLoaderConfig {

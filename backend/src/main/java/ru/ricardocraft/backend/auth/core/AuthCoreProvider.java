@@ -37,9 +37,8 @@ import java.util.UUID;
 All-In-One provider
  */
 public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable {
-    public static final ProviderMap<AuthCoreProvider> providers = new ProviderMap<>("AuthCoreProvider");
+
     private static final Logger logger = LogManager.getLogger();
-    private static boolean registredProviders = false;
 
     protected transient AuthManager authManager;
     protected transient LaunchServerConfig config;
@@ -47,17 +46,6 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
     protected transient KeyAgreementManager keyAgreementManager;
 
     protected transient AuthProviderPair pair;
-
-    public static void registerProviders() {
-        if (!registredProviders) {
-            providers.register("reject", RejectAuthCoreProvider.class);
-            providers.register("memory", MemoryAuthCoreProvider.class);
-            providers.register("openid", OpenIDAuthCoreProvider.class);
-            providers.register("mojang", MojangAuthCoreProvider.class);
-            providers.register("microsoft", MicrosoftAuthCoreProvider.class);
-            registredProviders = true;
-        }
-    }
 
     public abstract User getUserByUsername(String username);
 

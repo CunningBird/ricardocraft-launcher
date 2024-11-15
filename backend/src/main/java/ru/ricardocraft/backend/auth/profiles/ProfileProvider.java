@@ -6,7 +6,6 @@ import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
-import ru.ricardocraft.backend.utils.ProviderMap;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,15 +13,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public abstract class ProfileProvider {
-    public static final ProviderMap<ProfileProvider> providers = new ProviderMap<>("ProfileProvider");
-    private static boolean registredProviders = false;
-
-    public static void registerProviders() {
-        if (!registredProviders) {
-            providers.register("local", LocalProfileProvider.class);
-            registredProviders = true;
-        }
-    }
 
     public abstract void sync() throws IOException;
 
@@ -33,8 +23,8 @@ public abstract class ProfileProvider {
     public abstract void deleteProfile(ClientProfile profile) throws IOException;
 
     public ClientProfile getProfile(UUID uuid) {
-        for(var e : getProfiles()) {
-            if(e.getUUID().equals(uuid)) {
+        for (var e : getProfiles()) {
+            if (e.getUUID().equals(uuid)) {
                 return e;
             }
         }
@@ -42,8 +32,8 @@ public abstract class ProfileProvider {
     }
 
     public ClientProfile getProfile(String title) {
-        for(var e : getProfiles()) {
-            if(e.getTitle().equals(title)) {
+        for (var e : getProfiles()) {
+            if (e.getTitle().equals(title)) {
                 return e;
             }
         }

@@ -8,8 +8,6 @@ import ru.ricardocraft.backend.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.utils.ProviderMap;
 
 public final class AuthRequest extends Request<AuthRequestEvent> implements WebSocketRequest {
-    public static final ProviderMap<AuthPasswordInterface> providers = new ProviderMap<>();
-    private static boolean registerProviders = false;
     @LauncherNetworkAPI
     public final String login;
     @LauncherNetworkAPI
@@ -35,21 +33,6 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         this.auth_id = auth_id;
         this.getSession = getSession;
         this.authType = authType;
-    }
-
-    public static void registerProviders() {
-        if (!registerProviders) {
-            providers.register("plain", AuthPlainPassword.class);
-            providers.register("rsa2", AuthRSAPassword.class);
-            providers.register("aes", AuthAESPassword.class);
-            providers.register("2fa", Auth2FAPassword.class);
-            providers.register("multi", AuthMultiPassword.class);
-            providers.register("signature", AuthSignaturePassword.class);
-            providers.register("totp", AuthTOTPPassword.class);
-            providers.register("oauth", AuthOAuthPassword.class);
-            providers.register("code", AuthCodePassword.class);
-            registerProviders = true;
-        }
     }
 
     @Override

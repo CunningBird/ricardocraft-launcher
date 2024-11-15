@@ -14,12 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
-import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ErrorRequestEvent;
 import ru.ricardocraft.backend.base.events.request.ExitRequestEvent;
-import ru.ricardocraft.backend.base.events.request.LauncherRequestEvent;
 import ru.ricardocraft.backend.base.request.WebSocketEvent;
 import ru.ricardocraft.backend.binary.EXELauncherBinary;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;
@@ -47,10 +45,8 @@ import ru.ricardocraft.backend.socket.response.update.LauncherResponse;
 import ru.ricardocraft.backend.socket.response.update.UpdateResponse;
 import ru.ricardocraft.backend.utils.BiHookSet;
 import ru.ricardocraft.backend.utils.HookSet;
-import ru.ricardocraft.backend.utils.ProviderMap;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -59,9 +55,6 @@ import java.util.function.BiConsumer;
 
 @Component
 public class WebSocketService {
-    public static final ProviderMap<WebSocketServerResponse> providers = new ProviderMap<>();
-    public static final Map<String, RestoreResponse.ExtendedTokenProvider> restoreProviders = new HashMap<>();
-    private static boolean registeredProviders = false;
 
     public final ChannelGroup channels;
     public final HookSet<WebSocketRequestContext> hookBeforeParsing = new HookSet<>();
@@ -82,6 +75,7 @@ public class WebSocketService {
     public transient final FeaturesManager featuresManager;
     public transient final ProtectHandler protectHandler;
     public transient final ProfileProvider profileProvider;
+    public transient final Map<String, RestoreResponse.ExtendedTokenProvider> restoreProviders;
 
     private final Gson gson;
     private transient final Logger logger = LogManager.getLogger();
@@ -103,6 +97,7 @@ public class WebSocketService {
                             FeaturesManager featuresManager,
                             ProtectHandler protectHandler,
                             ProfileProvider profileProvider,
+                            Map<String, RestoreResponse.ExtendedTokenProvider> restoreProviders,
 
                             GsonManager gsonManager) {
         this.channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
@@ -121,6 +116,7 @@ public class WebSocketService {
         this.featuresManager = featuresManager;
         this.protectHandler = protectHandler;
         this.profileProvider = profileProvider;
+        this.restoreProviders = restoreProviders;
 
         this.gson = gsonManager.gson;
         executors = switch (config.netty.performance.executorType) {
@@ -129,58 +125,6 @@ public class WebSocketService {
             case WORK_STEAL -> Executors.newWorkStealingPool();
             case VIRTUAL_THREADS -> Executors.newVirtualThreadPerTaskExecutor();
         };
-    }
-
-    public static void registerResponses() {
-        // Auth
-        providers.register("additionalData", AdditionalDataResponse.class);
-        providers.register("auth", AuthResponse.class);
-        providers.register("checkServer", CheckServerResponse.class);
-        providers.register("currentUser", CurrentUserResponse.class);
-        providers.register("exit", ExitResponse.class);
-        providers.register("clientProfileKey", FetchClientProfileKeyResponse.class);
-        providers.register("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
-        providers.register("joinServer", JoinServerResponse.class);
-        providers.register("profiles", ProfilesResponse.class);
-        providers.register("refreshToken", RefreshTokenResponse.class);
-        providers.register("restore", RestoreResponse.class);
-        providers.register("setProfile", SetProfileResponse.class);
-
-        // Update
-        providers.register("launcher", LauncherResponse.class);
-        providers.register("update", UpdateResponse.class);
-
-        // Profile
-        providers.register("batchProfileByUsername", BatchProfileByUsername.class);
-        providers.register("profileByUsername", ProfileByUsername.class);
-        providers.register("profileByUUID", ProfileByUUIDResponse.class);
-
-        // Secure
-        providers.register("getSecureLevelInfo", GetSecureLevelInfoResponse.class);
-        providers.register("hardwareReport", HardwareReportResponse.class);
-        providers.register("securityReport", SecurityReportResponse.class);
-        providers.register("verifySecureLevelKey", VerifySecureLevelKeyResponse.class);
-
-        // Management
-        providers.register("features", FeaturesResponse.class);
-        providers.register("getConnectUUID", GetConnectUUIDResponse.class);
-        providers.register("getPublicKey", GetPublicKeyResponse.class);
-
-        // Cabinet
-        providers.register("assetUploadInfo", AssetUploadInfoResponse.class);
-        providers.register("getAssetUploadUrl", GetAssetUploadInfoResponse.class);
-    }
-
-    public static void registerProviders(AuthProviders authProviders,
-                                         AuthManager authManager,
-                                         KeyAgreementManager keyAgreementManager) {
-        if (!registeredProviders) {
-            restoreProviders.put(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, new LauncherResponse.LauncherTokenVerifier(keyAgreementManager));
-            restoreProviders.put("publicKey", new AdvancedProtectHandler.PublicKeyTokenVerifier(keyAgreementManager));
-            restoreProviders.put("hardware", new AdvancedProtectHandler.HardwareInfoTokenVerifier(keyAgreementManager));
-            restoreProviders.put("checkServer", new AuthManager.CheckServerVerifier(authManager, authProviders));
-            registeredProviders = true;
-        }
     }
 
     public static String getIPFromContext(ChannelHandlerContext ctx) {
@@ -277,6 +221,8 @@ public class WebSocketService {
             simpleResponse.featuresManager = featuresManager;
             simpleResponse.protectHandler = protectHandler;
             simpleResponse.profileProvider = profileProvider;
+            simpleResponse.restoreProviders = restoreProviders;
+            simpleResponse.shardId = Integer.parseInt(System.getProperty("launchserver.shardId", "0"));
 
             simpleResponse.service = this;
             simpleResponse.ctx = ctx;

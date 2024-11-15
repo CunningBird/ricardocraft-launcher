@@ -11,7 +11,9 @@ import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.manangers.*;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.socket.WebSocketService;
+import ru.ricardocraft.backend.socket.response.auth.RestoreResponse;
 
+import java.util.Map;
 import java.util.UUID;
 
 public abstract class SimpleResponse implements WebSocketServerResponse {
@@ -30,6 +32,7 @@ public abstract class SimpleResponse implements WebSocketServerResponse {
     public transient FeaturesManager featuresManager;
     public transient ProtectHandler protectHandler;
     public transient ProfileProvider profileProvider;
+    public transient Map<String, RestoreResponse.ExtendedTokenProvider> restoreProviders;
     public transient int shardId;
 
     public transient WebSocketService service;

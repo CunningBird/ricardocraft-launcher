@@ -33,21 +33,10 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
     public OnCloseCallback onCloseCallback;
     public ReconnectCallback reconnectCallback;
 
-    public ClientWebSocketService(String address) throws SSLException {
+    public ClientWebSocketService(String address) {
         super(createURL(address));
         this.gson = Launcher.gsonManager.gson;
         this.onConnect = true;
-    }
-
-    public static void appendTypeAdapters(GsonBuilder builder) {
-        builder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
-        builder.registerTypeAdapter(ClientProfile.Version.class, new ClientProfile.Version.GsonSerializer());
-        builder.registerTypeAdapter(WebSocketEvent.class, new UniversalJsonAdapter<>(ClientWebSocketService.results));
-        builder.registerTypeAdapter(WebSocketRequest.class, new UniversalJsonAdapter<>(ClientWebSocketService.requests));
-        builder.registerTypeAdapter(AuthRequest.AuthPasswordInterface.class, new UniversalJsonAdapter<>(AuthRequest.providers));
-        builder.registerTypeAdapter(GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails.class, new UniversalJsonAdapter<>(GetAvailabilityAuthRequest.providers));
-        builder.registerTypeAdapter(OptionalAction.class, new UniversalJsonAdapter<>(OptionalAction.providers));
-        builder.registerTypeAdapter(OptionalTrigger.class, new UniversalJsonAdapter<>(OptionalTrigger.providers));
     }
 
     private static URI createURL(String address) {

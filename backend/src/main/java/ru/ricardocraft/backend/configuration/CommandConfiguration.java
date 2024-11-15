@@ -115,13 +115,11 @@ public class CommandConfiguration {
     @Bean
     public CommandHandler.Category unsafeCommandCategory(CommandHandler commandHandler,
                                                          LoadJarCommand loadJarCommand,
-                                                         RegisterComponentCommand registerComponentCommand,
                                                          SendAuthCommand sendAuthCommand,
                                                          PatcherCommand patcherCommand,
                                                          CipherListCommand cipherListCommand) {
         BaseCommandCategory unsafe = new BaseCommandCategory();
         unsafe.registerCommand("loadJar", loadJarCommand);
-        unsafe.registerCommand("registerComponent", registerComponentCommand);
         unsafe.registerCommand("sendAuth", sendAuthCommand);
         unsafe.registerCommand("patcher", patcherCommand);
         unsafe.registerCommand("cipherList", cipherListCommand);

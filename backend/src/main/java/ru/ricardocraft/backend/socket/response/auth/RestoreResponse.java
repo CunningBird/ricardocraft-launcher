@@ -70,7 +70,7 @@ public class RestoreResponse extends SimpleResponse {
         List<String> invalidTokens = new ArrayList<>(4);
         if (extended != null) {
             extended.forEach((k, v) -> {
-                ExtendedTokenProvider provider = WebSocketService.restoreProviders.get(k);
+                ExtendedTokenProvider provider = restoreProviders.get(k);
                 if (provider == null) return;
                 if (!provider.accept(client, pair, v)) {
                     invalidTokens.add(k);
