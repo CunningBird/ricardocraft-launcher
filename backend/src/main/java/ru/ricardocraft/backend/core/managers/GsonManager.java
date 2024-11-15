@@ -18,21 +18,11 @@ public class GsonManager {
         configGsonBuilder.setPrettyPrinting().disableHtmlEscaping();
         registerAdapters(gsonBuilder);
         registerAdapters(configGsonBuilder);
-        preConfigGson(configGsonBuilder);
-        preGson(gsonBuilder);
         gson = gsonBuilder.create();
         configGson = configGsonBuilder.create();
     }
 
     public void registerAdapters(GsonBuilder builder) {
         builder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
-    }
-
-    public void preConfigGson(GsonBuilder gsonBuilder) {
-        //skip
-    }
-
-    public void preGson(GsonBuilder gsonBuilder) {
-        //skip
     }
 }

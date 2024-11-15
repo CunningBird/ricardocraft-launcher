@@ -3,6 +3,7 @@ package ru.ricardocraft.backend.command;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.binary.tasks.OSSLSignTask;
+import ru.ricardocraft.backend.command.utls.CommandHandler;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 import java.nio.file.Path;
@@ -13,9 +14,11 @@ public class OSSLSignEXECommand extends Command {
     public final LaunchServerConfig config;
 
     @Autowired
-    public OSSLSignEXECommand(LaunchServerConfig config) {
+    public OSSLSignEXECommand(CommandHandler commandHandler, LaunchServerConfig config) {
         super();
         this.config = config;
+
+        commandHandler.registerCommand("osslsignexe", this);
     }
 
     @Override

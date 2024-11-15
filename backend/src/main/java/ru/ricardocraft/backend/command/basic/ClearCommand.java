@@ -1,14 +1,17 @@
 package ru.ricardocraft.backend.command.basic;
 
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.utls.Command;
 import ru.ricardocraft.backend.command.utls.CommandHandler;
 import ru.ricardocraft.backend.helper.LogHelper;
 
+@Component
 public final class ClearCommand extends Command {
-    private final CommandHandler handler;
+    private final CommandHandler commandHandler;
 
-    public ClearCommand(CommandHandler handler) {
-        this.handler = handler;
+    public ClearCommand(CommandHandler commandHandler) {
+        this.commandHandler = commandHandler;
+        commandHandler.registerCommand("clear", this);
     }
 
     @Override
@@ -23,7 +26,7 @@ public final class ClearCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        handler.clear();
+        commandHandler.clear();
         LogHelper.subInfo("Terminal cleared");
     }
 }

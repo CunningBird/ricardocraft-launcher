@@ -4,11 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.ricardocraft.backend.command.GenerateCertificateCommand;
-import ru.ricardocraft.backend.command.OSSLSignEXECommand;
 import ru.ricardocraft.backend.command.basic.*;
 import ru.ricardocraft.backend.command.mirror.*;
-import ru.ricardocraft.backend.command.remotecontrol.RemoteControlCommand;
 import ru.ricardocraft.backend.command.service.*;
 import ru.ricardocraft.backend.command.tools.SignDirCommand;
 import ru.ricardocraft.backend.command.tools.SignJarCommand;
@@ -24,18 +21,13 @@ import ru.ricardocraft.backend.command.utls.CommandHandler;
 import ru.ricardocraft.backend.command.utls.JLineCommandHandler;
 import ru.ricardocraft.backend.command.utls.StdCommandHandler;
 
-import java.util.List;
-
 @Configuration
 public class CommandConfiguration {
 
     private static final Logger logger = LogManager.getLogger();
 
     @Bean
-    public CommandHandler commandHandler(List<CommandHandler.Category> categories,
-                                         GenerateCertificateCommand generateCertificateCommand,
-                                         OSSLSignEXECommand osslSignEXECommand,
-                                         RemoteControlCommand remoteControlCommand) {
+    public CommandHandler commandHandler() {
         CommandHandler commandHandler;
         try {
             Class.forName("org.jline.terminal.Terminal");
@@ -47,20 +39,12 @@ public class CommandConfiguration {
             logger.warn("JLine2 isn't in classpath, using std");
         }
 
-        categories.forEach(commandHandler::registerCategory);
-
-        commandHandler.registerCommand("clear", new ClearCommand(commandHandler));
-        commandHandler.registerCommand("help", new HelpCommand(commandHandler));
-
-        commandHandler.registerCommand("generatecertificate", generateCertificateCommand);
-        commandHandler.registerCommand("osslsignexe", osslSignEXECommand);
-        commandHandler.registerCommand("remotecontrol", remoteControlCommand);
-
         return commandHandler;
     }
 
     @Bean
-    public CommandHandler.Category basicCommandCategory(BuildCommand buildCommand,
+    public CommandHandler.Category basicCommandCategory(CommandHandler commandHandler,
+                                                        BuildCommand buildCommand,
                                                         DebugCommand debugCommand,
                                                         GCCommand gcCommand,
                                                         StopCommand stopCommand,
@@ -71,11 +55,14 @@ public class CommandConfiguration {
         basic.registerCommand("gc", gcCommand);
         basic.registerCommand("stop", stopCommand);
         basic.registerCommand("version", versionCommand);
-        return new CommandHandler.Category(basic, "basic", "Base LaunchServer commands");
+        CommandHandler.Category category = new CommandHandler.Category(basic, "basic", "Base LaunchServer commands");
+        commandHandler.registerCategory(category);
+        return category;
     }
 
     @Bean
-    public CommandHandler.Category serviceCommandCategory(ConfigCommand configCommand,
+    public CommandHandler.Category serviceCommandCategory(CommandHandler commandHandler,
+                                                          ConfigCommand configCommand,
                                                           ServerStatusCommand serverStatusCommand,
                                                           NotifyCommand notifyCommand,
                                                           ClientsCommand clientsCommand,
@@ -88,11 +75,14 @@ public class CommandConfiguration {
         service.registerCommand("clients", clientsCommand);
         service.registerCommand("securitycheck", securityCheckCommand);
         service.registerCommand("token", tokenCommand);
-        return new CommandHandler.Category(service, "service", "Managing LaunchServer Components");
+        CommandHandler.Category category = new CommandHandler.Category(service, "service", "Managing LaunchServer Components");
+        commandHandler.registerCategory(category);
+        return category;
     }
 
     @Bean
-    public CommandHandler.Category updatesCommandCategory(ProfilesCommand profilesCommand,
+    public CommandHandler.Category updatesCommandCategory(CommandHandler commandHandler,
+                                                          ProfilesCommand profilesCommand,
                                                           SyncCommand syncCommand,
                                                           IndexAssetCommand indexAssetCommand,
                                                           UnindexAssetCommand unindexAssetCommand,
@@ -105,20 +95,26 @@ public class CommandConfiguration {
         updates.registerCommand("unindexAsset", unindexAssetCommand);
         updates.registerCommand("downloadAsset", downloadAssetCommand);
         updates.registerCommand("downloadClient", downloadClientCommand);
-        return new CommandHandler.Category(updates, "updates", "Update and Sync Management");
+        CommandHandler.Category category = new CommandHandler.Category(updates, "updates", "Update and Sync Management");
+        commandHandler.registerCategory(category);
+        return category;
     }
 
     @Bean
-    public CommandHandler.Category toolsCommandCategory(SignJarCommand signJarCommand,
+    public CommandHandler.Category toolsCommandCategory(CommandHandler commandHandler,
+                                                        SignJarCommand signJarCommand,
                                                         SignDirCommand signDirCommand) {
         BaseCommandCategory tools = new BaseCommandCategory();
         tools.registerCommand("signJar", signJarCommand);
         tools.registerCommand("signDir", signDirCommand);
-        return new CommandHandler.Category(tools, "tools", "Other tools");
+        CommandHandler.Category category = new CommandHandler.Category(tools, "tools", "Other tools");
+        commandHandler.registerCategory(category);
+        return category;
     }
 
     @Bean
-    public CommandHandler.Category unsafeCommandCategory(LoadJarCommand loadJarCommand,
+    public CommandHandler.Category unsafeCommandCategory(CommandHandler commandHandler,
+                                                         LoadJarCommand loadJarCommand,
                                                          RegisterComponentCommand registerComponentCommand,
                                                          SendAuthCommand sendAuthCommand,
                                                          PatcherCommand patcherCommand,
@@ -129,11 +125,14 @@ public class CommandConfiguration {
         unsafe.registerCommand("sendAuth", sendAuthCommand);
         unsafe.registerCommand("patcher", patcherCommand);
         unsafe.registerCommand("cipherList", cipherListCommand);
-        return new CommandHandler.Category(unsafe, "Unsafe");
+        CommandHandler.Category category = new CommandHandler.Category(unsafe, "Unsafe");
+        commandHandler.registerCategory(category);
+        return category;
     }
 
     @Bean
-    public CommandHandler.Category mirrorCommandCategory(CurseforgeCommand curseforgeCommand,
+    public CommandHandler.Category mirrorCommandCategory(CommandHandler commandHandler,
+                                                         CurseforgeCommand curseforgeCommand,
                                                          InstallClientCommand installClientCommand,
                                                          InstallModCommand installModCommand,
                                                          DeDupLibrariesCommand deDupLibrariesCommand,
@@ -152,6 +151,8 @@ public class CommandConfiguration {
         mirror.registerCommand("patchauthlib", patchAuthlibCommand);
         mirror.registerCommand("applyworkspace", applyWorkspaceCommand);
         mirror.registerCommand("workspace", workspaceCommand);
-        return new CommandHandler.Category(mirror, "mirror");
+        CommandHandler.Category category = new CommandHandler.Category(mirror, "mirror");
+        commandHandler.registerCategory(category);
+        return category;
     }
 }

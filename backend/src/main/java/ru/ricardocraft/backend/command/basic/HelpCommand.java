@@ -1,6 +1,7 @@
 package ru.ricardocraft.backend.command.basic;
 
 import org.fusesource.jansi.Ansi;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.utls.Command;
 import ru.ricardocraft.backend.command.utls.CommandException;
 import ru.ricardocraft.backend.command.utls.CommandHandler;
@@ -10,11 +11,13 @@ import java.util.Arrays;
 import java.util.Map.Entry;
 import java.util.function.Supplier;
 
+@Component
 public final class HelpCommand extends Command {
-    private final CommandHandler handler;
+    private final CommandHandler commandHandler;
 
-    public HelpCommand(CommandHandler handler) {
-        this.handler = handler;
+    public HelpCommand(CommandHandler commandHandler) {
+        this.commandHandler = commandHandler;
+        commandHandler.registerCommand("help", this);
     }
 
     public static void printCommand(String name, Command command) {
@@ -75,21 +78,21 @@ public final class HelpCommand extends Command {
         // Print command help
         if (args.length == 1)
             printCommand(args[0]);
-        printSubCommandsHelp(args[0], Arrays.copyOfRange(args, 1, args.length), handler.lookup(args[0]));
+        printSubCommandsHelp(args[0], Arrays.copyOfRange(args, 1, args.length), commandHandler.lookup(args[0]));
     }
 
     private void printCommand(String name) throws CommandException {
-        printCommand(name, handler.lookup(name));
+        printCommand(name, commandHandler.lookup(name));
     }
 
     private void printCommands() {
-        for (CommandHandler.Category category : handler.getCategories()) {
+        for (CommandHandler.Category category : commandHandler.getCategories()) {
             printCategory(category.name, category.description);
             for (Entry<String, Command> entry : category.category.commandsMap().entrySet())
                 printCommand(entry.getKey(), entry.getValue());
         }
         printCategory("Base", null);
-        for (Entry<String, Command> entry : handler.getBaseCategory().commandsMap().entrySet())
+        for (Entry<String, Command> entry : commandHandler.getBaseCategory().commandsMap().entrySet())
             printCommand(entry.getKey(), entry.getValue());
 
     }

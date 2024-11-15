@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.command.utls;
 
+import lombok.Getter;
 import ru.ricardocraft.backend.helper.CommonHelper;
 import ru.ricardocraft.backend.helper.LogHelper;
 
@@ -9,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 public abstract class CommandHandler implements Runnable {
     private final List<Category> categories = new ArrayList<>();
     private final CommandCategory baseCategory = new BaseCommandCategory();
@@ -118,14 +120,6 @@ public abstract class CommandHandler implements Runnable {
         }
         for (Map.Entry<String, Command> entry : getBaseCategory().commandsMap().entrySet())
             callback.walk(null, entry.getKey(), entry.getValue());
-    }
-
-    public CommandCategory getBaseCategory() {
-        return baseCategory;
-    }
-
-    public List<Category> getCategories() {
-        return categories;
     }
 
     /**

@@ -14,12 +14,14 @@ import io.netty.handler.logging.LoggingHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import ru.ricardocraft.backend.command.utls.CommandHandler;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 import ru.ricardocraft.backend.socket.handlers.NettyIpForwardHandler;
 import ru.ricardocraft.backend.socket.handlers.NettyWebAPIHandler;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
 import ru.ricardocraft.backend.socket.handlers.fileserver.FileServerHandler;
+import ru.ricardocraft.backend.socket.servlet.RemoteControlWebServlet;
 import ru.ricardocraft.backend.utils.BiHookSet;
 
 import java.net.InetSocketAddress;
@@ -32,12 +34,15 @@ public class LauncherNettyServer implements AutoCloseable {
     public final EventLoopGroup bossGroup;
     public final EventLoopGroup workerGroup;
     public final WebSocketService service;
+    public final CommandHandler commandHandler;
     public final BiHookSet<NettyConnectContext, SocketChannel> pipelineHook = new BiHookSet<>();
 
     public LauncherNettyServer(LaunchServerConfig config,
                                LaunchServerDirectories directories,
-                               WebSocketService service) {
+                               WebSocketService service,
+                               CommandHandler commandHandler) {
         this.service = service;
+        this.commandHandler = commandHandler;
 
         NettyObjectFactory.setUsingEpoll(config.netty.performance.usingEpoll);
         Logger logger = LogManager.getLogger();
@@ -74,7 +79,7 @@ public class LauncherNettyServer implements AutoCloseable {
                     }
                 });
 
-//        NettyWebAPIHandler.addNewSeverlet("remotecontrol/command", new RemoteControlWebServlet(config));
+        NettyWebAPIHandler.addNewSeverlet("remotecontrol/command", new RemoteControlWebServlet(config, commandHandler));
     }
 
     public void bind(InetSocketAddress address) {

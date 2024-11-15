@@ -10,13 +10,9 @@ import ru.ricardocraft.backend.auth.core.interfaces.UserHardware;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportGetAllUsers;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportHardware;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportRegistration;
-import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportSudo;
 import ru.ricardocraft.backend.auth.core.openid.OpenIDAuthCoreProvider;
 import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.base.events.RequestEvent;
-import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
-import ru.ricardocraft.backend.base.profiles.PlayerProfile;
 import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.base.request.auth.details.AuthPasswordDetails;
 import ru.ricardocraft.backend.base.request.auth.password.AuthPlainPassword;
@@ -27,7 +23,6 @@ import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 import ru.ricardocraft.backend.utils.ProviderMap;
 
@@ -37,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /*
 All-In-One provider

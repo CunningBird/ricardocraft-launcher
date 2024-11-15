@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
+import ru.ricardocraft.backend.command.utls.CommandHandler;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper;
 import ru.ricardocraft.backend.manangers.CertificateManager;
@@ -55,7 +56,8 @@ public class GenerateCertificateCommand extends Command {
     private transient final LaunchServerConfigManager launchServerConfigManager;
 
     @Autowired
-    public GenerateCertificateCommand(LaunchServerConfig config,
+    public GenerateCertificateCommand(CommandHandler commandHandler,
+            LaunchServerConfig config,
                                       LaunchServerDirectories directories,
                                       CertificateManager certificateManager,
                                       KeyAgreementManager keyAgreementManager,
@@ -66,6 +68,8 @@ public class GenerateCertificateCommand extends Command {
         this.certificateManager = certificateManager;
         this.keyAgreementManager = keyAgreementManager;
         this.launchServerConfigManager = launchServerConfigManager;
+
+        commandHandler.registerCommand("generatecertificate", this);
     }
 
     @Override
