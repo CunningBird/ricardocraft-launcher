@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.base.Downloader;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
@@ -45,6 +46,7 @@ public class InstallClient {
     private final transient LaunchServerConfig config;
     private final transient LaunchServerDirectories directories;
     private final transient UpdatesManager updatesManager;
+    private transient final ProfileProvider profileProvider;
 
     private final transient FabricInstallerCommand fabricInstallerCommand;
     private final transient QuiltInstallerCommand quiltInstallerCommand;
@@ -65,6 +67,7 @@ public class InstallClient {
                          LaunchServerDirectories directories,
                          UpdatesManager updatesManager,
                          MirrorManager mirrorManager,
+                         ProfileProvider profileProvider,
                          FabricInstallerCommand fabricInstallerCommand,
                          QuiltInstallerCommand quiltInstallerCommand,
                          DeDupLibrariesCommand deDupLibrariesCommand,
@@ -77,6 +80,7 @@ public class InstallClient {
         this.config = config;
         this.directories = directories;
         this.updatesManager = updatesManager;
+        this.profileProvider = profileProvider;
 
         this.fabricInstallerCommand = fabricInstallerCommand;
         this.quiltInstallerCommand = quiltInstallerCommand;
@@ -407,18 +411,18 @@ public class InstallClient {
             logger.info("makeprofile completed");
         }
         if ((versionType == VersionType.FORGE || versionType == VersionType.NEOFORGE) && version.compareTo(ClientProfileVersions.MINECRAFT_1_17) >= 0) {
-            ClientProfile profile = config.profileProvider.getProfile(name);
+            ClientProfile profile = profileProvider.getProfile(name);
             logger.info("Run ForgeProfileModifier");
             ForgeProfileModifier modifier = new ForgeProfileModifier(originalMinecraftProfile, profile, clientPath);
             profile = modifier.build();
-            config.profileProvider.addProfile(profile);
+            profileProvider.addProfile(profile);
         }
         if (versionType == VersionType.FORGE && version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) == 0) {
-            ClientProfile profile = config.profileProvider.getProfile(name);
+            ClientProfile profile = profileProvider.getProfile(name);
             logger.info("Run ForgeProfileModifierCleanRoom");
             ForgeProfileModifier modifier = new ForgeProfileModifier(originalMinecraftProfile, profile, clientPath);
             profile = modifier.buildCleanRoom();
-            config.profileProvider.addProfile(profile);
+            profileProvider.addProfile(profile);
         }
         updatesManager.syncUpdatesDir(Collections.singleton(name));
         logger.info("Completed");

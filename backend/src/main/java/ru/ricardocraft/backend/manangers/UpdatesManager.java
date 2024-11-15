@@ -2,6 +2,7 @@ package ru.ricardocraft.backend.manangers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
 import ru.ricardocraft.backend.core.hasher.HashedDir;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
@@ -13,7 +14,7 @@ import java.util.HashSet;
 @RequiredArgsConstructor
 public class UpdatesManager {
 
-    private final LaunchServerConfig config;
+    private final UpdatesProvider updatesProvider;
 
     @Deprecated
     public void readUpdatesFromCache() {
@@ -22,7 +23,7 @@ public class UpdatesManager {
 
     @Deprecated
     public void syncUpdatesDir(Collection<String> dirs) throws IOException {
-        config.updatesProvider.sync(dirs);
+        updatesProvider.sync(dirs);
     }
 
     @Deprecated
@@ -32,7 +33,7 @@ public class UpdatesManager {
 
     @Deprecated
     public HashedDir getUpdate(String name) {
-        return config.updatesProvider.getUpdatesDir(name);
+        return updatesProvider.getUpdatesDir(name);
     }
 
     @Deprecated

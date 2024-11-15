@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.profiles.ClientProfileBuilder;
 import ru.ricardocraft.backend.command.Command;
@@ -26,17 +27,20 @@ public class CloneProfileCommand extends Command {
 
     private transient final LaunchServerConfig config;
     private transient final LaunchServerDirectories directories;
+    private transient final ProfileProvider profileProvider;
     private transient final NettyServerSocketHandler nettyServerSocketHandler;
     private transient final UpdatesManager updatesManager;
 
     @Autowired
     public CloneProfileCommand(LaunchServerConfig config,
                                LaunchServerDirectories directories,
+                               ProfileProvider profileProvider,
                                NettyServerSocketHandler nettyServerSocketHandler,
                                UpdatesManager updatesManager) {
         super();
         this.config = config;
         this.directories = directories;
+        this.profileProvider = profileProvider;
         this.nettyServerSocketHandler = nettyServerSocketHandler;
         this.updatesManager = updatesManager;
     }
@@ -57,9 +61,9 @@ public class CloneProfileCommand extends Command {
         ClientProfile profile;
         try {
             UUID uuid = UUID.fromString(args[0]);
-            profile = config.profileProvider.getProfile(uuid);
+            profile = profileProvider.getProfile(uuid);
         } catch (IllegalArgumentException ex) {
-            profile = config.profileProvider.getProfile(args[0]);
+            profile = profileProvider.getProfile(args[0]);
         }
         var builder = new ClientProfileBuilder(profile);
         builder.setTitle(args[1]);
@@ -81,9 +85,9 @@ public class CloneProfileCommand extends Command {
         }
         builder.setDir(args[1]);
         profile = builder.createClientProfile();
-        config.profileProvider.addProfile(profile);
+        profileProvider.addProfile(profile);
         logger.info("Profile {} cloned from {}", args[1], args[0]);
-        config.profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
+        profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
         updatesManager.syncUpdatesDir(List.of(args[1]));
     }
 }

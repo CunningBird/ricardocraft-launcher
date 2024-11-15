@@ -19,7 +19,7 @@ public class UpdateResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (config.protectHandler instanceof ProfilesProtectHandler profilesProtectHandler && !profilesProtectHandler.canGetUpdates(dirName, client)) {
+        if (protectHandler instanceof ProfilesProtectHandler profilesProtectHandler && !profilesProtectHandler.canGetUpdates(dirName, client)) {
             sendError("Access denied");
             return;
         }

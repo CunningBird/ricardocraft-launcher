@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.binary;
 
+import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
 import ru.ricardocraft.backend.binary.tasks.LauncherBuildTask;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper;
@@ -13,12 +14,18 @@ import java.util.Map;
 
 public abstract class LauncherBinary extends BinaryPipeline {
     public final LaunchServerConfig config;
+    public final UpdatesProvider updatesProvider;
     public final Path syncBinaryFile;
     private volatile byte[] digest;
 
-    protected LauncherBinary(LaunchServerConfig config, LaunchServerDirectories directories, Path binaryFile, String nameFormat) {
+    protected LauncherBinary(LaunchServerConfig config,
+                             LaunchServerDirectories directories,
+                             UpdatesProvider updatesProvider,
+                             Path binaryFile,
+                             String nameFormat) {
         super(directories.tmpDir.resolve("build"), nameFormat);
         this.config = config;
+        this.updatesProvider = updatesProvider;
         syncBinaryFile = binaryFile;
     }
 
@@ -41,7 +48,7 @@ public abstract class LauncherBinary extends BinaryPipeline {
             logger.info("Task {} processed from {} millis", task.getName(), time_task);
         }
         long time_end = System.currentTimeMillis();
-        config.updatesProvider.upload(null, Map.of(syncBinaryFile.toString(), thisPath), true);
+        updatesProvider.upload(null, Map.of(syncBinaryFile.toString(), thisPath), true);
         IOHelper.deleteDir(buildDir, false);
         logger.info("Build successful from {} millis", time_end - time_start);
     }
@@ -57,7 +64,7 @@ public abstract class LauncherBinary extends BinaryPipeline {
     public final boolean sync() throws IOException {
         try {
             var target = syncBinaryFile.toString();
-            var path = config.updatesProvider.download(null, List.of(target)).get(target);
+            var path = updatesProvider.download(null, List.of(target)).get(target);
             digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, IOHelper.read(path));
             return true;
         } catch (Throwable e) {

@@ -53,7 +53,7 @@ public abstract class ProfileProvider {
     abstract public List<ClientProfile> getProfiles(Client client);
 
     public void syncProfilesDir(LaunchServerConfig config, NettyServerSocketHandler nettyServerSocketHandler) throws IOException {
-        config.profileProvider.sync();
+        this.sync();
         if (config.netty.sendProfileUpdatesEvent) {
             if (nettyServerSocketHandler == null || nettyServerSocketHandler.nettyServer == null) {
                 return;
@@ -63,7 +63,7 @@ public abstract class ProfileProvider {
                 if (client == null || !client.isAuth) {
                     return;
                 }
-                ProfilesRequestEvent event = new ProfilesRequestEvent(config.profileProvider.getProfiles(client));
+                ProfilesRequestEvent event = new ProfilesRequestEvent(this.getProfiles(client));
                 event.requestUUID = RequestEvent.eventUUID;
                 handler.service.sendObject(ch, event);
             });

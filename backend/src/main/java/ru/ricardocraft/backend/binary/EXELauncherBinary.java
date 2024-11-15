@@ -3,6 +3,7 @@ package ru.ricardocraft.backend.binary;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
 import ru.ricardocraft.backend.binary.tasks.OSSLSignTask;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
@@ -15,8 +16,10 @@ import java.nio.file.Files;
 public class EXELauncherBinary extends LauncherBinary {
 
     @Autowired
-    public EXELauncherBinary(LaunchServerConfig config, LaunchServerDirectories directories) {
-        super(config, directories, LauncherBinary.resolve(config, ".exe"), "Launcher-%s.exe");
+    public EXELauncherBinary(LaunchServerConfig config,
+                             LaunchServerDirectories directories,
+                             UpdatesProvider updatesProvider) {
+        super(config, directories, updatesProvider, LauncherBinary.resolve(config, ".exe"), "Launcher-%s.exe");
         tasks.add(new OSSLSignTask(this, config));
     }
 

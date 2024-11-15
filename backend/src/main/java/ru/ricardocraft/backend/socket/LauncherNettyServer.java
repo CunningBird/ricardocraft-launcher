@@ -17,6 +17,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import ru.ricardocraft.backend.auth.AuthProviders;
+import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
+import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.binary.EXELauncherBinary;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.manangers.*;
@@ -41,16 +43,21 @@ public class LauncherNettyServer implements AutoCloseable {
     public final BiHookSet<NettyConnectContext, SocketChannel> pipelineHook = new BiHookSet<>();
 
     public LauncherNettyServer(LaunchServerDirectories directories,
-                               LaunchServerRuntimeConfig runtimeConfig,
+
                                LaunchServerConfig config,
+                               LaunchServerRuntimeConfig runtimeConfig,
                                AuthProviders authProviders,
                                AuthManager authManager,
+
                                AuthHookManager authHookManager,
                                UpdatesManager updatesManager,
                                KeyAgreementManager keyAgreementManager,
                                JARLauncherBinary launcherBinary,
+
                                EXELauncherBinary exeLauncherBinary,
-                               FeaturesManager featuresManager) {
+                               FeaturesManager featuresManager,
+                               ProtectHandler protectHandler,
+                               ProfileProvider profileProvider) {
 
         LaunchServerConfig.NettyConfig nettyConfig = config.netty;
         NettyObjectFactory.setUsingEpoll(nettyConfig.performance.usingEpoll);
@@ -65,17 +72,21 @@ public class LauncherNettyServer implements AutoCloseable {
         workerGroup = NettyObjectFactory.newEventLoopGroup(nettyConfig.performance.workerThread, "LauncherNettyServer.workerGroup");
         serverBootstrap = new ServerBootstrap();
         service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE),
-                runtimeConfig,
                 config,
+                runtimeConfig,
                 authProviders,
                 authManager,
+
                 authHookManager,
                 updatesManager,
                 keyAgreementManager,
                 launcherBinary,
+
                 exeLauncherBinary,
                 featuresManager,
-                Integer.parseInt(System.getProperty("launchserver.shardId", "0")));
+                protectHandler,
+                profileProvider
+                );
         serverBootstrap.group(bossGroup, workerGroup)
                 .channelFactory(NettyObjectFactory.getServerSocketChannelFactory())
                 .handler(new LoggingHandler(nettyConfig.logLevel))

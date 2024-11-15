@@ -4,20 +4,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 @Component
 public class ListProfilesCommand extends Command {
 
     private final transient Logger logger = LogManager.getLogger(ListProfilesCommand.class);
 
-    private transient final LaunchServerConfig config;
+    private transient final ProfileProvider profileProvider;
 
     @Autowired
-    public ListProfilesCommand(LaunchServerConfig server) {
+    public ListProfilesCommand(ProfileProvider profileProvider) {
         super();
-        this.config = server;
+        this.profileProvider = profileProvider;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class ListProfilesCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        for(var profile : config.profileProvider.getProfiles()) {
+        for (var profile : profileProvider.getProfiles()) {
             logger.info("{} ({}) {}", profile.getTitle(), profile.getVersion().toString(), profile.isLimited() ? "limited" : "");
         }
     }

@@ -57,8 +57,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
     public final NettyServerSocketHandler nettyServerSocketHandler;
 
-    public Map<String, ru.ricardocraft.backend.components.Component> components;
-
     @Autowired
     public LaunchServer(ProtectHandler protectHandler,
                         ProfileProvider profileProvider,
@@ -96,10 +94,6 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         this.nettyServerSocketHandler = nettyServerSocketHandler;
 
         Launcher.applyLauncherEnv(LauncherEnvironment.DEV);
-
-//        for (Map.Entry<String, AuthProviderPair> provider : authProviders.entrySet()) {
-//            provider.getValue().init(authManager, config, nettyServerSocketHandler, keyAgreementManager, provider.getKey());
-//        }
 
         reconfigurableManager.registerObject("component.authLimiter", authLimiterComponent);
         reconfigurableManager.registerObject("component.proguard", proGuardComponent);

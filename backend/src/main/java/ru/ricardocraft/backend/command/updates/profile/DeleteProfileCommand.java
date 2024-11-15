@@ -4,6 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
+import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
@@ -13,14 +15,16 @@ import java.util.UUID;
 @Component
 public class DeleteProfileCommand extends Command {
 
-    private final transient Logger logger = LogManager.getLogger(ListProfilesCommand.class);
+    private final transient Logger logger = LogManager.getLogger(DeleteProfileCommand.class);
 
-    private final transient LaunchServerConfig config;
+    private final transient UpdatesProvider updatesProvider;
+    private final transient ProfileProvider profileProvider;
 
     @Autowired
-    public DeleteProfileCommand(LaunchServerConfig config) {
+    public DeleteProfileCommand(UpdatesProvider updatesProvider, ProfileProvider profileProvider) {
         super();
-        this.config = config;
+        this.updatesProvider = updatesProvider;
+        this.profileProvider = profileProvider;
     }
 
     @Override
@@ -39,9 +43,9 @@ public class DeleteProfileCommand extends Command {
         ClientProfile profile;
         try {
             UUID uuid = UUID.fromString(args[0]);
-            profile = config.profileProvider.getProfile(uuid);
+            profile = profileProvider.getProfile(uuid);
         } catch (IllegalArgumentException ex) {
-            profile = config.profileProvider.getProfile(args[0]);
+            profile = profileProvider.getProfile(args[0]);
         }
         if (profile == null) {
             logger.error("Profile {} not found", args[0]);
@@ -50,8 +54,8 @@ public class DeleteProfileCommand extends Command {
         logger.warn("THIS ACTION DELETE PROFILE AND ALL FILES IN {}", profile.getDir());
 
         logger.info("Delete {} ({})", profile.getTitle(), profile.getUUID());
-        config.profileProvider.deleteProfile(profile);
+        profileProvider.deleteProfile(profile);
         logger.info("Delete {}", profile.getDir());
-        config.updatesProvider.delete(profile.getDir());
+        updatesProvider.delete(profile.getDir());
     }
 }

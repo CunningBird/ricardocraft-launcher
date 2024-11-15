@@ -11,7 +11,9 @@ import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.AuthProviders;
+import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
+import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ErrorRequestEvent;
@@ -65,17 +67,20 @@ public class WebSocketService {
     public final HookSet<WebSocketRequestContext> hookComplete = new HookSet<>();
     public final BiHookSet<Channel, Object> hookSend = new BiHookSet<>();
 
-    public transient final LaunchServerRuntimeConfig runtimeConfig;
     public transient final LaunchServerConfig config;
+    public transient final LaunchServerRuntimeConfig runtimeConfig;
     public transient final AuthProviders authProviders;
     public transient final AuthManager authManager;
+
     public transient final AuthHookManager authHookManager;
     public transient final UpdatesManager updatesManager;
     public transient final KeyAgreementManager keyAgreementManager;
     public transient final JARLauncherBinary launcherBinary;
+
     public transient final EXELauncherBinary exeLauncherBinary;
     public transient final FeaturesManager featuresManager;
-    public transient final int shardId;
+    public transient final ProtectHandler protectHandler;
+    public transient final ProfileProvider profileProvider;
 
     private final Gson gson;
     private transient final Logger logger = LogManager.getLogger();
@@ -83,29 +88,37 @@ public class WebSocketService {
     private final ExecutorService executors;
 
     public WebSocketService(ChannelGroup channels,
-                            LaunchServerRuntimeConfig runtimeConfig,
+
                             LaunchServerConfig config,
+                            LaunchServerRuntimeConfig runtimeConfig,
                             AuthProviders authProviders,
                             AuthManager authManager,
+
                             AuthHookManager authHookManager,
                             UpdatesManager updatesManager,
                             KeyAgreementManager keyAgreementManager,
                             JARLauncherBinary launcherBinary,
+
                             EXELauncherBinary exeLauncherBinary,
                             FeaturesManager featuresManager,
-                            int shardId) {
-        this.runtimeConfig = runtimeConfig;
+                            ProtectHandler protectHandler,
+                            ProfileProvider profileProvider) {
         this.channels = channels;
+
         this.config = config;
+        this.runtimeConfig = runtimeConfig;
         this.authProviders = authProviders;
         this.authManager = authManager;
+
         this.authHookManager = authHookManager;
         this.updatesManager = updatesManager;
         this.keyAgreementManager = keyAgreementManager;
         this.launcherBinary = launcherBinary;
+
         this.exeLauncherBinary = exeLauncherBinary;
         this.featuresManager = featuresManager;
-        this.shardId = shardId;
+        this.protectHandler = protectHandler;
+        this.profileProvider = profileProvider;
 
         this.gson = Launcher.gsonManager.gson;
         executors = switch (config.netty.performance.executorType) {
@@ -250,13 +263,19 @@ public class WebSocketService {
         if (response instanceof SimpleResponse simpleResponse) {
 
             simpleResponse.config = config;
+            simpleResponse.runtimeConfig = runtimeConfig;
             simpleResponse.authProviders = authProviders;
             simpleResponse.authManager = authManager;
+
             simpleResponse.authHookManager = authHookManager;
             simpleResponse.updatesManager = updatesManager;
             simpleResponse.keyAgreementManager = keyAgreementManager;
             simpleResponse.launcherBinary = launcherBinary;
+
             simpleResponse.exeLauncherBinary = exeLauncherBinary;
+            simpleResponse.featuresManager = featuresManager;
+            simpleResponse.protectHandler = protectHandler;
+            simpleResponse.profileProvider = profileProvider;
 
             simpleResponse.service = this;
             simpleResponse.ctx = ctx;

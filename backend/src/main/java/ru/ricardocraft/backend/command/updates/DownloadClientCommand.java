@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.profiles.ClientProfileBuilder;
@@ -33,6 +34,7 @@ public final class DownloadClientCommand extends Command {
     private transient final LaunchServerDirectories directories;
     private transient final MirrorManager mirrorManager;
     private transient final UpdatesManager updatesManager;
+    private transient final ProfileProvider profileProvider;
 
     private transient final NettyServerSocketHandler nettyServerSocketHandler;
 
@@ -41,12 +43,14 @@ public final class DownloadClientCommand extends Command {
                                  LaunchServerDirectories directories,
                                  MirrorManager mirrorManager,
                                  UpdatesManager updatesManager,
+                                 ProfileProvider profileProvider,
                                  NettyServerSocketHandler nettyServerSocketHandler) {
         super();
         this.config = config;
         this.directories = directories;
         this.mirrorManager = mirrorManager;
         this.updatesManager = updatesManager;
+        this.profileProvider = profileProvider;
         this.nettyServerSocketHandler = nettyServerSocketHandler;
     }
 
@@ -120,10 +124,10 @@ public final class DownloadClientCommand extends Command {
                 isMirrorClientDownload = true;
             }
         }
-        config.profileProvider.addProfile(clientProfile);
+        profileProvider.addProfile(clientProfile);
 
         // Finished
-        config.profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
+        profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
         updatesManager.syncUpdatesDir(Collections.singleton(dirName));
         logger.info("Client successfully downloaded: '{}'", dirName);
     }

@@ -17,6 +17,7 @@ import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportExtended
 import ru.ricardocraft.backend.auth.core.interfaces.session.UserSessionSupportKeys;
 import ru.ricardocraft.backend.auth.core.interfaces.user.UserSupportProperties;
 import ru.ricardocraft.backend.auth.core.interfaces.user.UserSupportTextures;
+import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.texture.TextureProvider;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
@@ -44,15 +45,18 @@ public class AuthManager {
     private final KeyAgreementManager keyAgreementManager;
     private final LaunchServerConfig launchServerConfig;
     private final LaunchServerRuntimeConfig runtimeConfig;
+    private final ProtectHandler protectHandler;
     private final JwtParser checkServerTokenParser;
 
     @Autowired
     public AuthManager(LaunchServerConfig launchServerConfig,
                        LaunchServerRuntimeConfig runtimeConfig,
+                       ProtectHandler protectHandler,
                        KeyAgreementManager keyAgreementManager) {
         this.keyAgreementManager = keyAgreementManager;
         this.launchServerConfig = launchServerConfig;
         this.runtimeConfig = runtimeConfig;
+        this.protectHandler = protectHandler;
         this.checkServerTokenParser = Jwts.parser()
                 .requireIssuer("LaunchServer")
                 .require("tokenType", "checkServer")
@@ -132,14 +136,14 @@ public class AuthManager {
             context.client.coreObject = user;
             context.client.sessionObject = session;
             internalAuth(context.client, context.authType, context.pair, user.getUsername(), user.getUUID(), user.getPermissions(), true);
-            if (context.authType == AuthResponse.ConnectTypes.CLIENT && launchServerConfig.protectHandler.allowGetAccessToken(context)) {
+            if (context.authType == AuthResponse.ConnectTypes.CLIENT && protectHandler.allowGetAccessToken(context)) {
                 return AuthReport.ofMinecraftAccessToken(session.getMinecraftAccessToken(), session);
             }
             return AuthReport.ofMinecraftAccessToken(null, session);
         }
         String login = context.login;
         try {
-            AuthReport result = provider.authorize(login, context, password, context.authType == AuthResponse.ConnectTypes.CLIENT && launchServerConfig.protectHandler.allowGetAccessToken(context));
+            AuthReport result = provider.authorize(login, context, password, context.authType == AuthResponse.ConnectTypes.CLIENT && protectHandler.allowGetAccessToken(context));
             if (result == null || result.session == null || result.session.getUser() == null) {
                 logger.error("AuthCoreProvider {} method 'authorize' return null", context.pair.name);
                 throw new AuthException("Internal Auth Error");

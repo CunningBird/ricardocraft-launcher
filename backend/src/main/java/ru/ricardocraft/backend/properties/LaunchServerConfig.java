@@ -5,11 +5,6 @@ import io.netty.handler.logging.LogLevel;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import ru.ricardocraft.backend.auth.AuthProviderPair;
-import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
-import ru.ricardocraft.backend.auth.protect.ProtectHandler;
-import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
 import ru.ricardocraft.backend.helper.SecurityHelper;
 
 import java.util.*;
@@ -38,20 +33,7 @@ public final class LaunchServerConfig {
     public RemoteControlConfig remoteControlConfig;
     public MirrorConfig mirrorConfig;
 
-    public Map<String, AuthProviderPair> auth;
-
-    public ProtectHandler protectHandler;
-    public ProfileProvider profileProvider;
-    public UpdatesProvider updatesProvider;
-
-    @Autowired
-    public LaunchServerConfig(ProfileProvider profileProvider,
-                              UpdatesProvider updatesProvider,
-                              ProtectHandler protectHandler) {
-        this.protectHandler = protectHandler;
-        this.profileProvider = profileProvider;
-        this.updatesProvider = updatesProvider;
-
+    public LaunchServerConfig() {
         this.projectName = "ricardocraft";
         this.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.6.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
         this.env = LauncherEnvironment.STD;

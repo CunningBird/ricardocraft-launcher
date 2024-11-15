@@ -15,10 +15,10 @@ public class ProfilesResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (config.protectHandler instanceof ProfilesProtectHandler profilesProtectHandler && !profilesProtectHandler.canGetProfiles(client)) {
+        if (protectHandler instanceof ProfilesProtectHandler profilesProtectHandler && !profilesProtectHandler.canGetProfiles(client)) {
             sendError("Access denied");
             return;
         }
-        sendResult(new ProfilesRequestEvent(config.profileProvider.getProfiles(client)));
+        sendResult(new ProfilesRequestEvent(profileProvider.getProfiles(client)));
     }
 }

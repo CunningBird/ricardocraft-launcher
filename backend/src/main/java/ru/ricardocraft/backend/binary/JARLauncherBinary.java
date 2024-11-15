@@ -3,6 +3,7 @@ package ru.ricardocraft.backend.binary;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.binary.tasks.*;
 import ru.ricardocraft.backend.manangers.CertificateManager;
@@ -36,8 +37,9 @@ public final class JARLauncherBinary extends LauncherBinary {
                              LaunchServerRuntimeConfig runtime,
                              LaunchServerDirectories directories,
                              KeyAgreementManager keyAgreementManager,
-                             CertificateManager certificateManager) throws IOException {
-        super(config, directories, resolve(config, ".jar"), "Launcher-%s.jar");
+                             CertificateManager certificateManager,
+                             UpdatesProvider updatesProvider) throws IOException {
+        super(config, directories, updatesProvider, resolve(config, ".jar"), "Launcher-%s.jar");
 
         count = new AtomicLong(0);
         runtimeDir = directories.dir.resolve(Launcher.RUNTIME_DIR);

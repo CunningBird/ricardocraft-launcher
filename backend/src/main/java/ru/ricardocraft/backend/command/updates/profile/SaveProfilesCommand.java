@@ -2,6 +2,7 @@ package ru.ricardocraft.backend.command.updates.profile;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
@@ -13,12 +14,16 @@ import java.util.UUID;
 public class SaveProfilesCommand extends Command {
 
     private transient final LaunchServerConfig config;
+    private transient final ProfileProvider profileProvider;
     private transient final NettyServerSocketHandler nettyServerSocketHandler;
 
     @Autowired
-    public SaveProfilesCommand(LaunchServerConfig config, NettyServerSocketHandler nettyServerSocketHandler) {
+    public SaveProfilesCommand(LaunchServerConfig config,
+                               ProfileProvider profileProvider,
+                               NettyServerSocketHandler nettyServerSocketHandler) {
         super();
         this.config = config;
+        this.profileProvider = profileProvider;
         this.nettyServerSocketHandler = nettyServerSocketHandler;
     }
 
@@ -40,13 +45,13 @@ public class SaveProfilesCommand extends Command {
                 ClientProfile profile;
                 try {
                     UUID uuid = UUID.fromString(profileName);
-                    profile = config.profileProvider.getProfile(uuid);
+                    profile = profileProvider.getProfile(uuid);
                 } catch (IllegalArgumentException ex) {
-                    profile = config.profileProvider.getProfile(profileName);
+                    profile = profileProvider.getProfile(profileName);
                 }
-                config.profileProvider.addProfile(profile);
+                profileProvider.addProfile(profile);
             }
-            config.profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
+            profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
         }
     }
 

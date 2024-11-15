@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.helper.MakeProfileHelper;
@@ -17,15 +18,18 @@ public class MakeProfileCommand extends Command {
 
     private transient final LaunchServerDirectories directories;
     private transient final LaunchServerConfig config;
+    private transient final ProfileProvider profileProvider;
     private transient final NettyServerSocketHandler nettyServerSocketHandler;
 
     @Autowired
     public MakeProfileCommand(LaunchServerDirectories directories,
                               LaunchServerConfig config,
+                              ProfileProvider profileProvider,
                               NettyServerSocketHandler nettyServerSocketHandler) {
         super();
         this.directories = directories;
         this.config = config;
+        this.profileProvider = profileProvider;
         this.nettyServerSocketHandler = nettyServerSocketHandler;
     }
 
@@ -48,8 +52,8 @@ public class MakeProfileCommand extends Command {
             logger.info("Detected option {}", option);
         }
         ClientProfile profile = MakeProfileHelper.makeProfile(version, args[0], options);
-        config.profileProvider.addProfile(profile);
+        profileProvider.addProfile(profile);
         logger.info("Profile {} created", args[0]);
-        config.profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
+        profileProvider.syncProfilesDir(config, nettyServerSocketHandler);
     }
 }

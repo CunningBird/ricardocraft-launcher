@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
+import ru.ricardocraft.backend.auth.AuthProviders;
+import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
 import ru.ricardocraft.backend.auth.protect.NoProtectHandler;
+import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.StdProtectHandler;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
@@ -35,19 +38,25 @@ public class SecurityCheckCommand extends Command {
 
     private final transient LaunchServerConfig config;
     private final transient LaunchServerDirectories directories;
-    private final transient Map<String, AuthProviderPair> authProviders;
+    private final transient AuthProviders authProviders;
+    private final transient ProtectHandler protectHandler;
+    private final transient ProfileProvider profileProvider;
     private final transient List<ru.ricardocraft.backend.components.Component> components;
 
     @Autowired
     public SecurityCheckCommand(LaunchServerConfig config,
                                 LaunchServerDirectories directories,
-                                Map<String, AuthProviderPair> authProviders,
+                                AuthProviders authProviders,
+                                ProtectHandler protectHandler,
+                                ProfileProvider profileProvider,
                                 List<ru.ricardocraft.backend.components.Component> components) {
         super();
 
         this.config = config;
         this.directories = directories;
         this.authProviders = authProviders;
+        this.protectHandler = protectHandler;
+        this.profileProvider = profileProvider;
         this.components = components;
     }
 
@@ -73,9 +82,9 @@ public class SecurityCheckCommand extends Command {
 
     @Override
     public void invoke(String... args) {
-        authProviders.forEach((name, pair) -> {
+        authProviders.getAuthProviders().forEach((name, pair) -> {
         });
-        switch (config.protectHandler) {
+        switch (protectHandler) {
             case NoProtectHandler noProtectHandler -> printCheckResult("protectHandler", "protectHandler none", false);
             case AdvancedProtectHandler advancedProtectHandler -> {
                 printCheckResult("protectHandler", "", true);
@@ -165,7 +174,7 @@ public class SecurityCheckCommand extends Command {
         }
 
         //Profiles
-        for (ClientProfile profile : this.config.profileProvider.getProfiles()) {
+        for (ClientProfile profile : profileProvider.getProfiles()) {
             boolean bad = false;
             String profileModuleName = "profiles.%s".formatted(profile.getTitle());
             for (String exc : profile.getUpdateExclusions()) {

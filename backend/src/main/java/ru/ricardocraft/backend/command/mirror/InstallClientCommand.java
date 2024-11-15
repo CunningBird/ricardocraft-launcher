@@ -2,6 +2,7 @@ package ru.ricardocraft.backend.command.mirror;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.mirror.installers.FabricInstallerCommand;
@@ -24,6 +25,7 @@ public class InstallClientCommand extends Command {
     private final transient LaunchServerDirectories directories;
     private final transient UpdatesManager updatesManager;
     private final transient MirrorManager mirrorManager;
+    private transient final ProfileProvider profileProvider;
 
     private final transient FabricInstallerCommand fabricInstallerCommand;
     private final transient QuiltInstallerCommand quiltInstallerCommand;
@@ -35,6 +37,7 @@ public class InstallClientCommand extends Command {
                                 LaunchServerDirectories directories,
                                 UpdatesManager updatesManager,
                                 MirrorManager mirrorManager,
+                                ProfileProvider profileProvider,
                                 FabricInstallerCommand fabricInstallerCommand,
                                 QuiltInstallerCommand quiltInstallerCommand,
                                 DeDupLibrariesCommand deDupLibrariesCommand,
@@ -44,6 +47,7 @@ public class InstallClientCommand extends Command {
         this.directories = directories;
         this.updatesManager = updatesManager;
         this.mirrorManager = mirrorManager;
+        this.profileProvider = profileProvider;
 
         this.fabricInstallerCommand = fabricInstallerCommand;
         this.quiltInstallerCommand = quiltInstallerCommand;
@@ -81,7 +85,7 @@ public class InstallClientCommand extends Command {
         if (args.length > 3) {
             mods = Arrays.stream(args[3].split(",")).toList();
         }
-        InstallClient run = new InstallClient(config, directories, updatesManager, mirrorManager,
+        InstallClient run = new InstallClient(config, directories, updatesManager, mirrorManager, profileProvider,
                 fabricInstallerCommand, quiltInstallerCommand, deDupLibrariesCommand, makeProfileCommand,
                 name, version, mods, versionType, mirrorWorkspace);
         run.run();

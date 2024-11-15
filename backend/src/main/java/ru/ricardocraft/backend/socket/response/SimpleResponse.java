@@ -2,6 +2,8 @@ package ru.ricardocraft.backend.socket.response;
 
 import io.netty.channel.ChannelHandlerContext;
 import ru.ricardocraft.backend.auth.AuthProviders;
+import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
+import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ErrorRequestEvent;
 import ru.ricardocraft.backend.binary.EXELauncherBinary;
@@ -16,16 +18,20 @@ import java.util.UUID;
 public abstract class SimpleResponse implements WebSocketServerResponse {
     public UUID requestUUID;
 
-    public transient LaunchServerRuntimeConfig runtimeConfig;
     public transient LaunchServerConfig config;
+    public transient LaunchServerRuntimeConfig runtimeConfig;
     public transient AuthProviders authProviders;
     public transient AuthManager authManager;
+
     public transient AuthHookManager authHookManager;
     public transient UpdatesManager updatesManager;
     public transient KeyAgreementManager keyAgreementManager;
     public transient JARLauncherBinary launcherBinary;
+
     public transient EXELauncherBinary exeLauncherBinary;
     public transient FeaturesManager featuresManager;
+    public transient ProtectHandler protectHandler;
+    public transient ProfileProvider profileProvider;
     public transient int shardId;
 
     public transient WebSocketService service;

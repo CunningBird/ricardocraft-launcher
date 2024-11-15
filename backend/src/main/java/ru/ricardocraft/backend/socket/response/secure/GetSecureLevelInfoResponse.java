@@ -14,7 +14,7 @@ public class GetSecureLevelInfoResponse extends SimpleResponse {
 
     @Override
     public void execute(ChannelHandlerContext ctx, Client client) {
-        if (!(config.protectHandler instanceof SecureProtectHandler secureProtectHandler)) {
+        if (!(protectHandler instanceof SecureProtectHandler secureProtectHandler)) {
             GetSecureLevelInfoRequestEvent response = new GetSecureLevelInfoRequestEvent(null);
             response.enabled = false;
             sendResult(response);
