@@ -16,6 +16,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.binary.EXELauncherBinary;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.manangers.*;
@@ -42,6 +43,7 @@ public class LauncherNettyServer implements AutoCloseable {
     public LauncherNettyServer(LaunchServerDirectories directories,
                                LaunchServerRuntimeConfig runtimeConfig,
                                LaunchServerConfig config,
+                               AuthProviders authProviders,
                                AuthManager authManager,
                                AuthHookManager authHookManager,
                                UpdatesManager updatesManager,
@@ -65,6 +67,7 @@ public class LauncherNettyServer implements AutoCloseable {
         service = new WebSocketService(new DefaultChannelGroup(GlobalEventExecutor.INSTANCE),
                 runtimeConfig,
                 config,
+                authProviders,
                 authManager,
                 authHookManager,
                 updatesManager,

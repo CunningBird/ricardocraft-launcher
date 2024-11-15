@@ -8,13 +8,6 @@ public class RestoreRequestEvent extends RequestEvent {
     public CurrentUserRequestEvent.UserInfo userInfo;
     public List<String> invalidTokens;
 
-    public RestoreRequestEvent() {
-    }
-
-    public RestoreRequestEvent(CurrentUserRequestEvent.UserInfo userInfo) {
-        this.userInfo = userInfo;
-    }
-
     public RestoreRequestEvent(CurrentUserRequestEvent.UserInfo userInfo, List<String> invalidTokens) {
         this.userInfo = userInfo;
         this.invalidTokens = invalidTokens;

@@ -35,9 +35,9 @@ public class RestoreResponse extends SimpleResponse {
         AuthProviderPair pair;
         if (!client.isAuth) {
             if (authId == null) {
-                pair = config.getAuthProviderPair();
+                pair = authProviders.getAuthProviderPair();
             } else {
-                pair = config.getAuthProviderPair(authId);
+                pair = authProviders.getAuthProviderPair(authId);
             }
         } else {
             pair = client.auth;

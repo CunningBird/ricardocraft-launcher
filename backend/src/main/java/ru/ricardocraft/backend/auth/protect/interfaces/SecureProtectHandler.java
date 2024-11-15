@@ -3,9 +3,9 @@ package ru.ricardocraft.backend.auth.protect.interfaces;
 import ru.ricardocraft.backend.base.events.request.GetSecureLevelInfoRequestEvent;
 import ru.ricardocraft.backend.base.events.request.SecurityReportRequestEvent;
 import ru.ricardocraft.backend.base.events.request.VerifySecureLevelKeyRequestEvent;
+import ru.ricardocraft.backend.helper.SecurityHelper;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.secure.SecurityReportResponse;
-import ru.ricardocraft.backend.helper.SecurityHelper;
 
 import java.security.Signature;
 import java.security.SignatureException;

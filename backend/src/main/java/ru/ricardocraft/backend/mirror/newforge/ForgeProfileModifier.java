@@ -3,9 +3,9 @@ package ru.ricardocraft.backend.mirror.newforge;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.profiles.ClientProfileBuilder;
-import ru.ricardocraft.backend.utils.ClientToolkit;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.launch.LaunchOptions;
+import ru.ricardocraft.backend.utils.ClientToolkit;
 
 import java.io.IOException;
 import java.io.Reader;

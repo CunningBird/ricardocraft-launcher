@@ -8,6 +8,9 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ru.ricardocraft.backend.LaunchServer;
+import ru.ricardocraft.backend.auth.AuthProviderPair;
+import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.events.RequestEvent;
@@ -15,9 +18,9 @@ import ru.ricardocraft.backend.base.events.request.ErrorRequestEvent;
 import ru.ricardocraft.backend.base.events.request.ExitRequestEvent;
 import ru.ricardocraft.backend.base.events.request.LauncherRequestEvent;
 import ru.ricardocraft.backend.base.request.WebSocketEvent;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.binary.EXELauncherBinary;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;
+import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.manangers.*;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
@@ -42,7 +45,6 @@ import ru.ricardocraft.backend.socket.response.update.UpdateResponse;
 import ru.ricardocraft.backend.utils.BiHookSet;
 import ru.ricardocraft.backend.utils.HookSet;
 import ru.ricardocraft.backend.utils.ProviderMap;
-import ru.ricardocraft.backend.helper.IOHelper;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -65,6 +67,7 @@ public class WebSocketService {
 
     public transient final LaunchServerRuntimeConfig runtimeConfig;
     public transient final LaunchServerConfig config;
+    public transient final AuthProviders authProviders;
     public transient final AuthManager authManager;
     public transient final AuthHookManager authHookManager;
     public transient final UpdatesManager updatesManager;
@@ -77,11 +80,12 @@ public class WebSocketService {
     private final Gson gson;
     private transient final Logger logger = LogManager.getLogger();
 
-    private ExecutorService executors;
+    private final ExecutorService executors;
 
     public WebSocketService(ChannelGroup channels,
                             LaunchServerRuntimeConfig runtimeConfig,
                             LaunchServerConfig config,
+                            AuthProviders authProviders,
                             AuthManager authManager,
                             AuthHookManager authHookManager,
                             UpdatesManager updatesManager,
@@ -93,6 +97,7 @@ public class WebSocketService {
         this.runtimeConfig = runtimeConfig;
         this.channels = channels;
         this.config = config;
+        this.authProviders = authProviders;
         this.authManager = authManager;
         this.authHookManager = authHookManager;
         this.updatesManager = updatesManager;
@@ -151,12 +156,14 @@ public class WebSocketService {
         providers.register("getAssetUploadUrl", GetAssetUploadInfoResponse.class);
     }
 
-    public static void registerProviders(LaunchServer server) {
+    public static void registerProviders(AuthProviders authProviders,
+                                         AuthManager authManager,
+                                         KeyAgreementManager keyAgreementManager) {
         if (!registeredProviders) {
-            restoreProviders.put(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, new LauncherResponse.LauncherTokenVerifier(server));
-            restoreProviders.put("publicKey", new AdvancedProtectHandler.PublicKeyTokenVerifier(server));
-            restoreProviders.put("hardware", new AdvancedProtectHandler.HardwareInfoTokenVerifier(server));
-            restoreProviders.put("checkServer", new AuthManager.CheckServerVerifier(server));
+            restoreProviders.put(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, new LauncherResponse.LauncherTokenVerifier(keyAgreementManager));
+            restoreProviders.put("publicKey", new AdvancedProtectHandler.PublicKeyTokenVerifier(keyAgreementManager));
+            restoreProviders.put("hardware", new AdvancedProtectHandler.HardwareInfoTokenVerifier(keyAgreementManager));
+            restoreProviders.put("checkServer", new AuthManager.CheckServerVerifier(authManager, authProviders));
             registeredProviders = true;
         }
     }
@@ -243,6 +250,7 @@ public class WebSocketService {
         if (response instanceof SimpleResponse simpleResponse) {
 
             simpleResponse.config = config;
+            simpleResponse.authProviders = authProviders;
             simpleResponse.authManager = authManager;
             simpleResponse.authHookManager = authHookManager;
             simpleResponse.updatesManager = updatesManager;

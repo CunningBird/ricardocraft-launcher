@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.socket.response.secure;
 
 import io.netty.channel.ChannelHandlerContext;
-import ru.ricardocraft.backend.base.events.request.GetSecureLevelInfoRequestEvent;
 import ru.ricardocraft.backend.auth.protect.interfaces.SecureProtectHandler;
+import ru.ricardocraft.backend.base.events.request.GetSecureLevelInfoRequestEvent;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
 

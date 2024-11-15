@@ -51,19 +51,9 @@ public final class VerifyHelper {
         verify(map.putIfAbsent(key, value), Objects::isNull, error);
     }
 
-    public static IntPredicate range(int min, int max) {
-        return i -> i >= min && i <= max;
-    }
-
     public static <T> T verify(T object, Predicate<T> predicate, String error) {
         if (predicate.test(object))
             return object;
-        throw new IllegalArgumentException(error);
-    }
-
-    public static double verifyDouble(double d, DoublePredicate predicate, String error) {
-        if (predicate.test(d))
-            return d;
         throw new IllegalArgumentException(error);
     }
 

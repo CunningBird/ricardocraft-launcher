@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.auth.core.openid;
 
-import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.auth.HikariSQLSourceConfig;
 import ru.ricardocraft.backend.auth.core.User;
+import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.helper.LogHelper;
 
 import java.sql.SQLException;

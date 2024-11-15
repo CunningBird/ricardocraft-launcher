@@ -2,9 +2,15 @@ package ru.ricardocraft.backend.auth.profiles;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.auth.protect.ProtectHandler;
+import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.socket.Client;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -13,10 +19,20 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
+@Component
 public class LocalProfileProvider extends ProfileProvider {
+
     public String profilesDir = "profiles";
     private transient volatile Map<Path, ClientProfile> profilesMap;
     private transient volatile Set<ClientProfile> profilesList; // Cache
+
+    private final transient ProtectHandler handler;
+
+    @Autowired
+    public LocalProfileProvider(ProtectHandler handler) {
+        this.handler = handler;
+    }
+
     @Override
     public void sync() throws IOException {
         Path profilesDirPath = Path.of(profilesDir);
@@ -79,6 +95,23 @@ public class LocalProfileProvider extends ProfileProvider {
         }
         profilesMap.put(path, profile);
         profilesList.add(profile);
+    }
+
+    @Override
+    public List<ClientProfile> getProfiles(Client client) {
+        List<ClientProfile> profileList;
+        Set<ClientProfile> serverProfiles = getProfiles();
+        if (this.handler instanceof ProfilesProtectHandler protectHandler) {
+            profileList = new ArrayList<>(4);
+            for (ClientProfile profile : serverProfiles) {
+                if (protectHandler.canGetProfile(profile, client)) {
+                    profileList.add(profile);
+                }
+            }
+        } else {
+            profileList = List.copyOf(serverProfiles);
+        }
+        return profileList;
     }
 
     private static final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {

@@ -17,7 +17,6 @@ import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.helper.SignHelper;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;

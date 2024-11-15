@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.auth.core;
 
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.auth.AuthException;
+import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;

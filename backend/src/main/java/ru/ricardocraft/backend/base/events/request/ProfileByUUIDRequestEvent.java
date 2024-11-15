@@ -19,9 +19,6 @@ public class ProfileByUUIDRequestEvent extends RequestEvent {
         this.playerProfile = playerProfile;
     }
 
-    public ProfileByUUIDRequestEvent() {
-    }
-
     @Override
     public String getType() {
         return "profileByUUID";

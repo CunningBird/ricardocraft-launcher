@@ -4,6 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.auth.AuthProviderPair;
+import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.binary.EXELauncherBinary;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.manangers.*;
@@ -13,6 +15,7 @@ import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 import ru.ricardocraft.backend.socket.LauncherNettyServer;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 @Component
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
@@ -20,6 +23,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     private transient final LaunchServerDirectories directories;
     private transient final LaunchServerRuntimeConfig runtimeConfig;
     private transient final LaunchServerConfig config;
+    private transient final AuthProviders authProviders;
     private transient final AuthManager authManager;
     private transient final AuthHookManager authHookManager;
     private transient final UpdatesManager updatesManager;
@@ -35,6 +39,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     public NettyServerSocketHandler(LaunchServerDirectories directories,
                                     LaunchServerRuntimeConfig runtimeConfig,
                                     LaunchServerConfig config,
+                                    AuthProviders authProviders,
                                     AuthManager authManager,
                                     AuthHookManager authHookManager,
                                     UpdatesManager updatesManager,
@@ -45,6 +50,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
         this.directories = directories;
         this.config = config;
         this.runtimeConfig = runtimeConfig;
+        this.authProviders = authProviders;
         this.authManager = authManager;
         this.authHookManager = authHookManager;
         this.updatesManager = updatesManager;
@@ -67,6 +73,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
         nettyServer = new LauncherNettyServer(directories,
                 runtimeConfig,
                 config,
+                authProviders,
                 authManager,
                 authHookManager,
                 updatesManager,

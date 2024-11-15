@@ -1,32 +1,24 @@
 package ru.ricardocraft.backend.auth.protect;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
-import ru.ricardocraft.backend.manangers.KeyAgreementManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 
 import java.util.*;
 
+@Component
+@Primary
 public class StdProtectHandler extends ProtectHandler implements ProfilesProtectHandler {
-    private transient final Logger logger = LogManager.getLogger();
+
     public Map<String, List<String>> profileWhitelist = new HashMap<>();
     public List<String> allowUpdates = new ArrayList<>();
 
     @Override
     public boolean allowGetAccessToken(AuthResponse.AuthContext context) {
         return (context.authType == AuthResponse.ConnectTypes.CLIENT) && context.client.checkSign;
-    }
-
-    @Override
-    public void init(LaunchServerConfig config, KeyAgreementManager keyAgreementManager) {
-        if (profileWhitelist != null && !profileWhitelist.isEmpty()) {
-            logger.warn("profileWhitelist deprecated. Please use permission 'launchserver.profile.PROFILE_UUID.show' and 'launchserver.profile.PROFILE_UUID.enter'");
-        }
     }
 
     @Override

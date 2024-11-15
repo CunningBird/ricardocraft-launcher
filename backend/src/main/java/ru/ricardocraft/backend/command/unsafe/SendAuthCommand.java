@@ -2,14 +2,14 @@ package ru.ricardocraft.backend.command.unsafe;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.auth.AuthProviderPair;
+import ru.ricardocraft.backend.auth.AuthProviders;
+import ru.ricardocraft.backend.auth.core.User;
+import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
 import ru.ricardocraft.backend.base.profiles.PlayerProfile;
-import ru.ricardocraft.backend.LaunchServer;
-import ru.ricardocraft.backend.auth.AuthProviderPair;
-import ru.ricardocraft.backend.auth.core.User;
-import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
@@ -25,16 +25,16 @@ public class SendAuthCommand extends Command {
 
     private transient final NettyServerSocketHandler nettyServerSocketHandler;
     private transient final AuthManager authManager;
-    private transient final LaunchServerConfig config;
+    private transient final AuthProviders authProviders;
 
     @Autowired
     public SendAuthCommand(NettyServerSocketHandler nettyServerSocketHandler,
                            AuthManager authManager,
-                           LaunchServerConfig config) {
+                           AuthProviders authProviders) {
         super();
         this.nettyServerSocketHandler = nettyServerSocketHandler;
         this.authManager = authManager;
-        this.config = config;
+        this.authProviders = authProviders;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class SendAuthCommand extends Command {
         UUID connectUUID = parseUUID(args[0]);
         String username = args[1];
         AuthResponse.ConnectTypes type = AuthResponse.ConnectTypes.valueOf(args[3]);
-        AuthProviderPair pair = config.getAuthProviderPair(args[2]);
+        AuthProviderPair pair = authProviders.getAuthProviderPair(args[2]);
         ClientPermissions permissions = args.length > 4 ? new ClientPermissions(List.of(), List.of(args[4])) : ClientPermissions.DEFAULT;
         User user = pair.core.getUserByLogin(username);
         UUID uuid;

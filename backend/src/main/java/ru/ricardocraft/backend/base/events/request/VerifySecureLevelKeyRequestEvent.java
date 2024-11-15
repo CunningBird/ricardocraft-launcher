@@ -12,10 +12,6 @@ public class VerifySecureLevelKeyRequestEvent extends RequestEvent implements Ex
     public VerifySecureLevelKeyRequestEvent() {
     }
 
-    public VerifySecureLevelKeyRequestEvent(boolean needHardwareInfo) {
-        this.needHardwareInfo = needHardwareInfo;
-    }
-
     public VerifySecureLevelKeyRequestEvent(boolean needHardwareInfo, boolean onlyStatisticInfo, String extendedToken, long expire) {
         this.needHardwareInfo = needHardwareInfo;
         this.onlyStatisticInfo = onlyStatisticInfo;

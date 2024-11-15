@@ -2,7 +2,6 @@ package ru.ricardocraft.backend.components;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.manangers.AuthHookManager;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;

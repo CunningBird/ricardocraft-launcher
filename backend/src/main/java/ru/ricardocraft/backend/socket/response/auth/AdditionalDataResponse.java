@@ -1,10 +1,10 @@
 package ru.ricardocraft.backend.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import ru.ricardocraft.backend.base.events.request.AdditionalDataRequestEvent;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.auth.core.interfaces.user.UserSupportAdditionalData;
+import ru.ricardocraft.backend.base.events.request.AdditionalDataRequestEvent;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
 

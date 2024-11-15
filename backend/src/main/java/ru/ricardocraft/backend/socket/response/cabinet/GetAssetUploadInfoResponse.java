@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.socket.response.cabinet;
 
 import io.netty.channel.ChannelHandlerContext;
-import ru.ricardocraft.backend.base.events.request.GetAssetUploadUrlRequestEvent;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportAssetUpload;
+import ru.ricardocraft.backend.base.events.request.GetAssetUploadUrlRequestEvent;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
 

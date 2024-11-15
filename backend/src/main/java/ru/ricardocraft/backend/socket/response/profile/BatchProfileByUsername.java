@@ -1,9 +1,9 @@
 package ru.ricardocraft.backend.socket.response.profile;
 
 import io.netty.channel.ChannelHandlerContext;
+import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.base.events.request.BatchProfileByUsernameRequestEvent;
 import ru.ricardocraft.backend.base.profiles.PlayerProfile;
-import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
 
@@ -26,7 +26,7 @@ public class BatchProfileByUsername extends SimpleResponse {
         for (int i = 0; i < list.length; ++i) {
             AuthProviderPair pair = client.auth;
             if (pair == null) {
-                pair = config.getAuthProviderPair();
+                pair = authProviders.getAuthProviderPair();
             }
             result.playerProfiles[i] = authManager.getPlayerProfile(pair, list[i].username);
         }

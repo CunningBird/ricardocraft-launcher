@@ -1,7 +1,6 @@
 package ru.ricardocraft.backend.auth.updates;
 
 import ru.ricardocraft.backend.core.hasher.HashedDir;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.utils.ProviderMap;
 
 import java.io.IOException;
@@ -43,8 +42,4 @@ public abstract class UpdatesProvider {
     public abstract void delete(String updateName) throws IOException;
 
     public abstract void create(String updateName) throws IOException;
-
-    public void close() {
-
-    }
 }

@@ -2,21 +2,14 @@ package ru.ricardocraft.backend.manangers;
 
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.base.ClientPermissions;
-import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.base.profiles.PlayerProfile;
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
-import ru.ricardocraft.backend.base.request.auth.password.*;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
+import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.auth.core.UserSession;
@@ -25,16 +18,21 @@ import ru.ricardocraft.backend.auth.core.interfaces.session.UserSessionSupportKe
 import ru.ricardocraft.backend.auth.core.interfaces.user.UserSupportProperties;
 import ru.ricardocraft.backend.auth.core.interfaces.user.UserSupportTextures;
 import ru.ricardocraft.backend.auth.texture.TextureProvider;
+import ru.ricardocraft.backend.base.ClientPermissions;
+import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
+import ru.ricardocraft.backend.base.profiles.ClientProfile;
+import ru.ricardocraft.backend.base.profiles.PlayerProfile;
+import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import ru.ricardocraft.backend.base.request.auth.password.*;
+import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.helper.SecurityHelper;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 import ru.ricardocraft.backend.socket.response.auth.RestoreResponse;
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.SecurityHelper;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyAgreement;
 import java.io.IOException;
 import java.util.*;
 
@@ -49,7 +47,9 @@ public class AuthManager {
     private final JwtParser checkServerTokenParser;
 
     @Autowired
-    public AuthManager(LaunchServerConfig launchServerConfig, LaunchServerRuntimeConfig runtimeConfig, KeyAgreementManager keyAgreementManager) {
+    public AuthManager(LaunchServerConfig launchServerConfig,
+                       LaunchServerRuntimeConfig runtimeConfig,
+                       KeyAgreementManager keyAgreementManager) {
         this.keyAgreementManager = keyAgreementManager;
         this.launchServerConfig = launchServerConfig;
         this.runtimeConfig = runtimeConfig;
@@ -322,20 +322,22 @@ public class AuthManager {
     }
 
     public static class CheckServerVerifier implements RestoreResponse.ExtendedTokenProvider {
-        private final LaunchServer server;
+        private final AuthProviders authProviders;
+        private final AuthManager authManager;
 
-        public CheckServerVerifier(LaunchServer server) {
-            this.server = server;
+        public CheckServerVerifier(AuthManager authManager, AuthProviders authProviders) {
+            this.authProviders = authProviders;
+            this.authManager = authManager;
         }
 
         @Override
         public boolean accept(Client client, AuthProviderPair pair, String extendedToken) {
-            var info = server.authManager.parseCheckServerToken(extendedToken);
+            var info = authManager.parseCheckServerToken(extendedToken);
             if (info == null) {
                 return false;
             }
             client.auth_id = info.authId;
-            client.auth = server.config.getAuthProviderPair(info.authId);
+            client.auth = authProviders.getAuthProviderPair(info.authId);
             if (client.permissions == null) client.permissions = new ClientPermissions();
             client.permissions.addPerm("launchserver.checkserver");
             if(!info.isPublic) {

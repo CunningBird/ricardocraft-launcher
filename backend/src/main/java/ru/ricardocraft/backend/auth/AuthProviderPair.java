@@ -1,9 +1,6 @@
 package ru.ricardocraft.backend.auth;
 
 import lombok.Getter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.auth.mix.MixProvider;
 import ru.ricardocraft.backend.auth.texture.TextureProvider;
@@ -68,11 +65,11 @@ public final class AuthProviderPair {
 
     public void init(AuthManager authManager,
                      LaunchServerConfig config,
-                     NettyServerSocketHandler nettyServerSocketHandler,
+                     AuthProviders authProviders,
                      KeyAgreementManager keyAgreementManager, String name) {
         this.name = name;
-        if (links != null) link(config);
-        core.init(authManager, config, nettyServerSocketHandler, keyAgreementManager, this);
+        if (links != null) link(authProviders);
+        core.init(authManager, config, keyAgreementManager, this);
         features = new HashSet<>();
         getFeatures(core.getClass(), features);
         if(mixes != null) {
@@ -83,9 +80,9 @@ public final class AuthProviderPair {
         }
     }
 
-    public void link(LaunchServerConfig config) {
+    public void link(AuthProviders authProviders) {
         links.forEach((k, v) -> {
-            AuthProviderPair pair = config.getAuthProviderPair(v);
+            AuthProviderPair pair = authProviders.getAuthProviderPair(v);
             if (pair == null) {
                 throw new NullPointerException("Auth %s link failed. Pair %s not found".formatted(name, v));
             }

@@ -1,9 +1,9 @@
 package ru.ricardocraft.backend.socket.response.secure;
 
 import io.netty.channel.ChannelHandlerContext;
+import ru.ricardocraft.backend.auth.protect.interfaces.HardwareProtectHandler;
 import ru.ricardocraft.backend.base.events.request.HardwareReportRequestEvent;
 import ru.ricardocraft.backend.base.request.secure.HardwareReportRequest;
-import ru.ricardocraft.backend.auth.protect.interfaces.HardwareProtectHandler;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
 

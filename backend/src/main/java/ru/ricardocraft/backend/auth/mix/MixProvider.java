@@ -1,8 +1,5 @@
 package ru.ricardocraft.backend.auth.mix;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.utils.ProviderMap;
 

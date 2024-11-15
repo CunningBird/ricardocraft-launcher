@@ -7,9 +7,7 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.command.utls.CommandHandler;
 
 @Component
 public class DebugCommand extends Command {

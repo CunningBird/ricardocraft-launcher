@@ -12,14 +12,6 @@ public class FetchClientProfileKeyRequestEvent extends RequestEvent {
     public long expiresAt;
     public long refreshedAfter;
 
-    public FetchClientProfileKeyRequestEvent(byte[] publicKey, byte[] privateKey, byte[] signature, long expiresAt, long refreshedAfter) {
-        this.publicKey = publicKey;
-        this.privateKey = privateKey;
-        this.signature = signature;
-        this.expiresAt = expiresAt;
-        this.refreshedAfter = refreshedAfter;
-    }
-
     public FetchClientProfileKeyRequestEvent(PublicKey publicKey, PrivateKey privateKey, byte[] signature, long expiresAt, long refreshedAfter) {
         this.publicKey = publicKey.getEncoded();
         this.privateKey = privateKey.getEncoded();

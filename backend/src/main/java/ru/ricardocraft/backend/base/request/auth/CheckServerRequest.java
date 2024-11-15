@@ -1,9 +1,9 @@
 package ru.ricardocraft.backend.base.request.auth;
 
-import ru.ricardocraft.backend.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.base.events.request.CheckServerRequestEvent;
 import ru.ricardocraft.backend.base.request.Request;
 import ru.ricardocraft.backend.base.request.websockets.WebSocketRequest;
+import ru.ricardocraft.backend.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.helper.VerifyHelper;
 
 public final class CheckServerRequest extends Request<CheckServerRequestEvent> implements WebSocketRequest {

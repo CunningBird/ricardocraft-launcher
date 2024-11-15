@@ -6,27 +6,11 @@ import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
-import ru.ricardocraft.backend.auth.core.MemoryAuthCoreProvider;
-import ru.ricardocraft.backend.auth.profiles.LocalProfileProvider;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
-import ru.ricardocraft.backend.auth.protect.StdProtectHandler;
-import ru.ricardocraft.backend.auth.texture.RequestTextureProvider;
-import ru.ricardocraft.backend.auth.updates.LocalUpdatesProvider;
 import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
-import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.components.AuthLimiterComponent;
-import ru.ricardocraft.backend.components.Component;
-import ru.ricardocraft.backend.components.ProGuardComponent;
-import ru.ricardocraft.backend.components.WhitelistComponent;
 import ru.ricardocraft.backend.helper.SecurityHelper;
-import ru.ricardocraft.backend.manangers.AuthManager;
-import ru.ricardocraft.backend.manangers.KeyAgreementManager;
-import ru.ricardocraft.backend.manangers.MirrorManager;
-import ru.ricardocraft.backend.manangers.ReconfigurableManager;
-import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 
 import java.util.*;
 
@@ -45,14 +29,8 @@ public final class LaunchServerConfig {
     public String projectName;
     public String[] mirrors;
     public String binaryName;
-    public boolean copyBinaries = true;
     public LauncherEnvironment env;
-
-    public Map<String, AuthProviderPair> auth;
-    // Handlers & Providers
-    public ProtectHandler protectHandler;
-    public ProfileProvider profileProvider = new LocalProfileProvider();
-    public UpdatesProvider updatesProvider = new LocalUpdatesProvider();
+    public TextureProviderConfig textureProvider;
     public NettyConfig netty;
     public LauncherConf launcher;
     public JarSignerConf sign;
@@ -60,19 +38,24 @@ public final class LaunchServerConfig {
     public RemoteControlConfig remoteControlConfig;
     public MirrorConfig mirrorConfig;
 
-    private transient AuthProviderPair authDefault;
+    public Map<String, AuthProviderPair> auth;
 
-    public LaunchServerConfig() {
+    public ProtectHandler protectHandler;
+    public ProfileProvider profileProvider;
+    public UpdatesProvider updatesProvider;
+
+    @Autowired
+    public LaunchServerConfig(ProfileProvider profileProvider,
+                              UpdatesProvider updatesProvider,
+                              ProtectHandler protectHandler) {
+        this.protectHandler = protectHandler;
+        this.profileProvider = profileProvider;
+        this.updatesProvider = updatesProvider;
+
         this.projectName = "ricardocraft";
         this.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.6.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
         this.env = LauncherEnvironment.STD;
-        this.auth = new HashMap<>();
-        AuthProviderPair a = new AuthProviderPair(new MemoryAuthCoreProvider(),
-                new RequestTextureProvider("http://example.com/skins/%username%.png", "http://example.com/cloaks/%username%.png")
-        );
-        a.displayName = "Default";
-        this.auth.put("std", a);
-        this.protectHandler = new StdProtectHandler();
+        this.textureProvider = new TextureProviderConfig();
         this.binaryName = "Launcher";
 
         this.netty = new NettyConfig();
@@ -123,46 +106,7 @@ public final class LaunchServerConfig {
 //        this.init(ReloadType.FULL);
     }
 
-    public AuthProviderPair getAuthProviderPair(String name) {
-        return auth.get(name);
-    }
-
-    public AuthProviderPair getAuthProviderPair() {
-        if (authDefault != null) return authDefault;
-        for (AuthProviderPair pair : auth.values()) {
-            if (pair.isDefault) {
-                authDefault = pair;
-                return pair;
-            }
-        }
-        throw new IllegalStateException("Default AuthProviderPair not found");
-    }
-
     public void verify() {
-        if (auth == null || auth.isEmpty()) {
-            throw new NullPointerException("AuthProviderPair`s count should be at least one");
-        }
-
-        boolean isOneDefault = false;
-        for (AuthProviderPair pair : auth.values()) {
-            if (pair.isDefault) {
-                isOneDefault = true;
-                break;
-            }
-        }
-        if (protectHandler == null) {
-            throw new NullPointerException("ProtectHandler must not be null");
-        }
-        if (!isOneDefault) {
-            throw new IllegalStateException("No auth pairs declared by default.");
-        }
-        if (env == null) {
-            throw new NullPointerException("Env must not be null");
-        }
-        if (netty == null) {
-            throw new NullPointerException("Netty must not be null");
-        }
-        // Mirror check
         {
             boolean updateMirror = Boolean.getBoolean("launchserver.config.disableUpdateMirror");
             if (!updateMirror) {
@@ -174,6 +118,11 @@ public final class LaunchServerConfig {
                 }
             }
         }
+    }
+
+    public static class TextureProviderConfig {
+        public String skinURL = "http://example.com/skins/%username%.png";
+        public String cloakURL = "http://example.com/cloaks/%username%.png";
     }
 
     public static class JarSignerConf {

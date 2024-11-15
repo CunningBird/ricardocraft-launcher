@@ -2,7 +2,6 @@ package ru.ricardocraft.backend.manangers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.core.hasher.HashedDir;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 

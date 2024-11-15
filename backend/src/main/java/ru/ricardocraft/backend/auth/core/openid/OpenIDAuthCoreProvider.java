@@ -2,24 +2,23 @@ package ru.ricardocraft.backend.auth.core.openid;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import ru.ricardocraft.backend.base.ClientPermissions;
-import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
-import ru.ricardocraft.backend.base.request.auth.password.AuthCodePassword;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.HikariSQLSourceConfig;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.auth.core.UserSession;
+import ru.ricardocraft.backend.base.ClientPermissions;
+import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import ru.ricardocraft.backend.base.request.auth.password.AuthCodePassword;
+import ru.ricardocraft.backend.helper.LogHelper;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
-import ru.ricardocraft.backend.helper.LogHelper;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -136,9 +135,8 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
 
     public void init(AuthManager authManager,
                      LaunchServerConfig config,
-                     NettyServerSocketHandler nettyServerSocketHandler,
                      KeyAgreementManager keyAgreementManager, AuthProviderPair pair) {
-        super.init(authManager, config, nettyServerSocketHandler, keyAgreementManager, pair);
+        super.init(authManager, config, keyAgreementManager, pair);
         this.sqlSourceConfig.init();
         this.sqlUserStore = new SQLUserStore(sqlSourceConfig);
         this.sqlUserStore.init();

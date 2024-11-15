@@ -2,7 +2,7 @@ package ru.ricardocraft.backend.auth.updates;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.core.hasher.HashedDir;
 import ru.ricardocraft.backend.core.serialize.HInput;
 import ru.ricardocraft.backend.core.serialize.HOutput;
@@ -16,7 +16,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Stream;
 
+@Component
 public class LocalUpdatesProvider extends UpdatesProvider {
+
     private final transient Logger logger = LogManager.getLogger();
     public String cacheFile = ".updates-cache";
     public String updatesDir = "updates";

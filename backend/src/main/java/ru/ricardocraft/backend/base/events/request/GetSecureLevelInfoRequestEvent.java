@@ -10,11 +10,6 @@ public class GetSecureLevelInfoRequestEvent extends RequestEvent {
         this.verifySecureKey = verifySecureKey;
     }
 
-    public GetSecureLevelInfoRequestEvent(byte[] verifySecureKey, boolean enabled) {
-        this.verifySecureKey = verifySecureKey;
-        this.enabled = enabled;
-    }
-
     @Override
     public String getType() {
         return "getSecureLevelInfo";

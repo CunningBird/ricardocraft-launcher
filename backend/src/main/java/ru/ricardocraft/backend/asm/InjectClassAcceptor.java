@@ -4,10 +4,10 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
-import ru.ricardocraft.backend.core.LauncherInject;
-import ru.ricardocraft.backend.core.LauncherInjectionConstructor;
 import ru.ricardocraft.backend.binary.BuildContext;
 import ru.ricardocraft.backend.binary.tasks.MainBuildTask;
+import ru.ricardocraft.backend.core.LauncherInject;
+import ru.ricardocraft.backend.core.LauncherInjectionConstructor;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;

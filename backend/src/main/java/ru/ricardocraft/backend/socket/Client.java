@@ -1,10 +1,9 @@
 package ru.ricardocraft.backend.socket;
 
-import ru.ricardocraft.backend.base.ClientPermissions;
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.core.interfaces.UserHardware;
+import ru.ricardocraft.backend.base.ClientPermissions;
+import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 
 import java.util.HashMap;
@@ -47,16 +46,6 @@ public class Client {
     }
 
     //Данные авторизации
-    public void up() {
-        timestamp = System.currentTimeMillis();
-    }
-
-    public void updateAuth(LaunchServer server) {
-        if (!isAuth) return;
-        if (auth_id.isEmpty()) auth = server.config.getAuthProviderPair();
-        else auth = server.config.getAuthProviderPair(auth_id);
-    }
-
     @SuppressWarnings("unchecked")
     public <T> T getProperty(String name) {
         if (properties == null) properties = new HashMap<>();
@@ -66,12 +55,6 @@ public class Client {
     public <T> void setProperty(String name, T object) {
         if (properties == null) properties = new HashMap<>();
         properties.put(name, object);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T getStaticProperty(String name) {
-        if (staticProperties == null) staticProperties = new HashMap<>();
-        return (T) staticProperties.get(name);
     }
 
     public <T> void setStaticProperty(String name, T value) {

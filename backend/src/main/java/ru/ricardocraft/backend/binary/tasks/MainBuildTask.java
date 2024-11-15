@@ -8,21 +8,20 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
-import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.base.LauncherConfig;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.asm.ClassMetadataReader;
 import ru.ricardocraft.backend.asm.InjectClassAcceptor;
 import ru.ricardocraft.backend.asm.SafeClassWriter;
+import ru.ricardocraft.backend.base.Launcher;
+import ru.ricardocraft.backend.base.LauncherConfig;
 import ru.ricardocraft.backend.binary.BuildContext;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;
+import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.helper.SecurityHelper;
 import ru.ricardocraft.backend.manangers.CertificateManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerRuntimeConfig;
 import ru.ricardocraft.backend.utils.HookException;
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -46,7 +45,6 @@ public class MainBuildTask implements LauncherBuildTask {
     private final KeyAgreementManager keyAgreementManager;
     private final CertificateManager certificateManager;
 
-    //    private final LaunchServer server;
     private transient final Logger logger = LogManager.getLogger();
 
     public MainBuildTask(JARLauncherBinary launcherBinary,

@@ -2,7 +2,6 @@ package ru.ricardocraft.backend.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
 import ru.ricardocraft.backend.base.events.request.CurrentUserRequestEvent;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;

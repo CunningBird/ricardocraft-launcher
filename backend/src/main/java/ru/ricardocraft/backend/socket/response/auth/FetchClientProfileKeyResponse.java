@@ -1,9 +1,9 @@
 package ru.ricardocraft.backend.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
-import ru.ricardocraft.backend.base.events.request.FetchClientProfileKeyRequestEvent;
 import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.auth.core.interfaces.session.UserSessionSupportKeys;
+import ru.ricardocraft.backend.base.events.request.FetchClientProfileKeyRequestEvent;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
 

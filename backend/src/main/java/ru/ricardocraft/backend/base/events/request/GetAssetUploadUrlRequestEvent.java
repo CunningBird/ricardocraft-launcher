@@ -7,9 +7,6 @@ public class GetAssetUploadUrlRequestEvent extends RequestEvent {
     public String url;
     public AuthRequestEvent.OAuthRequestEvent token;
 
-    public GetAssetUploadUrlRequestEvent() {
-    }
-
     public GetAssetUploadUrlRequestEvent(String url, AuthRequestEvent.OAuthRequestEvent token) {
         this.url = url;
         this.token = token;

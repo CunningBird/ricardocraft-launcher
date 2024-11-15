@@ -4,8 +4,8 @@ import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.cms.CMSTypedData;
-import ru.ricardocraft.backend.helper.SignHelper;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.helper.SignHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

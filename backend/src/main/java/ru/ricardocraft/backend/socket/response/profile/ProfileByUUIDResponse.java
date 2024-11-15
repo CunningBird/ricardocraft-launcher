@@ -1,9 +1,9 @@
 package ru.ricardocraft.backend.socket.response.profile;
 
 import io.netty.channel.ChannelHandlerContext;
-import ru.ricardocraft.backend.base.events.request.ProfileByUUIDRequestEvent;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.core.User;
+import ru.ricardocraft.backend.base.events.request.ProfileByUUIDRequestEvent;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
 
@@ -22,7 +22,7 @@ public class ProfileByUUIDResponse extends SimpleResponse {
     public void execute(ChannelHandlerContext ctx, Client client) {
         AuthProviderPair pair;
         if (client.auth == null) {
-            pair = config.getAuthProviderPair();
+            pair = authProviders.getAuthProviderPair();
         } else {
             pair = client.auth;
         }

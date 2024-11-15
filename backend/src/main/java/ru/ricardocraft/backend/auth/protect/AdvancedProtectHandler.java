@@ -4,16 +4,17 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.base.events.request.GetSecureLevelInfoRequestEvent;
-import ru.ricardocraft.backend.base.events.request.HardwareReportRequestEvent;
-import ru.ricardocraft.backend.base.events.request.VerifySecureLevelKeyRequestEvent;
-import ru.ricardocraft.backend.LaunchServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.core.interfaces.UserHardware;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportHardware;
 import ru.ricardocraft.backend.auth.protect.interfaces.HardwareProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.JoinServerProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.SecureProtectHandler;
+import ru.ricardocraft.backend.base.events.request.GetSecureLevelInfoRequestEvent;
+import ru.ricardocraft.backend.base.events.request.HardwareReportRequestEvent;
+import ru.ricardocraft.backend.base.events.request.VerifySecureLevelKeyRequestEvent;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.socket.Client;
@@ -26,11 +27,19 @@ import java.util.UUID;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+@Component
 public class AdvancedProtectHandler extends StdProtectHandler implements SecureProtectHandler, HardwareProtectHandler, JoinServerProtectHandler {
     private transient final Logger logger = LogManager.getLogger();
     public boolean enableHardwareFeature;
-    private transient LaunchServerConfig config;
-    private transient KeyAgreementManager keyAgreementManager;
+
+    private final transient LaunchServerConfig config;
+    private final transient KeyAgreementManager keyAgreementManager;
+
+    @Autowired
+    public AdvancedProtectHandler(LaunchServerConfig config, KeyAgreementManager keyAgreementManager) {
+        this.config = config;
+        this.keyAgreementManager = keyAgreementManager;
+    }
 
     @Override
     public GetSecureLevelInfoRequestEvent onGetSecureLevelInfo(GetSecureLevelInfoRequestEvent event) {
@@ -105,12 +114,6 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         return !enableHardwareFeature || (client.trustLevel != null && client.trustLevel.hardwareInfo != null);
     }
 
-    @Override
-    public void init(LaunchServerConfig config, KeyAgreementManager keyAgreementManager) {
-        this.config = config;
-        this.keyAgreementManager = keyAgreementManager;
-    }
-
     public String createHardwareToken(String username, UserHardware hardware) {
         return Jwts.builder()
                 .setIssuer("LaunchServer")
@@ -135,10 +138,10 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         private transient final Logger logger = LogManager.getLogger();
         private final JwtParser parser;
 
-        public HardwareInfoTokenVerifier(LaunchServer server) {
+        public HardwareInfoTokenVerifier(KeyAgreementManager keyAgreementManager) {
             this.parser = Jwts.parser()
                     .requireIssuer("LaunchServer")
-                    .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
+                    .verifyWith(keyAgreementManager.ecdsaPublicKey)
                     .build();
         }
 
@@ -167,10 +170,10 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         private transient final Logger logger = LogManager.getLogger();
         private final JwtParser parser;
 
-        public PublicKeyTokenVerifier(LaunchServer server) {
+        public PublicKeyTokenVerifier(KeyAgreementManager keyAgreementManager) {
             this.parser = Jwts.parser()
                     .requireIssuer("LaunchServer")
-                    .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
+                    .verifyWith(keyAgreementManager.ecdsaPublicKey)
                     .build();
         }
 

@@ -13,9 +13,9 @@ import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.base.request.auth.GetAvailabilityAuthRequest;
 import ru.ricardocraft.backend.core.hasher.HashedEntry;
 import ru.ricardocraft.backend.core.hasher.HashedEntryAdapter;
+import ru.ricardocraft.backend.helper.LogHelper;
 import ru.ricardocraft.backend.utils.ProviderMap;
 import ru.ricardocraft.backend.utils.UniversalJsonAdapter;
-import ru.ricardocraft.backend.helper.LogHelper;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;

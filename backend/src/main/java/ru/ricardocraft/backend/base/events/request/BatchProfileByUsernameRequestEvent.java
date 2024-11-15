@@ -10,10 +10,6 @@ public class BatchProfileByUsernameRequestEvent extends RequestEvent {
     @LauncherNetworkAPI
     public PlayerProfile[] playerProfiles;
 
-    public BatchProfileByUsernameRequestEvent(PlayerProfile[] profiles) {
-        this.playerProfiles = profiles;
-    }
-
     public BatchProfileByUsernameRequestEvent() {
     }
 

@@ -3,16 +3,6 @@ package ru.ricardocraft.backend.auth.core;
 import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.base.events.RequestEvent;
-import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
-import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
-import ru.ricardocraft.backend.base.profiles.PlayerProfile;
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
-import ru.ricardocraft.backend.base.request.auth.details.AuthPasswordDetails;
-import ru.ricardocraft.backend.base.request.auth.password.AuthPlainPassword;
-import ru.ricardocraft.backend.base.request.secure.HardwareReportRequest;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.Reconfigurable;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
@@ -22,6 +12,17 @@ import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportHardware
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportRegistration;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportSudo;
 import ru.ricardocraft.backend.auth.core.openid.OpenIDAuthCoreProvider;
+import ru.ricardocraft.backend.base.Launcher;
+import ru.ricardocraft.backend.base.events.RequestEvent;
+import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
+import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.backend.base.profiles.PlayerProfile;
+import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import ru.ricardocraft.backend.base.request.auth.details.AuthPasswordDetails;
+import ru.ricardocraft.backend.base.request.auth.password.AuthPlainPassword;
+import ru.ricardocraft.backend.base.request.secure.HardwareReportRequest;
+import ru.ricardocraft.backend.command.utls.Command;
+import ru.ricardocraft.backend.command.utls.SubCommand;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
@@ -29,8 +30,6 @@ import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 import ru.ricardocraft.backend.utils.ProviderMap;
-import ru.ricardocraft.backend.command.utls.Command;
-import ru.ricardocraft.backend.command.utls.SubCommand;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -50,7 +49,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
 
     protected transient AuthManager authManager;
     protected transient LaunchServerConfig config;
-    protected transient NettyServerSocketHandler nettyServerSocketHandler;
+//    protected transient NettyServerSocketHandler nettyServerSocketHandler;
     protected transient KeyAgreementManager keyAgreementManager;
 
     protected transient AuthProviderPair pair;
@@ -90,11 +89,9 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
 
     public void init(AuthManager authManager,
                      LaunchServerConfig config,
-                     NettyServerSocketHandler nettyServerSocketHandler,
                      KeyAgreementManager keyAgreementManager, AuthProviderPair pair) {
         this.authManager = authManager;
         this.config = config;
-        this.nettyServerSocketHandler = nettyServerSocketHandler;
         this.keyAgreementManager = keyAgreementManager;
         this.pair = pair;
     }
@@ -286,72 +283,72 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
                 });
             }
         }
-        {
-            var instance = isSupport(AuthSupportSudo.class);
-            if (instance != null) {
-                map.put("sudo", new SubCommand("[connectUUID] [username/uuid] [isShadow] (CLIENT/API)", "Authorize connectUUID as another user without password") {
-                    @Override
-                    public void invoke(String... args) throws Exception {
-                        verifyArgs(args, 3);
-                        UUID connectUUID = UUID.fromString(args[0]);
-                        String login = args[1];
-                        boolean isShadow = Boolean.parseBoolean(args[2]);
-                        AuthResponse.ConnectTypes type;
-                        if (args.length > 3) {
-                            type = AuthResponse.ConnectTypes.valueOf(args[3]);
-                        } else {
-                            type = AuthResponse.ConnectTypes.CLIENT;
-                        }
-                        User user;
-                        if (login.length() == 36) {
-                            UUID uuid = UUID.fromString(login);
-                            user = getUserByUUID(uuid);
-                        } else {
-                            user = getUserByUsername(login);
-                        }
-                        if (user == null) {
-                            logger.error("User {} not found", login);
-                            return;
-                        }
-                        AtomicBoolean founded = new AtomicBoolean();
-                        nettyServerSocketHandler.nettyServer.service.forEachActiveChannels((ch, fh) -> {
-                            var client = fh.getClient();
-                            if (client == null || !connectUUID.equals(fh.getConnectUUID())) {
-                                return;
-                            }
-                            logger.info("Found connectUUID {} with IP {}", fh.getConnectUUID(), fh.context == null ? "null" : fh.context.ip);
-                            var lock = config.netty.performance.disableThreadSafeClientObject ? null : client.writeLock();
-                            if (lock != null) {
-                                lock.lock();
-                            }
-                            try {
-                                var report = instance.sudo(user, isShadow);
-                                User user1 = report.session().getUser();
-                                authManager.internalAuth(client, type, pair, user1.getUsername(), user1.getUUID(), user1.getPermissions(), true);
-                                client.sessionObject = report.session();
-                                client.coreObject = report.session().getUser();
-                                PlayerProfile playerProfile = authManager.getPlayerProfile(client);
-                                AuthRequestEvent request = new AuthRequestEvent(user1.getPermissions(), playerProfile,
-                                        report.minecraftAccessToken(), null, null,
-                                        new AuthRequestEvent.OAuthRequestEvent(report.oauthAccessToken(), report.oauthRefreshToken(), report.oauthExpire()));
-                                request.requestUUID = RequestEvent.eventUUID;
-                                nettyServerSocketHandler.nettyServer.service.sendObject(ch, request);
-                            } catch (Throwable e) {
-                                logger.error("Sudo error", e);
-                            } finally {
-                                if (lock != null) {
-                                    lock.unlock();
-                                }
-                                founded.set(true);
-                            }
-                        });
-                        if (!founded.get()) {
-                            logger.error("ConnectUUID {} not found", connectUUID);
-                        }
-                    }
-                });
-            }
-        }
+//        {
+//            var instance = isSupport(AuthSupportSudo.class);
+//            if (instance != null) {
+//                map.put("sudo", new SubCommand("[connectUUID] [username/uuid] [isShadow] (CLIENT/API)", "Authorize connectUUID as another user without password") {
+//                    @Override
+//                    public void invoke(String... args) throws Exception {
+//                        verifyArgs(args, 3);
+//                        UUID connectUUID = UUID.fromString(args[0]);
+//                        String login = args[1];
+//                        boolean isShadow = Boolean.parseBoolean(args[2]);
+//                        AuthResponse.ConnectTypes type;
+//                        if (args.length > 3) {
+//                            type = AuthResponse.ConnectTypes.valueOf(args[3]);
+//                        } else {
+//                            type = AuthResponse.ConnectTypes.CLIENT;
+//                        }
+//                        User user;
+//                        if (login.length() == 36) {
+//                            UUID uuid = UUID.fromString(login);
+//                            user = getUserByUUID(uuid);
+//                        } else {
+//                            user = getUserByUsername(login);
+//                        }
+//                        if (user == null) {
+//                            logger.error("User {} not found", login);
+//                            return;
+//                        }
+//                        AtomicBoolean founded = new AtomicBoolean();
+//                        nettyServerSocketHandler.nettyServer.service.forEachActiveChannels((ch, fh) -> {
+//                            var client = fh.getClient();
+//                            if (client == null || !connectUUID.equals(fh.getConnectUUID())) {
+//                                return;
+//                            }
+//                            logger.info("Found connectUUID {} with IP {}", fh.getConnectUUID(), fh.context == null ? "null" : fh.context.ip);
+//                            var lock = config.netty.performance.disableThreadSafeClientObject ? null : client.writeLock();
+//                            if (lock != null) {
+//                                lock.lock();
+//                            }
+//                            try {
+//                                var report = instance.sudo(user, isShadow);
+//                                User user1 = report.session().getUser();
+//                                authManager.internalAuth(client, type, pair, user1.getUsername(), user1.getUUID(), user1.getPermissions(), true);
+//                                client.sessionObject = report.session();
+//                                client.coreObject = report.session().getUser();
+//                                PlayerProfile playerProfile = authManager.getPlayerProfile(client);
+//                                AuthRequestEvent request = new AuthRequestEvent(user1.getPermissions(), playerProfile,
+//                                        report.minecraftAccessToken(), null, null,
+//                                        new AuthRequestEvent.OAuthRequestEvent(report.oauthAccessToken(), report.oauthRefreshToken(), report.oauthExpire()));
+//                                request.requestUUID = RequestEvent.eventUUID;
+//                                nettyServerSocketHandler.nettyServer.service.sendObject(ch, request);
+//                            } catch (Throwable e) {
+//                                logger.error("Sudo error", e);
+//                            } finally {
+//                                if (lock != null) {
+//                                    lock.unlock();
+//                                }
+//                                founded.set(true);
+//                            }
+//                        });
+//                        if (!founded.get()) {
+//                            logger.error("ConnectUUID {} not found", connectUUID);
+//                        }
+//                    }
+//                });
+//            }
+//        }
         return map;
     }
 

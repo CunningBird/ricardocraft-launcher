@@ -6,15 +6,16 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.base.events.request.LauncherRequestEvent;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
+import ru.ricardocraft.backend.base.events.request.LauncherRequestEvent;
+import ru.ricardocraft.backend.helper.SecurityHelper;
+import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 import ru.ricardocraft.backend.socket.response.auth.RestoreResponse;
 import ru.ricardocraft.backend.utils.Version;
-import ru.ricardocraft.backend.helper.SecurityHelper;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -88,9 +89,9 @@ public class LauncherResponse extends SimpleResponse {
         private final JwtParser parser;
         private final Logger logger = LogManager.getLogger();
 
-        public LauncherTokenVerifier(LaunchServer server) {
+        public LauncherTokenVerifier(KeyAgreementManager keyAgreementManager) {
             parser = Jwts.parser()
-                    .verifyWith(server.keyAgreementManager.ecdsaPublicKey)
+                    .verifyWith(keyAgreementManager.ecdsaPublicKey)
                     .requireIssuer("LaunchServer")
                     .build();
         }

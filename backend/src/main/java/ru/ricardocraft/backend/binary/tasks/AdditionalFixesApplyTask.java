@@ -3,7 +3,6 @@ package ru.ricardocraft.backend.binary.tasks;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.asm.ClassMetadataReader;
 import ru.ricardocraft.backend.asm.SafeClassWriter;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;

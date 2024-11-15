@@ -4,17 +4,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.LaunchServer;
+import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
 import ru.ricardocraft.backend.auth.protect.NoProtectHandler;
 import ru.ricardocraft.backend.auth.protect.StdProtectHandler;
+import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.components.ProGuardComponent;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.helper.SignHelper;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.JVMHelper;
+import ru.ricardocraft.backend.helper.SignHelper;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.File;
@@ -26,10 +27,7 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 
 @Component
 public class SecurityCheckCommand extends Command {
@@ -37,16 +35,19 @@ public class SecurityCheckCommand extends Command {
 
     private final transient LaunchServerConfig config;
     private final transient LaunchServerDirectories directories;
+    private final transient Map<String, AuthProviderPair> authProviders;
     private final transient List<ru.ricardocraft.backend.components.Component> components;
 
     @Autowired
     public SecurityCheckCommand(LaunchServerConfig config,
                                 LaunchServerDirectories directories,
+                                Map<String, AuthProviderPair> authProviders,
                                 List<ru.ricardocraft.backend.components.Component> components) {
         super();
 
         this.config = config;
         this.directories = directories;
+        this.authProviders = authProviders;
         this.components = components;
     }
 
@@ -72,7 +73,7 @@ public class SecurityCheckCommand extends Command {
 
     @Override
     public void invoke(String... args) {
-        config.auth.forEach((name, pair) -> {
+        authProviders.forEach((name, pair) -> {
         });
         switch (config.protectHandler) {
             case NoProtectHandler noProtectHandler -> printCheckResult("protectHandler", "protectHandler none", false);

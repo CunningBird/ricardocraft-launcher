@@ -3,17 +3,16 @@ package ru.ricardocraft.backend.auth.core;
 import com.google.gson.JsonElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
 import ru.ricardocraft.backend.base.request.RequestException;
 import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.base.request.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.backend.base.request.auth.password.AuthCodePassword;
-import ru.ricardocraft.backend.LaunchServer;
-import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.helper.CommonHelper;
-import ru.ricardocraft.backend.helper.QueryHelper;
 import ru.ricardocraft.backend.helper.HttpHelper;
+import ru.ricardocraft.backend.helper.QueryHelper;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
@@ -38,8 +37,6 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
     public String redirectUrl = "https://login.live.com/oauth20_desktop.srf";
     public String clientId = "00000000402b5328";
     public String clientSecret;
-    private transient MojangAuthCoreProvider provider;
-    private transient LaunchServer server;
 
     @Override
     public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client) {

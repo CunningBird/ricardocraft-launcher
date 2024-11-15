@@ -1,13 +1,13 @@
 package ru.ricardocraft.backend.socket.response.update;
 
 import io.netty.channel.ChannelHandlerContext;
+import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
 import ru.ricardocraft.backend.base.events.request.UpdateRequestEvent;
 import ru.ricardocraft.backend.core.hasher.HashedDir;
-import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
+import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
-import ru.ricardocraft.backend.helper.IOHelper;
 
 public class UpdateResponse extends SimpleResponse {
     public String dirName;

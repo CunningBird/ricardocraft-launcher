@@ -3,8 +3,8 @@ package ru.ricardocraft.backend.auth.texture;
 import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.base.profiles.Texture;
 import ru.ricardocraft.backend.HttpRequester;
+import ru.ricardocraft.backend.base.profiles.Texture;
 import ru.ricardocraft.backend.helper.SecurityHelper;
 
 import java.io.IOException;

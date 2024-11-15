@@ -22,10 +22,6 @@ public class CheckServerRequestEvent extends RequestEvent {
     @LauncherNetworkAPI
     public Map<String, String> sessionProperties;
 
-    public CheckServerRequestEvent(PlayerProfile playerProfile) {
-        this.playerProfile = playerProfile;
-    }
-
     public CheckServerRequestEvent() {
     }
 

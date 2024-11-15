@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.auth.core.interfaces.provider;
 
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.auth.Feature;
 import ru.ricardocraft.backend.auth.core.User;
+import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 
 import java.util.Map;
 

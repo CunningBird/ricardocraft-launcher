@@ -1,6 +1,7 @@
 package ru.ricardocraft.backend.socket.response;
 
 import io.netty.channel.ChannelHandlerContext;
+import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ErrorRequestEvent;
 import ru.ricardocraft.backend.binary.EXELauncherBinary;
@@ -17,6 +18,7 @@ public abstract class SimpleResponse implements WebSocketServerResponse {
 
     public transient LaunchServerRuntimeConfig runtimeConfig;
     public transient LaunchServerConfig config;
+    public transient AuthProviders authProviders;
     public transient AuthManager authManager;
     public transient AuthHookManager authHookManager;
     public transient UpdatesManager updatesManager;

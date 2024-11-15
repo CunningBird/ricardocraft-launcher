@@ -1,9 +1,9 @@
 package ru.ricardocraft.backend.socket.response.auth;
 
 import io.netty.channel.ChannelHandlerContext;
+import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
 import ru.ricardocraft.backend.base.events.request.SetProfileRequestEvent;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
 import ru.ricardocraft.backend.utils.HookException;

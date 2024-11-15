@@ -3,10 +3,10 @@ package ru.ricardocraft.backend.socket.response.auth;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
+import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
+import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
@@ -32,8 +32,8 @@ public class AuthResponse extends SimpleResponse {
         try {
             AuthRequestEvent result = new AuthRequestEvent();
             AuthProviderPair pair;
-            if (auth_id == null || auth_id.isEmpty()) pair = config.getAuthProviderPair();
-            else pair = config.getAuthProviderPair(auth_id);
+            if (auth_id == null || auth_id.isEmpty()) pair = authProviders.getAuthProviderPair();
+            else pair = authProviders.getAuthProviderPair(auth_id);
             if (pair == null) {
                 sendError("auth_id incorrect");
                 return;
