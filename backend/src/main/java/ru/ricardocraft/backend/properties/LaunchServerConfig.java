@@ -17,6 +17,7 @@ public final class LaunchServerConfig {
     public String[] mirrors;
     public String binaryName;
     public LauncherEnvironment env;
+
     public TextureProviderConfig textureProvider;
     public NettyConfig netty;
     public LauncherConf launcher;

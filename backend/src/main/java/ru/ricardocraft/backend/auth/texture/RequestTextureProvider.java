@@ -1,9 +1,13 @@
 package ru.ricardocraft.backend.auth.texture;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.profiles.Texture;
 import ru.ricardocraft.backend.helper.CommonHelper;
 import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+@Component
 public final class RequestTextureProvider extends TextureProvider {
     // Instance
     public String skinURL;
@@ -19,12 +24,10 @@ public final class RequestTextureProvider extends TextureProvider {
     public String skinLocalPath;
     public String cloakLocalPath;
 
-    public RequestTextureProvider() {
-    }
-
-    public RequestTextureProvider(String skinURL, String cloakURL) {
-        this.skinURL = skinURL;
-        this.cloakURL = cloakURL;
+    @Autowired
+    public RequestTextureProvider(LaunchServerConfig config) {
+        this.skinURL = config.textureProvider.skinURL;
+        this.cloakURL = config.textureProvider.cloakURL;
     }
 
     private static Texture getTexture(String url, boolean cloak) throws IOException {

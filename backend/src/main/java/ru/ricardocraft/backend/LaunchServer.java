@@ -15,7 +15,7 @@ import ru.ricardocraft.backend.components.ProGuardComponent;
 import ru.ricardocraft.backend.helper.CommonHelper;
 import ru.ricardocraft.backend.helper.JVMHelper;
 import ru.ricardocraft.backend.manangers.ReconfigurableManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
     private final AtomicBoolean started = new AtomicBoolean(false);
 
-    private final LaunchServerConfig config;
+    private final LaunchServerProperties properties;
 
     private final AuthProviders authProviders;
     private final ProfileProvider profileProvider;
@@ -48,7 +48,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     private final ReconfigurableManager reconfigurableManager;
 
     @Autowired
-    public LaunchServer(LaunchServerConfig config,
+    public LaunchServer(LaunchServerProperties properties,
 
                         AuthProviders authProviders,
                         ProfileProvider profileProvider,
@@ -63,7 +63,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
                         AuthLimiterComponent authLimiterComponent,
                         ProGuardComponent proGuardComponent) throws IOException {
 
-        this.config = config;
+        this.properties = properties;
 
         this.authProviders = authProviders;
         this.profileProvider = profileProvider;
@@ -117,7 +117,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             }
         }).start();
 
-        if (config.netty != null) {
+        if (properties.getNetty() != null) {
             nettyServerSocketHandler.close();
             CommonHelper.newThread("Netty Server Socket Thread", false, nettyServerSocketHandler).start();
         }

@@ -2,8 +2,8 @@ package ru.ricardocraft.backend.auth.core.openid;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthException;
-import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.HikariSQLSourceConfig;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.auth.core.User;
@@ -15,7 +15,6 @@ import ru.ricardocraft.backend.base.request.auth.password.AuthCodePassword;
 import ru.ricardocraft.backend.helper.LogHelper;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 
@@ -27,13 +26,26 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+@Component
 public class OpenIDAuthCoreProvider extends AuthCoreProvider {
     private transient SQLUserStore sqlUserStore;
     private transient SQLServerSessionStore sqlSessionStore;
     private transient OpenIDAuthenticator openIDAuthenticator;
+    private final transient KeyAgreementManager keyAgreementManager;
 
     private OpenIDConfig openIDConfig;
     private HikariSQLSourceConfig sqlSourceConfig;
+
+    public OpenIDAuthCoreProvider(KeyAgreementManager keyAgreementManager) {
+        this.keyAgreementManager = keyAgreementManager;
+        // TODO enablie this
+//        this.sqlSourceConfig.init();
+//        this.sqlUserStore = new SQLUserStore(sqlSourceConfig);
+//        this.sqlUserStore.init();
+//        this.sqlSessionStore = new SQLServerSessionStore(sqlSourceConfig);
+//        this.sqlSessionStore.init();
+//        this.openIDAuthenticator = new OpenIDAuthenticator(openIDConfig);
+    }
 
     @Override
     public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client) {
@@ -132,18 +144,6 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
         }
     }
 
-    public void init(AuthManager authManager,
-                     LaunchServerConfig config,
-                     KeyAgreementManager keyAgreementManager, AuthProviderPair pair) {
-        super.init(authManager, config, keyAgreementManager, pair);
-        this.sqlSourceConfig.init();
-        this.sqlUserStore = new SQLUserStore(sqlSourceConfig);
-        this.sqlUserStore.init();
-        this.sqlSessionStore = new SQLServerSessionStore(sqlSourceConfig);
-        this.sqlSessionStore.init();
-        this.openIDAuthenticator = new OpenIDAuthenticator(openIDConfig);
-    }
-
     @Override
     public User checkServer(Client client, String username, String serverID) throws IOException {
         var savedServerId = sqlSessionStore.getServerIdByUsername(username);
@@ -174,7 +174,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
 
     @Override
     public void close() {
-        sqlSourceConfig.close();
+//        sqlSourceConfig.close();
     }
 
 }

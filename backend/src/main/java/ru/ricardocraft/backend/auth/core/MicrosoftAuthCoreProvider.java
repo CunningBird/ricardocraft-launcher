@@ -3,6 +3,7 @@ package ru.ricardocraft.backend.auth.core;
 import com.google.gson.JsonElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
@@ -30,6 +31,7 @@ import java.util.UUID;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+@Component
 public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
     private static final String AUTH_CODE_URL = "https://login.live.com/oauth20_authorize.srf?client_id=%s&response_type=code&redirect_uri=%s&scope=XboxLive.signin offline_access";
     private transient final HttpClient client = HttpClient.newBuilder().build();

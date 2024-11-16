@@ -2,8 +2,8 @@ package ru.ricardocraft.backend.auth.core;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthException;
-import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.core.interfaces.user.UserSupportTextures;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.Launcher;
@@ -12,8 +12,6 @@ import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.base.request.auth.password.AuthPlainPassword;
 import ru.ricardocraft.backend.helper.SecurityHelper;
 import ru.ricardocraft.backend.manangers.AuthManager;
-import ru.ricardocraft.backend.manangers.KeyAgreementManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 
@@ -30,10 +28,15 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+@Component
 public class MojangAuthCoreProvider extends AuthCoreProvider {
     private static final Pattern UUID_REGEX = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
     private transient final Logger logger = LogManager.getLogger();
     private transient HttpClient client;
+
+    public MojangAuthCoreProvider() {
+        this.client = HttpClient.newBuilder().build();
+    }
 
     public static UUID getUUIDFromMojangHash(String hash) {
         return UUID.fromString(UUID_REGEX.matcher(hash).replaceFirst("$1-$2-$3-$4-$5"));
@@ -157,13 +160,6 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
         } catch (IOException | URISyntaxException | InterruptedException e) {
             throw AuthException.wrongPassword();
         }
-    }
-
-    @Override
-    public void init(AuthManager authManager,
-                     LaunchServerConfig config,
-                     KeyAgreementManager keyAgreementManager, AuthProviderPair pair) {
-        client = HttpClient.newBuilder().build();
     }
 
     @Override

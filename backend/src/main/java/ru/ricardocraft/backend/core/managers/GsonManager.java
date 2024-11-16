@@ -2,10 +2,11 @@ package ru.ricardocraft.backend.core.managers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ru.ricardocraft.backend.auth.core.*;
+import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
+import ru.ricardocraft.backend.auth.core.MemoryAuthCoreProvider;
+import ru.ricardocraft.backend.auth.core.MicrosoftAuthCoreProvider;
+import ru.ricardocraft.backend.auth.core.MojangAuthCoreProvider;
 import ru.ricardocraft.backend.auth.core.openid.OpenIDAuthCoreProvider;
-import ru.ricardocraft.backend.auth.mix.MixProvider;
-import ru.ricardocraft.backend.auth.mix.UploadAssetMixProvider;
 import ru.ricardocraft.backend.auth.password.*;
 import ru.ricardocraft.backend.auth.profiles.LocalProfileProvider;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
@@ -93,14 +94,12 @@ public class GsonManager {
         builder.registerTypeAdapter(GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails.class, new UniversalJsonAdapter<>(registerGetAvailabilityAuthProviders()));
         builder.registerTypeAdapter(OptionalAction.class, new UniversalJsonAdapter<>(registerOptionalActionProviders()));
         builder.registerTypeAdapter(OptionalTrigger.class, new UniversalJsonAdapter<>(registerOptionalTriggerProviders()));
-        builder.registerTypeAdapter(MixProvider.class, new UniversalJsonAdapter<>(registerMixProviders()));
         builder.registerTypeAdapter(ProfileProvider.class, new UniversalJsonAdapter<>(registerProfileProviders()));
         builder.registerTypeAdapter(UpdatesProvider.class, new UniversalJsonAdapter<>(registerUpdatesProviders()));
     }
 
     public ProviderMap<AuthCoreProvider> registerAuthCoreProviders() {
         ProviderMap<AuthCoreProvider> authCoreProviders = new ProviderMap<>("AuthCoreProvider");
-        authCoreProviders.register("reject", RejectAuthCoreProvider.class);
         authCoreProviders.register("memory", MemoryAuthCoreProvider.class);
         authCoreProviders.register("openid", OpenIDAuthCoreProvider.class);
         authCoreProviders.register("mojang", MojangAuthCoreProvider.class);
@@ -228,12 +227,6 @@ public class GsonManager {
         optionalTriggerProviders.register("os", OSTrigger.class);
         optionalTriggerProviders.register("arch", ArchTrigger.class);
         return optionalTriggerProviders;
-    }
-
-    public ProviderMap<MixProvider> registerMixProviders() {
-        ProviderMap<MixProvider> mixProviders = new ProviderMap<>("MixProvider");
-        mixProviders.register("uploadAsset", UploadAssetMixProvider.class);
-        return mixProviders;
     }
 
     public ProviderMap<ProfileProvider> registerProfileProviders() {

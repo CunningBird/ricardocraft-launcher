@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.auth.texture;
 
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.profiles.Texture;
 import ru.ricardocraft.backend.helper.VerifyHelper;
 
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 
+@Component
 public final class NullTextureProvider extends TextureProvider {
     private volatile TextureProvider provider;
 

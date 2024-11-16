@@ -3,11 +3,9 @@ package ru.ricardocraft.backend.properties;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
 @Getter
 @Setter
-@Configuration
 @ConfigurationProperties(prefix = "launch-server-config")
 public class LaunchServerProperties {
     private String projectName;
@@ -15,6 +13,7 @@ public class LaunchServerProperties {
     private String binaryName;
     private Boolean copyBinaries;
     private LauncherEnvironment env;
+
     private AuthProperties auth;
     private ProtectHandlerProperties protectHandler;
     private ComponentsProperties components;

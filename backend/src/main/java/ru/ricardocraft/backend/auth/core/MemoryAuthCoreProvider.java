@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.auth.core;
 
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportSudo;
 import ru.ricardocraft.backend.base.ClientPermissions;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@Component
 public class MemoryAuthCoreProvider extends AuthCoreProvider implements AuthSupportSudo {
     private transient final List<MemoryUser> memory = new ArrayList<>(16);
 

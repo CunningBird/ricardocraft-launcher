@@ -1,9 +1,11 @@
 package ru.ricardocraft.backend.auth.texture;
 
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.profiles.Texture;
 
 import java.util.UUID;
 
+@Component
 public final class VoidTextureProvider extends TextureProvider {
 
     @Override
