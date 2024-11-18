@@ -8,7 +8,6 @@ import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,55 +52,8 @@ public abstract class AuthCoreProvider {
         return null;
     }
 
-    public static class PasswordVerifyReport {
-        public static final PasswordVerifyReport REQUIRED_2FA = new PasswordVerifyReport(-1);
-        public static final PasswordVerifyReport FAILED = new PasswordVerifyReport(false);
-        public static final PasswordVerifyReport OK = new PasswordVerifyReport(true);
-        public final boolean success;
-        public final boolean needMoreFactors;
-        public final List<Integer> factors;
-
-        public PasswordVerifyReport(boolean success) {
-            this.success = success;
-            this.needMoreFactors = false;
-            this.factors = List.of();
-        }
-
-        public PasswordVerifyReport(AuthManager.AuthReport report) {
-            this.success = true;
-            this.needMoreFactors = false;
-            this.factors = List.of();
-        }
-
-        public PasswordVerifyReport(int nextFactor) {
-            this.success = false;
-            this.needMoreFactors = true;
-            this.factors = List.of(nextFactor);
-        }
-
-        public PasswordVerifyReport(List<Integer> factors) {
-            this.success = false;
-            this.needMoreFactors = false;
-            this.factors = Collections.unmodifiableList(factors);
-        }
-
-        private PasswordVerifyReport(boolean success, boolean needMoreFactors, List<Integer> factors) {
-            this.success = success;
-            this.needMoreFactors = needMoreFactors;
-            this.factors = factors;
-        }
-
-        public boolean isSuccess() {
-            return success;
-        }
-    }
-
     public static class OAuthAccessTokenExpired extends Exception {
         public OAuthAccessTokenExpired() {
-        }
-
-        public OAuthAccessTokenExpired(String message) {
-            super(message);
         }
 
         public OAuthAccessTokenExpired(String message, Throwable cause) {

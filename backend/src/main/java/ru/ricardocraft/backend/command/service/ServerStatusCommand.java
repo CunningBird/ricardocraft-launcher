@@ -3,12 +3,13 @@ package ru.ricardocraft.backend.command.service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
+import ru.ricardocraft.backend.command.Command;
 
 @Component
 public class ServerStatusCommand extends Command {
-    private transient final Logger logger = LogManager.getLogger();
+
+    private transient final Logger logger = LogManager.getLogger(ServerStatusCommand.class);
 
     @Override
     public String getArgsDescription() {

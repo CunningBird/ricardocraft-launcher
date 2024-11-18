@@ -1,21 +1,28 @@
 package ru.ricardocraft.backend.auth.protect;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
+import ru.ricardocraft.backend.dto.auth.AuthResponse;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
 
 @Component
 @Primary
 public class StdProtectHandler extends ProtectHandler implements ProfilesProtectHandler {
 
-    public Map<String, List<String>> profileWhitelist = new HashMap<>();
-    public List<String> allowUpdates = new ArrayList<>();
+    protected final LaunchServerConfig config;
+
+    @Autowired
+    public StdProtectHandler(LaunchServerConfig config) {
+        this.config = config;
+    }
 
     @Override
     public boolean allowGetAccessToken(AuthResponseService.AuthContext context) {
@@ -34,7 +41,7 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
 
     @Override
     public boolean canGetUpdates(String updatesDirName, Client client) {
-        return client.profile != null && (client.profile.getDir().equals(updatesDirName) || client.profile.getAssetDir().equals(updatesDirName) || allowUpdates.contains(updatesDirName));
+        return client.profile != null && (client.profile.getDir().equals(updatesDirName) || client.profile.getAssetDir().equals(updatesDirName) || config.stdProtectHandlerConfig.allowUpdates.contains(updatesDirName));
     }
 
     private boolean isWhitelisted(String property, ClientProfile profile, Client client) {
@@ -48,7 +55,7 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
                 return true;
             }
         }
-        List<String> allowedUsername = profileWhitelist.get(profile.getTitle());
+        List<String> allowedUsername = config.stdProtectHandlerConfig.profileWhitelist.get(profile.getTitle());
         return allowedUsername != null && allowedUsername.contains(client.username);
     }
 }

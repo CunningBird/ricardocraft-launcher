@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.base.profiles;
 
 import ru.ricardocraft.backend.base.core.serialize.HOutput;
-import ru.ricardocraft.backend.base.core.serialize.stream.StreamObject;
+import ru.ricardocraft.backend.base.core.serialize.StreamObject;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 

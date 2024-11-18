@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
-import ru.ricardocraft.backend.command.utls.Command;
+import ru.ricardocraft.backend.command.Command;
 
 @Component
 public class GCCommand extends Command {

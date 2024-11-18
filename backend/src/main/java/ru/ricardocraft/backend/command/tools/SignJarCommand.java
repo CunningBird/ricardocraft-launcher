@@ -18,7 +18,8 @@ import java.util.Optional;
 
 @Component
 public class SignJarCommand extends Command {
-    private transient final Logger logger = LogManager.getLogger();
+
+    private transient final Logger logger = LogManager.getLogger(SignJarCommand.class);
 
     private transient final LaunchServerConfig config;
     private transient final LaunchServerDirectories directories;

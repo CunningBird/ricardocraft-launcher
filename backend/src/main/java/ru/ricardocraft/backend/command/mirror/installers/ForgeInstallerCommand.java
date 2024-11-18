@@ -4,9 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.manangers.GsonManager;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.*;
@@ -22,14 +22,17 @@ import java.util.zip.ZipInputStream;
 
 @Component
 public class ForgeInstallerCommand extends Command {
-    private transient final Logger logger = LogManager.getLogger();
+
+    private transient final Logger logger = LogManager.getLogger(ForgeInstallerCommand.class);
 
     private transient final LaunchServerDirectories directories;
+    private transient final GsonManager gsonManager;
 
     @Autowired
-    public ForgeInstallerCommand(LaunchServerDirectories directories) {
+    public ForgeInstallerCommand(LaunchServerDirectories directories, GsonManager gsonManager) {
         super();
         this.directories = directories;
+        this.gsonManager = gsonManager;
     }
 
     @Override
@@ -114,7 +117,7 @@ public class ForgeInstallerCommand extends Command {
 
     private ForgeInstallManifest readForgeInstallManifest(InputStream stream) throws IOException {
         try (Reader reader = new InputStreamReader(stream)) {
-            return Launcher.gsonManager.configGson.fromJson(reader, ForgeInstallManifest.class);
+            return gsonManager.configGson.fromJson(reader, ForgeInstallManifest.class);
         }
     }
 

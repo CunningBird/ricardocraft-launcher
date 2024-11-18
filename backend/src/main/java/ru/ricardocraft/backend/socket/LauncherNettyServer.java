@@ -14,7 +14,8 @@ import io.netty.handler.logging.LoggingHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import ru.ricardocraft.backend.command.utls.CommandHandler;
+import ru.ricardocraft.backend.command.CommandHandler;
+import ru.ricardocraft.backend.manangers.GsonManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 import ru.ricardocraft.backend.socket.handlers.NettyIpForwardHandler;
@@ -28,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 
 public class LauncherNettyServer implements AutoCloseable {
 
+    private final Logger logger = LogManager.getLogger(LauncherNettyServer.class);
+
     private static final String WEBSOCKET_PATH = "/api";
     public final ServerBootstrap serverBootstrap;
     public final EventLoopGroup bossGroup;
@@ -38,12 +41,12 @@ public class LauncherNettyServer implements AutoCloseable {
     public LauncherNettyServer(LaunchServerConfig config,
                                LaunchServerDirectories directories,
                                WebSocketService service,
-                               CommandHandler commandHandler) {
+                               CommandHandler commandHandler,
+                               GsonManager gsonManager) {
         this.service = service;
         this.commandHandler = commandHandler;
 
         NettyObjectFactory.setUsingEpoll(config.netty.performance.usingEpoll);
-        Logger logger = LogManager.getLogger();
         if (config.netty.performance.usingEpoll) {
             logger.debug("Netty: Epoll enabled");
         }
@@ -76,7 +79,7 @@ public class LauncherNettyServer implements AutoCloseable {
                     }
                 });
 
-        NettyWebAPIHandler.addNewSeverlet("remotecontrol/command", new RemoteControlWebServlet(config, commandHandler));
+        NettyWebAPIHandler.addNewServlet("remotecontrol/command", new RemoteControlWebServlet(config, commandHandler, gsonManager));
     }
 
     public void bind(InetSocketAddress address) {

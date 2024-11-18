@@ -5,11 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportAssetUpload;
 import ru.ricardocraft.backend.base.events.request.GetAssetUploadUrlRequestEvent;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.cabinet.GetAssetUploadInfoResponse;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.cabinet.GetAssetUploadInfoResponse;
 
 @Component
 public class GetAssetUploadInfoResponseService extends AbstractResponseService {
@@ -20,7 +20,7 @@ public class GetAssetUploadInfoResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         GetAssetUploadInfoResponse response = (GetAssetUploadInfoResponse) rawResponse;
 
         if (!client.isAuth || client.auth == null || client.getUser() == null) {

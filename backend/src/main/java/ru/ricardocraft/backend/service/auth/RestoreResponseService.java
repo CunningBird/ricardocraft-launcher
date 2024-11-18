@@ -10,13 +10,13 @@ import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
 import ru.ricardocraft.backend.base.events.request.RestoreRequestEvent;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.auth.AuthResponse;
+import ru.ricardocraft.backend.dto.auth.RestoreResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
-import ru.ricardocraft.backend.socket.response.auth.RestoreResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ public class RestoreResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         RestoreResponse response = (RestoreResponse) rawResponse;
 
         if (response.accessToken == null && !client.isAuth && response.needUserInfo) {

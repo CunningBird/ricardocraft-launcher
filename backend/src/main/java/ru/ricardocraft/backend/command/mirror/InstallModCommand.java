@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.command.CommandException;
+import ru.ricardocraft.backend.manangers.GsonManager;
 import ru.ricardocraft.backend.manangers.mirror.InstallClient;
 import ru.ricardocraft.backend.manangers.mirror.modapi.CurseforgeAPI;
 import ru.ricardocraft.backend.manangers.mirror.modapi.ModrinthAPI;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
-import ru.ricardocraft.backend.properties.MirrorConfig;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
@@ -22,15 +22,23 @@ import java.util.List;
 @Component
 public class InstallModCommand extends Command {
 
-    private static final Logger logger = LogManager.getLogger();
-    private final MirrorConfig config;
+    private static final Logger logger = LogManager.getLogger(InstallModCommand.class);
+
     private final LaunchServerDirectories directories;
+    private final ModrinthAPI modrinthAPI;
+    private final CurseforgeAPI curseforgeApi;
+    private final GsonManager gsonManager;
 
     @Autowired
-    public InstallModCommand(LaunchServerConfig config, LaunchServerDirectories directories) {
+    public InstallModCommand(LaunchServerDirectories directories,
+                             CurseforgeAPI curseforgeAPI,
+                             ModrinthAPI modrinthAPI,
+                             GsonManager gsonManager) {
         super();
-        this.config = config.mirrorConfig;
         this.directories = directories;
+        this.curseforgeApi = curseforgeAPI;
+        this.modrinthAPI = modrinthAPI;
+        this.gsonManager = gsonManager;
     }
 
     @Override
@@ -51,8 +59,6 @@ public class InstallModCommand extends Command {
             throw new FileNotFoundException(dir.toString());
         }
         ClientProfile.Version version = parseClientVersion(args[1]);
-        ModrinthAPI modrinthAPI = null;
-        CurseforgeAPI curseforgeApi = null;
         Path modsDir = dir.resolve("mods");
         String loaderName = args[2];
         List<String> mods = Arrays.stream(args[3].split(",")).toList();
@@ -61,15 +67,9 @@ public class InstallModCommand extends Command {
                 try {
                     try {
                         long id = Long.parseLong(modId);
-                        if (curseforgeApi == null) {
-                            curseforgeApi = new CurseforgeAPI(config.curseforgeApiKey);
-                        }
                         InstallClient.installMod(curseforgeApi, modsDir, id, version);
                         continue;
                     } catch (NumberFormatException ignored) {
-                    }
-                    if (modrinthAPI == null) {
-                        modrinthAPI = new ModrinthAPI();
                     }
                     InstallClient.installMod(modrinthAPI, modsDir, modId, loaderName, version);
                 } catch (Throwable e) {
@@ -78,5 +78,12 @@ public class InstallModCommand extends Command {
             }
             logger.info("Mods installed");
         }
+    }
+
+    protected ClientProfile.Version parseClientVersion(String arg) throws CommandException {
+        if(arg.isEmpty()) {
+            throw new CommandException("ClientVersion can't be empty");
+        }
+        return gsonManager.gson.fromJson(arg, ClientProfile.Version.class);
     }
 }

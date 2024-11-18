@@ -5,9 +5,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Downloader;
-import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.manangers.GsonManager;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.mirror.MirrorWorkspace;
 
@@ -22,11 +22,13 @@ public class ApplyWorkspaceCommand extends Command {
     private final Logger logger = LogManager.getLogger(ApplyWorkspaceCommand.class);
 
     private transient final MirrorManager mirrorManager;
+    private transient final GsonManager gsonManager;
 
     @Autowired
-    public ApplyWorkspaceCommand(MirrorManager mirrorManager) {
+    public ApplyWorkspaceCommand(MirrorManager mirrorManager, GsonManager gsonManager) {
         super();
         this.mirrorManager = mirrorManager;
+        this.gsonManager = gsonManager;
     }
 
     @Override
@@ -57,7 +59,7 @@ public class ApplyWorkspaceCommand extends Command {
         }
         MirrorWorkspace workspace;
         try(Reader reader = IOHelper.newReader(workspaceFilePath)) {
-            workspace = Launcher.gsonManager.gson.fromJson(reader, MirrorWorkspace.class);
+            workspace = gsonManager.gson.fromJson(reader, MirrorWorkspace.class);
         }
         Path workspacePath = mirrorManager.getTools().getWorkspaceDir();
         if(Files.exists(workspacePath)) {

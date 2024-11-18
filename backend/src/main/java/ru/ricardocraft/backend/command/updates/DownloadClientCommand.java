@@ -6,14 +6,14 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
-import ru.ricardocraft.backend.base.Launcher;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.MakeProfileHelper;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.profiles.ClientProfileBuilder;
 import ru.ricardocraft.backend.base.profiles.ClientProfileVersions;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.command.utls.CommandException;
-import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.base.helper.MakeProfileHelper;
+import ru.ricardocraft.backend.command.CommandException;
+import ru.ricardocraft.backend.manangers.GsonManager;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
@@ -26,23 +26,26 @@ import java.util.UUID;
 @Component
 public final class DownloadClientCommand extends Command {
 
-    private transient final Logger logger = LogManager.getLogger();
+    private transient final Logger logger = LogManager.getLogger(DownloadClientCommand.class);
 
     private transient final LaunchServerDirectories directories;
     private transient final MirrorManager mirrorManager;
     private transient final UpdatesManager updatesManager;
     private transient final ProfileProvider profileProvider;
+    private transient final GsonManager gsonManager;
 
     @Autowired
     public DownloadClientCommand(LaunchServerDirectories directories,
                                  MirrorManager mirrorManager,
                                  UpdatesManager updatesManager,
-                                 ProfileProvider profileProvider) {
+                                 ProfileProvider profileProvider,
+                                 GsonManager gsonManager) {
         super();
         this.directories = directories;
         this.mirrorManager = mirrorManager;
         this.updatesManager = updatesManager;
         this.profileProvider = profileProvider;
+        this.gsonManager = gsonManager;
     }
 
     @Override
@@ -79,7 +82,7 @@ public final class DownloadClientCommand extends Command {
         if (isMirrorClientDownload) {
             try {
                 JsonElement clientJson = mirrorManager.jsonRequest(null, "GET", "clients/%s.json", versionName);
-                clientProfile = Launcher.gsonManager.configGson.fromJson(clientJson, ClientProfile.class);
+                clientProfile = gsonManager.configGson.fromJson(clientJson, ClientProfile.class);
                 var builder = new ClientProfileBuilder(clientProfile);
                 builder.setTitle(dirName);
                 builder.setDir(dirName);

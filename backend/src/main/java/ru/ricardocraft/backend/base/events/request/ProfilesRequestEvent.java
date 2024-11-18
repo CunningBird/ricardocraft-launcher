@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.base.events.request;
 
+import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 
 import java.util.List;
 import java.util.UUID;

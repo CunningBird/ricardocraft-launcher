@@ -8,11 +8,11 @@ import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
 import ru.ricardocraft.backend.base.events.request.SetProfileRequestEvent;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.auth.SetProfileResponse;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.auth.SetProfileResponse;
 
 import java.util.Collection;
 
@@ -32,7 +32,7 @@ public class SetProfileResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         SetProfileResponse response = (SetProfileResponse) rawResponse;
         Collection<ClientProfile> profiles = profileProvider.getProfiles();
         for (ClientProfile p : profiles) {

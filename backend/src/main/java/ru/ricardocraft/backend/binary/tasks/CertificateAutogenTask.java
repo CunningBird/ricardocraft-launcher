@@ -34,9 +34,11 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class CertificateAutogenTask implements LauncherBuildTask {
+
+    private transient final Logger logger = LogManager.getLogger(CertificateAutogenTask.class);
+
     private final transient LaunchServerConfig config;
     private final transient KeyAgreementManager keyAgreementManager;
-    private transient final Logger logger = LogManager.getLogger();
     public X509Certificate certificate;
     public X509CertificateHolder bcCertificate;
     public CMSSignedDataGenerator signedDataGenerator;

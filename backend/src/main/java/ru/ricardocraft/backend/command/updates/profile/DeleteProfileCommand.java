@@ -14,7 +14,7 @@ import java.util.UUID;
 @Component
 public class DeleteProfileCommand extends Command {
 
-    private final transient Logger logger = LogManager.getLogger(DeleteProfileCommand.class);
+    private final Logger logger = LogManager.getLogger(DeleteProfileCommand.class);
 
     private final transient UpdatesProvider updatesProvider;
     private final transient ProfileProvider profileProvider;

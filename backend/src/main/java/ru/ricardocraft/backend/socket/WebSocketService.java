@@ -14,14 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ErrorRequestEvent;
-import ru.ricardocraft.backend.base.request.WebSocketEvent;
-import ru.ricardocraft.backend.base.core.managers.GsonManager;
 import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.request.WebSocketEvent;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.manangers.GsonManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
-import ru.ricardocraft.backend.socket.response.SimpleResponse;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -34,7 +33,7 @@ import java.util.function.BiConsumer;
 @Component
 public class WebSocketService {
 
-    private transient final Logger logger = LogManager.getLogger();
+    private transient final Logger logger = LogManager.getLogger(WebSocketService.class);
 
     public final ChannelGroup channels;
     private final ExecutorService executors;
@@ -91,7 +90,7 @@ public class WebSocketService {
     public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip, UUID connectUUID) {
         String request = frame.text();
         WebSocketRequestContext context = new WebSocketRequestContext(ctx, request, client, ip, connectUUID);
-        WebSocketServerResponse response = gson.fromJson(request, WebSocketServerResponse.class);
+        SimpleResponse response = gson.fromJson(request, SimpleResponse.class);
         context.response = response;
         if (response == null) {
             RequestEvent event = new ErrorRequestEvent("This type of request is not supported");
@@ -99,7 +98,7 @@ public class WebSocketService {
             return;
         }
         var safeStatus = config.netty.performance.disableThreadSafeClientObject ?
-                WebSocketServerResponse.ThreadSafeStatus.NONE : response.getThreadSafeStatus();
+                SimpleResponse.ThreadSafeStatus.NONE : response.getThreadSafeStatus();
         if (executors == null) {
             process(safeStatus, client, ip, context, response);
         } else {
@@ -107,7 +106,7 @@ public class WebSocketService {
         }
     }
 
-    private void process(WebSocketServerResponse.ThreadSafeStatus safeStatus, Client client, String ip, WebSocketRequestContext context, WebSocketServerResponse response) {
+    private void process(SimpleResponse.ThreadSafeStatus safeStatus, Client client, String ip, WebSocketRequestContext context, SimpleResponse response) {
         switch (safeStatus) {
             case NONE -> process(context, response, client, ip);
             case READ -> {
@@ -131,13 +130,11 @@ public class WebSocketService {
         }
     }
 
-    void process(WebSocketRequestContext context, WebSocketServerResponse response, Client client, String ip) {
+    void process(WebSocketRequestContext context, SimpleResponse response, Client client, String ip) {
         ChannelHandlerContext ctx = context.context;
-        if (response instanceof SimpleResponse simpleResponse) {
-            if (ip != null) simpleResponse.ip = ip;
-            else simpleResponse.ip = IOHelper.getIP(ctx.channel().remoteAddress());
-            simpleResponse.connectUUID = context.connectUUID;
-        }
+        if (ip != null) response.ip = ip;
+        else response.ip = IOHelper.getIP(ctx.channel().remoteAddress());
+        response.connectUUID = context.connectUUID;
         try {
             services.get(response.getClass()).execute(response, ctx, client);
         } catch (Throwable e) {
@@ -145,7 +142,7 @@ public class WebSocketService {
             logger.error("WebSocket request processing failed", e);
             RequestEvent event;
             event = new ErrorRequestEvent("Fatal server error. Contact administrator");
-            if (response instanceof SimpleResponse simpleResponse) event.requestUUID = simpleResponse.requestUUID;
+            event.requestUUID = response.requestUUID;
             sendObject(ctx.channel(), event);
         }
     }
@@ -190,7 +187,7 @@ public class WebSocketService {
         public final Client client;
         public final String ip;
         public final UUID connectUUID;
-        public WebSocketServerResponse response;
+        public SimpleResponse response;
         public Throwable exception;
 
         public WebSocketRequestContext(ChannelHandlerContext context, String text, Client client, String ip, UUID connectUUID) {

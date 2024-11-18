@@ -4,9 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.base.core.managers.GsonManager;
 import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.manangers.GsonManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
@@ -26,7 +26,8 @@ import java.util.List;
 
 @Component
 public class QuiltInstallerCommand extends Command {
-    private transient final Logger logger = LogManager.getLogger();
+
+    private transient final Logger logger = LogManager.getLogger(QuiltInstallerCommand.class);
 
     private transient final LaunchServerDirectories directories;
     private transient final UpdatesManager updatesManager;

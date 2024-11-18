@@ -9,17 +9,17 @@ import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.JoinServerProtectHandler;
 import ru.ricardocraft.backend.base.events.request.JoinServerRequestEvent;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.auth.JoinServerResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.auth.JoinServerResponse;
 
 @Component
 public class JoinServerResponseService extends AbstractResponseService {
 
-    private transient final Logger logger = LogManager.getLogger();
+    private transient final Logger logger = LogManager.getLogger(JoinServerResponseService.class);
 
     private final ProtectHandler protectHandler;
     private final AuthManager authManager;
@@ -34,7 +34,7 @@ public class JoinServerResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         JoinServerResponse response = (JoinServerResponse) rawResponse;
 
         if (!protectHandler.allowJoinServer(client)) {

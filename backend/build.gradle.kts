@@ -29,6 +29,7 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.1")
     implementation("io.projectreactor:reactor-core")
 
     implementation("me.tongfei:progressbar:0.10.1")

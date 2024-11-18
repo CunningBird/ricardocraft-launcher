@@ -5,11 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.SecureProtectHandler;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.secure.VerifySecureLevelKeyResponse;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.secure.VerifySecureLevelKeyResponse;
 
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
@@ -26,7 +26,7 @@ public class VerifySecureLevelKeyResponseService extends AbstractResponseService
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         VerifySecureLevelKeyResponse response = (VerifySecureLevelKeyResponse) rawResponse;
 
         if (!(protectHandler instanceof SecureProtectHandler secureProtectHandler) || client.trustLevel == null || client.trustLevel.verifySecureKey == null) {

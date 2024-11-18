@@ -9,12 +9,13 @@ import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.base.ClientPermissions;
-import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
-import ru.ricardocraft.backend.base.request.auth.details.AuthWebViewDetails;
-import ru.ricardocraft.backend.base.request.auth.password.AuthCodePassword;
 import ru.ricardocraft.backend.base.helper.CommonHelper;
 import ru.ricardocraft.backend.base.helper.QueryHelper;
+import ru.ricardocraft.backend.base.request.auth.details.AuthWebViewDetails;
+import ru.ricardocraft.backend.base.request.auth.password.AuthCodePassword;
+import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 import java.io.IOException;
 import java.net.URI;
@@ -30,11 +31,13 @@ import java.util.stream.Collectors;
 
 public class OpenIDAuthenticator {
     private static final HttpClient CLIENT = HttpClient.newBuilder().build();
-    private final OpenIDConfig openIDConfig;
+    private final LaunchServerConfig.OpenIDConfig openIDConfig;
     private final JwtParser jwtParser;
+    private final GsonManager gsonManager;
 
-    public OpenIDAuthenticator(OpenIDConfig openIDConfig) {
-        this.openIDConfig = openIDConfig;
+    public OpenIDAuthenticator(LaunchServerConfig config, GsonManager gsonManager) {
+        this.openIDConfig = config.openIDConfig;
+        this.gsonManager = gsonManager;
         var keyLocator = loadKeyLocator(openIDConfig);
         this.jwtParser = Jwts.parser()
                 .keyLocator(keyLocator)
@@ -169,10 +172,10 @@ public class OpenIDAuthenticator {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return Launcher.gsonManager.gson.fromJson(resp.body(), AccessTokenResponse.class);
+        return gsonManager.gson.fromJson(resp.body(), AccessTokenResponse.class);
     }
 
-    private static KeyLocator loadKeyLocator(OpenIDConfig openIDConfig) {
+    private static KeyLocator loadKeyLocator(LaunchServerConfig.OpenIDConfig openIDConfig) {
         var request = HttpRequest.newBuilder(openIDConfig.jwksUri()).GET().build();
         HttpResponse<String> response;
         try {

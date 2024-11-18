@@ -12,7 +12,8 @@ import java.io.IOException;
 
 @Component
 public final class SyncUPCommand extends Command {
-    private transient final Logger logger = LogManager.getLogger();
+
+    private transient final Logger logger = LogManager.getLogger(SyncUPCommand.class);
 
     private transient final ProfileProvider profileProvider;
     private transient final UpdatesManager updatesManager;

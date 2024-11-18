@@ -9,17 +9,17 @@ import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.core.interfaces.session.UserSessionSupportHardware;
 import ru.ricardocraft.backend.auth.core.interfaces.session.UserSessionSupportProperties;
 import ru.ricardocraft.backend.base.events.request.CheckServerRequestEvent;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.auth.CheckServerResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.auth.CheckServerResponse;
 
 @Component
 public class CheckServerResponseService extends AbstractResponseService {
 
-    private transient final Logger logger = LogManager.getLogger();
+    private transient final Logger logger = LogManager.getLogger(CheckServerResponseService.class);
 
     private final AuthManager authManager;
 
@@ -31,7 +31,7 @@ public class CheckServerResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client pClient) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client pClient) throws Exception {
         CheckServerResponse response = (CheckServerResponse) rawResponse;
 
         if (pClient.permissions == null || !pClient.permissions.hasPerm("launchserver.checkserver")) {

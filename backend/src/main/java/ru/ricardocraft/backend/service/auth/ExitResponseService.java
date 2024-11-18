@@ -8,12 +8,12 @@ import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportExit;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ExitRequestEvent;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.auth.ExitResponse;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.auth.ExitResponse;
 
 import java.util.HashMap;
 
@@ -26,7 +26,7 @@ public class ExitResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         ExitResponse response = (ExitResponse) rawResponse;
 
         if (response.username != null && (!client.isAuth || client.permissions == null || !client.permissions.hasPerm("launchserver\\.management\\.kick"))) {

@@ -6,11 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
-import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ProfilesRequestEvent;
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.profiles.ClientProfile;
+import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
@@ -23,26 +24,33 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
 @Component
-public class LocalProfileProvider extends ProfileProvider {
+public class LocalProfileProvider extends  ProfileProvider {
 
-    public String profilesDir = "profiles";
     private transient volatile Map<Path, ClientProfile> profilesMap;
     private transient volatile Set<ClientProfile> profilesList; // Cache
 
+    private final transient LaunchServerConfig config;
     private final transient LaunchServerProperties properties;
     private final transient ProtectHandler handler;
     private final transient WebSocketService service;
+    private final transient GsonManager gsonManager;
 
     @Autowired
-    public LocalProfileProvider(LaunchServerProperties properties, ProtectHandler handler, WebSocketService service) {
+    public LocalProfileProvider(LaunchServerConfig config,
+                                LaunchServerProperties properties,
+                                ProtectHandler handler,
+                                WebSocketService service,
+                                GsonManager gsonManager) {
+        this.config = config;
         this.properties = properties;
         this.handler = handler;
         this.service = service;
+        this.gsonManager = gsonManager;
     }
 
     @Override
     public void sync() throws IOException {
-        Path profilesDirPath = Path.of(profilesDir);
+        Path profilesDirPath = Path.of(config.localProfileProvider.profilesDir);
         if (!IOHelper.isDir(profilesDirPath))
             Files.createDirectory(profilesDirPath);
         Map<Path, ClientProfile> newProfiles = new HashMap<>();
@@ -59,7 +67,7 @@ public class LocalProfileProvider extends ProfileProvider {
 
     @Override
     public void addProfile(ClientProfile profile) throws IOException {
-        Path profilesDirPath = Path.of(profilesDir);
+        Path profilesDirPath = Path.of(config.localProfileProvider.profilesDir);
         ClientProfile oldProfile;
         Path target = null;
         for (var e : profilesMap.entrySet()) {
@@ -75,7 +83,7 @@ public class LocalProfileProvider extends ProfileProvider {
             }
         }
         try (BufferedWriter writer = IOHelper.newWriter(target)) {
-            Launcher.gsonManager.configGson.toJson(profile, writer);
+            gsonManager.configGson.toJson(profile, writer);
         }
         addProfile(target, profile);
     }
@@ -137,9 +145,11 @@ public class LocalProfileProvider extends ProfileProvider {
         }
     }
 
-    private static final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
+    private final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
+
+        private transient final Logger logger = LogManager.getLogger(ProfilesFileVisitor.class);
+
         private final Map<Path, ClientProfile> result;
-        private final Logger logger = LogManager.getLogger();
 
         private ProfilesFileVisitor(Map<Path, ClientProfile> result) {
             this.result = result;
@@ -152,7 +162,7 @@ public class LocalProfileProvider extends ProfileProvider {
             // Read profile
             ClientProfile profile;
             try (BufferedReader reader = IOHelper.newReader(file)) {
-                profile = Launcher.gsonManager.gson.fromJson(reader, ClientProfile.class);
+                profile = gsonManager.gson.fromJson(reader, ClientProfile.class);
             }
             profile.verify();
 

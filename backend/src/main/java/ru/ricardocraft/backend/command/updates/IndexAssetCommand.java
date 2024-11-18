@@ -5,12 +5,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.command.utls.CommandException;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper.DigestAlgorithm;
+import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.command.CommandException;
+import ru.ricardocraft.backend.manangers.GsonManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
@@ -26,20 +26,24 @@ import java.util.Collections;
 @Component
 public final class IndexAssetCommand extends Command {
 
-    private transient final Logger logger = LogManager.getLogger();
+    private transient final Logger logger = LogManager.getLogger(IndexAssetCommand.class);
 
     private transient final LaunchServerDirectories directories;
     private transient final UpdatesManager updatesManager;
+    private transient final GsonManager gsonManager;
 
     public static final String INDEXES_DIR = "indexes";
     public static final String OBJECTS_DIR = "objects";
     private static final String JSON_EXTENSION = ".json";
 
     @Autowired
-    public IndexAssetCommand(LaunchServerDirectories directories, UpdatesManager updatesManager) {
+    public IndexAssetCommand(LaunchServerDirectories directories,
+                             UpdatesManager updatesManager,
+                             GsonManager gsonManager) {
         super();
         this.directories = directories;
         this.updatesManager = updatesManager;
+        this.gsonManager = gsonManager;
     }
 
     public static Path resolveIndexFile(Path assetDir, String name) {
@@ -86,7 +90,7 @@ public final class IndexAssetCommand extends Command {
         try (BufferedWriter writer = IOHelper.newWriter(resolveIndexFile(outputAssetDir, indexFileName))) {
             JsonObject result = new JsonObject();
             result.add("objects", objects);
-            writer.write(Launcher.gsonManager.gson.toJson(result));
+            writer.write(gsonManager.gson.toJson(result));
         }
 
         // Finished
@@ -123,7 +127,7 @@ public final class IndexAssetCommand extends Command {
             // Add to index and copy file
             String digest = SecurityHelper.toHex(SecurityHelper.digest(DigestAlgorithm.SHA1, file));
             IndexObject obj = new IndexObject(attrs.size(), digest);
-            objects.add(name, Launcher.gsonManager.gson.toJsonTree(obj));
+            objects.add(name, gsonManager.gson.toJsonTree(obj));
             IOHelper.copy(file, resolveObjectFile(outputAssetDir, digest));
 
             // Continue visiting

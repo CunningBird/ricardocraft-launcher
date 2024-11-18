@@ -1,10 +1,10 @@
 package ru.ricardocraft.backend.base.request.auth;
 
+import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
 import ru.ricardocraft.backend.base.request.Request;
+import ru.ricardocraft.backend.base.request.WebSocketRequest;
 import ru.ricardocraft.backend.base.request.auth.password.AuthPlainPassword;
-import ru.ricardocraft.backend.base.request.websockets.WebSocketRequest;
-import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 
 public final class AuthRequest extends Request<AuthRequestEvent> implements WebSocketRequest {
     @LauncherNetworkAPI

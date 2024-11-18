@@ -2,14 +2,14 @@ package ru.ricardocraft.backend.base.profiles;
 
 import com.google.gson.*;
 import lombok.Getter;
-import ru.ricardocraft.backend.base.profiles.optional.OptionalDepend;
-import ru.ricardocraft.backend.base.profiles.optional.OptionalFile;
-import ru.ricardocraft.backend.base.profiles.optional.triggers.OptionalTrigger;
+import ru.ricardocraft.backend.base.LaunchOptions;
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.base.core.hasher.FileNameMatcher;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.VerifyHelper;
-import ru.ricardocraft.backend.base.LaunchOptions;
+import ru.ricardocraft.backend.base.profiles.optional.OptionalDepend;
+import ru.ricardocraft.backend.base.profiles.optional.OptionalFile;
+import ru.ricardocraft.backend.base.profiles.optional.triggers.OptionalTrigger;
 
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
@@ -18,6 +18,7 @@ import java.util.*;
 public final class ClientProfile implements Comparable<ClientProfile> {
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
             new String[0], new String[]{"indexes", "objects"}, new String[0]);
+    @Getter
     @LauncherNetworkAPI
     private String title;
     @LauncherNetworkAPI
@@ -28,12 +29,16 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @Getter
     @LauncherNetworkAPI
     private String info;
+    @Getter
     @LauncherNetworkAPI
     private String dir;
+    @Getter
     @LauncherNetworkAPI
     private int sortIndex;
+    @Getter
     @LauncherNetworkAPI
     private String assetIndex;
+    @Getter
     @LauncherNetworkAPI
     private String assetDir;
     //  Updater and client watch service
@@ -55,10 +60,12 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     private List<String> clientArgs;
     @LauncherNetworkAPI
     private List<String> compatClasses;
+    @Getter
     @LauncherNetworkAPI
     private List<String> loadNatives;
     @LauncherNetworkAPI
     private Map<String, String> properties;
+    @Getter
     @LauncherNetworkAPI
     private List<ServerProfile> servers;
     @Getter
@@ -68,22 +75,29 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @Getter
     @LauncherNetworkAPI
     private List<CompatibilityFlags> flags;
+    @Getter
     @LauncherNetworkAPI
     private int recommendJavaVersion = 8;
+    @Getter
     @LauncherNetworkAPI
     private int minJavaVersion = 8;
+    @Getter
     @LauncherNetworkAPI
     private int maxJavaVersion = 999;
+    @Getter
     @LauncherNetworkAPI
     private ProfileDefaultSettings settings = new ProfileDefaultSettings();
     @Getter
     @LauncherNetworkAPI
     private boolean limited;
     // Client launcher
+    @Getter
     @LauncherNetworkAPI
     private String mainClass;
+    @Getter
     @LauncherNetworkAPI
     private String mainModule;
+    @Getter
     @LauncherNetworkAPI
     private LaunchOptions.ModuleConf moduleConf;
 
@@ -132,10 +146,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return Integer.compare(getSortIndex(), o.getSortIndex());
     }
 
-    public String getAssetIndex() {
-        return assetIndex;
-    }
-
     public FileNameMatcher getAssetUpdateMatcher() {
         return getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_7_10) >= 0 ? ASSET_MATCHER : null;
     }
@@ -150,14 +160,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public List<String> getClientArgs() {
         return Collections.unmodifiableList(clientArgs);
-    }
-
-    public String getDir() {
-        return dir;
-    }
-
-    public String getAssetDir() {
-        return assetDir;
     }
 
     public List<String> getUpdateExclusions() {
@@ -185,22 +187,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return Collections.unmodifiableList(jvmArgs);
     }
 
-    public String getMainClass() {
-        return mainClass;
-    }
-
-    public String getMainModule() {
-        return mainModule;
-    }
-
-    public LaunchOptions.ModuleConf getModuleConf() {
-        return moduleConf;
-    }
-
-    public List<ServerProfile> getServers() {
-        return servers;
-    }
-
     public String getServerAddress() {
         ServerProfile profile = getDefaultServerProfile();
         return profile == null ? "localhost" : profile.serverAddress;
@@ -208,26 +194,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
 
     public Set<OptionalFile> getOptional() {
         return updateOptional;
-    }
-
-    public int getRecommendJavaVersion() {
-        return recommendJavaVersion;
-    }
-
-    public int getMinJavaVersion() {
-        return minJavaVersion;
-    }
-
-    public int getMaxJavaVersion() {
-        return maxJavaVersion;
-    }
-
-    public ProfileDefaultSettings getSettings() {
-        return settings;
-    }
-
-    public List<String> getLoadNatives() {
-        return loadNatives;
     }
 
     public void updateOptionalGraph() {
@@ -262,14 +228,6 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     public int getServerPort() {
         ServerProfile profile = getDefaultServerProfile();
         return profile == null ? 25565 : profile.serverPort;
-    }
-
-    public int getSortIndex() {
-        return sortIndex;
-    }
-
-    public String getTitle() {
-        return title;
     }
 
     @Deprecated

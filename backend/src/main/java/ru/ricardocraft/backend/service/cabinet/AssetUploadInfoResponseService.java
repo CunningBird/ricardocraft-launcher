@@ -4,11 +4,11 @@ import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportAssetUpload;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.cabinet.AssetUploadInfoResponse;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.cabinet.AssetUploadInfoResponse;
 
 @Component
 public class AssetUploadInfoResponseService extends AbstractResponseService {
@@ -19,7 +19,7 @@ public class AssetUploadInfoResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         AssetUploadInfoResponse response = (AssetUploadInfoResponse) rawResponse;
 
         if (!client.isAuth || client.auth == null || client.getUser() == null) {

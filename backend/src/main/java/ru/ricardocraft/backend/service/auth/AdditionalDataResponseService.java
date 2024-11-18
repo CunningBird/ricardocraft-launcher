@@ -7,11 +7,11 @@ import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.auth.core.interfaces.user.UserSupportAdditionalData;
 import ru.ricardocraft.backend.base.events.request.AdditionalDataRequestEvent;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.auth.AdditionalDataResponse;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.auth.AdditionalDataResponse;
 
 import java.util.Map;
 
@@ -24,7 +24,7 @@ public class AdditionalDataResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         AdditionalDataResponse response = castResponse(rawResponse);
 
         if (!client.isAuth) {

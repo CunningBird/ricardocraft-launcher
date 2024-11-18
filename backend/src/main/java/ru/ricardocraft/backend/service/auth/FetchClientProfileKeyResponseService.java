@@ -6,13 +6,13 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.auth.core.interfaces.session.UserSessionSupportKeys;
 import ru.ricardocraft.backend.base.events.request.FetchClientProfileKeyRequestEvent;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.auth.AuthResponse;
+import ru.ricardocraft.backend.dto.auth.FetchClientProfileKeyResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
-import ru.ricardocraft.backend.socket.response.auth.FetchClientProfileKeyResponse;
 
 @Component
 public class FetchClientProfileKeyResponseService extends AbstractResponseService {
@@ -26,7 +26,7 @@ public class FetchClientProfileKeyResponseService extends AbstractResponseServic
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         FetchClientProfileKeyResponse response = (FetchClientProfileKeyResponse) rawResponse;
 
         if (!client.isAuth || client.type != AuthResponse.ConnectTypes.CLIENT) {

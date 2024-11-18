@@ -5,10 +5,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
+import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.profiles.ClientProfileBuilder;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 @Component
 public class CloneProfileCommand extends Command {
-    private final transient Logger logger = LogManager.getLogger(CloneProfileCommand.class);
+    private final Logger logger = LogManager.getLogger(CloneProfileCommand.class);
 
     private transient final LaunchServerDirectories directories;
     private transient final ProfileProvider profileProvider;

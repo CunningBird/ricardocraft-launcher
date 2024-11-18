@@ -5,10 +5,10 @@ import org.apache.logging.log4j.Logger;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.operator.OperatorCreationException;
-import ru.ricardocraft.backend.binary.JARLauncherBinary;
-import ru.ricardocraft.backend.binary.SignerJar;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SignHelper;
+import ru.ricardocraft.backend.binary.JARLauncherBinary;
+import ru.ricardocraft.backend.binary.SignerJar;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 import java.io.File;
@@ -26,7 +26,8 @@ import java.util.zip.ZipOutputStream;
 
 public class SignJarTask implements LauncherBuildTask {
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(SignJarTask.class);
+
     private final LaunchServerConfig.JarSignerConf config;
     private final JARLauncherBinary launcherBinary;
 

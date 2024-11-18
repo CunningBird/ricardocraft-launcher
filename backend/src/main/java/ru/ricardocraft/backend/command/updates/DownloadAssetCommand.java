@@ -1,15 +1,18 @@
 package ru.ricardocraft.backend.command.updates;
 
 import com.google.gson.JsonObject;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
+import me.tongfei.progressbar.ProgressBarStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.HttpRequester;
 import ru.ricardocraft.backend.base.Downloader;
-import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.manangers.GsonManager;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
@@ -21,23 +24,32 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Component
 public final class DownloadAssetCommand extends Command {
+
+    private transient final Logger logger = LogManager.getLogger(DownloadAssetCommand.class);
+
     private static final String MINECRAFT_VERSIONS_URL = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
     private static final String RESOURCES_DOWNLOAD_URL = "https://resources.download.minecraft.net/";
-    private transient final Logger logger = LogManager.getLogger();
 
     private transient final LaunchServerDirectories directories;
     private transient final MirrorManager mirrorManager;
     private transient final UpdatesManager updatesManager;
+    private transient final GsonManager gsonManager;
 
     @Autowired
-    public DownloadAssetCommand(LaunchServerDirectories directories, MirrorManager mirrorManager, UpdatesManager updatesManager) {
+    public DownloadAssetCommand(LaunchServerDirectories directories,
+                                MirrorManager mirrorManager,
+                                UpdatesManager updatesManager,
+                                GsonManager gsonManager) {
         super();
         this.directories = directories;
         this.mirrorManager = mirrorManager;
         this.updatesManager = updatesManager;
+        this.gsonManager = gsonManager;
     }
 
     @Override
@@ -66,7 +78,7 @@ public final class DownloadAssetCommand extends Command {
         }
 
         if (type.equals("mojang")) {
-            HttpRequester requester = new HttpRequester();
+            HttpRequester requester = new HttpRequester(gsonManager);
             logger.info("Fetch versions from {}", MINECRAFT_VERSIONS_URL);
             var versions = requester.send(requester.get(MINECRAFT_VERSIONS_URL, null), MinecraftVersions.class).getOrThrow();
             String profileUrl = null;
@@ -90,7 +102,7 @@ public final class DownloadAssetCommand extends Command {
             JsonObject objects = assets.get("objects").getAsJsonObject();
             try (Writer writer = IOHelper.newWriter(indexPath)) {
                 logger.info("Save {}", indexPath);
-                Launcher.gsonManager.configGson.toJson(assets, writer);
+                gsonManager.configGson.toJson(assets, writer);
             }
             if (!assetIndex.equals(versionName)) {
                 Path targetPath = assetDir.resolve("indexes").resolve(versionName + ".json");
@@ -128,6 +140,49 @@ public final class DownloadAssetCommand extends Command {
         // Finished
         updatesManager.syncUpdatesDir(Collections.singleton(dirName));
         logger.info("Asset successfully downloaded: '{}'", dirName);
+    }
+
+    private Downloader downloadWithProgressBar(String taskName, List<Downloader.SizedFile> list, String baseUrl, Path targetDir) throws Exception {
+        long total = 0;
+        for (Downloader.SizedFile file : list) {
+            if(file.size < 0) {
+                continue;
+            }
+            total += file.size;
+        }
+        long totalFiles = list.size();
+        AtomicLong current = new AtomicLong(0);
+        AtomicLong currentFiles = new AtomicLong(0);
+        ProgressBar bar = (new ProgressBarBuilder()).setTaskName(taskName)
+                .setInitialMax(total)
+                .showSpeed()
+                .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BLOCK)
+                .setUnit("MB", 1024 * 1024)
+                .build();
+        bar.setExtraMessage(" [0/%d]".formatted(totalFiles));
+        Downloader downloader = Downloader.downloadList(list, baseUrl, targetDir, new Downloader.DownloadCallback() {
+            @Override
+            public void apply(long fullDiff) {
+                current.addAndGet(fullDiff);
+                bar.stepBy(fullDiff);
+            }
+
+            @Override
+            public void onComplete(Path path) {
+                bar.setExtraMessage(" [%d/%d]".formatted(currentFiles.incrementAndGet(), totalFiles));
+            }
+        }, null, 4);
+        downloader.getFuture().handle((v, e) -> {
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            bar.close();
+            if (e != null) {
+                future.completeExceptionally(e);
+            } else {
+                future.complete(null);
+            }
+            return future;
+        });
+        return downloader;
     }
 
     public record MiniVersionInfo(String id, String url) {

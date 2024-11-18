@@ -6,14 +6,14 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.AuthProviders;
-import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
 import ru.ricardocraft.backend.base.AuthLimiter;
+import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.auth.AuthResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 
 @Component
 public class AuthResponseService extends AbstractResponseService {
@@ -36,7 +36,7 @@ public class AuthResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client clientData) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client clientData) throws Exception {
         AuthResponse response = castResponse(rawResponse);
 
         try {

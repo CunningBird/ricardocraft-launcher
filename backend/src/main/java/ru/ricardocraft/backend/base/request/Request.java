@@ -10,8 +10,6 @@ import ru.ricardocraft.backend.base.events.request.RefreshTokenRequestEvent;
 import ru.ricardocraft.backend.base.events.request.RestoreRequestEvent;
 import ru.ricardocraft.backend.base.request.auth.RefreshTokenRequest;
 import ru.ricardocraft.backend.base.request.auth.RestoreRequest;
-import ru.ricardocraft.backend.base.request.websockets.StdWebSocketService;
-import ru.ricardocraft.backend.base.request.websockets.WebSocketRequest;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -191,13 +189,6 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
             throw new RequestException("RequestService not initialized");
         }
         return requestDo(requestService);
-    }
-
-    @Deprecated
-    public R request(StdWebSocketService service) throws Exception {
-        if (!started.compareAndSet(false, true))
-            throw new IllegalStateException("Request already started");
-        return requestDo(service);
     }
 
     public R request(RequestService service) throws Exception {

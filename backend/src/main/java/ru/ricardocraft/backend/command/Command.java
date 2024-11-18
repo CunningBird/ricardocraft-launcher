@@ -1,74 +1,97 @@
 package ru.ricardocraft.backend.command;
 
-import lombok.NoArgsConstructor;
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarBuilder;
-import me.tongfei.progressbar.ProgressBarStyle;
-import ru.ricardocraft.backend.base.Downloader;
-import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.command.utls.CommandException;
+import org.jline.reader.Candidate;
 
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.*;
 
-@NoArgsConstructor
-public abstract class Command extends ru.ricardocraft.backend.command.utls.Command {
+public abstract class Command {
+    /**
+     * List of available subcommands
+     */
+    public final Map<String, Command> childCommands;
 
-    public Command(Map<String, ru.ricardocraft.backend.command.utls.Command> childCommands) {
-        super(childCommands);
+    public Command() {
+        childCommands = new HashMap<>();
     }
 
-    protected ClientProfile.Version parseClientVersion(String arg) throws CommandException {
-        if(arg.isEmpty()) {
-            throw new CommandException("ClientVersion can't be empty");
-        }
-        return Launcher.gsonManager.gson.fromJson(arg, ClientProfile.Version.class);
+    public Command(Map<String, Command> childCommands) {
+        this.childCommands = childCommands;
     }
 
-    protected Downloader downloadWithProgressBar(String taskName, List<Downloader.SizedFile> list, String baseUrl, Path targetDir) throws Exception {
-        long total = 0;
-        for (Downloader.SizedFile file : list) {
-            if(file.size < 0) {
-                continue;
-            }
-            total += file.size;
-        }
-        long totalFiles = list.size();
-        AtomicLong current = new AtomicLong(0);
-        AtomicLong currentFiles = new AtomicLong(0);
-        ProgressBar bar = (new ProgressBarBuilder()).setTaskName(taskName)
-                .setInitialMax(total)
-                .showSpeed()
-                .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BLOCK)
-                .setUnit("MB", 1024 * 1024)
-                .build();
-        bar.setExtraMessage(" [0/%d]".formatted(totalFiles));
-        Downloader downloader = Downloader.downloadList(list, baseUrl, targetDir, new Downloader.DownloadCallback() {
-            @Override
-            public void apply(long fullDiff) {
-                current.addAndGet(fullDiff);
-                bar.stepBy(fullDiff);
-            }
 
-            @Override
-            public void onComplete(Path path) {
-                bar.setExtraMessage(" [%d/%d]".formatted(currentFiles.incrementAndGet(), totalFiles));
-            }
-        }, null, 4);
-        downloader.getFuture().handle((v, e) -> {
-            CompletableFuture<Void> future = new CompletableFuture<>();
-            bar.close();
-            if (e != null) {
-                future.completeExceptionally(e);
-            } else {
-                future.complete(null);
-            }
-            return future;
-        });
-        return downloader;
+    protected static UUID parseUUID(String s) throws CommandException {
+        try {
+            return UUID.fromString(s);
+        } catch (IllegalArgumentException ignored) {
+            throw new CommandException(String.format("Invalid UUID: '%s'", s));
+        }
+    }
+
+    public abstract String getArgsDescription(); // "<required> [optional]"
+
+
+    public abstract String getUsageDescription();
+
+    /**
+     * Creates a JLine candidate that appears in the list of available options when you press TAB
+     *
+     * @param category    this command category
+     * @param commandName this command name
+     * @return JLine Candidate
+     */
+    public Candidate buildCandidate(CommandHandler.Category category, String commandName) {
+        return new Candidate(commandName);
+    }
+
+    /**
+     * Returns a list of available options for the next word for the current command.
+     *
+     * @param words     list all user words
+     * @param wordIndex current word index
+     * @param word      current word
+     * @return list of available Candidate
+     */
+    public List<Candidate> complete(List<String> words, int wordIndex, String word) {
+        if (wordIndex == 0) {
+            List<Candidate> candidates = new ArrayList<>();
+            childCommands.forEach((k, v) -> {
+                if (k.startsWith(word)) {
+                    candidates.add(new Candidate(k));
+                }
+            });
+            return candidates;
+        } else {
+            Command cmd = childCommands.get(words.get(0));
+            if (cmd == null) return new ArrayList<>();
+            return cmd.complete(words.subList(1, words.size()), wordIndex - 1, word);
+        }
+    }
+
+    /**
+     * Transfer control to subcommands
+     *
+     * @param args command arguments(includes subcommand name)
+     * @throws Exception Error executing command
+     */
+    public void invokeSubcommands(String... args) throws Exception {
+        verifyArgs(args, 1);
+        Command command = childCommands.get(args[0]);
+        if (command == null) throw new CommandException(String.format("Unknown sub command: '%s'", args[0]));
+        command.invoke(Arrays.copyOfRange(args, 1, args.length));
+    }
+
+
+    /**
+     * Run current command
+     *
+     * @param args command arguments
+     * @throws Exception Error executing command
+     */
+    public abstract void invoke(String... args) throws Exception;
+
+
+    protected final void verifyArgs(String[] args, int min) throws CommandException {
+        if (args.length < min)
+            throw new CommandException("Command usage: " + getArgsDescription());
     }
 }

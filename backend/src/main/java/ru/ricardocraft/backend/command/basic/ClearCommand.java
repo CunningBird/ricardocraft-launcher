@@ -3,8 +3,8 @@ package ru.ricardocraft.backend.command.basic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.command.utls.Command;
-import ru.ricardocraft.backend.command.utls.CommandHandler;
+import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.command.CommandHandler;
 
 @Component
 public final class ClearCommand extends Command {

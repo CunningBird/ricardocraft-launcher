@@ -15,7 +15,7 @@ import java.util.Set;
 @Component
 public final class SyncUpdatesCommand extends Command {
 
-    private transient final Logger logger = LogManager.getLogger();
+    private transient final Logger logger = LogManager.getLogger(SyncUpdatesCommand.class);
 
     private transient final UpdatesManager updatesManager;
 

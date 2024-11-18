@@ -22,7 +22,8 @@ import java.util.zip.ZipOutputStream;
 
 @Component
 public class PatchAuthlibCommand extends Command {
-    private static final Logger logger = LogManager.getLogger();
+
+    private static final Logger logger = LogManager.getLogger(PatchAuthlibCommand.class);
 
     private transient final LaunchServerDirectories directories;
 

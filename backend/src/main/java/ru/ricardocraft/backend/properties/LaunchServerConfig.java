@@ -3,13 +3,15 @@ package ru.ricardocraft.backend.properties;
 import io.netty.channel.epoll.Epoll;
 import io.netty.handler.logging.LogLevel;
 import lombok.Setter;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 
+import java.net.URI;
 import java.util.*;
 
 import static java.util.concurrent.TimeUnit.HOURS;
 
-@org.springframework.stereotype.Component
+@Component
 public final class LaunchServerConfig {
 
     @Setter
@@ -24,6 +26,13 @@ public final class LaunchServerConfig {
     public RemoteControlConfig remoteControlConfig;
     public MirrorConfig mirrorConfig;
     public RuntimeConfig runtimeConfig;
+    public OpenIDConfig openIDConfig;
+    public LocalUpdatesProviderConfig localUpdatesProviderConfig;
+    public LocalProfileProvider localProfileProvider;
+    public JsonTextureProviderConfig jsonTextureProviderConfig;
+    public AdvancedProtectHandlerConfig advancedProtectHandlerConfig;
+    public StdProtectHandlerConfig stdProtectHandlerConfig;
+    public MicrosoftAuthCoreProviderConfig microsoftAuthCoreProviderConfig;
 
     public LaunchServerConfig() {
         this.projectName = "ricardocraft";
@@ -73,6 +82,25 @@ public final class LaunchServerConfig {
         this.remoteControlConfig.list.add(new RemoteControlConfig.RemoteControlToken(SecurityHelper.randomStringToken(), 0, true, new String[0]));
 
         this.mirrorConfig = new MirrorConfig();
+
+        this.openIDConfig = new OpenIDConfig(
+                URI.create("http://localhost:8079"),
+                "",
+                "",
+                "",
+                "",
+                URI.create("http://localhost:8079"),
+                "",
+                "",
+                new OpenIDConfig.ClaimExtractorConfig("", "")
+        );
+
+        this.localUpdatesProviderConfig = new LocalUpdatesProviderConfig();
+        this.localProfileProvider = new LocalProfileProvider();
+        this.jsonTextureProviderConfig = new JsonTextureProviderConfig();
+        this.advancedProtectHandlerConfig = new AdvancedProtectHandlerConfig();
+        this.stdProtectHandlerConfig = new StdProtectHandlerConfig();
+        this.microsoftAuthCoreProviderConfig = new MicrosoftAuthCoreProviderConfig();
     }
 
     public static class JarSignerConf {
@@ -193,5 +221,49 @@ public final class LaunchServerConfig {
         public String registerApiKey = SecurityHelper.randomStringToken();
         public String clientCheckSecret = SecurityHelper.randomStringToken();
         public long buildNumber = 0;
+    }
+
+    public record OpenIDConfig(URI tokenUri,
+                               String authorizationEndpoint,
+                               String clientId,
+                               String clientSecret,
+                               String redirectUri,
+                               URI jwksUri,
+                               String scopes,
+                               String issuer,
+                               ClaimExtractorConfig extractorConfig) {
+
+        public record ClaimExtractorConfig(String usernameClaim, String uuidClaim) {
+        }
+    }
+
+    public static class LocalUpdatesProviderConfig {
+        public String cacheFile = ".updates-cache";
+        public String updatesDir = "updates";
+        public boolean cacheUpdates = true;
+    }
+
+    public static class LocalProfileProvider {
+        public String profilesDir = "profiles";
+    }
+
+    public static class JsonTextureProviderConfig {
+        public String url;
+        public String bearerToken;
+    }
+
+    public static class AdvancedProtectHandlerConfig {
+        public boolean enableHardwareFeature;
+    }
+
+    public static class StdProtectHandlerConfig {
+        public Map<String, List<String>> profileWhitelist = new HashMap<>();
+        public List<String> allowUpdates = new ArrayList<>();
+    }
+
+    public static class MicrosoftAuthCoreProviderConfig {
+        public String redirectUrl = "https://login.live.com/oauth20_desktop.srf";
+        public String clientId = "00000000402b5328";
+        public String clientSecret;
     }
 }

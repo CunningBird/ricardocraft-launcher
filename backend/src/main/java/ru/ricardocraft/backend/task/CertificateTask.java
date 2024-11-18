@@ -21,7 +21,7 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class CertificateTask {
 
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(CertificateTask.class);
 
     private final LaunchServerConfig config;
 

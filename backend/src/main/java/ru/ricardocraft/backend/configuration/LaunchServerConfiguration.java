@@ -10,13 +10,13 @@ import org.springframework.context.annotation.Configuration;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
-import ru.ricardocraft.backend.base.events.request.LauncherRequestEvent;
 import ru.ricardocraft.backend.base.core.LauncherTrustManager;
+import ru.ricardocraft.backend.base.events.request.LauncherRequestEvent;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
-import ru.ricardocraft.backend.manangers.*;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
-import ru.ricardocraft.backend.properties.LaunchServerEnv;
+import ru.ricardocraft.backend.manangers.AuthManager;
+import ru.ricardocraft.backend.manangers.CertificateManager;
+import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.service.auth.RestoreResponseService;
 import ru.ricardocraft.backend.service.update.LauncherResponseService;
 
@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.security.Security;
 import java.security.cert.CertificateException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +31,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class LaunchServerConfiguration {
 
-    private static final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(LaunchServerConfiguration.class);
 
     private final Path dir = IOHelper.WORKING_DIR;
 
@@ -40,11 +39,6 @@ public class LaunchServerConfiguration {
     public void init() {
         JVMHelper.verifySystemProperties(LaunchServer.class, false);
         Security.addProvider(new BouncyCastleProvider());
-    }
-
-    @Bean
-    public LaunchServerEnv getEnv() {
-        return LaunchServerEnv.PRODUCTION;
     }
 
     @Bean
@@ -82,17 +76,5 @@ public class LaunchServerConfiguration {
         }
 
         return new CertificateManager();
-    }
-
-    @Bean
-    public LaunchServerConfigManager launchServerConfigManager() {
-        Path configFile = dir.resolve("LaunchServer.json");
-
-        return new BasicLaunchServerConfigManager(configFile);
-    }
-
-    @Bean
-    public KeyAgreementManager keyAgreementManager(LaunchServerDirectories directories) throws IOException, InvalidKeySpecException {
-        return new KeyAgreementManager(directories.keyDirectory);
     }
 }

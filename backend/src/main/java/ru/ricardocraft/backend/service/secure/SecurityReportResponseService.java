@@ -6,11 +6,11 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.SecureProtectHandler;
 import ru.ricardocraft.backend.base.events.request.SecurityReportRequestEvent;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.secure.SecurityReportResponse;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.secure.SecurityReportResponse;
 
 @Component
 public class SecurityReportResponseService extends AbstractResponseService {
@@ -24,7 +24,7 @@ public class SecurityReportResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         SecurityReportResponse response = (SecurityReportResponse) rawResponse;
 
         if (!(protectHandler instanceof SecureProtectHandler secureProtectHandler)) {

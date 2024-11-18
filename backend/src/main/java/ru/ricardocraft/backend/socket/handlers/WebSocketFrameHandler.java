@@ -19,9 +19,10 @@ import java.util.concurrent.TimeUnit;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
+    private transient final Logger logger = LogManager.getLogger(WebSocketFrameHandler.class);
+
     public final WebSocketService service;
     private final UUID connectUUID = UUID.randomUUID();
-    private transient final Logger logger = LogManager.getLogger();
     public NettyConnectContext context;
     @Setter
     @Getter

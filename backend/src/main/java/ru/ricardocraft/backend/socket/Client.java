@@ -4,7 +4,7 @@ import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.core.interfaces.UserHardware;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
+import ru.ricardocraft.backend.dto.auth.AuthResponse;
 
 import java.util.HashMap;
 import java.util.Map;

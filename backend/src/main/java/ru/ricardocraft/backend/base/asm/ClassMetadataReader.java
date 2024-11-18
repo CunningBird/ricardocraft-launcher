@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.base.asm;
 
+import lombok.Getter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
@@ -17,15 +18,12 @@ import java.util.jar.JarFile;
  * Позволяет искать методы внутри незагруженных классов и общие суперклассы для
  * чего угодно. Работает через поиск class-файлов в classpath.
  */
+@Getter
 public class ClassMetadataReader implements Closeable {
     private final List<JarFile> cp;
 
     public ClassMetadataReader() {
         this.cp = new ArrayList<>();
-    }
-
-    public List<JarFile> getCp() {
-        return cp;
     }
 
     public void acceptVisitor(byte[] classData, ClassVisitor visitor) {

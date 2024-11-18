@@ -3,10 +3,9 @@ package ru.ricardocraft.backend.service;
 import io.netty.channel.ChannelHandlerContext;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ErrorRequestEvent;
+import ru.ricardocraft.backend.dto.SimpleResponse;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.SimpleResponse;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
 
 import java.util.UUID;
 
@@ -22,10 +21,10 @@ public abstract class AbstractResponseService {
         service.registerService(responseClass, this);
     }
 
-    abstract public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client)  throws Exception;
+    abstract public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client)  throws Exception;
 
     @SuppressWarnings("unchecked")
-    public <Response extends SimpleResponse> Response castResponse(WebSocketServerResponse response) throws Exception {
+    public <Response extends SimpleResponse> Response castResponse(SimpleResponse response) throws Exception {
         if (responseClass.isAssignableFrom(response.getClass())) return (Response) response;
         else throw new Exception("Cannot cast " + response.getClass() + " to " + responseClass.getName());
     }

@@ -2,9 +2,9 @@ package ru.ricardocraft.backend.binary.tasks;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.UnpackHelper;
+import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.IOException;
@@ -15,10 +15,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PrepareBuildTask implements LauncherBuildTask {
+
+    private transient final Logger logger = LogManager.getLogger(PrepareBuildTask.class);
+
     private final JARLauncherBinary launcherBinary;
     private final LaunchServerDirectories directories;
     private final Path result;
-    private transient final Logger logger = LogManager.getLogger();
 
     public PrepareBuildTask(JARLauncherBinary launcherBinary, LaunchServerDirectories directories) {
         this.launcherBinary = launcherBinary;

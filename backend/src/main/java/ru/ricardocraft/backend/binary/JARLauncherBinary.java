@@ -4,7 +4,6 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
-import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.binary.tasks.*;
 import ru.ricardocraft.backend.manangers.CertificateManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
@@ -42,7 +41,7 @@ public final class JARLauncherBinary extends LauncherBinary {
         super(directories, updatesProvider, resolve(properties, ".jar"), "Launcher-%s.jar");
 
         count = new AtomicLong(0);
-        runtimeDir = directories.dir.resolve(Launcher.RUNTIME_DIR);
+        runtimeDir = directories.dir.resolve(MainBuildTask.RUNTIME_DIR);
         buildDirectory = directories.dir.resolve("build");
         coreLibs = new ArrayList<>();
         addonLibs = new ArrayList<>();

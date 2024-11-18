@@ -1,9 +1,9 @@
 package ru.ricardocraft.backend.base.core.hasher;
 
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
+import ru.ricardocraft.backend.base.core.serialize.EnumSerializer;
 import ru.ricardocraft.backend.base.core.serialize.HInput;
-import ru.ricardocraft.backend.base.core.serialize.stream.EnumSerializer;
-import ru.ricardocraft.backend.base.core.serialize.stream.StreamObject;
+import ru.ricardocraft.backend.base.core.serialize.StreamObject;
 
 import java.io.IOException;
 

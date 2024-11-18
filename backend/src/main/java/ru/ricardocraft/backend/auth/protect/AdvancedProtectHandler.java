@@ -14,6 +14,7 @@ import ru.ricardocraft.backend.auth.protect.interfaces.SecureProtectHandler;
 import ru.ricardocraft.backend.base.events.request.GetSecureLevelInfoRequestEvent;
 import ru.ricardocraft.backend.base.events.request.VerifySecureLevelKeyRequestEvent;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.service.auth.RestoreResponseService;
 import ru.ricardocraft.backend.socket.Client;
@@ -26,14 +27,17 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Component
 public class AdvancedProtectHandler extends StdProtectHandler implements SecureProtectHandler, JoinServerProtectHandler {
-    private transient final Logger logger = LogManager.getLogger();
-    public boolean enableHardwareFeature;
 
-    private final transient LaunchServerProperties properties;
-    private final transient KeyAgreementManager keyAgreementManager;
+    private final Logger logger = LogManager.getLogger(AdvancedProtectHandler.class);
+
+    private final LaunchServerProperties properties;
+    private final KeyAgreementManager keyAgreementManager;
 
     @Autowired
-    public AdvancedProtectHandler(LaunchServerProperties properties, KeyAgreementManager keyAgreementManager) {
+    public AdvancedProtectHandler(LaunchServerProperties properties,
+                                  KeyAgreementManager keyAgreementManager,
+                                  LaunchServerConfig config) {
+        super(config);
         this.properties = properties;
         this.keyAgreementManager = keyAgreementManager;
     }
@@ -50,7 +54,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
 
     @Override
     public VerifySecureLevelKeyRequestEvent onSuccessVerify(Client client) {
-        if (enableHardwareFeature) {
+        if (config.advancedProtectHandlerConfig.enableHardwareFeature) {
             var authSupportHardware = client.auth.isSupport(AuthSupportHardware.class);
             if (authSupportHardware != null) {
                 UserHardware hardware = authSupportHardware.getHardwareInfoByPublicKey(client.trustLevel.publicKey);
@@ -71,7 +75,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
 
     @Override
     public boolean onJoinServer(String serverID, String username, UUID uuid, Client client) {
-        return !enableHardwareFeature || (client.trustLevel != null && client.trustLevel.hardwareInfo != null);
+        return !config.advancedProtectHandlerConfig.enableHardwareFeature || (client.trustLevel != null && client.trustLevel.hardwareInfo != null);
     }
 
     public String createHardwareToken(String username, UserHardware hardware) {
@@ -95,7 +99,9 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     }
 
     public static class HardwareInfoTokenVerifier implements RestoreResponseService.ExtendedTokenProvider {
-        private transient final Logger logger = LogManager.getLogger();
+
+        private transient final Logger logger = LogManager.getLogger(HardwareInfoTokenVerifier.class);
+
         private final JwtParser parser;
 
         public HardwareInfoTokenVerifier(KeyAgreementManager keyAgreementManager) {
@@ -127,7 +133,9 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     }
 
     public static class PublicKeyTokenVerifier implements RestoreResponseService.ExtendedTokenProvider {
-        private transient final Logger logger = LogManager.getLogger();
+
+        private transient final Logger logger = LogManager.getLogger(PublicKeyTokenVerifier.class);
+
         private final JwtParser parser;
 
         public PublicKeyTokenVerifier(KeyAgreementManager keyAgreementManager) {

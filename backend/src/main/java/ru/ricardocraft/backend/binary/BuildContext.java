@@ -2,13 +2,11 @@ package ru.ricardocraft.backend.binary;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.binary.tasks.MainBuildTask;
 import ru.ricardocraft.backend.base.core.serialize.HOutput;
-import ru.ricardocraft.backend.base.core.serialize.stream.StreamObject;
+import ru.ricardocraft.backend.base.core.serialize.StreamObject;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
+import ru.ricardocraft.backend.binary.tasks.MainBuildTask;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
@@ -157,7 +155,6 @@ public class BuildContext {
         private final String targetDir;
         private final SecretKeySpec sKeySpec;
         private final IvParameterSpec iKeySpec;
-        private final transient Logger logger = LogManager.getLogger();
 
         private EncryptedRuntimeDirVisitor(ZipOutputStream output, String aesKey, Map<String, byte[]> hashs, Path sourceDir, String targetDir) {
             this.output = output;

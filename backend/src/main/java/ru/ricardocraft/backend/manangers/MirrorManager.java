@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.manangers.mirror.WorkspaceTools;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
@@ -27,17 +26,22 @@ import java.util.zip.ZipInputStream;
 
 @Component
 public class MirrorManager {
+
+    private transient final Logger logger = LogManager.getLogger(MirrorManager.class);
+
     protected final ArrayList<Mirror> list = new ArrayList<>();
-    private transient final Logger logger = LogManager.getLogger();
     private transient final HttpClient client = HttpClient.newBuilder().build();
     @Getter
     private Mirror defaultMirror;
     @Getter
     private final WorkspaceTools tools;
 
+    private transient final GsonManager gsonManager;
+
     @Autowired
-    public MirrorManager(LaunchServerConfig config, WorkspaceTools tools) {
+    public MirrorManager(LaunchServerConfig config, WorkspaceTools tools, GsonManager gsonManager) {
         this.tools = tools;
+        this.gsonManager = gsonManager;
 
         Arrays.stream(config.mirrors).forEach(this::addMirror);
     }
@@ -83,10 +87,10 @@ public class MirrorManager {
         URL url = mirror.getURL(mask, args);
         try {
             var response = client.send(HttpRequest.newBuilder()
-                            .method(method, request == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(Launcher.gsonManager.gson.toJson(request)))
+                            .method(method, request == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(gsonManager.gson.toJson(request)))
                             .uri(url.toURI())
                     .build(), HttpResponse.BodyHandlers.ofString());
-            return Launcher.gsonManager.gson.fromJson(response.body(), JsonElement.class);
+            return gsonManager.gson.fromJson(response.body(), JsonElement.class);
         } catch (IOException | URISyntaxException | InterruptedException e) {
             logger.error("JsonRequest {} failed({}: {})", url.toString(), e.getClass().getName(), e.getMessage());
             return null;

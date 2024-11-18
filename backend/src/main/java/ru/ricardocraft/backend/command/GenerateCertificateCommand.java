@@ -24,11 +24,10 @@ import org.bouncycastle.pkcs.jcajce.JcaPKCS12SafeBagBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.command.utls.CommandHandler;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.manangers.CertificateManager;
+import ru.ricardocraft.backend.manangers.GsonManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.manangers.LaunchServerConfigManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
@@ -47,6 +46,7 @@ import java.util.Date;
 
 @Component
 public class GenerateCertificateCommand extends Command {
+
     private final Logger logger = LogManager.getLogger(GenerateCertificateCommand.class);
 
     private transient final LaunchServerConfig config;
@@ -54,20 +54,23 @@ public class GenerateCertificateCommand extends Command {
     private transient final CertificateManager certificateManager;
     private transient final KeyAgreementManager keyAgreementManager;
     private transient final LaunchServerConfigManager launchServerConfigManager;
+    private transient final GsonManager gsonManager;
 
     @Autowired
     public GenerateCertificateCommand(CommandHandler commandHandler,
-            LaunchServerConfig config,
+                                      LaunchServerConfig config,
                                       LaunchServerDirectories directories,
                                       CertificateManager certificateManager,
                                       KeyAgreementManager keyAgreementManager,
-                                      LaunchServerConfigManager launchServerConfigManager) {
+                                      LaunchServerConfigManager launchServerConfigManager,
+                                      GsonManager gsonManager) {
         super();
         this.config = config;
         this.directories = directories;
         this.certificateManager = certificateManager;
         this.keyAgreementManager = keyAgreementManager;
         this.launchServerConfigManager = launchServerConfigManager;
+        this.gsonManager = gsonManager;
 
         commandHandler.registerCommand("generatecertificate", this);
     }
@@ -126,7 +129,7 @@ public class GenerateCertificateCommand extends Command {
         conf.signAlgo = "SHA256WITHRSA";
         conf.keyAlias = projectName.concat("CodeSign").toLowerCase();
         conf.keyStore = p12FilePath.toString();
-        logger.info("Configuration: {}", Launcher.gsonManager.configGson.toJson(conf));
+        logger.info("Configuration: {}", gsonManager.configGson.toJson(conf));
         logger.info("KeyAlias may be incorrect. Usage: 'keytool -storepass {} -keystore {} -list' for check alias", passwd, conf.keyStore);
         logger.warn("Must save your store password");
         if (!config.sign.enabled) {

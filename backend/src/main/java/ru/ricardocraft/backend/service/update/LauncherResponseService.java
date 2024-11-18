@@ -10,18 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.base.events.request.LauncherRequestEvent;
+import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.binary.EXELauncherBinary;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;
-import ru.ricardocraft.backend.base.helper.SecurityHelper;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.auth.AuthResponse;
+import ru.ricardocraft.backend.dto.update.LauncherResponse;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.service.auth.RestoreResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
-import ru.ricardocraft.backend.socket.response.update.LauncherResponse;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -51,7 +51,7 @@ public class LauncherResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         LauncherResponse response = (LauncherResponse) rawResponse;
 
         byte[] bytes;
@@ -101,8 +101,10 @@ public class LauncherResponseService extends AbstractResponseService {
     }
 
     public static class LauncherTokenVerifier implements RestoreResponseService.ExtendedTokenProvider {
+
+        private final Logger logger = LogManager.getLogger(LauncherTokenVerifier.class);
+
         private final JwtParser parser;
-        private final Logger logger = LogManager.getLogger();
 
         public LauncherTokenVerifier(KeyAgreementManager keyAgreementManager) {
             parser = Jwts.parser()

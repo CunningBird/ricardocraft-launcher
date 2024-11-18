@@ -1,7 +1,8 @@
 package ru.ricardocraft.backend.base.profiles.optional;
 
-import ru.ricardocraft.backend.base.profiles.optional.actions.OptionalAction;
+import lombok.Getter;
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
+import ru.ricardocraft.backend.base.profiles.optional.actions.OptionalAction;
 
 import java.util.List;
 import java.util.Objects;
@@ -9,10 +10,13 @@ import java.util.Objects;
 public class OptionalFile {
     @LauncherNetworkAPI
     public List<OptionalAction> actions;
+    @Getter
     @LauncherNetworkAPI
     public boolean mark;
+    @Getter
     @LauncherNetworkAPI
     public boolean visible = true;
+    @Getter
     @LauncherNetworkAPI
     public String name;
     @LauncherNetworkAPI
@@ -51,17 +55,5 @@ public class OptionalFile {
 
     public int hashCode() {
         return Objects.hash(name);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public boolean isMark() {
-        return mark;
     }
 }

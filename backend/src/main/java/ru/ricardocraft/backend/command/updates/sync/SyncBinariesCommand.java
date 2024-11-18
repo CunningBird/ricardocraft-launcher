@@ -12,7 +12,8 @@ import java.io.IOException;
 
 @Component
 public final class SyncBinariesCommand extends Command {
-    private transient final Logger logger = LogManager.getLogger();
+
+    private transient final Logger logger = LogManager.getLogger(SyncBinariesCommand.class);
 
     private transient final JARLauncherBinary launcherBinary;
     private transient final EXELauncherBinary exeLauncherBinary;

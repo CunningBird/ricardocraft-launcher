@@ -6,15 +6,14 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
+import ru.ricardocraft.backend.base.LauncherConfig;
 import ru.ricardocraft.backend.base.asm.ClassMetadataReader;
 import ru.ricardocraft.backend.base.asm.InjectClassAcceptor;
 import ru.ricardocraft.backend.base.asm.SafeClassWriter;
-import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.base.LauncherConfig;
-import ru.ricardocraft.backend.binary.BuildContext;
-import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
+import ru.ricardocraft.backend.binary.BuildContext;
+import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.manangers.CertificateManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
@@ -28,6 +27,9 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 
 public class MainBuildTask implements LauncherBuildTask {
+
+    private transient final Logger logger = LogManager.getLogger(MainBuildTask.class);
+
     public final ClassMetadataReader reader;
     public final Set<String> blacklist = new HashSet<>();
     public final List<Transformer> transformers = new ArrayList<>();
@@ -38,7 +40,8 @@ public class MainBuildTask implements LauncherBuildTask {
     private final KeyAgreementManager keyAgreementManager;
     private final CertificateManager certificateManager;
 
-    private transient final Logger logger = LogManager.getLogger();
+    public static final String CONFIG_FILE = "config.bin";
+    public static final String RUNTIME_DIR = "runtime";
 
     public MainBuildTask(JARLauncherBinary launcherBinary,
                          LaunchServerConfig config,
@@ -79,16 +82,16 @@ public class MainBuildTask implements LauncherBuildTask {
             Map<String, byte[]> runtime = new HashMap<>(256);
             // Write launcher guard dir
             if (config.launcher.encryptRuntime) {
-                context.pushEncryptedDir(context.getRuntimeDir(), Launcher.RUNTIME_DIR, this.config.runtimeConfig.runtimeEncryptKey, runtime, false);
+                context.pushEncryptedDir(context.getRuntimeDir(), RUNTIME_DIR, this.config.runtimeConfig.runtimeEncryptKey, runtime, false);
             } else {
-                context.pushDir(context.getRuntimeDir(), Launcher.RUNTIME_DIR, runtime, false);
+                context.pushDir(context.getRuntimeDir(), RUNTIME_DIR, runtime, false);
             }
             if (context.isDeleteRuntimeDir()) {
                 IOHelper.deleteDir(context.getRuntimeDir(), true);
             }
 
             LauncherConfig launcherConfig = new LauncherConfig(config.netty.address, keyAgreementManager.ecdsaPublicKey, keyAgreementManager.rsaPublicKey, runtime, config.projectName);
-            context.pushFile(Launcher.CONFIG_FILE, launcherConfig);
+            context.pushFile(CONFIG_FILE, launcherConfig);
         }
         reader.close();
         return outputJar;

@@ -4,8 +4,8 @@ import ru.ricardocraft.backend.base.events.request.GetSecureLevelInfoRequestEven
 import ru.ricardocraft.backend.base.events.request.SecurityReportRequestEvent;
 import ru.ricardocraft.backend.base.events.request.VerifySecureLevelKeyRequestEvent;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
+import ru.ricardocraft.backend.dto.secure.SecurityReportResponse;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.response.secure.SecurityReportResponse;
 
 import java.security.Signature;
 import java.security.SignatureException;

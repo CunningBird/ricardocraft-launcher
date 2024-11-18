@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
-import ru.ricardocraft.backend.command.utls.CommandHandler;
 import ru.ricardocraft.backend.base.helper.CommonHelper;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
+import ru.ricardocraft.backend.command.CommandHandler;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 
@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Component
 public final class LaunchServer implements Runnable, AutoCloseable {
 
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(LaunchServer.class);
 
     private final AtomicBoolean started = new AtomicBoolean(false);
 

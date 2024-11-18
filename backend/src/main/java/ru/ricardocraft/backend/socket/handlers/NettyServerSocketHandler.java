@@ -4,7 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.command.utls.CommandHandler;
+import ru.ricardocraft.backend.command.CommandHandler;
+import ru.ricardocraft.backend.manangers.GsonManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 import ru.ricardocraft.backend.socket.LauncherNettyServer;
@@ -15,24 +16,27 @@ import java.net.InetSocketAddress;
 @Component
 public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
 
-    private transient final Logger logger = LogManager.getLogger();
+    private transient final Logger logger = LogManager.getLogger(NettyServerSocketHandler.class);
 
     private transient final LaunchServerConfig config;
     private transient final LaunchServerDirectories directories;
     private transient final WebSocketService service;
     private transient final CommandHandler commandHandler;
+    private transient final GsonManager gsonManager;
 
-    public LauncherNettyServer nettyServer;
+    private transient LauncherNettyServer nettyServer;
 
     @Autowired
     public NettyServerSocketHandler(LaunchServerConfig config,
                                     LaunchServerDirectories directories,
                                     WebSocketService service,
-                                    CommandHandler commandHandler) {
+                                    CommandHandler commandHandler,
+                                    GsonManager gsonManager) {
         this.config = config;
         this.directories = directories;
         this.service = service;
         this.commandHandler = commandHandler;
+        this.gsonManager = gsonManager;
     }
 
     @Override
@@ -45,7 +49,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     @Override
     public void run() {
         logger.info("Starting netty server socket thread");
-        nettyServer = new LauncherNettyServer(config, directories, service, commandHandler);
+        nettyServer = new LauncherNettyServer(config, directories, service, commandHandler, gsonManager);
         for (LaunchServerConfig.NettyBindAddress address : config.netty.binds) {
             nettyServer.bind(new InetSocketAddress(address.address, address.port));
         }

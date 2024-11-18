@@ -10,7 +10,8 @@ import java.io.IOException;
 
 @Component
 public final class SyncProfilesCommand extends Command {
-    private transient final Logger logger = LogManager.getLogger();
+
+    private transient final Logger logger = LogManager.getLogger(SyncProfilesCommand.class);
 
     private transient final ProfileProvider profileProvider;
 

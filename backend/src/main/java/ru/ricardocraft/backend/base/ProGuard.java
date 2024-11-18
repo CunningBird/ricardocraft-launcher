@@ -4,12 +4,13 @@ import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.ricardocraft.backend.binary.JARLauncherBinary;
-import ru.ricardocraft.backend.binary.tasks.LauncherBuildTask;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.helper.UnpackHelper;
+import ru.ricardocraft.backend.binary.JARLauncherBinary;
+import ru.ricardocraft.backend.binary.tasks.LauncherBuildTask;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
@@ -28,10 +29,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-@org.springframework.stereotype.Component
+@Component
 public class ProGuard {
 
-    private static final Logger logger = LogManager.getLogger();
+    private transient final Logger logger = LogManager.getLogger(ProGuard.class);
+
     public String modeAfter = "MainBuild";
     public String dir = "proguard";
     public List<String> jvmArgs = new ArrayList<>();
@@ -88,7 +90,7 @@ public class ProGuard {
         return null;
     }
 
-    public static class ProGuardMultiReleaseFixer implements LauncherBuildTask {
+    public class ProGuardMultiReleaseFixer implements LauncherBuildTask {
         private final JARLauncherBinary launcherBinary;
         private final ProGuard component;
         private final String proguardTaskName;
@@ -144,7 +146,7 @@ public class ProGuard {
         }
     }
 
-    public static class ProGuardBuildTask implements LauncherBuildTask {
+    public class ProGuardBuildTask implements LauncherBuildTask {
 
         private final LaunchServerDirectories directories;
         private final JARLauncherBinary launcherBinary;
@@ -220,7 +222,7 @@ public class ProGuard {
         }
     }
 
-    public static class ProguardConf {
+    public class ProguardConf {
         public static final String[] JAVA9_OPTS = new String[]{
                 "-libraryjars '<java.home>/jmods/'"
         };

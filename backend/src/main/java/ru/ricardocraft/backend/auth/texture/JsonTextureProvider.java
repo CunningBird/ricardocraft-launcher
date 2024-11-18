@@ -3,10 +3,13 @@ package ru.ricardocraft.backend.auth.texture;
 import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.HttpRequester;
-import ru.ricardocraft.backend.base.profiles.Texture;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
+import ru.ricardocraft.backend.base.profiles.Texture;
+import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -16,12 +19,23 @@ import java.util.UUID;
 
 @Component
 public class JsonTextureProvider extends TextureProvider {
-    private static final Type MAP_TYPE = new TypeToken<Map<String, JsonTexture>>() {
-    }.getType();
-    private transient final Logger logger = LogManager.getLogger();
-    private transient final HttpRequester requester = new HttpRequester();
-    public String url;
-    public String bearerToken;
+
+    private transient final Logger logger = LogManager.getLogger(JsonTextureProvider.class);
+
+    private static final Type MAP_TYPE = new TypeToken<Map<String, JsonTexture>>() {}.getType();
+
+    private transient final HttpRequester requester;
+    private transient final RequestTextureProvider requestTextureProvider;
+    private transient final LaunchServerConfig.JsonTextureProviderConfig config;
+
+    @Autowired
+    public JsonTextureProvider(GsonManager gsonManager,
+                               RequestTextureProvider requestTextureProvider,
+                               LaunchServerConfig config) {
+        this.requester = new HttpRequester(gsonManager);
+        this.requestTextureProvider = requestTextureProvider;
+        this.config = config.jsonTextureProviderConfig;
+    }
 
     @Override
     public Texture getCloakTexture(UUID uuid, String username, String client) {
@@ -38,7 +52,7 @@ public class JsonTextureProvider extends TextureProvider {
     @Override
     public Map<String, Texture> getAssets(UUID uuid, String username, String client) {
         try {
-            Map<String, JsonTexture> map = requester.<Map<String, JsonTexture>>send(requester.get(RequestTextureProvider.getTextureURL(url, uuid, username, client), bearerToken), MAP_TYPE).getOrThrow();
+            Map<String, JsonTexture> map = requester.<Map<String, JsonTexture>>send(requester.get(requestTextureProvider.getTextureURL(config.url, uuid, username, client), config.bearerToken), MAP_TYPE).getOrThrow();
             return JsonTexture.convertMap(map);
         } catch (IOException e) {
             logger.error("JsonTextureProvider", e);

@@ -10,7 +10,7 @@ import ru.ricardocraft.backend.command.Command;
 @Component
 public class ListProfilesCommand extends Command {
 
-    private final transient Logger logger = LogManager.getLogger(ListProfilesCommand.class);
+    private final Logger logger = LogManager.getLogger(ListProfilesCommand.class);
 
     private transient final ProfileProvider profileProvider;
 

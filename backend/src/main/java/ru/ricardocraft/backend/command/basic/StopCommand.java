@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.command.basic;
 
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
+import ru.ricardocraft.backend.command.Command;
 
 @Component
 public final class StopCommand extends Command {

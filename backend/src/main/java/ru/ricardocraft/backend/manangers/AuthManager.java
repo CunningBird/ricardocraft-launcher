@@ -20,17 +20,17 @@ import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.texture.TextureProvider;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.profiles.PlayerProfile;
 import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.base.request.auth.password.*;
-import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.base.helper.SecurityHelper;
+import ru.ricardocraft.backend.dto.auth.AuthResponse;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.service.auth.RestoreResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 
 import javax.crypto.Cipher;
 import java.io.IOException;
@@ -39,7 +39,7 @@ import java.util.*;
 @Component
 public class AuthManager {
 
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(AuthManager.class);
 
     private final KeyAgreementManager keyAgreementManager;
     private final LaunchServerConfig launchServerConfig;

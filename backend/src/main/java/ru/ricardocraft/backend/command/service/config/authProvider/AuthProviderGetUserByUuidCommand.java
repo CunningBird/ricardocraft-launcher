@@ -14,7 +14,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthProviderGetUserByUuidCommand extends Command {
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(AuthProviderGetUserByUuidCommand.class);
 
     private final AuthCoreProvider authCoreProvider;
 

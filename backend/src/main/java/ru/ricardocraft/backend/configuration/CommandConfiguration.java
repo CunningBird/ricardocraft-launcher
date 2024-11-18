@@ -1,10 +1,13 @@
 package ru.ricardocraft.backend.configuration;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.ricardocraft.backend.command.basic.*;
+import ru.ricardocraft.backend.command.BaseCommandCategory;
+import ru.ricardocraft.backend.command.CommandHandler;
+import ru.ricardocraft.backend.command.basic.BuildCommand;
+import ru.ricardocraft.backend.command.basic.GCCommand;
+import ru.ricardocraft.backend.command.basic.StopCommand;
+import ru.ricardocraft.backend.command.basic.VersionCommand;
 import ru.ricardocraft.backend.command.mirror.*;
 import ru.ricardocraft.backend.command.service.*;
 import ru.ricardocraft.backend.command.tools.SignDirCommand;
@@ -13,37 +16,10 @@ import ru.ricardocraft.backend.command.unsafe.CipherListCommand;
 import ru.ricardocraft.backend.command.unsafe.LoadJarCommand;
 import ru.ricardocraft.backend.command.unsafe.PatcherCommand;
 import ru.ricardocraft.backend.command.unsafe.SendAuthCommand;
-import ru.ricardocraft.backend.command.updates.DownloadAssetCommand;
-import ru.ricardocraft.backend.command.updates.DownloadClientCommand;
-import ru.ricardocraft.backend.command.updates.IndexAssetCommand;
-import ru.ricardocraft.backend.command.updates.UnindexAssetCommand;
-import ru.ricardocraft.backend.command.updates.ProfilesCommand;
-import ru.ricardocraft.backend.command.updates.SyncCommand;
-import ru.ricardocraft.backend.command.utls.BaseCommandCategory;
-import ru.ricardocraft.backend.command.utls.CommandHandler;
-import ru.ricardocraft.backend.command.utls.JLineCommandHandler;
-import ru.ricardocraft.backend.command.utls.StdCommandHandler;
+import ru.ricardocraft.backend.command.updates.*;
 
 @Configuration
 public class CommandConfiguration {
-
-    private static final Logger logger = LogManager.getLogger();
-
-    @Bean
-    public CommandHandler commandHandler() {
-        CommandHandler commandHandler;
-        try {
-            Class.forName("org.jline.terminal.Terminal");
-            // JLine2 available
-            commandHandler = new JLineCommandHandler();
-            logger.info("JLine2 terminal enabled");
-        } catch (Exception ignored) {
-            commandHandler = new StdCommandHandler(true);
-            logger.warn("JLine2 isn't in classpath, using std");
-        }
-
-        return commandHandler;
-    }
 
     @Bean
     public CommandHandler.Category basicCommandCategory(CommandHandler commandHandler,

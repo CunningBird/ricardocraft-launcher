@@ -10,19 +10,19 @@ import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportHardware
 import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.base.events.request.HardwareReportRequestEvent;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.secure.HardwareReportResponse;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.secure.HardwareReportResponse;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Component
 public class HardwareReportResponseService extends AbstractResponseService {
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(HardwareReportResponseService.class);
 
     private final LaunchServerConfig config;
     private final ProtectHandler protectHandler;
@@ -37,7 +37,7 @@ public class HardwareReportResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         HardwareReportResponse response = (HardwareReportResponse) rawResponse;
 
         if (client.trustLevel == null || client.trustLevel.publicKey == null) {

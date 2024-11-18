@@ -11,12 +11,12 @@ import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
 import ru.ricardocraft.backend.auth.protect.NoProtectHandler;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.StdProtectHandler;
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.base.ProGuard;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
 import ru.ricardocraft.backend.base.helper.SignHelper;
+import ru.ricardocraft.backend.base.profiles.ClientProfile;
+import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
@@ -36,7 +36,8 @@ import java.util.StringTokenizer;
 
 @Component
 public class SecurityCheckCommand extends Command {
-    private static final Logger logger = LogManager.getLogger();
+
+    private static final Logger logger = LogManager.getLogger(SecurityCheckCommand.class);
 
     private final transient LaunchServerConfig config;
     private final transient LaunchServerDirectories directories;
@@ -90,7 +91,7 @@ public class SecurityCheckCommand extends Command {
             case NoProtectHandler noProtectHandler -> printCheckResult("protectHandler", "protectHandler none", false);
             case AdvancedProtectHandler advancedProtectHandler -> {
                 printCheckResult("protectHandler", "", true);
-                if (!advancedProtectHandler.enableHardwareFeature) {
+                if (!config.advancedProtectHandlerConfig.enableHardwareFeature) {
                     printCheckResult("protectHandler.hardwareId", "you can improve security by using hwid provider", null);
                 } else {
                     printCheckResult("protectHandler.hardwareId", "", true);

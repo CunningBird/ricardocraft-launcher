@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.binary.tasks;
 
-import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.binary.JARLauncherBinary;
 
 import java.io.IOException;
 import java.nio.file.Path;

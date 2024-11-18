@@ -4,11 +4,11 @@ import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.events.request.GetConnectUUIDRequestEvent;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.management.GetConnectUUIDResponse;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.management.GetConnectUUIDResponse;
 
 @Component
 public class GetConnectUUIDResponseService extends AbstractResponseService {
@@ -21,7 +21,7 @@ public class GetConnectUUIDResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         GetConnectUUIDResponse response = (GetConnectUUIDResponse) rawResponse;
 
         sendResult(ctx, new GetConnectUUIDRequestEvent(response.connectUUID, shardId), response.requestUUID);

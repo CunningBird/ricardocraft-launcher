@@ -4,14 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.base.AuthLimiter;
+import ru.ricardocraft.backend.command.Command;
 
 @Component
 @RequiredArgsConstructor
 public class AuthLimiterGcCommand extends Command {
 
-    private transient final Logger logger = LogManager.getLogger();
+    private transient final Logger logger = LogManager.getLogger(AuthLimiterGcCommand.class);
 
     private final AuthLimiter authLimiter;
 

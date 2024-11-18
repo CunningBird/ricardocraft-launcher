@@ -4,6 +4,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.HikariSQLSourceConfig;
@@ -37,9 +38,9 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
     private transient OpenIDAuthenticator openIDAuthenticator;
     private final transient KeyAgreementManager keyAgreementManager;
 
-    private OpenIDConfig openIDConfig;
     private HikariSQLSourceConfig sqlSourceConfig;
 
+    @Autowired
     public OpenIDAuthCoreProvider(KeyAgreementManager keyAgreementManager) {
         this.keyAgreementManager = keyAgreementManager;
         // TODO enablie this
@@ -48,7 +49,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
 //        this.sqlUserStore.init();
 //        this.sqlSessionStore = new SQLServerSessionStore(sqlSourceConfig);
 //        this.sqlSessionStore.init();
-//        this.openIDAuthenticator = new OpenIDAuthenticator(openIDConfig);
+//        this.openIDAuthenticator = openIDAuthenticator;
     }
 
     @Override

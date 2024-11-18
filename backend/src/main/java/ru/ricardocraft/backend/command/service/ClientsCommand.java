@@ -3,8 +3,8 @@ package ru.ricardocraft.backend.command.service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
@@ -13,7 +13,8 @@ import java.util.Base64;
 
 @Component
 public class ClientsCommand extends Command {
-    private transient final Logger logger = LogManager.getLogger();
+
+    private transient final Logger logger = LogManager.getLogger(ClientsCommand.class);
 
     private transient final WebSocketService service;
 

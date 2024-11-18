@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.base.Downloader;
-import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.profiles.ClientProfileVersions;
@@ -14,6 +13,7 @@ import ru.ricardocraft.backend.command.mirror.DeDupLibrariesCommand;
 import ru.ricardocraft.backend.command.mirror.installers.FabricInstallerCommand;
 import ru.ricardocraft.backend.command.mirror.installers.QuiltInstallerCommand;
 import ru.ricardocraft.backend.command.updates.profile.MakeProfileCommand;
+import ru.ricardocraft.backend.manangers.GsonManager;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.manangers.mirror.modapi.CurseforgeAPI;
@@ -42,10 +42,12 @@ import java.util.zip.ZipOutputStream;
 public class InstallClient {
     private static final Logger logger = LoggerFactory.getLogger(InstallClient.class);
 
-    private final transient LaunchServerConfig config;
     private final transient LaunchServerDirectories directories;
     private final transient UpdatesManager updatesManager;
-    private transient final ProfileProvider profileProvider;
+    private final transient GsonManager gsonManager;
+    private final transient ProfileProvider profileProvider;
+    private final transient ModrinthAPI modrinthAPI;
+    private final transient CurseforgeAPI curseforgeApi;
 
     private final transient FabricInstallerCommand fabricInstallerCommand;
     private final transient QuiltInstallerCommand quiltInstallerCommand;
@@ -66,7 +68,10 @@ public class InstallClient {
                          LaunchServerDirectories directories,
                          UpdatesManager updatesManager,
                          MirrorManager mirrorManager,
+                         GsonManager gsonManager,
                          ProfileProvider profileProvider,
+                         ModrinthAPI modrinthAPI,
+                         CurseforgeAPI curseforgeApi,
                          FabricInstallerCommand fabricInstallerCommand,
                          QuiltInstallerCommand quiltInstallerCommand,
                          DeDupLibrariesCommand deDupLibrariesCommand,
@@ -76,10 +81,12 @@ public class InstallClient {
                          List<String> mods,
                          VersionType versionType,
                          MirrorWorkspace mirrorWorkspace) {
-        this.config = config;
         this.directories = directories;
         this.updatesManager = updatesManager;
+        this.gsonManager = gsonManager;
         this.profileProvider = profileProvider;
+        this.modrinthAPI = modrinthAPI;
+        this.curseforgeApi = curseforgeApi;
 
         this.fabricInstallerCommand = fabricInstallerCommand;
         this.quiltInstallerCommand = quiltInstallerCommand;
@@ -147,7 +154,7 @@ public class InstallClient {
             IOHelper.createParentDirs(vanillaProfileJson);
             obj = ClientDownloader.gainClient(version.toString());
             try (Writer writer = IOHelper.newWriter(vanillaProfileJson)) {
-                Launcher.gsonManager.configGson.toJson(obj, writer);
+                gsonManager.configGson.toJson(obj, writer);
             }
         }
         IOHelper.createParentDirs(clientDir);
@@ -269,10 +276,10 @@ public class InstallClient {
                         forgeProfileFile = stream.findFirst().orElseThrow();
                     }
                     originalMinecraftProfile = forgeProfileFile;
-                    logger.debug("Forge profile {}", forgeProfileFile.toString());
+                    logger.debug("Forge profile {}", forgeProfileFile);
                     ForgeProfile forgeProfile;
                     try (Reader reader = IOHelper.newReader(forgeProfileFile)) {
-                        forgeProfile = Launcher.gsonManager.configGson.fromJson(reader, ForgeProfile.class);
+                        forgeProfile = gsonManager.configGson.fromJson(reader, ForgeProfile.class);
                     }
                     for (ForgeProfile.ForgeProfileLibrary library : forgeProfile.libraries()) {
                         String libUrl = library.downloads() == null ? null : library.downloads().artifact().url();
@@ -337,8 +344,6 @@ public class InstallClient {
             logger.info("Files copied");
         }
         if (mods != null && !mods.isEmpty()) {
-            ModrinthAPI modrinthAPI = null;
-            CurseforgeAPI curseforgeApi = null;
             Path modsDir = clientPath.resolve("mods");
             String loaderName = switch (versionType) {
                 case VANILLA -> "";
@@ -351,15 +356,9 @@ public class InstallClient {
                 try {
                     try {
                         long id = Long.parseLong(modId);
-                        if (curseforgeApi == null) {
-                            curseforgeApi = new CurseforgeAPI(mirrorConfig.curseforgeApiKey);
-                        }
                         installMod(curseforgeApi, modsDir, id, version);
                         continue;
                     } catch (NumberFormatException ignored) {
-                    }
-                    if (modrinthAPI == null) {
-                        modrinthAPI = new ModrinthAPI();
                     }
                     installMod(modrinthAPI, modsDir, modId, loaderName, version);
                 } catch (Throwable e) {
@@ -396,14 +395,14 @@ public class InstallClient {
         if ((versionType == VersionType.FORGE || versionType == VersionType.NEOFORGE) && version.compareTo(ClientProfileVersions.MINECRAFT_1_17) >= 0) {
             ClientProfile profile = profileProvider.getProfile(name);
             logger.info("Run ForgeProfileModifier");
-            ForgeProfileModifier modifier = new ForgeProfileModifier(originalMinecraftProfile, profile, clientPath);
+            ForgeProfileModifier modifier = new ForgeProfileModifier(originalMinecraftProfile, profile, clientPath, gsonManager);
             profile = modifier.build();
             profileProvider.addProfile(profile);
         }
         if (versionType == VersionType.FORGE && version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) == 0) {
             ClientProfile profile = profileProvider.getProfile(name);
             logger.info("Run ForgeProfileModifierCleanRoom");
-            ForgeProfileModifier modifier = new ForgeProfileModifier(originalMinecraftProfile, profile, clientPath);
+            ForgeProfileModifier modifier = new ForgeProfileModifier(originalMinecraftProfile, profile, clientPath, gsonManager);
             profile = modifier.buildCleanRoom();
             profileProvider.addProfile(profile);
         }

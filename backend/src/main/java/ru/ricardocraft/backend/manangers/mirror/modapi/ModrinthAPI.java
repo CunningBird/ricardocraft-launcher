@@ -2,9 +2,11 @@ package ru.ricardocraft.backend.manangers.mirror.modapi;
 
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
-import ru.ricardocraft.backend.base.Launcher;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.HttpHelper;
 import ru.ricardocraft.backend.base.utils.Version;
+import ru.ricardocraft.backend.manangers.GsonManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,18 +20,18 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class ModrinthAPI {
     private static final String BASE_URL = "https://api.modrinth.com/v2/";
     private static final String userAgent = "GravitLauncher/%s MirrorHelper/%s".formatted(Version.getVersion().getVersionString(), "1.0.0");
 
-    private String apiKey;
     public final HttpClient client = HttpClient.newBuilder().build();
 
-    public ModrinthAPI(String apiKey) {
-        this.apiKey = apiKey;
-    }
+    public final GsonManager gsonManager;
 
-    public ModrinthAPI() {
+    @Autowired
+    public ModrinthAPI(GsonManager gsonManager) {
+        this.gsonManager = gsonManager;
     }
 
     @SuppressWarnings("unchecked")
@@ -39,7 +41,7 @@ public class ModrinthAPI {
                 .GET()
                 .uri(URI.create(BASE_URL.concat("project/%s/version".formatted(slug))))
                 .header("User-Agent", userAgent)
-                .build(), new ModrinthErrorHandler<>(typeToken.getType())).getOrThrow();
+                .build(), new ModrinthErrorHandler<>(typeToken.getType()), gsonManager).getOrThrow();
     }
 
     public ModVersionData getModByGameVersion(List<ModVersionData> list, String gameVersion, String loader) {
@@ -63,7 +65,7 @@ public class ModrinthAPI {
 
     }
 
-    public static class ModrinthErrorHandler<T> implements HttpHelper.HttpErrorHandler<T, Void> {
+    public class ModrinthErrorHandler<T> implements HttpHelper.HttpErrorHandler<T, Void> {
         private final Type type;
 
         public ModrinthErrorHandler(Type type) {
@@ -71,13 +73,13 @@ public class ModrinthAPI {
         }
 
         @Override
-        public HttpHelper.HttpOptional<T, Void> apply(HttpResponse<InputStream> response) {
+        public HttpHelper.HttpOptional<T, Void> apply(HttpResponse<InputStream> response, GsonManager gsonManager) {
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
                 return new HttpHelper.HttpOptional<>(null, null, response.statusCode());
             }
             try (Reader reader = new InputStreamReader(response.body())) {
-                JsonElement element = Launcher.gsonManager.gson.fromJson(reader, JsonElement.class);
-                return new HttpHelper.HttpOptional<>(Launcher.gsonManager.gson.fromJson(element, type), null, response.statusCode());
+                JsonElement element = gsonManager.gson.fromJson(reader, JsonElement.class);
+                return new HttpHelper.HttpOptional<>(gsonManager.gson.fromJson(element, type), null, response.statusCode());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

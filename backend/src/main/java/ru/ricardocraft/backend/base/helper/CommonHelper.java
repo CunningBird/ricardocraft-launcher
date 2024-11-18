@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.base.helper;
 
 import com.google.gson.*;
-import ru.ricardocraft.backend.command.utls.CommandException;
 import ru.ricardocraft.backend.base.LaunchOptions;
+import ru.ricardocraft.backend.command.CommandException;
 
 import javax.script.ScriptEngine;
 import java.lang.reflect.Type;

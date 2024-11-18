@@ -1,9 +1,9 @@
 package ru.ricardocraft.backend.base.core.hasher;
 
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
+import ru.ricardocraft.backend.base.core.serialize.EnumSerializer;
 import ru.ricardocraft.backend.base.core.serialize.HInput;
 import ru.ricardocraft.backend.base.core.serialize.HOutput;
-import ru.ricardocraft.backend.base.core.serialize.stream.EnumSerializer;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.VerifyHelper;
 

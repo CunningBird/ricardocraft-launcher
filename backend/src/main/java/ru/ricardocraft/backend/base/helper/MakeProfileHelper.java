@@ -305,14 +305,6 @@ public class MakeProfileHelper {
 
         }
 
-        public MakeProfileOptionForge(String launchTarget, String forgeVersion, String forgeGroup, String minecraftVersion, String mcpVersion) {
-            this.launchTarget = launchTarget;
-            this.forgeVersion = forgeVersion;
-            this.forgeGroup = forgeGroup;
-            this.minecraftVersion = minecraftVersion;
-            this.mcpVersion = mcpVersion;
-        }
-
         public MakeProfileOptionForge(Path clientDir) throws IOException {
             Path libraries = clientDir.resolve("libraries");
             if (!Files.exists(libraries)) {
@@ -355,14 +347,6 @@ public class MakeProfileHelper {
     public static class MakeProfileOptionFabric implements MakeProfileOption {
         public String jimfsPath;
         public String guavaPath;
-
-        public MakeProfileOptionFabric() {
-        }
-
-        public MakeProfileOptionFabric(String jimfsPath, String guavaPath) {
-            this.jimfsPath = jimfsPath;
-            this.guavaPath = guavaPath;
-        }
 
         public MakeProfileOptionFabric(Path clientDir) throws IOException {
             if (Files.exists(clientDir.resolve("libraries/com/google/jimfs/jimfs"))) {

@@ -3,16 +3,16 @@ package ru.ricardocraft.backend.command.basic;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
 import ru.ricardocraft.backend.base.utils.Version;
+import ru.ricardocraft.backend.command.Command;
 
 import java.lang.management.RuntimeMXBean;
 
 @Component
 public final class VersionCommand extends Command {
 
-    private transient final Logger logger = LogManager.getLogger();
+    private transient final Logger logger = LogManager.getLogger(VersionCommand.class);
 
     @Override
     public String getArgsDescription() {

@@ -8,5 +8,6 @@ import lombok.Setter;
 public class TextureProviderProperties {
     private String skinURL;
     private String cloakURL;
-    private TextureProviderType type;
+    private String skinLocalPath;
+    private String cloakLocalPath;
 }

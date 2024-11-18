@@ -2,8 +2,8 @@ package ru.ricardocraft.backend.binary;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.binary.tasks.LauncherBuildTask;
 import ru.ricardocraft.backend.base.helper.CommonHelper;
+import ru.ricardocraft.backend.binary.tasks.LauncherBuildTask;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -13,10 +13,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public abstract class BinaryPipeline {
+
+    protected transient final Logger logger = LogManager.getLogger(BinaryPipeline.class);
+
     public final List<LauncherBuildTask> tasks = new ArrayList<>();
     public final Path buildDir;
     public final String nameFormat;
-    protected transient final Logger logger = LogManager.getLogger();
 
     public BinaryPipeline(Path buildDir, String nameFormat) {
         this.buildDir = buildDir;

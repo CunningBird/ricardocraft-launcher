@@ -2,11 +2,13 @@ package ru.ricardocraft.backend.auth.updates;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.core.hasher.HashedDir;
 import ru.ricardocraft.backend.base.core.serialize.HInput;
 import ru.ricardocraft.backend.base.core.serialize.HOutput;
 import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -19,11 +21,16 @@ import java.util.stream.Stream;
 @Component
 public class LocalUpdatesProvider extends UpdatesProvider {
 
-    private final transient Logger logger = LogManager.getLogger();
-    public String cacheFile = ".updates-cache";
-    public String updatesDir = "updates";
-    public boolean cacheUpdates = true;
+    private final Logger logger = LogManager.getLogger(LocalUpdatesProvider.class);
+
+    private final LaunchServerConfig config;
+
     private volatile transient Map<String, HashedDir> updatesDirMap;
+
+    @Autowired
+    public LocalUpdatesProvider(LaunchServerConfig config) {
+        this.config = config;
+    }
 
     private void writeCache(Path file) throws IOException {
         try (HOutput output = new HOutput(IOHelper.newOutput(file))) {
@@ -50,13 +57,9 @@ public class LocalUpdatesProvider extends UpdatesProvider {
         this.updatesDirMap = Collections.unmodifiableMap(updatesDirMap);
     }
 
-    public void readUpdatesFromCache() throws IOException {
-        readCache(Path.of(cacheFile));
-    }
-
     public void readUpdatesDir() throws IOException {
-        var cacheFilePath = Path.of(cacheFile);
-        if (cacheUpdates) {
+        var cacheFilePath = Path.of(config.localUpdatesProviderConfig.cacheFile);
+        if (config.localUpdatesProviderConfig.cacheUpdates) {
             if (Files.exists(cacheFilePath)) {
                 try {
                     readCache(cacheFilePath);
@@ -73,8 +76,8 @@ public class LocalUpdatesProvider extends UpdatesProvider {
     public void init() {
         super.init();
         try {
-            if (!IOHelper.isDir(Path.of(updatesDir)))
-                Files.createDirectory(Path.of(updatesDir));
+            if (!IOHelper.isDir(Path.of(config.localUpdatesProviderConfig.updatesDir)))
+                Files.createDirectory(Path.of(config.localUpdatesProviderConfig.updatesDir));
         } catch (IOException e) {
             logger.error("Updates not synced", e);
         }
@@ -88,7 +91,7 @@ public class LocalUpdatesProvider extends UpdatesProvider {
     public void sync(Collection<String> dirs) throws IOException {
         logger.info("Syncing updates dir");
         Map<String, HashedDir> newUpdatesDirMap = new HashMap<>(16);
-        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(Path.of(updatesDir))) {
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(Path.of(config.localUpdatesProviderConfig.updatesDir))) {
             for (final Path updateDir : dirStream) {
                 if (Files.isHidden(updateDir))
                     continue; // Skip hidden
@@ -117,9 +120,9 @@ public class LocalUpdatesProvider extends UpdatesProvider {
             }
         }
         updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);
-        if (cacheUpdates) {
+        if (config.localUpdatesProviderConfig.cacheUpdates) {
             try {
-                writeCache(Path.of(cacheFile));
+                writeCache(Path.of(config.localUpdatesProviderConfig.cacheFile));
             } catch (Throwable e) {
                 logger.error("Write updates cache failed", e);
             }
@@ -133,9 +136,9 @@ public class LocalUpdatesProvider extends UpdatesProvider {
 
     private Path resolveUpdateName(String updateName) {
         if(updateName == null) {
-            return Path.of(updatesDir);
+            return Path.of(config.localUpdatesProviderConfig.updatesDir);
         }
-        return Path.of(updatesDir).resolve(updateName);
+        return Path.of(config.localUpdatesProviderConfig.updatesDir).resolve(updateName);
     }
 
     @Override

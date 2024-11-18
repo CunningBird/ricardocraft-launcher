@@ -7,8 +7,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.manangers.GsonManager;
 import ru.ricardocraft.backend.socket.NettyConnectContext;
 
 import java.net.URLDecoder;
@@ -21,6 +21,9 @@ import java.util.TreeSet;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+
+    private transient final Logger logger = LogManager.getLogger(NettyWebAPIHandler.class);
+
     private static final TreeSet<SeverletPathPair> severletList = new TreeSet<>(Comparator.comparingInt((e) -> -e.key.length()));
     private static final DefaultFullHttpResponse ERROR_500 = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.wrappedBuffer(IOHelper.encode("Internal Server Error 500")));
 
@@ -29,26 +32,15 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
     }
 
     private final NettyConnectContext context;
-    private transient final Logger logger = LogManager.getLogger();
 
     public NettyWebAPIHandler(NettyConnectContext context) {
         super();
         this.context = context;
     }
 
-    public static void addNewSeverlet(String path, SimpleSeverletHandler callback) {
+    public static void addNewServlet(String path, SimpleServletHandler callback) {
         SeverletPathPair pair = new SeverletPathPair("/webapi/".concat(path), callback);
         severletList.add(pair);
-    }
-
-    public static SeverletPathPair addUnsafeSeverlet(String path, SimpleSeverletHandler callback) {
-        SeverletPathPair pair = new SeverletPathPair(path, callback);
-        severletList.add(pair);
-        return pair;
-    }
-
-    public static void removeSeverlet(SeverletPathPair pair) {
-        severletList.remove(pair);
     }
 
     @Override
@@ -73,7 +65,7 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
     }
 
     @FunctionalInterface
-    public interface SimpleSeverletHandler {
+    public interface SimpleServletHandler {
         void handle(ChannelHandlerContext ctx, FullHttpRequest msg, NettyConnectContext context);
 
         default Map<String, String> getParamsFromUri(String uri) {
@@ -97,12 +89,8 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
             return map;
         }
 
-        default FullHttpResponse simpleResponse(HttpResponseStatus status, String body) {
-            return new DefaultFullHttpResponse(HTTP_1_1, status, body != null ? Unpooled.wrappedBuffer(IOHelper.encode(body)) : Unpooled.buffer());
-        }
-
-        default FullHttpResponse simpleJsonResponse(HttpResponseStatus status, Object body) {
-            DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(HTTP_1_1, status, body != null ? Unpooled.wrappedBuffer(IOHelper.encode(Launcher.gsonManager.gson.toJson(body))) : Unpooled.buffer());
+        default FullHttpResponse simpleJsonResponse(HttpResponseStatus status, Object body, GsonManager gsonManager) {
+            DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(HTTP_1_1, status, body != null ? Unpooled.wrappedBuffer(IOHelper.encode(gsonManager.gson.toJson(body))) : Unpooled.buffer());
             httpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
             return httpResponse;
         }
@@ -114,9 +102,9 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     public static class SeverletPathPair {
         public final String key;
-        public final SimpleSeverletHandler callback;
+        public final SimpleServletHandler callback;
 
-        public SeverletPathPair(String key, SimpleSeverletHandler callback) {
+        public SeverletPathPair(String key, SimpleServletHandler callback) {
             this.key = key;
             this.callback = callback;
         }

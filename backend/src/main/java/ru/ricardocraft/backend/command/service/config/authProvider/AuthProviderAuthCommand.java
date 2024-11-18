@@ -8,13 +8,13 @@ import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.base.request.auth.password.AuthPlainPassword;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.base.core.managers.GsonManager;
+import ru.ricardocraft.backend.manangers.GsonManager;
 
 @Component
 @RequiredArgsConstructor
 public class AuthProviderAuthCommand extends Command {
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(AuthProviderAuthCommand.class);
 
     private final AuthCoreProvider authCoreProvider;
 

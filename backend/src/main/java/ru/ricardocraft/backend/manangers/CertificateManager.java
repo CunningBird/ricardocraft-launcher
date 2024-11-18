@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CertificateManager {
-    private transient final Logger logger = LogManager.getLogger();
+
+    private transient final Logger logger = LogManager.getLogger(CertificateManager.class);
+
     public LauncherTrustManager trustManager;
 
     public void writePrivateKey(Path file, PrivateKey privateKey) throws IOException {

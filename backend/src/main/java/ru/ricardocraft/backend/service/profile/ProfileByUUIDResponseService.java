@@ -7,12 +7,12 @@ import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.base.events.request.ProfileByUUIDRequestEvent;
+import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.profile.ProfileByUUIDResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.socket.response.profile.ProfileByUUIDResponse;
 
 @Component
 public class ProfileByUUIDResponseService extends AbstractResponseService {
@@ -30,7 +30,7 @@ public class ProfileByUUIDResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         ProfileByUUIDResponse response = (ProfileByUUIDResponse) rawResponse;
 
         AuthProviderPair pair;

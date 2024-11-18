@@ -1,75 +1,45 @@
 package ru.ricardocraft.backend.base.helper;
 
 import com.google.gson.JsonElement;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.request.RequestException;
+import ru.ricardocraft.backend.manangers.GsonManager;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.lang.reflect.Type;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.Flow;
-import java.util.function.Function;
 
 public final class HttpHelper {
-    private static final Logger logger = LogManager.getLogger();
 
     private HttpHelper() {
         throw new UnsupportedOperationException();
     }
 
-    public static <T, E> HttpOptional<T, E> send(HttpClient client, HttpRequest request, HttpErrorHandler<T, E> handler) throws IOException {
+    public static <T, E> HttpOptional<T, E> send(HttpClient client,
+                                                 HttpRequest request,
+                                                 HttpErrorHandler<T, E> handler,
+                                                 GsonManager gsonManager) throws IOException {
         try {
             var response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-            return handler.apply(response);
+            return handler.apply(response, gsonManager);
         } catch (InterruptedException e) {
             throw new IOException(e);
         }
     }
 
-    public static <T, E> CompletableFuture<HttpOptional<T, E>> sendAsync(HttpClient client, HttpRequest request, HttpErrorHandler<T, E> handler) {
-        return client.sendAsync(request, HttpResponse.BodyHandlers.ofInputStream()).thenApply(handler::apply);
-    }
-
-    public static <T> HttpResponse.BodyHandler<T> ofJsonResult(Class<T> type) {
-        return ofJsonResult((Type) type);
-    }
-
-    public static <T> HttpResponse.BodyHandler<T> ofJsonResult(Type type) {
-        return new JsonBodyHandler<>(HttpResponse.BodyHandlers.ofInputStream(), (input) -> {
-            try (Reader reader = new InputStreamReader(input)) {
-                return Launcher.gsonManager.gson.fromJson(reader, type);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
-    public static <T> HttpRequest.BodyPublisher jsonBodyPublisher(T obj) {
-        return HttpRequest.BodyPublishers.ofString(Launcher.gsonManager.gson.toJson(obj));
-    }
-
-
     public interface HttpErrorHandler<T, E> {
-        HttpOptional<T, E> apply(HttpResponse<InputStream> response);
+        HttpOptional<T, E> apply(HttpResponse<InputStream> response, GsonManager gsonManager);
     }
 
     public interface HttpJsonErrorHandler<T, E> extends HttpErrorHandler<T, E> {
         HttpOptional<T, E> applyJson(JsonElement response, int statusCode);
 
-        default HttpOptional<T, E> apply(HttpResponse<InputStream> response) {
+        default HttpOptional<T, E> apply(HttpResponse<InputStream> response, GsonManager gsonManager) {
             try (Reader reader = new InputStreamReader(response.body())) {
-                var element = Launcher.gsonManager.gson.fromJson(reader, JsonElement.class);
+                var element = gsonManager.gson.fromJson(reader, JsonElement.class);
                 return applyJson(element, response.statusCode());
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -115,64 +85,17 @@ public final class HttpHelper {
 
     public static final class BasicJsonHttpErrorHandler<T> implements HttpJsonErrorHandler<T, Void> {
         private final Class<T> type;
+        private final GsonManager gsonManager;
 
-        public BasicJsonHttpErrorHandler(Class<T> type) {
+        public BasicJsonHttpErrorHandler(Class<T> type, GsonManager gsonManager) {
             this.type = type;
+            this.gsonManager = gsonManager;
         }
 
         @Override
         public HttpOptional<T, Void> applyJson(JsonElement response, int statusCode) {
-            return new HttpOptional<>(Launcher.gsonManager.gson.fromJson(response, type), null, statusCode);
+            return new HttpOptional<>(gsonManager.gson.fromJson(response, type), null, statusCode);
         }
     }
 
-    private static class JsonBodyHandler<T> implements HttpResponse.BodyHandler<T> {
-        private final HttpResponse.BodyHandler<InputStream> delegate;
-        private final Function<InputStream, T> func;
-
-        private JsonBodyHandler(HttpResponse.BodyHandler<InputStream> delegate, Function<InputStream, T> func) {
-            this.delegate = delegate;
-            this.func = func;
-        }
-
-        @Override
-        public HttpResponse.BodySubscriber<T> apply(HttpResponse.ResponseInfo responseInfo) {
-            return new JsonBodySubscriber<>(delegate.apply(responseInfo), func);
-        }
-    }
-
-    private static class JsonBodySubscriber<T> implements HttpResponse.BodySubscriber<T> {
-        private final HttpResponse.BodySubscriber<InputStream> delegate;
-        private final Function<InputStream, T> func;
-
-        private JsonBodySubscriber(HttpResponse.BodySubscriber<InputStream> delegate, Function<InputStream, T> func) {
-            this.delegate = delegate;
-            this.func = func;
-        }
-
-        @Override
-        public CompletionStage<T> getBody() {
-            return delegate.getBody().thenApply(func);
-        }
-
-        @Override
-        public void onSubscribe(Flow.Subscription subscription) {
-            delegate.onSubscribe(subscription);
-        }
-
-        @Override
-        public void onNext(List<ByteBuffer> item) {
-            delegate.onNext(item);
-        }
-
-        @Override
-        public void onError(Throwable throwable) {
-            delegate.onError(throwable);
-        }
-
-        @Override
-        public void onComplete() {
-            delegate.onComplete();
-        }
-    }
 }

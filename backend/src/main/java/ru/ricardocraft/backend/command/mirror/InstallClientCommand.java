@@ -5,13 +5,17 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.command.CommandException;
 import ru.ricardocraft.backend.command.mirror.installers.FabricInstallerCommand;
 import ru.ricardocraft.backend.command.mirror.installers.QuiltInstallerCommand;
 import ru.ricardocraft.backend.command.updates.profile.MakeProfileCommand;
+import ru.ricardocraft.backend.manangers.GsonManager;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.manangers.mirror.InstallClient;
 import ru.ricardocraft.backend.manangers.mirror.MirrorWorkspace;
+import ru.ricardocraft.backend.manangers.mirror.modapi.CurseforgeAPI;
+import ru.ricardocraft.backend.manangers.mirror.modapi.ModrinthAPI;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
@@ -25,7 +29,10 @@ public class InstallClientCommand extends Command {
     private final transient LaunchServerDirectories directories;
     private final transient UpdatesManager updatesManager;
     private final transient MirrorManager mirrorManager;
-    private transient final ProfileProvider profileProvider;
+    private final transient GsonManager gsonManager;
+    private final transient ProfileProvider profileProvider;
+    private final transient ModrinthAPI modrinthAPI;
+    private final transient CurseforgeAPI curseforgeApi;
 
     private final transient FabricInstallerCommand fabricInstallerCommand;
     private final transient QuiltInstallerCommand quiltInstallerCommand;
@@ -37,6 +44,9 @@ public class InstallClientCommand extends Command {
                                 LaunchServerDirectories directories,
                                 UpdatesManager updatesManager,
                                 MirrorManager mirrorManager,
+                                GsonManager gsonManager,
+                                ModrinthAPI modrinthAPI,
+                                CurseforgeAPI curseforgeApi,
                                 ProfileProvider profileProvider,
                                 FabricInstallerCommand fabricInstallerCommand,
                                 QuiltInstallerCommand quiltInstallerCommand,
@@ -47,7 +57,10 @@ public class InstallClientCommand extends Command {
         this.directories = directories;
         this.updatesManager = updatesManager;
         this.mirrorManager = mirrorManager;
+        this.gsonManager = gsonManager;
         this.profileProvider = profileProvider;
+        this.modrinthAPI = modrinthAPI;
+        this.curseforgeApi = curseforgeApi;
 
         this.fabricInstallerCommand = fabricInstallerCommand;
         this.quiltInstallerCommand = quiltInstallerCommand;
@@ -73,7 +86,7 @@ public class InstallClientCommand extends Command {
         InstallClient.VersionType versionType = InstallClient.VersionType.valueOf(args[2]);
         List<String> mods = new ArrayList<>();
         MirrorWorkspace mirrorWorkspace = config.mirrorConfig.workspace;
-        if(mirrorWorkspace != null) {
+        if (mirrorWorkspace != null) {
             switch (versionType) {
                 case VANILLA -> {
                 }
@@ -85,9 +98,16 @@ public class InstallClientCommand extends Command {
         if (args.length > 3) {
             mods = Arrays.stream(args[3].split(",")).toList();
         }
-        InstallClient run = new InstallClient(config, directories, updatesManager, mirrorManager, profileProvider,
-                fabricInstallerCommand, quiltInstallerCommand, deDupLibrariesCommand, makeProfileCommand,
-                name, version, mods, versionType, mirrorWorkspace);
+        InstallClient run = new InstallClient(config, directories, updatesManager, mirrorManager, gsonManager,
+                profileProvider, modrinthAPI, curseforgeApi, fabricInstallerCommand, quiltInstallerCommand,
+                deDupLibrariesCommand, makeProfileCommand, name, version, mods, versionType, mirrorWorkspace);
         run.run();
+    }
+
+    protected ClientProfile.Version parseClientVersion(String arg) throws CommandException {
+        if(arg.isEmpty()) {
+            throw new CommandException("ClientVersion can't be empty");
+        }
+        return gsonManager.gson.fromJson(arg, ClientProfile.Version.class);
     }
 }

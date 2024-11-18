@@ -4,11 +4,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.binary.LauncherBinary;
 import ru.ricardocraft.backend.binary.tasks.SignJarTask;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
@@ -19,7 +19,8 @@ import java.util.Optional;
 
 @Component
 public class SignDirCommand extends Command {
-    private transient final Logger logger = LogManager.getLogger();
+
+    private transient final Logger logger = LogManager.getLogger(SignDirCommand.class);
 
     private transient final LaunchServerConfig config;
     private transient final LaunchServerDirectories directories;

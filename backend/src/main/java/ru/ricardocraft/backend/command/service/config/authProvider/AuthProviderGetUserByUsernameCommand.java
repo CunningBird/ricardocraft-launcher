@@ -12,7 +12,7 @@ import ru.ricardocraft.backend.command.Command;
 @RequiredArgsConstructor
 public class AuthProviderGetUserByUsernameCommand extends Command {
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(AuthProviderGetUserByUsernameCommand.class);
 
     private final AuthCoreProvider authCoreProvider;
 
