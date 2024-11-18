@@ -1,8 +1,9 @@
 package ru.ricardocraft.backend.base.request.websockets;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.ricardocraft.backend.base.Downloader;
 import ru.ricardocraft.backend.base.core.LauncherInject;
-import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;
@@ -19,6 +20,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public abstract class ClientJSONPoint implements WebSocket.Listener {
+
+    private final Logger logger = LoggerFactory.getLogger(ClientJSONPoint.class);
+
     @LauncherInject("launcher.certificatePinning")
     private static boolean isCertificatePinning;
     private static final AtomicInteger counter = new AtomicInteger();
@@ -84,7 +88,7 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
             if(last) {
                 String message = builder.toString();
                 builder = new StringBuilder();
-                LogHelper.dev("Received %s", message);
+                logger.warn("Received {}", message);
                 onMessage(message);
             }
         }
@@ -99,12 +103,12 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
 
     @Override
     public void onError(WebSocket webSocket, Throwable error) {
-        LogHelper.error(error);
+        logger.error(error.getMessage());
         WebSocket.Listener.super.onError(webSocket, error);
     }
 
     public void send(String text) {
-        LogHelper.dev("Send %s", text);
+        logger.warn("Send {}", text);
         webSocket.sendText(text, true);
     }
 

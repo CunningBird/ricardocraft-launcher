@@ -1,8 +1,9 @@
 package ru.ricardocraft.backend.command.utls;
 
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.ricardocraft.backend.base.helper.CommonHelper;
-import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,15 +13,18 @@ import java.util.Map;
 
 @Getter
 public abstract class CommandHandler implements Runnable {
+
+    private final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
+
     private final List<Category> categories = new ArrayList<>();
     private final CommandCategory baseCategory = new BaseCommandCategory();
 
     public void eval(String line, boolean bell) {
-        LogHelper.info("Command '%s'", line);
+        logger.info("Command '{}'", line);
         try {
             evalNative(line, bell);
         } catch (Exception e) {
-            LogHelper.error(e);
+            logger.error(e.getMessage());
         }
     }
 
@@ -84,25 +88,12 @@ public abstract class CommandHandler implements Runnable {
         categories.add(category);
     }
 
-    public void unregisterCategory(Category category) {
-        categories.remove(category);
-    }
-
-    public Category findCategory(String name) {
-        for (Category category : categories) if (category.name.equals(name)) return category;
-        return null;
-    }
-
-    public Command unregisterCommand(String name) {
-        return baseCategory.unregisterCommand(name);
-    }
-
     @Override
     public void run() {
         try {
             readLoop();
         } catch (IOException e) {
-            LogHelper.error(e);
+            logger.error(e.getMessage());
         }
     }
 

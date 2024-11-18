@@ -1,11 +1,12 @@
 package ru.ricardocraft.backend.base.request.websockets;
 
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.events.NotificationEvent;
 import ru.ricardocraft.backend.base.events.request.*;
 import ru.ricardocraft.backend.base.request.WebSocketEvent;
-import ru.ricardocraft.backend.base.helper.LogHelper;
 import ru.ricardocraft.backend.base.utils.ProviderMap;
 
 import java.io.IOException;
@@ -14,6 +15,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public abstract class ClientWebSocketService extends ClientJSONPoint {
+
+    private final Logger logger = LoggerFactory.getLogger(ClientWebSocketService.class);
+
     public static final ProviderMap<WebSocketEvent> results = new ProviderMap<>();
     public static final ProviderMap<WebSocketRequest> requests = new ProviderMap<>();
     private static boolean resultsRegistered = false;
@@ -47,7 +51,7 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
 
     @Override
     void onDisconnect(int statusCode, String reason) {
-        LogHelper.info("WebSocket disconnected: %d: %s", statusCode, reason);
+        logger.info("WebSocket disconnected: {}: {}", statusCode, reason);
         if (onCloseCallback != null) onCloseCallback.onClose(statusCode, reason, !isClosed);
     }
 

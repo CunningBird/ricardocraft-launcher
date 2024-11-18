@@ -1,12 +1,15 @@
 package ru.ricardocraft.backend.command.basic;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.command.utls.Command;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
-import ru.ricardocraft.backend.base.helper.LogHelper;
+import ru.ricardocraft.backend.command.utls.Command;
 
 @Component
 public class GCCommand extends Command {
+
+    private final Logger logger = LoggerFactory.getLogger(GCCommand.class);
 
     @Override
     public String getArgsDescription() {
@@ -20,13 +23,13 @@ public class GCCommand extends Command {
 
     @Override
     public void invoke(String... args) {
-        LogHelper.subInfo("Performing full GC");
+        logger.info("Performing full GC");
         JVMHelper.fullGC();
         // Print memory usage
         long max = JVMHelper.RUNTIME.maxMemory() >> 20;
         long free = JVMHelper.RUNTIME.freeMemory() >> 20;
         long total = JVMHelper.RUNTIME.totalMemory() >> 20;
         long used = total - free;
-        LogHelper.subInfo("Heap usage: %d / %d / %d MiB", used, total, max);
+        logger.info("Heap usage: {} / {} / {} MiB", used, total, max);
     }
 }

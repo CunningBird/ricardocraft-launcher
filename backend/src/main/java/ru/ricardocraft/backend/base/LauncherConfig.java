@@ -65,7 +65,6 @@ public final class LauncherConfig extends StreamObject {
         }
         address = null;
         environment = LauncherEnvironment.STD;
-        Launcher.applyLauncherEnv(environment);
         // Read signed runtime
         int count = input.readLength(0);
         Map<String, byte[]> localResources = new HashMap<>(count);

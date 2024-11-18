@@ -27,12 +27,8 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter") {
-        exclude("org.springframework.boot", "spring-boot-starter-logging")
-    }
-    implementation("org.springframework.boot:spring-boot-starter-validation") {
-        exclude("org.springframework.boot", "spring-boot-starter-logging")
-    }
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("io.projectreactor:reactor-core")
 
     implementation("me.tongfei:progressbar:0.10.1")
@@ -55,28 +51,18 @@ dependencies {
     implementation("com.h2database:h2:2.3.232")
 
     implementation("com.guardsquare:proguard-base:7.5.0")
-    implementation("org.apache.logging.log4j:log4j-core:2.23.1")
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")
     implementation("io.jsonwebtoken:jjwt-impl:0.12.5")
     implementation("io.jsonwebtoken:jjwt-gson:0.12.5")
     implementation("com.google.code.gson:gson:2.11.0")
-    annotationProcessor("org.apache.logging.log4j:log4j-core:2.23.1")
 
     implementation("io.micrometer:micrometer-core:1.13.1")
     implementation("com.zaxxer:HikariCP:5.1.0") {
         exclude("javassist")
         exclude("io.micrometer")
-        exclude("org.slf4j")
     }
 
-    implementation("io.sentry:sentry:8.0.0-alpha.4") {
-        exclude("org.slf4j")
-    }
-    implementation("io.sentry:sentry-log4j2:8.0.0-alpha.4") {
-        exclude("org.apache.logging.log4j")
-    }
-    implementation("org.springframework.boot:spring-boot-starter-log4j2")
+    implementation("io.sentry:sentry:8.0.0-alpha.4")
 
     implementation(platform("software.amazon.awssdk:bom:2.17.290"))
     implementation("software.amazon.awssdk:s3")

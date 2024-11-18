@@ -48,13 +48,11 @@ public class CommandConfiguration {
     @Bean
     public CommandHandler.Category basicCommandCategory(CommandHandler commandHandler,
                                                         BuildCommand buildCommand,
-                                                        DebugCommand debugCommand,
                                                         GCCommand gcCommand,
                                                         StopCommand stopCommand,
                                                         VersionCommand versionCommand) {
         BaseCommandCategory basic = new BaseCommandCategory();
         basic.registerCommand("build", buildCommand);
-        basic.registerCommand("debug", debugCommand);
         basic.registerCommand("gc", gcCommand);
         basic.registerCommand("stop", stopCommand);
         basic.registerCommand("version", versionCommand);

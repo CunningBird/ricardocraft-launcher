@@ -1,9 +1,11 @@
 package ru.ricardocraft.backend.base;
 
+import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.ricardocraft.backend.base.core.CertificatePinningTrustManager;
 import ru.ricardocraft.backend.base.core.LauncherInject;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -31,6 +33,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class Downloader {
+
+    private static final Logger logger = LoggerFactory.getLogger(Downloader.class);
+
     @LauncherInject("launcher.certificatePinning")
     private static boolean isCertificatePinning;
     @LauncherInject("launcher.noHttp2")
@@ -40,6 +45,7 @@ public class Downloader {
     protected final HttpClient client;
     protected final ExecutorService executor;
     protected final Queue<DownloadTask> tasks = new ConcurrentLinkedDeque<>();
+    @Getter
     protected CompletableFuture<Void> future;
     protected Downloader(HttpClient client, ExecutorService executor) {
         this.client = client;
@@ -107,7 +113,7 @@ public class Downloader {
 
     public static Downloader downloadList(List<SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
         boolean closeExecutor = false;
-        LogHelper.info("Download with Java 11+ HttpClient");
+        logger.info("Download with Java 11+ HttpClient");
         if (executor == null) {
             executor = Executors.newWorkStealingPool(Math.min(3, threads));
             closeExecutor = true;
@@ -132,23 +138,6 @@ public class Downloader {
                 .executor(executor);
         HttpClient client = builder.build();
         return new Downloader(client, executor);
-    }
-
-    public void cancel() {
-        for (DownloadTask task : tasks) {
-            if (!task.isCompleted()) {
-                task.cancel();
-            }
-        }
-        tasks.clear();
-    }
-
-    public boolean isCanceled() {
-        return executor.isTerminated();
-    }
-
-    public CompletableFuture<Void> getFuture() {
-        return future;
     }
 
     public CompletableFuture<Void> downloadFile(URI uri, Path path) {
@@ -209,7 +198,7 @@ public class Downloader {
                     return null;
                 });
             } catch (Exception exception) {
-                LogHelper.error(exception);
+                logger.error(exception.getMessage());
                 future.completeExceptionally(exception);
             }
         };

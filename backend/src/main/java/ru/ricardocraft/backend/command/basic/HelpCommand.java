@@ -1,11 +1,12 @@
 package ru.ricardocraft.backend.command.basic;
 
 import org.fusesource.jansi.Ansi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.utls.Command;
 import ru.ricardocraft.backend.command.utls.CommandException;
 import ru.ricardocraft.backend.command.utls.CommandHandler;
-import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.util.Arrays;
 import java.util.Map.Entry;
@@ -13,6 +14,9 @@ import java.util.function.Supplier;
 
 @Component
 public final class HelpCommand extends Command {
+
+    private static final Logger logger = LoggerFactory.getLogger(HelpCommand.class);
+
     private final CommandHandler commandHandler;
 
     public HelpCommand(CommandHandler commandHandler) {
@@ -22,7 +26,6 @@ public final class HelpCommand extends Command {
 
     public static void printCommand(String name, Command command) {
         String args = command.getArgsDescription();
-        Supplier<String> plaintext = () -> String.format("%s %s - %s", name, args == null ? "[nothing]" : args, command.getUsageDescription());
         Supplier<String> jansitext = () -> {
             Ansi ansi = new Ansi();
             ansi.fgBright(Ansi.Color.GREEN);
@@ -36,7 +39,7 @@ public final class HelpCommand extends Command {
             ansi.reset();
             return ansi.toString();
         };
-        LogHelper.logJAnsi(LogHelper.Level.INFO, plaintext, jansitext, true);
+        logger.info(jansitext.get());
     }
 
     public static void printSubCommandsHelp(String base, Command command) {
@@ -54,8 +57,8 @@ public final class HelpCommand extends Command {
     }
 
     private static void printCategory(String name, String description) {
-        if (description != null) LogHelper.info("Category: %s - %s", name, description);
-        else LogHelper.info("Category: %s", name);
+        if (description != null) logger.info("Category: {} - {}", name, description);
+        else logger.info("Category: {}", name);
     }
 
     @Override

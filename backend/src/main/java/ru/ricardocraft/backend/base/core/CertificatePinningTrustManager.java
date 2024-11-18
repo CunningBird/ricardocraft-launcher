@@ -1,6 +1,7 @@
 package ru.ricardocraft.backend.base.core;
 
-import ru.ricardocraft.backend.base.helper.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.TrustManagerFactory;
 import java.io.ByteArrayInputStream;
@@ -16,6 +17,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class CertificatePinningTrustManager {
+
+    private static final Logger logger = LoggerFactory.getLogger(CertificatePinningTrustManager.class);
+
     @LauncherInject("launchercore.certificates")
     private static List<byte[]> secureConfigCertificates;
     private static X509Certificate[] certs = null;
@@ -33,7 +37,7 @@ public final class CertificatePinningTrustManager {
             try (InputStream input = new ByteArrayInputStream(cert)) {
                 return (X509Certificate) finalCertFactory.generateCertificate(input);
             } catch (IOException | CertificateException e) {
-                LogHelper.error(e);
+                logger.error(e.getMessage());
                 return null;
             }
         }).toArray(X509Certificate[]::new);

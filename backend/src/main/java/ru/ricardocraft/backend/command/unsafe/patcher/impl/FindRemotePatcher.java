@@ -1,10 +1,14 @@
 package ru.ricardocraft.backend.command.unsafe.patcher.impl;
 
 import org.objectweb.asm.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.ricardocraft.backend.command.unsafe.patcher.ClassTransformerPatcher;
-import ru.ricardocraft.backend.base.helper.LogHelper;
 
 public class FindRemotePatcher extends ClassTransformerPatcher {
+
+    private final Logger logger = LoggerFactory.getLogger(FindRemotePatcher.class);
+
     @Override
     public ClassVisitor getVisitor(ClassReader reader, ClassWriter cw) {
         return new ClassVisitor(Opcodes.ASM7) {
@@ -14,9 +18,9 @@ public class FindRemotePatcher extends ClassTransformerPatcher {
                     @Override
                     public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
                         if (opcode == Opcodes.INVOKEVIRTUAL && "java/net/URL".equals(owner) && "openConnection".equals(name)) {
-                            LogHelper.info("Class %s method %s call %s.%s(%s)", reader.getClassName(), methodName, owner, name, descriptor);
+                            logger.info("Class {} method {} call {}.{}({})", reader.getClassName(), methodName, owner, name, descriptor);
                         } else if (opcode == Opcodes.INVOKESPECIAL && "java/net/Socket".equals(owner) && "<init>".equals(name)) {
-                            LogHelper.info("Class %s method %s call %s.%s(%s)", reader.getClassName(), methodName, owner, name, descriptor);
+                            logger.info("Class {} method {} call {}.{}({})", reader.getClassName(), methodName, owner, name, descriptor);
                         }
                         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
                     }
@@ -24,7 +28,7 @@ public class FindRemotePatcher extends ClassTransformerPatcher {
                     @Override
                     public void visitLdcInsn(Object value) {
                         if (value instanceof String string && isHttpString(string)) {
-                            LogHelper.info("Class %s method %s LDC %s", reader.getClassName(), methodName, value);
+                            logger.info("Class {} method {} LDC {}", reader.getClassName(), methodName, value);
                         }
                         super.visitLdcInsn(value);
                     }

@@ -1,12 +1,13 @@
 package ru.ricardocraft.backend.command.unsafe;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.unsafe.patcher.UnsafePatcher;
 import ru.ricardocraft.backend.command.unsafe.patcher.impl.*;
-import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.base.helper.LogHelper;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.lang.invoke.MethodHandles;
@@ -19,6 +20,9 @@ import java.util.Map;
 
 @Component
 public class PatcherCommand extends Command {
+
+    private final Logger logger = LoggerFactory.getLogger(PatcherCommand.class);
+
     public static Map<String, UnsafePatcher> patchers = new HashMap<>();
 
     private transient final LaunchServerDirectories directories;
@@ -64,7 +68,7 @@ public class PatcherCommand extends Command {
                 else
                     patcher = (UnsafePatcher) MethodHandles.publicLookup().findConstructor(clazz, MethodType.methodType(void.class)).invoke();
             } catch (Throwable e) {
-                LogHelper.dev(LogHelper.toString(e));
+                logger.debug(e.getMessage());
                 try {
                     patcher = (UnsafePatcher) MethodHandles.publicLookup().findConstructor(clazz, MethodType.methodType(void.class)).invokeWithArguments();
                 } catch (Throwable t) {

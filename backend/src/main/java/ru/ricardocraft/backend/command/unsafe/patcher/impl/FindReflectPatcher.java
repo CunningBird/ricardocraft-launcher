@@ -1,14 +1,13 @@
 package ru.ricardocraft.backend.command.unsafe.patcher.impl;
 
 import org.objectweb.asm.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.ricardocraft.backend.command.unsafe.patcher.ClassTransformerPatcher;
-import ru.ricardocraft.backend.base.helper.LogHelper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class FindReflectPatcher extends ClassTransformerPatcher {
-    public static List<String> noTriggeredMethods = new ArrayList<>();
+
+    private final Logger logger = LoggerFactory.getLogger(FindReflectPatcher.class);
 
     @Override
     public ClassVisitor getVisitor(ClassReader reader, ClassWriter cw) {
@@ -16,7 +15,7 @@ public class FindReflectPatcher extends ClassTransformerPatcher {
             @Override
             public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
                 if (value instanceof String string && isReflection(string)) {
-                    LogHelper.info("Class %s field %s: %s", reader.getClassName(), name, value);
+                    logger.info("Class {} field {}: {}", reader.getClassName(), name, value);
                 }
                 return super.visitField(access, name, descriptor, signature, value);
             }
@@ -27,7 +26,7 @@ public class FindReflectPatcher extends ClassTransformerPatcher {
                     @Override
                     public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
                         if (owner != null && isReflection(owner)) {
-                            LogHelper.info("Class %s method %s call %s.%s(%s)", reader.getClassName(), methodName, owner, name, descriptor);
+                            logger.info("Class {} method {} call {}.{}({})", reader.getClassName(), methodName, owner, name, descriptor);
                         }
                         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
                     }
@@ -35,7 +34,7 @@ public class FindReflectPatcher extends ClassTransformerPatcher {
                     @Override
                     public void visitLdcInsn(Object value) {
                         if (value instanceof String string && isReflection(string)) {
-                            LogHelper.info("Class %s method %s LDC %s", reader.getClassName(), methodName, value);
+                            logger.info("Class {} method {} LDC {}", reader.getClassName(), methodName, value);
                         }
                         super.visitLdcInsn(value);
                     }

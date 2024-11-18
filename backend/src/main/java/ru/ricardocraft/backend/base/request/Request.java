@@ -1,6 +1,9 @@
 package ru.ricardocraft.backend.base.request;
 
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
 import ru.ricardocraft.backend.base.events.request.CurrentUserRequestEvent;
 import ru.ricardocraft.backend.base.events.request.RefreshTokenRequestEvent;
@@ -9,8 +12,6 @@ import ru.ricardocraft.backend.base.request.auth.RefreshTokenRequest;
 import ru.ricardocraft.backend.base.request.auth.RestoreRequest;
 import ru.ricardocraft.backend.base.request.websockets.StdWebSocketService;
 import ru.ricardocraft.backend.base.request.websockets.WebSocketRequest;
-import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
-import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,6 +22,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 public abstract class Request<R extends WebSocketEvent> implements WebSocketRequest {
+
+    private static final Logger logger = LoggerFactory.getLogger(Request.class);
+
     private static final List<ExtendedTokenCallback> extendedTokenCallbacks = new ArrayList<>(4);
     private static final List<BiConsumer<String, AuthRequestEvent.OAuthRequestEvent>> oauthChangeHandlers = new ArrayList<>(4);
 
@@ -50,7 +54,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
                 try {
                     restore(false, true, false);
                 } catch (Exception e) {
-                    LogHelper.error(e);
+                    logger.error(e.getMessage());
                 }
             }, 5, 5, TimeUnit.SECONDS);
             autoRefreshRunning = true;
@@ -158,7 +162,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
                 request = new RestoreRequest(authId, null, tokens, false);
                 event = request.request();
                 if (event.invalidTokens != null && !event.invalidTokens.isEmpty()) {
-                    LogHelper.warning("Tokens %s not restored", String.join(",", event.invalidTokens));
+                    logger.warn("Tokens {} not restored", String.join(",", event.invalidTokens));
                 }
             }
             invalidTokens = event.invalidTokens;

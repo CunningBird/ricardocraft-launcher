@@ -1,6 +1,7 @@
 package ru.ricardocraft.backend.base.core;
 
-import ru.ricardocraft.backend.base.helper.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -19,6 +20,9 @@ import java.security.cert.*;
 import java.util.*;
 
 public class LauncherTrustManager {
+
+    private final Logger logger = LoggerFactory.getLogger(LauncherTrustManager.class);
+
     private final X509Certificate[] trustSigners;
     private final List<X509Certificate> trustCache = new ArrayList<>();
 
@@ -38,7 +42,7 @@ public class LauncherTrustManager {
             try (InputStream input = new ByteArrayInputStream(cert)) {
                 return (X509Certificate) certFactory.generateCertificate(input);
             } catch (IOException | CertificateException e) {
-                LogHelper.error(e);
+                logger.error(e.getMessage());
                 return null;
             }
         }).toArray(X509Certificate[]::new);
@@ -73,16 +77,16 @@ public class LauncherTrustManager {
 
             // Setting the default context
             HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-            LogHelper.info("Successfully injected certificates to truststore");
+            logger.info("Successfully injected certificates to truststore");
         } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException | IOException | CertificateException e) {
-            LogHelper.error("Error while modify existing keystore");
+            logger.error("Error while modify existing keystore");
         }
     }
 
     /**
      * Получение набора стандартных сертификатов, вшитых в текущую сессию JVM
      */
-    private static Map<String, Certificate> getDefaultKeyStore() {
+    private Map<String, Certificate> getDefaultKeyStore() {
         // init existing keystore
         final Map<String, Certificate> jdkTrustStore = new HashMap<>();
         try {
@@ -93,7 +97,7 @@ public class LauncherTrustManager {
             // getting all JDK/JRE certificates
             extractAllCertsAndPutInMap(keyStore, jdkTrustStore);
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
-            LogHelper.warning("Error while loading existing keystore");
+            logger.warn("Error while loading existing keystore");
         }
         return jdkTrustStore;
     }
@@ -101,35 +105,35 @@ public class LauncherTrustManager {
     /**
      * Retrieve existing certificates from the standard KeyStore of the current JVM session. The process should not be interrupted in case of failure
      */
-    private static void extractAllCertsAndPutInMap(KeyStore keyStore, Map<String, Certificate> placeToExport) {
+    private void extractAllCertsAndPutInMap(KeyStore keyStore, Map<String, Certificate> placeToExport) {
         try {
             Collections.list(keyStore.aliases()).forEach(key -> extractCertAndPutInMap(keyStore, key, placeToExport));
         } catch (KeyStoreException e) {
-            LogHelper.error("Error during extraction certificates from default keystore");
+            logger.error("Error during extraction certificates from default keystore");
         }
     }
 
     /**
      * Добавление сертификата с именем name в KeyStore. Не должно прерывать общий процесс инъекции сертификатов, в случае неудачи.
      */
-    private static void setCertificateEntry(KeyStore keyStore, String name, Certificate cert) {
+    private void setCertificateEntry(KeyStore keyStore, String name, Certificate cert) {
         try {
             keyStore.setCertificateEntry(name, cert);
         } catch (KeyStoreException e) {
-            LogHelper.warning("Something went wrong while adding certificate " + name);
+            logger.warn("Something went wrong while adding certificate {}", name);
         }
     }
 
     /**
      * Retrieve an existing certificate from the standard KeyStore of the current JVM session. The process should not be interrupted in case of failure
      */
-    private static void extractCertAndPutInMap(KeyStore keyStoreFromExtract, String key, Map<String, Certificate> placeToExtract) {
+    private void extractCertAndPutInMap(KeyStore keyStoreFromExtract, String key, Map<String, Certificate> placeToExtract) {
         try {
             if (keyStoreFromExtract.containsAlias(key)) {
                 placeToExtract.put(key, keyStoreFromExtract.getCertificate(key));
             }
         } catch (KeyStoreException e) {
-            LogHelper.warning("Error while extracting certificate " + key);
+            logger.warn("Error while extracting certificate {}", key);
         }
     }
 

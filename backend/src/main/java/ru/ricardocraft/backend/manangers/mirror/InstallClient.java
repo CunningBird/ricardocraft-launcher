@@ -1,20 +1,19 @@
 package ru.ricardocraft.backend.manangers.mirror;
 
 import com.google.gson.JsonObject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.base.Downloader;
 import ru.ricardocraft.backend.base.Launcher;
+import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.profiles.ClientProfileVersions;
 import ru.ricardocraft.backend.command.mirror.DeDupLibrariesCommand;
 import ru.ricardocraft.backend.command.mirror.installers.FabricInstallerCommand;
 import ru.ricardocraft.backend.command.mirror.installers.QuiltInstallerCommand;
 import ru.ricardocraft.backend.command.updates.profile.MakeProfileCommand;
-import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.base.helper.LogHelper;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.manangers.mirror.modapi.CurseforgeAPI;
@@ -41,7 +40,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class InstallClient {
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LoggerFactory.getLogger(InstallClient.class);
 
     private final transient LaunchServerConfig config;
     private final transient LaunchServerDirectories directories;
@@ -140,7 +139,7 @@ public class InstallClient {
         JsonObject obj;
         Path vanillaProfileJson = workdir.resolve("profiles").resolve("vanilla").resolve(version.toString().concat(".json"));
         if (Files.exists(vanillaProfileJson)) {
-            LogHelper.subInfo("Using file %s", vanillaProfileJson);
+            logger.info("Using file {}", vanillaProfileJson);
             try (Reader reader = IOHelper.newReader(vanillaProfileJson)) {
                 obj = ClientDownloader.GSON.fromJson(reader, JsonObject.class);
             }
@@ -154,7 +153,7 @@ public class InstallClient {
         IOHelper.createParentDirs(clientDir);
         ClientDownloader.ClientInfo info = ClientDownloader.getClient(obj);
         // Download required files
-        LogHelper.subInfo("Downloading client, it may take some time");
+        logger.info("Downloading client, it may take some time");
         ExecutorService e = Executors.newFixedThreadPool(4);
         //info.libraries.addAll(info.natives); // Hack
         List<Downloader.SizedFile> applies = info.libraries.stream()
@@ -164,27 +163,11 @@ public class InstallClient {
         if (info.client != null) {
             IOHelper.transfer(IOHelper.newInput(new URI(info.client.url).toURL()), clientDir.resolve("minecraft.jar"));
         }
-        LogHelper.subInfo("Downloaded client jar!");
+        logger.info("Downloaded client jar!");
         downloader.getFuture().get();
         e.shutdownNow();
         // Finished
-        LogHelper.subInfo("Client downloaded!");
-    }
-
-    private void fetchNatives(Path resolve, List<ClientDownloader.Artifact> natives) {
-        for (ClientDownloader.Artifact a : natives) {
-            try (ZipInputStream z = IOHelper.newZipInput(new URI(a.url).toURL())) {
-                ZipEntry e = z.getNextEntry();
-                while (e != null) {
-                    if (!e.isDirectory() && !e.getName().startsWith("META-INF") && !e.getName().startsWith("/META-INF")) {
-                        IOHelper.transfer(z, resolve.resolve(e.getName()));
-                    }
-                    e = z.getNextEntry();
-                }
-            } catch (Throwable e) {
-                LogHelper.subWarning(LogHelper.toString(e));
-            }
-        }
+        logger.info("Client downloaded!");
     }
 
     public void run() throws Exception {
@@ -314,7 +297,7 @@ public class InstallClient {
                                 }
                             }
                         } catch (FileNotFoundException e) {
-                            LogHelper.warning("Not found %s", url.url);
+                            logger.warn("Not found {}", url.url);
                         }
                     }
                 }

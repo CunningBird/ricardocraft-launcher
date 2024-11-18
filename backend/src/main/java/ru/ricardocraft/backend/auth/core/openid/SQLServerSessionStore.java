@@ -1,12 +1,16 @@
 package ru.ricardocraft.backend.auth.core.openid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.ricardocraft.backend.auth.SQLSourceConfig;
-import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.sql.SQLException;
 import java.util.UUID;
 
 public class SQLServerSessionStore implements ServerSessionStore {
+
+    private final Logger logger = LoggerFactory.getLogger(SQLServerSessionStore.class);
+
     private static final String CREATE_TABLE = """
             create table if not exists `gravit_server_session` (
               id int auto_increment,
@@ -54,8 +58,8 @@ public class SQLServerSessionStore implements ServerSessionStore {
                 throw e;
             }
         } catch (SQLException e) {
-            LogHelper.debug("Can't join server. Username: %s".formatted(username));
-            LogHelper.error(e);
+            logger.debug("Can't join server. Username: {}", username);
+            logger.error(e.getMessage());
         }
 
         return false;
@@ -73,8 +77,8 @@ public class SQLServerSessionStore implements ServerSessionStore {
                 return rs.getString("server_id");
             }
         } catch (SQLException e) {
-            LogHelper.debug("Can't find server id by username. Username: %s".formatted(username));
-            LogHelper.error(e);
+            logger.debug("Can't find server id by username. Username: {}", username);
+            logger.error(e.getMessage());
         }
         return null;
     }

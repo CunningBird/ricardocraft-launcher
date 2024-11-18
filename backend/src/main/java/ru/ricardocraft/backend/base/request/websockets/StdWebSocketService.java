@@ -1,13 +1,14 @@
 package ru.ricardocraft.backend.base.request.websockets;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ErrorRequestEvent;
+import ru.ricardocraft.backend.base.helper.JVMHelper;
 import ru.ricardocraft.backend.base.request.Request;
 import ru.ricardocraft.backend.base.request.RequestException;
 import ru.ricardocraft.backend.base.request.RequestService;
 import ru.ricardocraft.backend.base.request.WebSocketEvent;
-import ru.ricardocraft.backend.base.helper.JVMHelper;
-import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;
@@ -18,6 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 public class StdWebSocketService extends ClientWebSocketService implements RequestService {
+
+    private static final Logger logger = LoggerFactory.getLogger(StdWebSocketService.class);
+
     @SuppressWarnings("rawtypes")
     private final ConcurrentHashMap<UUID, CompletableFuture> futureMap = new ConcurrentHashMap<>();
     private final HashSet<RequestService.EventHandler> eventHandlers = new HashSet<>();
@@ -43,7 +47,7 @@ public class StdWebSocketService extends ClientWebSocketService implements Reque
                 try {
                     service.close();
                 } catch (InterruptedException e) {
-                    LogHelper.error(e);
+                    logger.error(e.getMessage());
                 }
             }));
         }, future::completeExceptionally);
@@ -74,7 +78,7 @@ public class StdWebSocketService extends ClientWebSocketService implements Reque
     public <T extends WebSocketEvent> void eventHandle(T webSocketEvent) {
         if (webSocketEvent instanceof RequestEvent event) {
             if (event.requestUUID == null) {
-                LogHelper.warning("Request event type %s.requestUUID is null", event.getType() == null ? "null" : event.getType());
+                logger.warn("Request event type {}.requestUUID is null", event.getType() == null ? "null" : event.getType());
                 return;
             }
             if (event.requestUUID.equals(RequestEvent.eventUUID)) {

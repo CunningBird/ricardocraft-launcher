@@ -1,7 +1,8 @@
 package ru.ricardocraft.backend.command.unsafe.patcher;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +17,9 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public abstract class UnsafePatcher {
+
+    private final Logger logger = LoggerFactory.getLogger(UnsafePatcher.class);
+
     public void processDir(Path path, Path tempFile, boolean testMode) throws IOException {
         IOHelper.walk(path, new PatcherVisitor(tempFile, testMode), false);
     }
@@ -32,7 +36,7 @@ public abstract class UnsafePatcher {
     }
 
     public void processFile(Path path, Path tempFile) throws IOException {
-        LogHelper.debug("Process file %s", path.toString());
+        logger.debug("Process file {}", path.toString());
         if (path.toFile().getName().endsWith(".jar")) processJar(path, tempFile);
         else if (path.toFile().getName().endsWith(".class")) processClass(path, tempFile);
     }

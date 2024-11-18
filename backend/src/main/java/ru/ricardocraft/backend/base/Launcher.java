@@ -1,11 +1,9 @@
 package ru.ricardocraft.backend.base;
 
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.core.managers.GsonManager;
 import ru.ricardocraft.backend.base.core.serialize.HInput;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.base.helper.LogHelper;
-import ru.ricardocraft.backend.properties.LauncherEnvironment;
+import ru.ricardocraft.backend.base.profiles.ClientProfile;
 
 import java.io.IOException;
 import java.security.spec.InvalidKeySpecException;
@@ -44,26 +42,5 @@ public final class Launcher {
 
     public static String toHash(UUID uuid) {
         return UUID_PATTERN.matcher(uuid.toString()).replaceAll("");
-    }
-
-    public static void applyLauncherEnv(LauncherEnvironment env) {
-        switch (env) {
-            case DEV:
-                LogHelper.setDevEnabled(true);
-                LogHelper.setStacktraceEnabled(true);
-                LogHelper.setDebugEnabled(true);
-                break;
-            case DEBUG:
-                LogHelper.setDebugEnabled(true);
-                LogHelper.setStacktraceEnabled(true);
-                break;
-            case STD:
-                break;
-            case PROD:
-                LogHelper.setStacktraceEnabled(false);
-                LogHelper.setDebugEnabled(false);
-                LogHelper.setDevEnabled(false);
-                break;
-        }
     }
 }

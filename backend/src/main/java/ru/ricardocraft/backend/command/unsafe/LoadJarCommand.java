@@ -1,10 +1,11 @@
 package ru.ricardocraft.backend.command.unsafe;
 
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.StarterAgent;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,6 +14,8 @@ import java.util.jar.JarFile;
 @Component
 @NoArgsConstructor
 public class LoadJarCommand extends Command {
+
+    private final Logger logger = LoggerFactory.getLogger(LoadJarCommand.class);
 
     @Override
     public String getArgsDescription() {
@@ -29,6 +32,6 @@ public class LoadJarCommand extends Command {
         verifyArgs(args, 1);
         Path file = Paths.get(args[0]);
         StarterAgent.inst.appendToSystemClassLoaderSearch(new JarFile(file.toFile()));
-        LogHelper.info("File %s added to system classpath", file.toAbsolutePath().toString());
+        logger.info("File {} added to system classpath", file.toAbsolutePath());
     }
 }
