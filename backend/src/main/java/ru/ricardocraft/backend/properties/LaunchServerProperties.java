@@ -13,15 +13,17 @@ public class LaunchServerProperties {
     private String binaryName;
     private Boolean copyBinaries;
     private LauncherEnvironment env;
+    private TextureProviderProperties textureProvider;
 
-    private AuthProperties auth;
     private ProtectHandlerProperties protectHandler;
     private ComponentsProperties components;
     private ProfileProviderProperties profileProvider;
     private UpdatesProviderProperties updatesProvider;
     private NettyProperties netty;
     private LauncherProperties launcher;
+
     private JarSignerProperties sign;
+
     private OSSLSignCodeProperties osslSignCodeConfig;
     private RemoteControlProperties remoteControlConfig;
     private MirrorProperties mirrorConfig;

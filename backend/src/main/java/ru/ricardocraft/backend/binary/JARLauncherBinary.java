@@ -10,6 +10,7 @@ import ru.ricardocraft.backend.manangers.CertificateManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,11 +34,12 @@ public final class JARLauncherBinary extends LauncherBinary {
 
     @Autowired
     public JARLauncherBinary(LaunchServerConfig config,
+                             LaunchServerProperties properties,
                              LaunchServerDirectories directories,
                              KeyAgreementManager keyAgreementManager,
                              CertificateManager certificateManager,
                              UpdatesProvider updatesProvider) throws IOException {
-        super(config, directories, updatesProvider, resolve(config, ".jar"), "Launcher-%s.jar");
+        super(directories, updatesProvider, resolve(properties, ".jar"), "Launcher-%s.jar");
 
         count = new AtomicLong(0);
         runtimeDir = directories.dir.resolve(Launcher.RUNTIME_DIR);

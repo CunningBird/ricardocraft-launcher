@@ -10,11 +10,11 @@ import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 @Component
 public class NotifyCommand extends Command {
 
-    private transient final NettyServerSocketHandler nettyServerSocketHandler;
+    private transient final WebSocketService service;
 
-    public NotifyCommand(NettyServerSocketHandler nettyServerSocketHandler) {
+    public NotifyCommand(WebSocketService service) {
         super();
-        this.nettyServerSocketHandler = nettyServerSocketHandler;
+        this.service = service;
     }
 
     @Override
@@ -36,7 +36,6 @@ public class NotifyCommand extends Command {
         } else {
             event = new NotificationEvent(args[0], args[1], Enum.valueOf(NotificationEvent.NotificationType.class, args[2]));
         }
-        WebSocketService service = nettyServerSocketHandler.nettyServer.service;
         service.sendObjectAll(event, WebSocketEvent.class);
     }
 }

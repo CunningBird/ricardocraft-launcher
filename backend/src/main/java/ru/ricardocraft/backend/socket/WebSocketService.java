@@ -22,8 +22,6 @@ import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
 import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
-import ru.ricardocraft.backend.utils.BiHookSet;
-import ru.ricardocraft.backend.utils.HookSet;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -39,10 +37,6 @@ public class WebSocketService {
     private transient final Logger logger = LogManager.getLogger();
 
     public final ChannelGroup channels;
-    private final HookSet<WebSocketRequestContext> hookBeforeParsing = new HookSet<>();
-    private final HookSet<WebSocketRequestContext> hookBeforeExecute = new HookSet<>();
-    private final HookSet<WebSocketRequestContext> hookComplete = new HookSet<>();
-    private final BiHookSet<Channel, Object> hookSend = new BiHookSet<>();
     private final ExecutorService executors;
 
     private final Map<Class<? extends SimpleResponse>, AbstractResponseService> services = new HashMap<>();
@@ -97,14 +91,10 @@ public class WebSocketService {
     public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip, UUID connectUUID) {
         String request = frame.text();
         WebSocketRequestContext context = new WebSocketRequestContext(ctx, request, client, ip, connectUUID);
-        if (hookBeforeParsing.hook(context)) {
-            return;
-        }
         WebSocketServerResponse response = gson.fromJson(request, WebSocketServerResponse.class);
         context.response = response;
         if (response == null) {
             RequestEvent event = new ErrorRequestEvent("This type of request is not supported");
-            hookComplete.hook(context);
             sendObject(ctx.channel(), event, WebSocketEvent.class);
             return;
         }
@@ -142,9 +132,6 @@ public class WebSocketService {
     }
 
     void process(WebSocketRequestContext context, WebSocketServerResponse response, Client client, String ip) {
-        if (hookBeforeExecute.hook(context)) {
-            return;
-        }
         ChannelHandlerContext ctx = context.context;
         if (response instanceof SimpleResponse simpleResponse) {
             if (ip != null) simpleResponse.ip = ip;
@@ -161,7 +148,6 @@ public class WebSocketService {
             if (response instanceof SimpleResponse simpleResponse) event.requestUUID = simpleResponse.requestUUID;
             sendObject(ctx.channel(), event);
         }
-        hookComplete.hook(context);
     }
 
     public void registerClient(Channel channel) {
@@ -169,9 +155,6 @@ public class WebSocketService {
     }
 
     public void sendObject(Channel channel, Object obj) {
-        if (hookSend.hook(channel, obj)) {
-            return;
-        }
         String msg = gson.toJson(obj, WebSocketEvent.class);
         if (logger.isTraceEnabled()) {
             logger.trace("Send to channel {}: {}", getIPFromChannel(channel), msg);
@@ -180,9 +163,6 @@ public class WebSocketService {
     }
 
     public void sendObject(Channel channel, Object obj, Type type) {
-        if (hookSend.hook(channel, obj)) {
-            return;
-        }
         String msg = gson.toJson(obj, type);
         if (logger.isTraceEnabled()) {
             logger.trace("Send to channel {}: {}", getIPFromChannel(channel), msg);
@@ -196,52 +176,8 @@ public class WebSocketService {
         }
     }
 
-    public void sendObjectToUUID(UUID userUuid, Object obj, Type type) {
-        for (Channel ch : channels) {
-            if (ch == null || ch.pipeline() == null) continue;
-            WebSocketFrameHandler wsHandler = ch.pipeline().get(WebSocketFrameHandler.class);
-            if (wsHandler == null) continue;
-            Client client = wsHandler.getClient();
-            if (client == null || !userUuid.equals(client.uuid)) continue;
-            if (hookSend.hook(ch, obj)) {
-                continue;
-            }
-            String msg = gson.toJson(obj, type);
-            if (logger.isTraceEnabled()) {
-                logger.trace("Send to {}({}): {}", getIPFromChannel(ch), userUuid, msg);
-            }
-            ch.writeAndFlush(new TextWebSocketFrame(msg), ch.voidPromise());
-        }
-    }
-
-    public Channel getChannelFromConnectUUID(UUID connectUuid) {
-        for (Channel ch : channels) {
-            if (ch == null || ch.pipeline() == null) continue;
-            WebSocketFrameHandler wsHandler = ch.pipeline().get(WebSocketFrameHandler.class);
-            if (wsHandler == null) continue;
-            if (connectUuid.equals(wsHandler.getConnectUUID())) {
-                return ch;
-            }
-        }
-        return null;
-    }
-
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj) {
-        if (hookSend.hook(ctx.channel(), obj)) {
-            return;
-        }
         String msg = gson.toJson(obj, WebSocketEvent.class);
-        if (logger.isTraceEnabled()) {
-            logger.trace("Send and close {}: {}", getIPFromContext(ctx), msg);
-        }
-        ctx.writeAndFlush(new TextWebSocketFrame(msg)).addListener(ChannelFutureListener.CLOSE);
-    }
-
-    public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj, Type type) {
-        if (hookSend.hook(ctx.channel(), obj)) {
-            return;
-        }
-        String msg = gson.toJson(obj, type);
         if (logger.isTraceEnabled()) {
             logger.trace("Send and close {}: {}", getIPFromContext(ctx), msg);
         }
@@ -265,16 +201,4 @@ public class WebSocketService {
             this.connectUUID = connectUUID;
         }
     }
-
-    public static class EventResult implements WebSocketEvent {
-        public EventResult() {
-
-        }
-
-        @Override
-        public String getType() {
-            return "event";
-        }
-    }
-
 }

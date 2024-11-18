@@ -15,7 +15,6 @@ import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
 import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
 import ru.ricardocraft.backend.socket.response.auth.JoinServerResponse;
-import ru.ricardocraft.backend.utils.HookException;
 
 @Component
 public class JoinServerResponseService extends AbstractResponseService {
@@ -59,7 +58,7 @@ public class JoinServerResponseService extends AbstractResponseService {
             if (success) {
                 logger.debug("joinServer: {} accessToken: {} serverID: {}", response.username, response.accessToken, response.serverID);
             }
-        } catch (AuthException | HookException | SecurityException e) {
+        } catch (AuthException | SecurityException e) {
             sendError(ctx, e.getMessage(), response.requestUUID);
             return;
         } catch (Exception e) {

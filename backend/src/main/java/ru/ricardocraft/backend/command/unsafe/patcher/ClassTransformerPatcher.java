@@ -3,8 +3,8 @@ package ru.ricardocraft.backend.command.unsafe.patcher;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import ru.ricardocraft.backend.asm.ClassMetadataReader;
-import ru.ricardocraft.backend.asm.SafeClassWriter;
+import ru.ricardocraft.backend.base.asm.ClassMetadataReader;
+import ru.ricardocraft.backend.base.asm.SafeClassWriter;
 
 import java.io.IOException;
 import java.io.InputStream;

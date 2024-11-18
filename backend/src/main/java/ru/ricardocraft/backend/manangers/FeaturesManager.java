@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.utils.Version;
+import ru.ricardocraft.backend.base.utils.Version;
 
 import java.util.HashMap;
 import java.util.Map;

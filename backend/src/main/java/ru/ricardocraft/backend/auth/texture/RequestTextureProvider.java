@@ -7,7 +7,7 @@ import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.profiles.Texture;
 import ru.ricardocraft.backend.helper.CommonHelper;
 import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -26,9 +26,9 @@ public final class RequestTextureProvider extends TextureProvider {
     public String cloakLocalPath;
 
     @Autowired
-    public RequestTextureProvider(LaunchServerConfig config) {
-        this.skinURL = config.textureProvider.skinURL;
-        this.cloakURL = config.textureProvider.cloakURL;
+    public RequestTextureProvider(LaunchServerProperties properties) {
+        this.skinURL = properties.getTextureProvider().getSkinURL();
+        this.cloakURL = properties.getTextureProvider().getCloakURL();
     }
 
     private static Texture getTexture(String url, boolean cloak) throws IOException {

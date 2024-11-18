@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.asm;
+package ru.ricardocraft.backend.base.asm;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;

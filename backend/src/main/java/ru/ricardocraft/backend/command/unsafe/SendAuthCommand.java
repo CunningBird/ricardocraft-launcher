@@ -13,6 +13,7 @@ import ru.ricardocraft.backend.base.profiles.PlayerProfile;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.socket.Client;
+import ru.ricardocraft.backend.socket.WebSocketService;
 import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 
@@ -22,16 +23,16 @@ import java.util.UUID;
 @Component
 public class SendAuthCommand extends Command {
 
-    private transient final NettyServerSocketHandler nettyServerSocketHandler;
+    private transient final WebSocketService service;
     private transient final AuthManager authManager;
     private transient final AuthProviders authProviders;
 
     @Autowired
-    public SendAuthCommand(NettyServerSocketHandler nettyServerSocketHandler,
+    public SendAuthCommand(WebSocketService service,
                            AuthManager authManager,
                            AuthProviders authProviders) {
         super();
-        this.nettyServerSocketHandler = nettyServerSocketHandler;
+        this.service = service;
         this.authManager = authManager;
         this.authProviders = authProviders;
     }
@@ -81,7 +82,7 @@ public class SendAuthCommand extends Command {
             minecraftAccessToken = null;
             oauth = null;
         }
-        nettyServerSocketHandler.nettyServer.service.forEachActiveChannels((ch, ws) -> {
+        service.forEachActiveChannels((ch, ws) -> {
             if (!ws.getConnectUUID().equals(connectUUID)) return;
             Client client = ws.getClient();
             client.coreObject = user;
@@ -90,7 +91,7 @@ public class SendAuthCommand extends Command {
             PlayerProfile playerProfile = authManager.getPlayerProfile(client);
             AuthRequestEvent request = new AuthRequestEvent(permissions, playerProfile, minecraftAccessToken, null, null, oauth);
             request.requestUUID = RequestEvent.eventUUID;
-            nettyServerSocketHandler.nettyServer.service.sendObject(ch, request);
+            service.sendObject(ch, request);
         });
     }
 }

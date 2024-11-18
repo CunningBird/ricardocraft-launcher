@@ -18,11 +18,9 @@ public final class LaunchServerConfig {
     public String binaryName;
     public LauncherEnvironment env;
 
-    public TextureProviderConfig textureProvider;
     public NettyConfig netty;
     public LauncherConf launcher;
     public JarSignerConf sign;
-    public OSSLSignCodeConfig osslSignCodeConfig;
     public RemoteControlConfig remoteControlConfig;
     public MirrorConfig mirrorConfig;
     public RuntimeConfig runtimeConfig;
@@ -31,7 +29,6 @@ public final class LaunchServerConfig {
         this.projectName = "ricardocraft";
         this.mirrors = new String[]{"https://mirror.gravitlauncher.com/5.6.x/", "https://gravit-launcher-mirror.storage.googleapis.com/"};
         this.env = LauncherEnvironment.STD;
-        this.textureProvider = new TextureProviderConfig();
         this.binaryName = "Launcher";
 
         this.netty = new NettyConfig();
@@ -64,12 +61,11 @@ public final class LaunchServerConfig {
         this.launcher.customJvmOptions.add("-Dfile.encoding=UTF-8");
 
         this.sign = new JarSignerConf();
-
-        this.osslSignCodeConfig = new OSSLSignCodeConfig();
-        this.osslSignCodeConfig.timestampServer = "http://timestamp.sectigo.com";
-        this.osslSignCodeConfig.osslsigncodePath = "osslsigncode";
-        this.osslSignCodeConfig.customArgs.add("-h");
-        this.osslSignCodeConfig.customArgs.add("sha256");
+        this.sign.osslSignCodeConfig = new OSSLSignCodeConfig();
+        this.sign.osslSignCodeConfig.timestampServer = "http://timestamp.sectigo.com";
+        this.sign.osslSignCodeConfig.osslsigncodePath = "osslsigncode";
+        this.sign.osslSignCodeConfig.customArgs.add("-h");
+        this.sign.osslSignCodeConfig.customArgs.add("sha256");
 
         this.remoteControlConfig = new RemoteControlConfig();
         this.remoteControlConfig.enabled = true;
@@ -77,11 +73,6 @@ public final class LaunchServerConfig {
         this.remoteControlConfig.list.add(new RemoteControlConfig.RemoteControlToken(SecurityHelper.randomStringToken(), 0, true, new String[0]));
 
         this.mirrorConfig = new MirrorConfig();
-    }
-
-    public static class TextureProviderConfig {
-        public String skinURL = "http://example.com/skins/%username%.png";
-        public String cloakURL = "http://example.com/cloaks/%username%.png";
     }
 
     public static class JarSignerConf {
@@ -95,6 +86,7 @@ public final class LaunchServerConfig {
         public String metaInfSfName = "SIGNUMO.SF";
         public String signAlgo = "SHA256WITHRSA";
         public boolean checkCertificateExpired = true;
+        public OSSLSignCodeConfig osslSignCodeConfig;
     }
 
     public static class NettyUpdatesBind {
@@ -161,8 +153,6 @@ public final class LaunchServerConfig {
         public String timestampServer;
         public String osslsigncodePath;
         public List<String> customArgs = new ArrayList<>();
-        public LaunchServerConfig.JarSignerConf customConf;
-
         public boolean checkSignSize = true;
         public boolean checkCorrectJar = true;
     }

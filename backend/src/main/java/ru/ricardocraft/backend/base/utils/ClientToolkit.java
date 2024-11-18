@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.utils;
+package ru.ricardocraft.backend.base.utils;
 
 import java.util.ArrayList;
 import java.util.List;

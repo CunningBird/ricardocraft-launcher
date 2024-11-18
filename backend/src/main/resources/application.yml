@@ -13,14 +13,14 @@ launch-server-config:
   binaryName: Launcher
   copyBinaries: true
   env: STD
+  textureProvider:
+    skinURL: http://example.com/skins/%username%.png
+    cloakURL: http://example.com/cloaks/%username%.png
+    type: REQUEST
   auth:
     std:
       isDefault: true
       core: MEMORY
-      textureProvider:
-        skinURL: http://example.com/skins/%username%.png
-        cloakURL: http://example.com/cloaks/%username%.png
-        type: REQUEST
       displayName: Default
       visible: true
   protectHandler:

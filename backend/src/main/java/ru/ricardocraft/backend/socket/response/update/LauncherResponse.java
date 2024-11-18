@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.socket.response.update;
 
 import ru.ricardocraft.backend.socket.response.SimpleResponse;
-import ru.ricardocraft.backend.utils.Version;
+import ru.ricardocraft.backend.base.utils.Version;
 
 public class LauncherResponse extends SimpleResponse {
     public Version version;

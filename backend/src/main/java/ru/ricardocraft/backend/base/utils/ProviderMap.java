@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.utils;
+package ru.ricardocraft.backend.base.utils;
 
 import ru.ricardocraft.backend.helper.VerifyHelper;
 

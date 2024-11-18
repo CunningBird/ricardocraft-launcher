@@ -4,8 +4,8 @@ import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
 import ru.ricardocraft.backend.binary.tasks.LauncherBuildTask;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -13,24 +13,21 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class LauncherBinary extends BinaryPipeline {
-    public final LaunchServerConfig config;
     public final UpdatesProvider updatesProvider;
     public final Path syncBinaryFile;
     private volatile byte[] digest;
 
-    protected LauncherBinary(LaunchServerConfig config,
-                             LaunchServerDirectories directories,
+    protected LauncherBinary(LaunchServerDirectories directories,
                              UpdatesProvider updatesProvider,
                              Path binaryFile,
                              String nameFormat) {
         super(directories.tmpDir.resolve("build"), nameFormat);
-        this.config = config;
         this.updatesProvider = updatesProvider;
         syncBinaryFile = binaryFile;
     }
 
-    public static Path resolve(LaunchServerConfig config, String ext) {
-        return Path.of(config.binaryName + ext);
+    public static Path resolve(LaunchServerProperties properties, String ext) {
+        return Path.of(properties.getBinaryName() + ext);
     }
 
     public void build() throws IOException {

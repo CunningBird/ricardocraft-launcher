@@ -3,8 +3,6 @@ package ru.ricardocraft.backend.components;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
-import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.utils.HookException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,11 +28,10 @@ public class AuthLimiterComponent extends ru.ricardocraft.backend.components.Com
         setComponentName("authLimiter");
     }
 
-    public boolean preAuthHook(AuthResponseService.AuthContext context, Client client) {
+    public void preAuthHook(AuthResponseService.AuthContext context) throws Exception {
         if (!check(context.ip)) {
-            throw new HookException(message);
+            throw new Exception(message);
         }
-        return false;
     }
 
     public String getFromString(String str) {

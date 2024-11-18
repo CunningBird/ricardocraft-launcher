@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.helper;
 
 import org.fusesource.jansi.Ansi;
-import ru.ricardocraft.backend.utils.Version;
+import ru.ricardocraft.backend.base.utils.Version;
 
 /*
  * Nashorn when initializing LogHelper tries to initialize all methods available in it.

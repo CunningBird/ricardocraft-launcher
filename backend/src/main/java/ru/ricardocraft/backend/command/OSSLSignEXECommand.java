@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 
 @Component
 public class OSSLSignEXECommand extends Command {
+
     public final LaunchServerConfig config;
 
     @Autowired
@@ -36,6 +37,6 @@ public class OSSLSignEXECommand extends Command {
         verifyArgs(args, 2);
         Path inputPath = Paths.get(args[0]);
         Path outputPath = Paths.get(args[1]);
-        OSSLSignTask.signLaunch4j(config.osslSignCodeConfig, config.sign, inputPath, outputPath);
+        OSSLSignTask.signLaunch4j(config.sign.osslSignCodeConfig, config.sign, inputPath, outputPath);
     }
 }

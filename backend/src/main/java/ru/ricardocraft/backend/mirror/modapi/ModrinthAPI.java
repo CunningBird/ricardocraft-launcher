@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.helper.HttpHelper;
-import ru.ricardocraft.backend.utils.Version;
+import ru.ricardocraft.backend.base.utils.Version;
 
 import java.io.IOException;
 import java.io.InputStream;

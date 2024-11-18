@@ -5,12 +5,10 @@ import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
-import ru.ricardocraft.backend.asm.ClassMetadataReader;
-import ru.ricardocraft.backend.asm.InjectClassAcceptor;
-import ru.ricardocraft.backend.asm.SafeClassWriter;
+import ru.ricardocraft.backend.base.asm.ClassMetadataReader;
+import ru.ricardocraft.backend.base.asm.InjectClassAcceptor;
+import ru.ricardocraft.backend.base.asm.SafeClassWriter;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.LauncherConfig;
 import ru.ricardocraft.backend.binary.BuildContext;
@@ -20,7 +18,6 @@ import ru.ricardocraft.backend.helper.SecurityHelper;
 import ru.ricardocraft.backend.manangers.CertificateManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.utils.HookException;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -34,8 +31,6 @@ public class MainBuildTask implements LauncherBuildTask {
     public final ClassMetadataReader reader;
     public final Set<String> blacklist = new HashSet<>();
     public final List<Transformer> transformers = new ArrayList<>();
-    public final IOHookSet<BuildContext> preBuildHook = new IOHookSet<>();
-    public final IOHookSet<BuildContext> postBuildHook = new IOHookSet<>();
     public final Map<String, Object> properties = new HashMap<>();
 
     private final JARLauncherBinary launcherBinary;
@@ -71,7 +66,6 @@ public class MainBuildTask implements LauncherBuildTask {
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
             BuildContext context = new BuildContext(output, reader.getCp(), this, launcherBinary.runtimeDir);
             initProps();
-            preBuildHook.hook(context);
             properties.put("launcher.legacymodules", context.legacyClientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             properties.put("launcher.modules", context.clientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             postInitProps();
@@ -95,7 +89,6 @@ public class MainBuildTask implements LauncherBuildTask {
 
             LauncherConfig launcherConfig = new LauncherConfig(config.netty.address, keyAgreementManager.ecdsaPublicKey, keyAgreementManager.rsaPublicKey, runtime, config.projectName);
             context.pushFile(Launcher.CONFIG_FILE, launcherConfig);
-            postBuildHook.hook(context);
         }
         reader.close();
         return outputJar;
@@ -197,66 +190,5 @@ public class MainBuildTask implements LauncherBuildTask {
         }
 
         void transform(ClassNode cn, String classname, BuildContext context);
-    }
-
-    public static class IOHookSet<R> {
-        public final Set<IOHook<R>> list = new HashSet<>();
-
-        public void registerHook(IOHook<R> hook) {
-            list.add(hook);
-        }
-
-        public boolean unregisterHook(IOHook<R> hook) {
-            return list.remove(hook);
-        }
-
-        /**
-         * @param context custom param
-         *                False to continue
-         * @throws HookException The hook may return the error text throwing this exception
-         */
-        public void hook(R context) throws HookException, IOException {
-            for (IOHook<R> hook : list) {
-                hook.hook(context);
-            }
-        }
-
-        @FunctionalInterface
-        public interface IOHook<R> {
-            /**
-             * @param context custom param
-             *                False to continue processing hook
-             * @throws HookException The hook may return the error text throwing this exception
-             */
-            void hook(R context) throws HookException, IOException;
-        }
-    }
-
-    public abstract static class ASMAnnotationFieldProcessor implements ASMTransformer {
-        private final String desc;
-
-        protected ASMAnnotationFieldProcessor(String desc) {
-            this.desc = desc;
-        }
-
-        @Override
-        public void transform(ClassNode cn, String classname, BuildContext context) {
-            for (FieldNode fn : cn.fields) {
-                if (fn.invisibleAnnotations == null || fn.invisibleAnnotations.isEmpty()) continue;
-                AnnotationNode found = null;
-                for (AnnotationNode an : fn.invisibleAnnotations) {
-                    if (an == null) continue;
-                    if (desc.equals(an.desc)) {
-                        found = an;
-                        break;
-                    }
-                }
-                if (found != null) {
-                    transformField(found, fn, cn, classname, context);
-                }
-            }
-        }
-
-        abstract public void transformField(AnnotationNode an, FieldNode fn, ClassNode cn, String classname, BuildContext context);
     }
 }

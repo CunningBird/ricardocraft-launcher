@@ -13,7 +13,6 @@ import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.NettyConnectContext;
 import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.utils.BiHookSet;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
     public final WebSocketService service;
-    public final BiHookSet<ChannelHandlerContext, WebSocketFrame> hooks = new BiHookSet<>();
     private final UUID connectUUID = UUID.randomUUID();
     private transient final Logger logger = LogManager.getLogger();
     public NettyConnectContext context;
@@ -50,12 +48,6 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) {
-        // ping and pong frames already handled
-        try {
-            if (hooks.hook(ctx, frame)) return;
-        } catch (Throwable ex) {
-            logger.error("WebSocket frame handler hook error", ex);
-        }
         switch (frame) {
             case TextWebSocketFrame textWebSocketFrame -> {
                 if (logger.isTraceEnabled()) {

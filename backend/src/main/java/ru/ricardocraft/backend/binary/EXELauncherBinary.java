@@ -8,6 +8,7 @@ import ru.ricardocraft.backend.binary.tasks.OSSLSignTask;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,9 +18,10 @@ public class EXELauncherBinary extends LauncherBinary {
 
     @Autowired
     public EXELauncherBinary(LaunchServerConfig config,
+                             LaunchServerProperties properties,
                              LaunchServerDirectories directories,
                              UpdatesProvider updatesProvider) {
-        super(config, directories, updatesProvider, LauncherBinary.resolve(config, ".exe"), "Launcher-%s.exe");
+        super(directories, updatesProvider, LauncherBinary.resolve(properties, ".exe"), "Launcher-%s.exe");
         tasks.add(new OSSLSignTask(this, config));
     }
 

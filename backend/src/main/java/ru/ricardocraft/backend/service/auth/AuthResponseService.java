@@ -14,7 +14,6 @@ import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
 import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
 import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
-import ru.ricardocraft.backend.utils.HookException;
 
 @Component
 public class AuthResponseService extends AbstractResponseService {
@@ -52,7 +51,7 @@ public class AuthResponseService extends AbstractResponseService {
             AuthContext context = authManager.makeAuthContext(clientData, response.authType, pair, response.login, response.client, response.ip);
             authManager.check(context);
             response.password = authManager.decryptPassword(response.password);
-            authLimiterComponent.preAuthHook(context, clientData);
+            authLimiterComponent.preAuthHook(context);
             context.report = authManager.auth(context, response.password);
             result.permissions = context.report.session() != null ? (context.report.session().getUser() != null ? context.report.session().getUser().getPermissions() : null) : null;
             if (context.report.isUsingOAuth()) {
@@ -63,7 +62,7 @@ public class AuthResponseService extends AbstractResponseService {
             }
             result.playerProfile = authManager.getPlayerProfile(clientData);
             sendResult(ctx, result, response.requestUUID);
-        } catch (AuthException | HookException e) {
+        } catch (AuthException e) {
             sendError(ctx, e.getMessage(), response.requestUUID);
         }
     }

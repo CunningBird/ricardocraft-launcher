@@ -56,8 +56,8 @@ import ru.ricardocraft.backend.socket.response.secure.SecurityReportResponse;
 import ru.ricardocraft.backend.socket.response.secure.VerifySecureLevelKeyResponse;
 import ru.ricardocraft.backend.socket.response.update.LauncherResponse;
 import ru.ricardocraft.backend.socket.response.update.UpdateResponse;
-import ru.ricardocraft.backend.utils.ProviderMap;
-import ru.ricardocraft.backend.utils.UniversalJsonAdapter;
+import ru.ricardocraft.backend.base.utils.ProviderMap;
+import ru.ricardocraft.backend.base.utils.UniversalJsonAdapter;
 
 @org.springframework.stereotype.Component
 public class GsonManager {

@@ -4,6 +4,7 @@ import ru.ricardocraft.backend.binary.EXELauncherBinary;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.LogHelper;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,14 +18,14 @@ import java.util.zip.ZipInputStream;
 public class OSSLSignTask implements LauncherBuildTask {
 
     private final EXELauncherBinary launcherEXEBinary;
-    private final LaunchServerConfig.OSSLSignCodeConfig config;
-    private LaunchServerConfig.JarSignerConf signConf;
+    private final LaunchServerConfig.JarSignerConf signConf;
+    private final LaunchServerConfig.OSSLSignCodeConfig osslSignCodeConfig;
 
     public OSSLSignTask(EXELauncherBinary launcherEXEBinary, LaunchServerConfig config) {
         this.launcherEXEBinary = launcherEXEBinary;
-        this.config = config.osslSignCodeConfig;
-        signConf = this.config.customConf;
-        if (signConf == null || !signConf.enabled) signConf = config.sign;
+
+        this.signConf = config.sign;
+        this.osslSignCodeConfig = config.sign.osslSignCodeConfig;
         if (!signConf.enabled) throw new IllegalStateException("sign.enabled must be true");
         if (!signConf.keyStoreType.equals("PKCS12"))
             throw new IllegalStateException("sign.keyStoreType must be PKCS12");
@@ -115,11 +116,11 @@ public class OSSLSignTask implements LauncherBuildTask {
     @Override
     public Path process(Path inputFile) throws IOException {
         Path resultFile = launcherEXEBinary.nextPath(getName());
-        signLaunch4j(config, signConf, inputFile, resultFile);
+        signLaunch4j(osslSignCodeConfig, signConf, inputFile, resultFile);
         return resultFile;
     }
 
     public void sign(Path source, Path dest) throws IOException {
-        OSSLSignTask.sign(config, signConf, source, dest);
+        OSSLSignTask.sign(osslSignCodeConfig, signConf, source, dest);
     }
 }

@@ -14,7 +14,7 @@ import ru.ricardocraft.backend.auth.protect.interfaces.SecureProtectHandler;
 import ru.ricardocraft.backend.base.events.request.GetSecureLevelInfoRequestEvent;
 import ru.ricardocraft.backend.base.events.request.VerifySecureLevelKeyRequestEvent;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.service.auth.RestoreResponseService;
 import ru.ricardocraft.backend.socket.Client;
 
@@ -29,12 +29,12 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     private transient final Logger logger = LogManager.getLogger();
     public boolean enableHardwareFeature;
 
-    private final transient LaunchServerConfig config;
+    private final transient LaunchServerProperties properties;
     private final transient KeyAgreementManager keyAgreementManager;
 
     @Autowired
-    public AdvancedProtectHandler(LaunchServerConfig config, KeyAgreementManager keyAgreementManager) {
-        this.config = config;
+    public AdvancedProtectHandler(LaunchServerProperties properties, KeyAgreementManager keyAgreementManager) {
+        this.properties = properties;
         this.keyAgreementManager = keyAgreementManager;
     }
 
@@ -55,18 +55,18 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
             if (authSupportHardware != null) {
                 UserHardware hardware = authSupportHardware.getHardwareInfoByPublicKey(client.trustLevel.publicKey);
                 if (hardware == null) //HWID not found?
-                    return new VerifySecureLevelKeyRequestEvent(true, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(config.netty.security.publicKeyTokenExpire));
+                    return new VerifySecureLevelKeyRequestEvent(true, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(properties.getNetty().getSecurity().getHardwareTokenExpire()));
                 if (hardware.isBanned()) {
                     throw new SecurityException("Your hardware banned");
                 }
                 client.trustLevel.hardwareInfo = hardware;
                 authSupportHardware.connectUserAndHardware(client.sessionObject, hardware);
-                return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(config.netty.security.publicKeyTokenExpire));
+                return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(properties.getNetty().getSecurity().getPublicKeyTokenExpire()));
             } else {
                 logger.warn("AuthCoreProvider not supported hardware. HardwareInfo not checked!");
             }
         }
-        return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(config.netty.security.publicKeyTokenExpire));
+        return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(properties.getNetty().getSecurity().getPublicKeyTokenExpire()));
     }
 
     @Override
@@ -78,7 +78,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         return Jwts.builder()
                 .setIssuer("LaunchServer")
                 .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + SECONDS.toMillis(config.netty.security.hardwareTokenExpire)))
+                .setExpiration(new Date(System.currentTimeMillis() + SECONDS.toMillis(properties.getNetty().getSecurity().getHardwareTokenExpire())))
                 .claim("hardware", hardware.getId())
                 .signWith(keyAgreementManager.ecdsaPrivateKey)
                 .compact();
@@ -88,7 +88,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         return Jwts.builder()
                 .setIssuer("LaunchServer")
                 .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + SECONDS.toMillis(config.netty.security.publicKeyTokenExpire)))
+                .setExpiration(new Date(System.currentTimeMillis() + SECONDS.toMillis(properties.getNetty().getSecurity().getPublicKeyTokenExpire())))
                 .claim("publicKey", Base64.getEncoder().encodeToString(publicKey))
                 .signWith(keyAgreementManager.ecdsaPrivateKey)
                 .compact();

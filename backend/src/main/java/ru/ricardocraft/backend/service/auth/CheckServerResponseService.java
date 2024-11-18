@@ -15,7 +15,6 @@ import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
 import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
 import ru.ricardocraft.backend.socket.response.auth.CheckServerResponse;
-import ru.ricardocraft.backend.utils.HookException;
 
 @Component
 public class CheckServerResponseService extends AbstractResponseService {
@@ -58,7 +57,7 @@ public class CheckServerResponseService extends AbstractResponseService {
                 }
             }
             logger.debug("checkServer: {} uuid: {} serverID: {}", result.playerProfile == null ? null : result.playerProfile.username, result.uuid, response.serverID);
-        } catch (AuthException | HookException e) {
+        } catch (AuthException e) {
             sendError(ctx, e.getMessage(), response.requestUUID);
             return;
         } catch (Exception e) {

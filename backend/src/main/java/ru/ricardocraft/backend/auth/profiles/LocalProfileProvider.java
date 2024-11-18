@@ -11,7 +11,7 @@ import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ProfilesRequestEvent;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
 
@@ -29,13 +29,13 @@ public class LocalProfileProvider extends ProfileProvider {
     private transient volatile Map<Path, ClientProfile> profilesMap;
     private transient volatile Set<ClientProfile> profilesList; // Cache
 
-    private final transient LaunchServerConfig config;
+    private final transient LaunchServerProperties properties;
     private final transient ProtectHandler handler;
     private final transient WebSocketService service;
 
     @Autowired
-    public LocalProfileProvider(LaunchServerConfig config, ProtectHandler handler, WebSocketService service) {
-        this.config = config;
+    public LocalProfileProvider(LaunchServerProperties properties, ProtectHandler handler, WebSocketService service) {
+        this.properties = properties;
         this.handler = handler;
         this.service = service;
     }
@@ -124,7 +124,7 @@ public class LocalProfileProvider extends ProfileProvider {
     @Override
     public void syncProfilesDir() throws IOException {
         this.sync();
-        if (config.netty.sendProfileUpdatesEvent) {
+        if (properties.getNetty().getSendProfileUpdatesEvent()) {
             service.forEachActiveChannels((ch, handler) -> {
                 Client client = handler.getClient();
                 if (client == null || !client.isAuth) {

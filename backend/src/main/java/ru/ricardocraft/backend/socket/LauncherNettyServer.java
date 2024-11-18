@@ -22,7 +22,6 @@ import ru.ricardocraft.backend.socket.handlers.NettyWebAPIHandler;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
 import ru.ricardocraft.backend.socket.handlers.fileserver.FileServerHandler;
 import ru.ricardocraft.backend.socket.servlet.RemoteControlWebServlet;
-import ru.ricardocraft.backend.utils.BiHookSet;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
@@ -35,7 +34,6 @@ public class LauncherNettyServer implements AutoCloseable {
     public final EventLoopGroup workerGroup;
     public final WebSocketService service;
     public final CommandHandler commandHandler;
-    public final BiHookSet<NettyConnectContext, SocketChannel> pipelineHook = new BiHookSet<>();
 
     public LauncherNettyServer(LaunchServerConfig config,
                                LaunchServerDirectories directories,
@@ -75,7 +73,6 @@ public class LauncherNettyServer implements AutoCloseable {
                         if (config.netty.fileServerEnabled) // default true
                             pipeline.addLast("fileserver", new FileServerHandler(directories.updatesDir, true, config.netty.showHiddenFiles));
                         pipeline.addLast("launchserver", new WebSocketFrameHandler(context, service));
-                        pipelineHook.hook(context, ch);
                     }
                 });
 
