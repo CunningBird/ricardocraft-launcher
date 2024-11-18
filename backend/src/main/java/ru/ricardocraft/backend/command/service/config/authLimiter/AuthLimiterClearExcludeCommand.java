@@ -3,13 +3,13 @@ package ru.ricardocraft.backend.command.service.config.authLimiter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.components.AuthLimiterComponent;
+import ru.ricardocraft.backend.base.AuthLimiter;
 
 @Component
 @RequiredArgsConstructor
 public class AuthLimiterClearExcludeCommand extends Command {
 
-    private final AuthLimiterComponent authLimiterComponent;
+    private final AuthLimiter authLimiter;
 
     @Override
     public String getArgsDescription() {
@@ -23,6 +23,6 @@ public class AuthLimiterClearExcludeCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        authLimiterComponent.exclude.clear();
+        authLimiter.exclude.clear();
     }
 }

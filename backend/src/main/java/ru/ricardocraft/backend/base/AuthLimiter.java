@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.components;
+package ru.ricardocraft.backend.base;
 
 import lombok.Getter;
 import org.springframework.stereotype.Component;
@@ -12,21 +12,14 @@ import java.util.Map;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Component
-public class AuthLimiterComponent extends ru.ricardocraft.backend.components.Component {
-    public String message;
+public class AuthLimiter {
+
+    public String message = "Превышен лимит авторизаций";
     public final List<String> exclude = new ArrayList<>();
     @Getter
     private final transient Map<String, LimitEntry> map = new HashMap<>();
-    public int rateLimit;
-    public long rateLimitMillis;
-
-    public AuthLimiterComponent() {
-        this.rateLimit = 3;
-        this.rateLimitMillis = SECONDS.toMillis(8);
-        this.message = "Превышен лимит авторизаций";
-
-        setComponentName("authLimiter");
-    }
+    public int rateLimit = 3;
+    public long rateLimitMillis = SECONDS.toMillis(8);
 
     public void preAuthHook(AuthResponseService.AuthContext context) throws Exception {
         if (!check(context.ip)) {

@@ -7,7 +7,7 @@ import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
-import ru.ricardocraft.backend.components.AuthLimiterComponent;
+import ru.ricardocraft.backend.base.AuthLimiter;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
@@ -22,17 +22,17 @@ public class AuthResponseService extends AbstractResponseService {
 
     private final AuthManager authManager;
 
-    private final AuthLimiterComponent authLimiterComponent;
+    private final AuthLimiter authLimiter;
 
     @Autowired
     public AuthResponseService(WebSocketService service,
                                AuthProviders authProviders,
                                AuthManager authManager,
-                               AuthLimiterComponent authLimiterComponent) {
+                               AuthLimiter authLimiter) {
         super(AuthResponse.class, service);
         this.authProviders = authProviders;
         this.authManager = authManager;
-        this.authLimiterComponent = authLimiterComponent;
+        this.authLimiter = authLimiter;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class AuthResponseService extends AbstractResponseService {
             AuthContext context = authManager.makeAuthContext(clientData, response.authType, pair, response.login, response.client, response.ip);
             authManager.check(context);
             response.password = authManager.decryptPassword(response.password);
-            authLimiterComponent.preAuthHook(context);
+            authLimiter.preAuthHook(context);
             context.report = authManager.auth(context, response.password);
             result.permissions = context.report.session() != null ? (context.report.session().getUser() != null ? context.report.session().getUser().getPermissions() : null) : null;
             if (context.report.isUsingOAuth()) {

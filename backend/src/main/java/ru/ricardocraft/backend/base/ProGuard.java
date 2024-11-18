@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.components;
+package ru.ricardocraft.backend.base;
 
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +29,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 @org.springframework.stereotype.Component
-public class ProGuardComponent extends Component {
+public class ProGuard {
 
     private static final Logger logger = LogManager.getLogger();
     public String modeAfter = "MainBuild";
@@ -43,17 +43,16 @@ public class ProGuardComponent extends Component {
     private final transient ProGuardBuildTask buildTask;
 
     @Autowired
-    public ProGuardComponent(JARLauncherBinary launcherBinary,
-                             LaunchServerConfig launchServerConfig,
-                             LaunchServerDirectories directories) {
+    public ProGuard(JARLauncherBinary launcherBinary,
+                    LaunchServerConfig launchServerConfig,
+                    LaunchServerDirectories directories) {
         this.jvmArgs.add("-Xmx512M");
-        setComponentName("proguard");
 
         proguardConf = new ProguardConf(launcherBinary, launchServerConfig, directories, this);
         this.buildTask = new ProGuardBuildTask(launcherBinary, directories, proguardConf, this);
-        ProGuardMultiReleaseFixer fixerTask = new ProGuardMultiReleaseFixer(launcherBinary, this, "ProGuard.".concat(componentName));
+        ProGuardMultiReleaseFixer fixerTask = new ProGuardMultiReleaseFixer(launcherBinary, this, "ProGuard.proquard");
         launcherBinary.addAfter((v) -> v.getName().startsWith(modeAfter), buildTask);
-        launcherBinary.addAfter((v) -> v.getName().equals("ProGuard.".concat(componentName)), fixerTask);
+        launcherBinary.addAfter((v) -> v.getName().equals("ProGuard.proguard"), fixerTask);
     }
 
     public static boolean checkFXJMods(Path path) {
@@ -91,10 +90,10 @@ public class ProGuardComponent extends Component {
 
     public static class ProGuardMultiReleaseFixer implements LauncherBuildTask {
         private final JARLauncherBinary launcherBinary;
-        private final ProGuardComponent component;
+        private final ProGuard component;
         private final String proguardTaskName;
 
-        public ProGuardMultiReleaseFixer(JARLauncherBinary launcherBinary, ProGuardComponent component, String proguardTaskName) {
+        public ProGuardMultiReleaseFixer(JARLauncherBinary launcherBinary, ProGuard component, String proguardTaskName) {
             this.launcherBinary = launcherBinary;
             this.component = component;
             this.proguardTaskName = proguardTaskName;
@@ -102,7 +101,7 @@ public class ProGuardComponent extends Component {
 
         @Override
         public String getName() {
-            return "ProGuardMultiReleaseFixer.".concat(component.componentName);
+            return "ProGuardMultiReleaseFixer.proguard";
         }
 
         @Override
@@ -149,13 +148,13 @@ public class ProGuardComponent extends Component {
 
         private final LaunchServerDirectories directories;
         private final JARLauncherBinary launcherBinary;
-        private final ProGuardComponent component;
+        private final ProGuard component;
         private final ProguardConf proguardConf;
 
         public ProGuardBuildTask(JARLauncherBinary launcherBinary,
                                  LaunchServerDirectories directories,
                                  ProguardConf conf,
-                                 ProGuardComponent component) {
+                                 ProGuard component) {
             this.directories = directories;
             this.launcherBinary = launcherBinary;
             this.component = component;
@@ -164,7 +163,7 @@ public class ProGuardComponent extends Component {
 
         @Override
         public String getName() {
-            return "ProGuard.".concat(component.componentName);
+            return "ProGuard.proquard";
         }
 
         @Override
@@ -239,9 +238,9 @@ public class ProGuardComponent extends Component {
 
         private transient final LaunchServerConfig launchServerConfig;
         private transient final JARLauncherBinary launcherBinary;
-        private transient final ProGuardComponent component;
+        private transient final ProGuard component;
 
-        public ProguardConf(JARLauncherBinary launcherBinary, LaunchServerConfig launchServerConfig, LaunchServerDirectories directories, ProGuardComponent component) {
+        public ProguardConf(JARLauncherBinary launcherBinary, LaunchServerConfig launchServerConfig, LaunchServerDirectories directories, ProGuard component) {
             this.component = component;
             this.proguard = directories.dir.resolve(component.dir);
             config = proguard.resolve("proguard.config");

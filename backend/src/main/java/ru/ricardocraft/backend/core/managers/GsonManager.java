@@ -14,7 +14,10 @@ import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
 import ru.ricardocraft.backend.auth.protect.NoProtectHandler;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.StdProtectHandler;
-import ru.ricardocraft.backend.auth.texture.*;
+import ru.ricardocraft.backend.auth.texture.JsonTextureProvider;
+import ru.ricardocraft.backend.auth.texture.RequestTextureProvider;
+import ru.ricardocraft.backend.auth.texture.TextureProvider;
+import ru.ricardocraft.backend.auth.texture.VoidTextureProvider;
 import ru.ricardocraft.backend.auth.updates.LocalUpdatesProvider;
 import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
 import ru.ricardocraft.backend.base.Launcher;
@@ -33,9 +36,8 @@ import ru.ricardocraft.backend.base.request.auth.details.AuthPasswordDetails;
 import ru.ricardocraft.backend.base.request.auth.details.AuthTotpDetails;
 import ru.ricardocraft.backend.base.request.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.backend.base.request.auth.password.*;
-import ru.ricardocraft.backend.components.AuthLimiterComponent;
-import ru.ricardocraft.backend.components.Component;
-import ru.ricardocraft.backend.components.ProGuardComponent;
+import ru.ricardocraft.backend.base.utils.ProviderMap;
+import ru.ricardocraft.backend.base.utils.UniversalJsonAdapter;
 import ru.ricardocraft.backend.core.hasher.HashedEntry;
 import ru.ricardocraft.backend.core.hasher.HashedEntryAdapter;
 import ru.ricardocraft.backend.helper.CommonHelper;
@@ -56,8 +58,6 @@ import ru.ricardocraft.backend.socket.response.secure.SecurityReportResponse;
 import ru.ricardocraft.backend.socket.response.secure.VerifySecureLevelKeyResponse;
 import ru.ricardocraft.backend.socket.response.update.LauncherResponse;
 import ru.ricardocraft.backend.socket.response.update.UpdateResponse;
-import ru.ricardocraft.backend.base.utils.ProviderMap;
-import ru.ricardocraft.backend.base.utils.UniversalJsonAdapter;
 
 @org.springframework.stereotype.Component
 public class GsonManager {
@@ -86,7 +86,6 @@ public class GsonManager {
         builder.registerTypeAdapter(TextureProvider.class, new UniversalJsonAdapter<>(registerTextureProviders()));
         builder.registerTypeAdapter(AuthCoreProvider.class, new UniversalJsonAdapter<>(registerAuthCoreProviders()));
         builder.registerTypeAdapter(PasswordVerifier.class, new UniversalJsonAdapter<>(registerPasswordVerifierProviders()));
-        builder.registerTypeAdapter(Component.class, new UniversalJsonAdapter<>(registerComponentsProviders()));
         builder.registerTypeAdapter(ProtectHandler.class, new UniversalJsonAdapter<>(registerHandlerProviders()));
         builder.registerTypeAdapter(WebSocketServerResponse.class, new UniversalJsonAdapter<>(registerWebSocketResponseProviders(), UnknownResponse.class));
         builder.registerTypeAdapter(WebSocketEvent.class, new JsonResultSerializeAdapter());
@@ -127,13 +126,6 @@ public class GsonManager {
         textureProviders.register("request", RequestTextureProvider.class);
         textureProviders.register("json", JsonTextureProvider.class);
         return textureProviders;
-    }
-
-    public ProviderMap<Component> registerComponentsProviders() {
-        ProviderMap<Component> componentProviders = new ProviderMap<>();
-        componentProviders.register("authLimiter", AuthLimiterComponent.class);
-        componentProviders.register("proguard", ProGuardComponent.class);
-        return componentProviders;
     }
 
     public ProviderMap<ProtectHandler> registerHandlerProviders() {

@@ -13,7 +13,7 @@ import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.StdProtectHandler;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.components.ProGuardComponent;
+import ru.ricardocraft.backend.base.ProGuard;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.JVMHelper;
 import ru.ricardocraft.backend.helper.SignHelper;
@@ -43,7 +43,7 @@ public class SecurityCheckCommand extends Command {
     private final transient AuthProviders authProviders;
     private final transient ProtectHandler protectHandler;
     private final transient ProfileProvider profileProvider;
-    private final transient List<ru.ricardocraft.backend.components.Component> components;
+    private final transient ProGuard proGuard;
 
     @Autowired
     public SecurityCheckCommand(LaunchServerConfig config,
@@ -51,7 +51,7 @@ public class SecurityCheckCommand extends Command {
                                 AuthProviders authProviders,
                                 ProtectHandler protectHandler,
                                 ProfileProvider profileProvider,
-                                List<ru.ricardocraft.backend.components.Component> components) {
+                                ProGuard proGuard) {
         super();
 
         this.config = config;
@@ -59,7 +59,7 @@ public class SecurityCheckCommand extends Command {
         this.authProviders = authProviders;
         this.protectHandler = protectHandler;
         this.profileProvider = profileProvider;
-        this.components = components;
+        this.proGuard = proGuard;
     }
 
     public static void printCheckResult(String module, String comment, Boolean status) {
@@ -157,7 +157,7 @@ public class SecurityCheckCommand extends Command {
                 printCheckResult("sign", "", true);
         }
 
-        if (components.stream().noneMatch(c -> c instanceof ProGuardComponent)) {
+        if (proGuard.enabled) {
             printCheckResult("launcher.enabledProGuard", "proguard not enabled", false);
         } else {
             printCheckResult("launcher.enabledProGuard", "", true);
