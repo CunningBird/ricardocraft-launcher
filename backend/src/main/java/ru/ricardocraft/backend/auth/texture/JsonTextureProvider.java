@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.HttpRequester;
 import ru.ricardocraft.backend.base.profiles.Texture;
-import ru.ricardocraft.backend.helper.SecurityHelper;
+import ru.ricardocraft.backend.base.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

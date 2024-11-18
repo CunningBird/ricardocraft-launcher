@@ -14,9 +14,9 @@ import ru.ricardocraft.backend.auth.protect.StdProtectHandler;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.base.ProGuard;
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.JVMHelper;
-import ru.ricardocraft.backend.helper.SignHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.JVMHelper;
+import ru.ricardocraft.backend.base.helper.SignHelper;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 

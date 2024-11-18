@@ -6,10 +6,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.binary.tasks.LauncherBuildTask;
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.JVMHelper;
-import ru.ricardocraft.backend.helper.SecurityHelper;
-import ru.ricardocraft.backend.helper.UnpackHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.JVMHelper;
+import ru.ricardocraft.backend.base.helper.SecurityHelper;
+import ru.ricardocraft.backend.base.helper.UnpackHelper;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 

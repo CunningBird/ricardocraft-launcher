@@ -4,7 +4,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.StarterAgent;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

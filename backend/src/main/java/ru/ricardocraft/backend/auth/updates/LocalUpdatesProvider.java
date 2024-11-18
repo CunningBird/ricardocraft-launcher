@@ -3,10 +3,10 @@ package ru.ricardocraft.backend.auth.updates;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.core.hasher.HashedDir;
-import ru.ricardocraft.backend.core.serialize.HInput;
-import ru.ricardocraft.backend.core.serialize.HOutput;
-import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.base.core.hasher.HashedDir;
+import ru.ricardocraft.backend.base.core.serialize.HInput;
+import ru.ricardocraft.backend.base.core.serialize.HOutput;
+import ru.ricardocraft.backend.base.helper.IOHelper;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;

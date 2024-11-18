@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.profiles.Texture;
-import ru.ricardocraft.backend.helper.CommonHelper;
-import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.CommonHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.FileNotFoundException;

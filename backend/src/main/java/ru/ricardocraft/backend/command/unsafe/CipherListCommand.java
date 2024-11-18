@@ -3,7 +3,7 @@ package ru.ricardocraft.backend.command.unsafe;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.security.Provider;
 import java.security.Security;

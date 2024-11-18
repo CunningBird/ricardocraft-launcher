@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.properties;
 
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.SecurityHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -2,8 +2,8 @@ package ru.ricardocraft.backend.manangers;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.SecurityHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

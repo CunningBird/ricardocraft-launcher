@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.base.request.websockets;
 
 import ru.ricardocraft.backend.base.Downloader;
-import ru.ricardocraft.backend.core.LauncherInject;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.core.LauncherInject;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;

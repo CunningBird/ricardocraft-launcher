@@ -2,7 +2,7 @@ package ru.ricardocraft.backend.socket.handlers.fileserver;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
 
 import java.io.Closeable;
 

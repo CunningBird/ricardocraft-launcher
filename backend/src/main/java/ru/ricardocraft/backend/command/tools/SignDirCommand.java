@@ -8,7 +8,7 @@ import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.binary.LauncherBinary;
 import ru.ricardocraft.backend.binary.tasks.SignJarTask;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 

@@ -5,7 +5,7 @@ import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.events.NotificationEvent;
 import ru.ricardocraft.backend.base.events.request.*;
 import ru.ricardocraft.backend.base.request.WebSocketEvent;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 import ru.ricardocraft.backend.base.utils.ProviderMap;
 
 import java.io.IOException;

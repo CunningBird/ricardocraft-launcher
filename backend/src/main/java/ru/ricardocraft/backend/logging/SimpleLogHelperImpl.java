@@ -2,8 +2,9 @@ package ru.ricardocraft.backend.logging;
 
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
-import ru.ricardocraft.backend.helper.FormatHelper;
-import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.FormatHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -19,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-import static ru.ricardocraft.backend.helper.LogHelper.*;
+import static ru.ricardocraft.backend.base.helper.LogHelper.*;
 
 public class SimpleLogHelperImpl implements LogHelperAppender {
 
@@ -29,7 +30,7 @@ public class SimpleLogHelperImpl implements LogHelperAppender {
     public final boolean JANSI;
     // Output settings
     private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss", Locale.US);
-    private final Set<OutputEnity> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
+    private final Set<LogHelper.OutputEnity> OUTPUTS = Collections.newSetFromMap(new ConcurrentHashMap<>(2));
 
     public SimpleLogHelperImpl() {
         // Use JAnsi if available
@@ -48,7 +49,7 @@ public class SimpleLogHelperImpl implements LogHelperAppender {
         JANSI = jansi;
 
         // Add std writer
-        OutputEnity STD_OUTPUT = new OutputEnity(System.out::println, JANSI ? OutputTypes.JANSI : OutputTypes.PLAIN);
+        LogHelper.OutputEnity STD_OUTPUT = new LogHelper.OutputEnity(System.out::println, JANSI ? OutputTypes.JANSI : OutputTypes.PLAIN);
         addOutput(STD_OUTPUT);
 
         // Add file log writer

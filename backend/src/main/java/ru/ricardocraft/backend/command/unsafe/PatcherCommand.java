@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.unsafe.patcher.UnsafePatcher;
 import ru.ricardocraft.backend.command.unsafe.patcher.impl.*;
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.lang.invoke.MethodHandles;

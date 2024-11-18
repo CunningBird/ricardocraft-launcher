@@ -3,7 +3,7 @@ package ru.ricardocraft.backend.properties;
 import io.netty.channel.epoll.Epoll;
 import io.netty.handler.logging.LogLevel;
 import lombok.Setter;
-import ru.ricardocraft.backend.helper.SecurityHelper;
+import ru.ricardocraft.backend.base.helper.SecurityHelper;
 
 import java.util.*;
 

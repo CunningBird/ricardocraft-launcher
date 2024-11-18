@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.base.events;
 
 import ru.ricardocraft.backend.base.request.WebSocketEvent;
-import ru.ricardocraft.backend.core.LauncherNetworkAPI;
+import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 
 import java.util.UUID;
 

@@ -8,7 +8,7 @@ import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.base.request.auth.password.AuthPlainPassword;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.core.managers.GsonManager;
+import ru.ricardocraft.backend.base.core.managers.GsonManager;
 
 @Component
 @RequiredArgsConstructor

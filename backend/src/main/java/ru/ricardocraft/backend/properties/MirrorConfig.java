@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.properties;
 
-import ru.ricardocraft.backend.mirror.MirrorWorkspace;
+import ru.ricardocraft.backend.manangers.mirror.MirrorWorkspace;
 
 public class MirrorConfig {
     public String curseforgeApiKey = "API_KEY";

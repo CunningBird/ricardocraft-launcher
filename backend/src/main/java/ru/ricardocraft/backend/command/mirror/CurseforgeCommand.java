@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.utls.SubCommand;
-import ru.ricardocraft.backend.mirror.modapi.CurseforgeAPI;
+import ru.ricardocraft.backend.manangers.mirror.modapi.CurseforgeAPI;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 @Component

@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.command.utls;
 
 import lombok.Getter;
-import ru.ricardocraft.backend.helper.CommonHelper;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.helper.CommonHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;

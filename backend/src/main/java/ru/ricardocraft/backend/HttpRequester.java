@@ -2,7 +2,7 @@ package ru.ricardocraft.backend;
 
 import com.google.gson.JsonElement;
 import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.helper.HttpHelper;
+import ru.ricardocraft.backend.base.helper.HttpHelper;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

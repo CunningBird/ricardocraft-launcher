@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.command.unsafe.patcher;
 
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.io.IOException;
 import java.io.InputStream;

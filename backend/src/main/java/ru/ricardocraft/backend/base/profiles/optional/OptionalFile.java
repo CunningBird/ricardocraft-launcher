@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.base.profiles.optional;
 
 import ru.ricardocraft.backend.base.profiles.optional.actions.OptionalAction;
-import ru.ricardocraft.backend.core.LauncherNetworkAPI;
+import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 
 import java.util.List;
 import java.util.Objects;

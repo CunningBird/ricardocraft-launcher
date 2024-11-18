@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.base.profiles.optional.actions;
 
-import ru.ricardocraft.backend.core.hasher.HashedDir;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.core.hasher.HashedDir;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.util.Map;
 

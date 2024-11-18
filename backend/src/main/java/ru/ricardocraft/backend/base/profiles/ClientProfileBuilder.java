@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.base.profiles;
 
 import ru.ricardocraft.backend.base.profiles.optional.OptionalFile;
-import ru.ricardocraft.backend.launch.LaunchOptions;
+import ru.ricardocraft.backend.base.LaunchOptions;
 
 import java.util.*;
 

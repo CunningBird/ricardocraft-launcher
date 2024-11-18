@@ -6,8 +6,8 @@ import ru.ricardocraft.backend.base.request.Request;
 import ru.ricardocraft.backend.base.request.RequestException;
 import ru.ricardocraft.backend.base.request.RequestService;
 import ru.ricardocraft.backend.base.request.WebSocketEvent;
-import ru.ricardocraft.backend.helper.JVMHelper;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.helper.JVMHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;

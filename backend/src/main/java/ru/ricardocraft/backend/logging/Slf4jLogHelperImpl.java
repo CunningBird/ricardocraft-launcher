@@ -3,12 +3,12 @@ package ru.ricardocraft.backend.logging;
 import org.fusesource.jansi.AnsiConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.ricardocraft.backend.helper.FormatHelper;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.helper.FormatHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.util.function.Supplier;
 
-import static ru.ricardocraft.backend.helper.LogHelper.NO_JANSI_PROPERTY;
+import static ru.ricardocraft.backend.base.helper.LogHelper.NO_JANSI_PROPERTY;
 
 public class Slf4jLogHelperImpl implements LogHelperAppender {
     private final Logger logger = LoggerFactory.getLogger("LogHelper");

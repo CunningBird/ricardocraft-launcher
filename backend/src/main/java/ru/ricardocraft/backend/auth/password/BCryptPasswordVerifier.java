@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.auth.password;
 
 import org.bouncycastle.crypto.generators.OpenBSDBCrypt;
-import ru.ricardocraft.backend.helper.SecurityHelper;
+import ru.ricardocraft.backend.base.helper.SecurityHelper;
 
 public class BCryptPasswordVerifier extends PasswordVerifier {
     public int cost = 10;

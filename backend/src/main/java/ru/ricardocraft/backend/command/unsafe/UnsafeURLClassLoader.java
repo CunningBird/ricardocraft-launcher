@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.command.unsafe;
 
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.net.URL;
 import java.net.URLClassLoader;

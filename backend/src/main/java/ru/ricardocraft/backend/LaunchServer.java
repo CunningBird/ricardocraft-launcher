@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
 import ru.ricardocraft.backend.command.utls.CommandHandler;
-import ru.ricardocraft.backend.helper.CommonHelper;
-import ru.ricardocraft.backend.helper.JVMHelper;
+import ru.ricardocraft.backend.base.helper.CommonHelper;
+import ru.ricardocraft.backend.base.helper.JVMHelper;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 

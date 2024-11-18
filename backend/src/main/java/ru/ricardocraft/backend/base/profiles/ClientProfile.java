@@ -5,11 +5,11 @@ import lombok.Getter;
 import ru.ricardocraft.backend.base.profiles.optional.OptionalDepend;
 import ru.ricardocraft.backend.base.profiles.optional.OptionalFile;
 import ru.ricardocraft.backend.base.profiles.optional.triggers.OptionalTrigger;
-import ru.ricardocraft.backend.core.LauncherNetworkAPI;
-import ru.ricardocraft.backend.core.hasher.FileNameMatcher;
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.VerifyHelper;
-import ru.ricardocraft.backend.launch.LaunchOptions;
+import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
+import ru.ricardocraft.backend.base.core.hasher.FileNameMatcher;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.VerifyHelper;
+import ru.ricardocraft.backend.base.LaunchOptions;
 
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;

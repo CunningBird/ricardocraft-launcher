@@ -2,7 +2,7 @@ package ru.ricardocraft.backend.base.events.request;
 
 import ru.ricardocraft.backend.base.events.ExtendedTokenRequestEvent;
 import ru.ricardocraft.backend.base.events.RequestEvent;
-import ru.ricardocraft.backend.core.LauncherNetworkAPI;
+import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 
 import java.util.UUID;
 

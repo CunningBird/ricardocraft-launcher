@@ -8,7 +8,7 @@ import io.netty.handler.codec.http.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.socket.NettyConnectContext;
 
 import java.net.URLDecoder;

@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.base.request.auth.password;
 
 import ru.ricardocraft.backend.base.request.auth.AuthRequest;
-import ru.ricardocraft.backend.core.LauncherNetworkAPI;
+import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 
 public class AuthAESPassword implements AuthRequest.AuthPasswordInterface {
     @LauncherNetworkAPI

@@ -10,8 +10,8 @@ import ru.ricardocraft.backend.command.mirror.installers.QuiltInstallerCommand;
 import ru.ricardocraft.backend.command.updates.profile.MakeProfileCommand;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
-import ru.ricardocraft.backend.mirror.InstallClient;
-import ru.ricardocraft.backend.mirror.MirrorWorkspace;
+import ru.ricardocraft.backend.manangers.mirror.InstallClient;
+import ru.ricardocraft.backend.manangers.mirror.MirrorWorkspace;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 

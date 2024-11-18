@@ -9,8 +9,8 @@ import ru.ricardocraft.backend.base.request.auth.RefreshTokenRequest;
 import ru.ricardocraft.backend.base.request.auth.RestoreRequest;
 import ru.ricardocraft.backend.base.request.websockets.StdWebSocketService;
 import ru.ricardocraft.backend.base.request.websockets.WebSocketRequest;
-import ru.ricardocraft.backend.core.LauncherNetworkAPI;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

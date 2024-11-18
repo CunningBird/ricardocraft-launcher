@@ -2,7 +2,7 @@ package ru.ricardocraft.backend.command.unsafe.patcher.impl;
 
 import org.objectweb.asm.*;
 import ru.ricardocraft.backend.command.unsafe.patcher.ClassTransformerPatcher;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 
 public class FindDefineClassPatcher extends ClassTransformerPatcher {
     @Override

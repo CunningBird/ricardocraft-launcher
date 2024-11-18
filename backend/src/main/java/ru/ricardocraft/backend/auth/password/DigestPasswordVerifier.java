@@ -2,8 +2,8 @@ package ru.ricardocraft.backend.auth.password;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.SecurityHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.SecurityHelper;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

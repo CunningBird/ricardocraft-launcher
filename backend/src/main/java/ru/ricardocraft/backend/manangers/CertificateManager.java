@@ -11,9 +11,9 @@ import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
-import ru.ricardocraft.backend.core.LauncherTrustManager;
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.JVMHelper;
+import ru.ricardocraft.backend.base.core.LauncherTrustManager;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.JVMHelper;
 
 import java.io.*;
 import java.net.URL;

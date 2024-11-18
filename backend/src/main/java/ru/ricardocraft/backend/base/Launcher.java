@@ -1,10 +1,10 @@
 package ru.ricardocraft.backend.base;
 
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.core.managers.GsonManager;
-import ru.ricardocraft.backend.core.serialize.HInput;
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.core.managers.GsonManager;
+import ru.ricardocraft.backend.base.core.serialize.HInput;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 import ru.ricardocraft.backend.properties.LauncherEnvironment;
 
 import java.io.IOException;

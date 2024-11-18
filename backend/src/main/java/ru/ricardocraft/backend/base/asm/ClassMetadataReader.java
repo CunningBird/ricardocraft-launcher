@@ -3,7 +3,7 @@ package ru.ricardocraft.backend.base.asm;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
-import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
 
 import java.io.Closeable;
 import java.io.IOException;

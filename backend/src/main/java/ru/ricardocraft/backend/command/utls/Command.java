@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.command.utls;
 
 import org.jline.reader.Candidate;
-import ru.ricardocraft.backend.helper.VerifyHelper;
+import ru.ricardocraft.backend.base.helper.VerifyHelper;
 
 import java.util.*;
 

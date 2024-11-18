@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.command.utls;
 
-import ru.ricardocraft.backend.helper.VerifyHelper;
+import ru.ricardocraft.backend.base.helper.VerifyHelper;
 
 import java.util.Map;
 import java.util.Objects;

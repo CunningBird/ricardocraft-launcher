@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.base.profiles.optional.triggers;
 
 import ru.ricardocraft.backend.base.profiles.optional.OptionalFile;
-import ru.ricardocraft.backend.helper.JVMHelper;
+import ru.ricardocraft.backend.base.helper.JVMHelper;
 
 public class OSTrigger extends OptionalTrigger {
     public JVMHelper.OS os;

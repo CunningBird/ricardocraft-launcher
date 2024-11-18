@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.helper.JVMHelper;
+import ru.ricardocraft.backend.base.helper.JVMHelper;
 import ru.ricardocraft.backend.base.utils.Version;
 
 import java.lang.management.RuntimeMXBean;

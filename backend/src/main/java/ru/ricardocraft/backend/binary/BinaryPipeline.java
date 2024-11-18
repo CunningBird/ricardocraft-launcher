@@ -3,7 +3,7 @@ package ru.ricardocraft.backend.binary;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.binary.tasks.LauncherBuildTask;
-import ru.ricardocraft.backend.helper.CommonHelper;
+import ru.ricardocraft.backend.base.helper.CommonHelper;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

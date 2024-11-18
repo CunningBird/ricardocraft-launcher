@@ -9,7 +9,7 @@ import ru.ricardocraft.backend.HttpRequester;
 import ru.ricardocraft.backend.base.Downloader;
 import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;

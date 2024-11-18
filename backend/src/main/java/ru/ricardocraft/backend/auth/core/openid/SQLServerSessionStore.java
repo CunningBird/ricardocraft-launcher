@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.auth.core.openid;
 
 import ru.ricardocraft.backend.auth.SQLSourceConfig;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import java.sql.SQLException;
 import java.util.UUID;

@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.base.profiles.optional.triggers;
 
 import ru.ricardocraft.backend.base.profiles.optional.OptionalFile;
-import ru.ricardocraft.backend.helper.JavaHelper;
+import ru.ricardocraft.backend.base.helper.JavaHelper;
 
 public class JavaTrigger extends OptionalTrigger {
     public int minVersion;

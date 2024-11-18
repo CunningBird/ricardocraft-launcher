@@ -5,10 +5,10 @@ import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.binary.tasks.MainBuildTask;
-import ru.ricardocraft.backend.core.serialize.HOutput;
-import ru.ricardocraft.backend.core.serialize.stream.StreamObject;
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.SecurityHelper;
+import ru.ricardocraft.backend.base.core.serialize.HOutput;
+import ru.ricardocraft.backend.base.core.serialize.stream.StreamObject;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.SecurityHelper;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
@@ -35,7 +35,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static ru.ricardocraft.backend.helper.IOHelper.newZipEntry;
+import static ru.ricardocraft.backend.base.helper.IOHelper.newZipEntry;
 
 public class BuildContext {
     public final ZipOutputStream output;

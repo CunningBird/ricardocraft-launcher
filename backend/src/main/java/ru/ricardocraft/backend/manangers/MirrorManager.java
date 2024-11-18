@@ -7,8 +7,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.mirror.WorkspaceTools;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.manangers.mirror.WorkspaceTools;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 import java.io.IOException;

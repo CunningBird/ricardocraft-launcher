@@ -1,9 +1,9 @@
 package ru.ricardocraft.backend.base;
 
-import ru.ricardocraft.backend.core.CertificatePinningTrustManager;
-import ru.ricardocraft.backend.core.LauncherInject;
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.core.CertificatePinningTrustManager;
+import ru.ricardocraft.backend.base.core.LauncherInject;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;

@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.command.remotecontrol;
 
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 public class ListCommand extends Command {

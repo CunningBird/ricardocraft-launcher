@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.base.profiles;
 
-import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
 
 import java.util.HashMap;
 import java.util.Map;

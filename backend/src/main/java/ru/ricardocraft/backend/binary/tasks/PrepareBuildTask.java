@@ -3,8 +3,8 @@ package ru.ricardocraft.backend.binary.tasks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.UnpackHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.UnpackHelper;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.IOException;

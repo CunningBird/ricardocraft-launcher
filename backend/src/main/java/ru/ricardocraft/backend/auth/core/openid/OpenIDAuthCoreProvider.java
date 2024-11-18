@@ -2,6 +2,7 @@ package ru.ricardocraft.backend.auth.core.openid;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.HikariSQLSourceConfig;
@@ -12,7 +13,7 @@ import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
 import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.base.request.auth.password.AuthCodePassword;
-import ru.ricardocraft.backend.helper.LogHelper;
+import ru.ricardocraft.backend.base.helper.LogHelper;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
@@ -28,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class OpenIDAuthCoreProvider extends AuthCoreProvider {
+
     private transient SQLUserStore sqlUserStore;
     private transient SQLServerSessionStore sqlSessionStore;
     private transient OpenIDAuthenticator openIDAuthenticator;

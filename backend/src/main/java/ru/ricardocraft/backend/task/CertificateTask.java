@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import ru.ricardocraft.backend.helper.SignHelper;
+import ru.ricardocraft.backend.base.helper.SignHelper;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 import java.nio.file.Paths;

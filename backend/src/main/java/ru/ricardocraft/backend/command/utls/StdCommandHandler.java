@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.command.utls;
 
-import ru.ricardocraft.backend.helper.IOHelper;
-import ru.ricardocraft.backend.helper.JVMHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.JVMHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;

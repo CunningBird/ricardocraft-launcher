@@ -3,7 +3,7 @@ package ru.ricardocraft.backend.manangers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.helper.IOHelper;
+import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 import java.io.BufferedReader;

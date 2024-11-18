@@ -13,8 +13,8 @@ import ru.ricardocraft.backend.base.Launcher;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
 import ru.ricardocraft.backend.base.request.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.backend.base.request.auth.password.AuthCodePassword;
-import ru.ricardocraft.backend.helper.CommonHelper;
-import ru.ricardocraft.backend.helper.QueryHelper;
+import ru.ricardocraft.backend.base.helper.CommonHelper;
+import ru.ricardocraft.backend.base.helper.QueryHelper;
 
 import java.io.IOException;
 import java.net.URI;

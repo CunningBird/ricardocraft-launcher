@@ -3,7 +3,7 @@ package ru.ricardocraft.backend.base.events.request;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.profiles.PlayerProfile;
-import ru.ricardocraft.backend.core.LauncherNetworkAPI;
+import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 
 import java.util.UUID;
 
