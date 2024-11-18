@@ -2,7 +2,6 @@ package ru.ricardocraft.backend.auth;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.auth.texture.TextureProvider;
@@ -19,8 +18,7 @@ public class AuthProviders {
     private transient AuthProviderPair authDefault;
 
     @Autowired
-    public AuthProviders(@Qualifier("memoryAuthCoreProvider") AuthCoreProvider provider,
-                         @Qualifier("requestTextureProvider") TextureProvider requestTextureProvider) {
+    public AuthProviders(AuthCoreProvider provider, TextureProvider requestTextureProvider) {
         String providerName = "std";
         AuthProviderPair a = new AuthProviderPair(provider, requestTextureProvider, providerName);
         a.displayName = "Default";

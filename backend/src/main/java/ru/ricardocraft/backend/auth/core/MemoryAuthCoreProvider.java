@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.auth.core;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthException;
-import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportSudo;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
 import ru.ricardocraft.backend.base.request.auth.AuthRequest;
@@ -20,7 +20,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Component
-public class MemoryAuthCoreProvider extends AuthCoreProvider implements AuthSupportSudo {
+@Primary
+public class MemoryAuthCoreProvider extends AuthCoreProvider {
     private transient final List<MemoryUser> memory = new ArrayList<>(16);
 
     @Override
@@ -113,16 +114,6 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider implements AuthSupp
     @Override
     public boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) {
         return true;
-    }
-
-    @Override
-    public void close() {
-
-    }
-
-    @Override
-    public AuthManager.AuthReport sudo(User user, boolean shadow) throws IOException {
-        return authorize(user.getUsername(), null, null, true);
     }
 
     public static class MemoryUser implements User {

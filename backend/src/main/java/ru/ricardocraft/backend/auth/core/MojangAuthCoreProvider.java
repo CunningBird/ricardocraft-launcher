@@ -223,11 +223,6 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
         return Launcher.gsonManager.gson.fromJson(response.body(), clazz);
     }
 
-    @Override
-    public void close() {
-
-    }
-
     private static class MojangUUIDResponse {
         public String name;
         public String id;
@@ -396,10 +391,6 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
                     ", accessToken='" + (accessToken == null ? "null" : "XXXXXX") + '\'' +
                     '}';
         }
-    }
-
-    public static class MojangError {
-        public String error;
     }
 
     public static class MojangUser implements User, UserSupportTextures {

@@ -172,9 +172,9 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
         return sqlSessionStore.joinServer(user.getUUID(), user.getUsername(), serverID);
     }
 
-    @Override
-    public void close() {
+//    @Override
+//    public void close() {
 //        sqlSourceConfig.close();
-    }
+//    }
 
 }

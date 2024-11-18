@@ -121,7 +121,6 @@ public class GsonManager {
 
     public ProviderMap<TextureProvider> registerTextureProviders() {
         ProviderMap<TextureProvider> textureProviders = new ProviderMap<>("TextureProvider");
-        textureProviders.register("null", NullTextureProvider.class);
         textureProviders.register("void", VoidTextureProvider.class);
 
         // Auth providers that doesn't do nothing :D

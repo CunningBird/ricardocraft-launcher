@@ -4,11 +4,11 @@ import lombok.Getter;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.auth.texture.TextureProvider;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
 public final class AuthProviderPair {
+
     public boolean isDefault = true;
     public AuthCoreProvider core;
     public TextureProvider textureProvider;
@@ -46,12 +46,5 @@ public final class AuthProviderPair {
     public <T> T isSupport(Class<T> clazz) {
         if (core == null) return null;
         return core.isSupport(clazz);
-    }
-
-    public void close() throws IOException {
-        core.close();
-        if (textureProvider != null) {
-            textureProvider.close();
-        }
     }
 }

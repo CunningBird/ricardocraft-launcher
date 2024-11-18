@@ -24,11 +24,6 @@ public class JsonTextureProvider extends TextureProvider {
     public String bearerToken;
 
     @Override
-    public void close() {
-        //None
-    }
-
-    @Override
     public Texture getCloakTexture(UUID uuid, String username, String client) {
         logger.warn("Ineffective get cloak texture for {}", username);
         return getAssets(uuid, username, client).get("CAPE");

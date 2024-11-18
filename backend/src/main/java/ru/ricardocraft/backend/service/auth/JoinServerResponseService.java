@@ -9,7 +9,6 @@ import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.JoinServerProtectHandler;
 import ru.ricardocraft.backend.base.events.request.JoinServerRequestEvent;
-import ru.ricardocraft.backend.manangers.AuthHookManager;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
@@ -25,17 +24,14 @@ public class JoinServerResponseService extends AbstractResponseService {
 
     private final ProtectHandler protectHandler;
     private final AuthManager authManager;
-    private final AuthHookManager authHookManager;
 
     @Autowired
     public JoinServerResponseService(WebSocketService service,
                                         ProtectHandler protectHandler,
-                                        AuthManager authManager,
-                                        AuthHookManager authHookManager) {
+                                        AuthManager authManager) {
         super(JoinServerResponse.class, service);
         this.protectHandler = protectHandler;
         this.authManager = authManager;
-        this.authHookManager = authHookManager;
     }
 
     @Override
@@ -52,7 +48,6 @@ public class JoinServerResponseService extends AbstractResponseService {
         }
         boolean success;
         try {
-            authHookManager.joinServerHook.hook(this, client);
             if (protectHandler instanceof JoinServerProtectHandler joinServerProtectHandler) {
                 success = joinServerProtectHandler.onJoinServer(response.serverID, response.username, response.uuid, client);
                 if (!success) {

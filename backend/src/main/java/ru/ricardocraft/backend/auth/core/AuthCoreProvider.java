@@ -1,50 +1,21 @@
 package ru.ricardocraft.backend.auth.core;
 
-import com.google.gson.reflect.TypeToken;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import ru.ricardocraft.backend.Reconfigurable;
-import ru.ricardocraft.backend.auth.AuthException;
-import ru.ricardocraft.backend.auth.AuthProviderPair;
-import ru.ricardocraft.backend.auth.core.interfaces.UserHardware;
-import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportGetAllUsers;
-import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportHardware;
-import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportRegistration;
-import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportSudo;
-import ru.ricardocraft.backend.base.Launcher;
-import ru.ricardocraft.backend.base.events.RequestEvent;
-import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
-import ru.ricardocraft.backend.base.profiles.PlayerProfile;
 import ru.ricardocraft.backend.base.request.auth.AuthRequest;
 import ru.ricardocraft.backend.base.request.auth.details.AuthPasswordDetails;
-import ru.ricardocraft.backend.base.request.auth.password.AuthPlainPassword;
-import ru.ricardocraft.backend.base.request.secure.HardwareReportRequest;
-import ru.ricardocraft.backend.command.utls.Command;
-import ru.ricardocraft.backend.command.utls.SubCommand;
 import ru.ricardocraft.backend.manangers.AuthManager;
-import ru.ricardocraft.backend.manangers.KeyAgreementManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.WebSocketService;
-import ru.ricardocraft.backend.socket.response.auth.AuthResponse;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /*
 All-In-One provider
  */
-public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable {
-
-    private static final Logger logger = LogManager.getLogger();
+public abstract class AuthCoreProvider {
 
     public abstract User getUserByUsername(String username);
 
@@ -58,7 +29,7 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
 
     public abstract AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponseService.AuthContext context /* may be null */);
 
-    public void verifyAuth(AuthResponseService.AuthContext context) throws AuthException {
+    public void verifyAuth(AuthResponseService.AuthContext context) {
         // None
     }
 
@@ -72,192 +43,6 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
         return List.of(new AuthPasswordDetails());
     }
 
-    @Override
-    public Map<String, Command> getCommands() {
-        Map<String, Command> map = defaultCommandsMap();
-        map.put("auth", new SubCommand("[login] (json/plain password data)", "Test auth") {
-            @Override
-            public void invoke(String... args) throws Exception {
-                verifyArgs(args, 1);
-                AuthRequest.AuthPasswordInterface password = null;
-                if (args.length > 1) {
-                    if (args[1].startsWith("{")) {
-                        password = Launcher.gsonManager.gson.fromJson(args[1], AuthRequest.AuthPasswordInterface.class);
-                    } else {
-                        password = new AuthPlainPassword(args[1]);
-                    }
-                }
-                var report = authorize(args[0], null, password, false);
-                if (report.isUsingOAuth()) {
-                    logger.info("OAuth: AccessToken: {} RefreshToken: {} MinecraftAccessToken: {}", report.oauthAccessToken(), report.oauthRefreshToken(), report.minecraftAccessToken());
-                    if (report.session() != null) {
-                        logger.info("UserSession: id {} expire {} user {}", report.session().getID(), report.session().getExpireIn(), report.session().getUser() == null ? "null" : "found");
-                        logger.info(report.session().toString());
-                    }
-                } else {
-                    logger.info("Basic: MinecraftAccessToken: {}", report.minecraftAccessToken());
-                }
-            }
-        });
-        map.put("getuserbyusername", new SubCommand("[username]", "get user by username") {
-            @Override
-            public void invoke(String... args) throws Exception {
-                verifyArgs(args, 1);
-                User user = getUserByUsername(args[0]);
-                if (user == null) {
-                    logger.info("User {} not found", args[0]);
-                } else {
-                    logger.info("User {}: {}", args[0], user.toString());
-                }
-            }
-        });
-        map.put("getuserbyuuid", new SubCommand("[uuid]", "get user by uuid") {
-            @Override
-            public void invoke(String... args) throws Exception {
-                verifyArgs(args, 1);
-                User user = getUserByUUID(UUID.fromString(args[0]));
-                if (user == null) {
-                    logger.info("User {} not found", args[0]);
-                } else {
-                    logger.info("User {}: {}", args[0], user.toString());
-                }
-            }
-        });
-        {
-            var instance = isSupport(AuthSupportGetAllUsers.class);
-            if (instance != null) {
-                map.put("getallusers", new SubCommand("(limit)", "print all users information") {
-                    @Override
-                    public void invoke(String... args) {
-                        int max = Integer.MAX_VALUE;
-                        if (args.length > 0) max = Integer.parseInt(args[0]);
-                        Iterable<User> users = instance.getAllUsers();
-                        int counter = 0;
-                        for (User u : users) {
-                            logger.info("User {}", u.toString());
-                            counter++;
-                            if (counter == max) break;
-                        }
-                        logger.info("Found {} users", counter);
-                    }
-                });
-            }
-        }
-        {
-            var instance = isSupport(AuthSupportHardware.class);
-            if (instance != null) {
-                map.put("gethardwarebyid", new SubCommand("[id]", "get hardware by id") {
-                    @Override
-                    public void invoke(String... args) throws Exception {
-                        verifyArgs(args, 1);
-                        UserHardware hardware = instance.getHardwareInfoById(args[0]);
-                        if (hardware == null) {
-                            logger.info("UserHardware {} not found", args[0]);
-                        } else {
-                            logger.info("UserHardware: {}", hardware);
-                        }
-                    }
-                });
-                map.put("gethardwarebydata", new SubCommand("[json data]", "fulltext search hardware by json data(slow)") {
-                    @Override
-                    public void invoke(String... args) throws Exception {
-                        verifyArgs(args, 1);
-                        UserHardware hardware = instance.getHardwareInfoByData(Launcher.gsonManager.gson.fromJson(args[0], HardwareReportRequest.HardwareInfo.class));
-                        if (hardware == null) {
-                            logger.info("UserHardware {} not found", args[0]);
-                        } else {
-                            logger.info("UserHardware: {}", hardware);
-                        }
-                    }
-                });
-                map.put("findmulti", new SubCommand("[hardware id]", "get all users in one hardware id") {
-                    @Override
-                    public void invoke(String... args) throws Exception {
-                        verifyArgs(args, 1);
-                        UserHardware hardware = instance.getHardwareInfoById(args[0]);
-                        if (hardware == null) {
-                            logger.info("UserHardware {} not found", args[0]);
-                            return;
-                        }
-                        Iterable<User> users = instance.getUsersByHardwareInfo(hardware);
-                        for (User user : users) {
-                            logger.info("User {}", user);
-                        }
-                    }
-                });
-                map.put("banhardware", new SubCommand("[hardware id]", "ban hardware by id") {
-                    @Override
-                    public void invoke(String... args) throws Exception {
-                        verifyArgs(args, 1);
-                        UserHardware hardware = instance.getHardwareInfoById(args[0]);
-                        if (hardware == null) {
-                            logger.info("UserHardware {} not found", args[0]);
-                            return;
-                        }
-                        instance.banHardware(hardware);
-                        logger.info("UserHardware {} banned", args[0]);
-                    }
-                });
-                map.put("unbanhardware", new SubCommand("[hardware id]", "ban hardware by id") {
-                    @Override
-                    public void invoke(String... args) throws Exception {
-                        verifyArgs(args, 1);
-                        UserHardware hardware = instance.getHardwareInfoById(args[0]);
-                        if (hardware == null) {
-                            logger.info("UserHardware {} not found", args[0]);
-                            return;
-                        }
-                        instance.unbanHardware(hardware);
-                        logger.info("UserHardware {} unbanned", args[0]);
-                    }
-                });
-                map.put("comparehardware", new SubCommand("[json data 1] [json data 2]", "compare hardware info") {
-                    @Override
-                    public void invoke(String... args) throws Exception {
-                        verifyArgs(args, 2);
-                        HardwareReportRequest.HardwareInfo hardware1 = Launcher.gsonManager.gson.fromJson(args[0], HardwareReportRequest.HardwareInfo.class);
-                        HardwareReportRequest.HardwareInfo hardware2 = Launcher.gsonManager.gson.fromJson(args[1], HardwareReportRequest.HardwareInfo.class);
-                        AuthSupportHardware.HardwareInfoCompareResult result = instance.compareHardwareInfo(hardware1, hardware2);
-                        if (result == null) {
-                            logger.error("Method compareHardwareInfo return null");
-                            return;
-                        }
-                        logger.info("Compare result: {} Spoof: {} first {} second", result.compareLevel, result.firstSpoofingLevel, result.secondSpoofingLevel);
-                    }
-                });
-            }
-        }
-        {
-            var instance = isSupport(AuthSupportRegistration.class);
-            if (instance != null) {
-                map.put("register", new SubCommand("[username] [email] [plain or json password] (json args)", "Register new user") {
-                    @Override
-                    public void invoke(String... args) throws Exception {
-                        verifyArgs(args, 2);
-                        Map<String, String> map = null;
-                        String username = args[0];
-                        String email = args[1];
-                        String plainPassword = args[2];
-                        if (args.length > 3) {
-                            Type typeOfMap = new TypeToken<Map<String, String>>() {
-                            }.getType();
-                            map = Launcher.gsonManager.gson.fromJson(args[2], typeOfMap);
-                        }
-                        AuthRequest.AuthPasswordInterface password;
-                        if (plainPassword.startsWith("{")) {
-                            password = Launcher.gsonManager.gson.fromJson(plainPassword, AuthRequest.AuthPasswordInterface.class);
-                        } else {
-                            password = new AuthPlainPassword(plainPassword);
-                        }
-                        User user = instance.registration(username, email, password, map);
-                        logger.info("User '{}' registered", user.toString());
-                    }
-                });
-            }
-        }
-        return map;
-    }
-
     public abstract User checkServer(Client client, String username, String serverID) throws IOException;
 
     public abstract boolean joinServer(Client client, String username, UUID uuid, String accessToken, String serverID) throws IOException;
@@ -267,9 +52,6 @@ public abstract class AuthCoreProvider implements AutoCloseable, Reconfigurable 
         if (clazz.isAssignableFrom(getClass())) return (T) this;
         return null;
     }
-
-    @Override
-    public abstract void close();
 
     public static class PasswordVerifyReport {
         public static final PasswordVerifyReport REQUIRED_2FA = new PasswordVerifyReport(-1);

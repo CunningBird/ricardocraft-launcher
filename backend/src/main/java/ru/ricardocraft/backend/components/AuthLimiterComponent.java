@@ -1,28 +1,31 @@
 package ru.ricardocraft.backend.components;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Getter;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.manangers.AuthHookManager;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.utils.HookException;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Component
-public class AuthLimiterComponent extends IPLimiter implements AutoCloseable {
+public class AuthLimiterComponent extends ru.ricardocraft.backend.components.Component {
     public String message;
-    private final transient AuthHookManager authHookManager;
+    public final List<String> exclude = new ArrayList<>();
+    @Getter
+    private final transient Map<String, LimitEntry> map = new HashMap<>();
+    public int rateLimit;
+    public long rateLimitMillis;
 
-    @Autowired
-    public AuthLimiterComponent(AuthHookManager authHookManager) {
-        this.authHookManager = authHookManager;
-
+    public AuthLimiterComponent() {
         this.rateLimit = 3;
         this.rateLimitMillis = SECONDS.toMillis(8);
         this.message = "Превышен лимит авторизаций";
-
-        authHookManager.preHook.registerHook(this::preAuthHook);
 
         setComponentName("authLimiter");
     }
@@ -34,8 +37,45 @@ public class AuthLimiterComponent extends IPLimiter implements AutoCloseable {
         return false;
     }
 
-    @Override
-    public void close() {
-        authHookManager.preHook.unregisterHook(this::preAuthHook);
+    public String getFromString(String str) {
+        return str;
     }
+
+    public void garbageCollection() {
+        long time = System.currentTimeMillis();
+        map.entrySet().removeIf((e) -> e.getValue().time + rateLimitMillis < time);
+    }
+
+    public boolean check(String address) {
+        if (exclude.contains(address)) return true;
+        LimitEntry entry = map.get(address);
+        if (entry == null) {
+            map.put(address, new LimitEntry());
+            return true;
+        } else {
+            long time = System.currentTimeMillis();
+            if (entry.trys < rateLimit) {
+                entry.trys++;
+                entry.time = time;
+                return true;
+            }
+            if (entry.time + rateLimitMillis < time) {
+                entry.trys = 1;
+                entry.time = time;
+                return true;
+            }
+            return false;
+        }
+    }
+
+    protected static class LimitEntry {
+        long time;
+        int trys;
+
+        public LimitEntry() {
+            time = System.currentTimeMillis();
+            trys = 0;
+        }
+    }
+
 }

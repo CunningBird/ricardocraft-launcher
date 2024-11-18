@@ -7,7 +7,7 @@ import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
-import ru.ricardocraft.backend.manangers.AuthHookManager;
+import ru.ricardocraft.backend.components.AuthLimiterComponent;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
@@ -23,17 +23,17 @@ public class AuthResponseService extends AbstractResponseService {
 
     private final AuthManager authManager;
 
-    private final AuthHookManager authHookManager;
+    private final AuthLimiterComponent authLimiterComponent;
 
     @Autowired
     public AuthResponseService(WebSocketService service,
-                                  AuthProviders authProviders,
-                                  AuthManager authManager,
-                                  AuthHookManager authHookManager) {
+                               AuthProviders authProviders,
+                               AuthManager authManager,
+                               AuthLimiterComponent authLimiterComponent) {
         super(AuthResponse.class, service);
         this.authProviders = authProviders;
         this.authManager = authManager;
-        this.authHookManager = authHookManager;
+        this.authLimiterComponent = authLimiterComponent;
     }
 
     @Override
@@ -46,15 +46,14 @@ public class AuthResponseService extends AbstractResponseService {
             if (response.auth_id == null || response.auth_id.isEmpty()) pair = authProviders.getAuthProviderPair();
             else pair = authProviders.getAuthProviderPair(response.auth_id);
             if (pair == null) {
-                sendError(ctx,"auth_id incorrect", response.requestUUID);
+                sendError(ctx, "auth_id incorrect", response.requestUUID);
                 return;
             }
             AuthContext context = authManager.makeAuthContext(clientData, response.authType, pair, response.login, response.client, response.ip);
             authManager.check(context);
             response.password = authManager.decryptPassword(response.password);
-            authHookManager.preHook.hook(context, clientData);
+            authLimiterComponent.preAuthHook(context, clientData);
             context.report = authManager.auth(context, response.password);
-            authHookManager.postHook.hook(context, clientData);
             result.permissions = context.report.session() != null ? (context.report.session().getUser() != null ? context.report.session().getUser().getPermissions() : null) : null;
             if (context.report.isUsingOAuth()) {
                 result.oauth = new AuthRequestEvent.OAuthRequestEvent(context.report.oauthAccessToken(), context.report.oauthRefreshToken(), context.report.oauthExpire());

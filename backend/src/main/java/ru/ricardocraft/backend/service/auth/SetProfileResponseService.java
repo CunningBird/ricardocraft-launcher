@@ -8,30 +8,25 @@ import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
 import ru.ricardocraft.backend.base.events.request.SetProfileRequestEvent;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.manangers.AuthHookManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
 import ru.ricardocraft.backend.socket.response.WebSocketServerResponse;
 import ru.ricardocraft.backend.socket.response.auth.SetProfileResponse;
-import ru.ricardocraft.backend.utils.HookException;
 
 import java.util.Collection;
 
 @Component
 public class SetProfileResponseService extends AbstractResponseService {
 
-    private final AuthHookManager authHookManager;
     private final ProfileProvider profileProvider;
     private final ProtectHandler protectHandler;
 
     @Autowired
     public SetProfileResponseService(WebSocketService service,
-                                     AuthHookManager authHookManager,
                                      ProfileProvider profileProvider,
                                      ProtectHandler protectHandler) {
         super(SetProfileResponse.class, service);
-        this.authHookManager = authHookManager;
         this.profileProvider = profileProvider;
         this.protectHandler = protectHandler;
     }
@@ -39,12 +34,6 @@ public class SetProfileResponseService extends AbstractResponseService {
     @Override
     public void execute(WebSocketServerResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         SetProfileResponse response = (SetProfileResponse) rawResponse;
-
-        try {
-            authHookManager.setProfileHook.hook(this, client);
-        } catch (HookException e) {
-            sendError(ctx, e.getMessage(), response.requestUUID);
-        }
         Collection<ClientProfile> profiles = profileProvider.getProfiles();
         for (ClientProfile p : profiles) {
             if (p.getTitle().equals(response.client)) {

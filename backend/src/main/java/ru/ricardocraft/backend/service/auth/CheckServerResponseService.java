@@ -9,7 +9,6 @@ import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.core.interfaces.session.UserSessionSupportHardware;
 import ru.ricardocraft.backend.auth.core.interfaces.session.UserSessionSupportProperties;
 import ru.ricardocraft.backend.base.events.request.CheckServerRequestEvent;
-import ru.ricardocraft.backend.manangers.AuthHookManager;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
@@ -23,16 +22,13 @@ public class CheckServerResponseService extends AbstractResponseService {
 
     private transient final Logger logger = LogManager.getLogger();
 
-    private final AuthHookManager authHookManager;
     private final AuthManager authManager;
 
     @Autowired
     public CheckServerResponseService(WebSocketService service,
-                                      AuthManager authManager,
-                                      AuthHookManager authHookManager) {
+                                      AuthManager authManager) {
         super(CheckServerResponse.class, service);
         this.authManager = authManager;
-        this.authHookManager = authHookManager;
     }
 
     @Override
@@ -45,7 +41,6 @@ public class CheckServerResponseService extends AbstractResponseService {
         }
         CheckServerRequestEvent result = new CheckServerRequestEvent();
         try {
-            authHookManager.checkServerHook.hook(this, pClient);
             AuthManager.CheckServerReport report = authManager.checkServer(pClient, response.username, response.serverID);
             if (report == null) {
                 sendError(ctx, "User not verified", response.requestUUID);
@@ -62,7 +57,6 @@ public class CheckServerResponseService extends AbstractResponseService {
                     result.hardwareId = supportHardware.getHardwareId();
                 }
             }
-            authHookManager.postCheckServerHook.hook(report, pClient);
             logger.debug("checkServer: {} uuid: {} serverID: {}", result.playerProfile == null ? null : result.playerProfile.username, result.uuid, response.serverID);
         } catch (AuthException | HookException e) {
             sendError(ctx, e.getMessage(), response.requestUUID);

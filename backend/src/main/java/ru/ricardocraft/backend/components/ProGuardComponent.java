@@ -1,13 +1,11 @@
 package ru.ricardocraft.backend.components;
 
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.ricardocraft.backend.Reconfigurable;
 import ru.ricardocraft.backend.binary.JARLauncherBinary;
 import ru.ricardocraft.backend.binary.tasks.LauncherBuildTask;
-import ru.ricardocraft.backend.command.utls.Command;
-import ru.ricardocraft.backend.command.utls.SubCommand;
 import ru.ricardocraft.backend.helper.IOHelper;
 import ru.ricardocraft.backend.helper.JVMHelper;
 import ru.ricardocraft.backend.helper.SecurityHelper;
@@ -24,7 +22,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -32,7 +29,8 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 @org.springframework.stereotype.Component
-public class ProGuardComponent extends Component implements AutoCloseable, Reconfigurable {
+public class ProGuardComponent extends Component {
+
     private static final Logger logger = LogManager.getLogger();
     public String modeAfter = "MainBuild";
     public String dir = "proguard";
@@ -40,22 +38,20 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
     public boolean enabled = true;
     public boolean mappings = true;
 
-    private transient final JARLauncherBinary launcherBinary;
-
-    public transient ProguardConf proguardConf;
-    private transient ProGuardBuildTask buildTask;
-    private transient ProGuardMultiReleaseFixer fixerTask;
+    @Getter
+    private transient ProguardConf proguardConf;
+    private final transient ProGuardBuildTask buildTask;
 
     @Autowired
-    public ProGuardComponent(JARLauncherBinary launcherBinary, LaunchServerConfig launchServerConfig, LaunchServerDirectories directories) {
+    public ProGuardComponent(JARLauncherBinary launcherBinary,
+                             LaunchServerConfig launchServerConfig,
+                             LaunchServerDirectories directories) {
         this.jvmArgs.add("-Xmx512M");
         setComponentName("proguard");
 
-        this.launcherBinary = launcherBinary;
-
         proguardConf = new ProguardConf(launcherBinary, launchServerConfig, directories, this);
         this.buildTask = new ProGuardBuildTask(launcherBinary, directories, proguardConf, this);
-        this.fixerTask = new ProGuardMultiReleaseFixer(launcherBinary, this, "ProGuard.".concat(componentName));
+        ProGuardMultiReleaseFixer fixerTask = new ProGuardMultiReleaseFixer(launcherBinary, this, "ProGuard.".concat(componentName));
         launcherBinary.addAfter((v) -> v.getName().startsWith(modeAfter), buildTask);
         launcherBinary.addAfter((v) -> v.getName().equals("ProGuard.".concat(componentName)), fixerTask);
     }
@@ -90,39 +86,6 @@ public class ProGuardComponent extends Component implements AutoCloseable, Recon
                 return debianJfxPath;
             }
         }
-        return null;
-    }
-
-    @Override
-    public void close() {
-        if (buildTask != null) {
-            launcherBinary.tasks.remove(buildTask);
-        }
-    }
-
-    @Override
-    public Map<String, Command> getCommands() {
-        Map<String, Command> commands = defaultCommandsMap();
-        commands.put("reset", new SubCommand("[]", "reset proguard config") {
-            @Override
-            public void invoke(String... args) throws Exception {
-                proguardConf.prepare(true);
-                Files.deleteIfExists(proguardConf.mappings);
-            }
-        });
-        commands.put("regen", new SubCommand("[]", "regenerate proguard dictionary") {
-            @Override
-            public void invoke(String... args) throws Exception {
-                proguardConf.genWords(true);
-            }
-        });
-        commands.put("clean", new SubCommand("[]", "clean proguard mappings") {
-            @Override
-            public void invoke(String... args) throws Exception {
-                proguardConf.prepare(true);
-                Files.deleteIfExists(proguardConf.mappings);
-            }
-        });
         return null;
     }
 

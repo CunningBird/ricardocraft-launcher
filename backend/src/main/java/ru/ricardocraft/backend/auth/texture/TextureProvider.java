@@ -7,11 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public abstract class TextureProvider implements AutoCloseable {
-
-    @Override
-    public abstract void close() throws IOException;
-
+public abstract class TextureProvider {
 
     public abstract Texture getCloakTexture(UUID uuid, String username, String client) throws IOException;
 
