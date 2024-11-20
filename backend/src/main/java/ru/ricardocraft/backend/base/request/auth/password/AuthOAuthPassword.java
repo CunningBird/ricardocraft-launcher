@@ -1,29 +1,14 @@
 package ru.ricardocraft.backend.base.request.auth.password;
 
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import lombok.NoArgsConstructor;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 
-public class AuthOAuthPassword implements AuthRequest.AuthPasswordInterface {
-    public final String accessToken;
-    public final String refreshToken;
-    public final int expire;
+@NoArgsConstructor
+public class AuthOAuthPassword extends AuthPassword {
 
-    public AuthOAuthPassword(String accessToken, String refreshToken, int expire) {
-        this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
-        this.expire = expire;
-    }
-
-    public AuthOAuthPassword(String accessToken, int expire) {
-        this.accessToken = accessToken;
-        this.refreshToken = null;
-        this.expire = expire;
-    }
-
-    public AuthOAuthPassword(String accessToken) {
-        this.accessToken = accessToken;
-        this.refreshToken = null;
-        this.expire = 0;
-    }
+    public String accessToken;
+    public String refreshToken;
+    public int expire;
 
     @Override
     public boolean check() {

@@ -10,7 +10,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
     @LauncherNetworkAPI
     public final String login;
     @LauncherNetworkAPI
-    public final AuthPasswordInterface password;
+    public final AuthPassword password;
     @LauncherNetworkAPI
     public final String auth_id;
     @LauncherNetworkAPI
@@ -26,7 +26,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         this.getSession = false;
     }
 
-    public AuthRequest(String login, AuthPasswordInterface password, String auth_id, boolean getSession, ConnectTypes authType) {
+    public AuthRequest(String login, AuthPassword password, String auth_id, boolean getSession, ConnectTypes authType) {
         this.login = login;
         this.password = password;
         this.auth_id = auth_id;
@@ -44,13 +44,5 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         CLIENT,
         @LauncherNetworkAPI
         API
-    }
-
-    public interface AuthPasswordInterface {
-        boolean check();
-
-        default boolean isAllowSave() {
-            return false;
-        }
     }
 }

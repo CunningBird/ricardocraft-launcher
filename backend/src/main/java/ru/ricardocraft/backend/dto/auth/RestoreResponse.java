@@ -11,11 +11,6 @@ public class RestoreResponse extends SimpleResponse {
     public boolean needUserInfo;
 
     @Override
-    public String getType() {
-        return "restore";
-    }
-
-    @Override
     public ThreadSafeStatus getThreadSafeStatus() {
         return ThreadSafeStatus.READ_WRITE;
     }

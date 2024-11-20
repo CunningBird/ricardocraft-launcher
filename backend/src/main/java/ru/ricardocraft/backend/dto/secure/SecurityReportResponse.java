@@ -8,9 +8,4 @@ public class SecurityReportResponse extends SimpleResponse {
     public String largeData;
     public byte[] smallBytes;
     public byte[] largeBytes;
-
-    @Override
-    public String getType() {
-        return "securityReport";
-    }
 }

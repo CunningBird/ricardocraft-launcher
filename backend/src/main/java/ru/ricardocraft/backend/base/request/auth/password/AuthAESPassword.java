@@ -1,11 +1,14 @@
 package ru.ricardocraft.backend.base.request.auth.password;
 
+import lombok.NoArgsConstructor;
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 
-public class AuthAESPassword implements AuthRequest.AuthPasswordInterface {
+@NoArgsConstructor
+public class AuthAESPassword extends AuthPassword {
+
     @LauncherNetworkAPI
-    public final byte[] password;
+    public byte[] password;
 
     public AuthAESPassword(byte[] aesEncryptedPassword) {
         this.password = aesEncryptedPassword;

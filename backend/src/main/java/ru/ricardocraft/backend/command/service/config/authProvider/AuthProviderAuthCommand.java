@@ -5,7 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 import ru.ricardocraft.backend.base.request.auth.password.AuthPlainPassword;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.manangers.GsonManager;
@@ -33,10 +33,10 @@ public class AuthProviderAuthCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
-        AuthRequest.AuthPasswordInterface password = null;
+        AuthPassword password = null;
         if (args.length > 1) {
             if (args[1].startsWith("{")) {
-                password = gsonManager.gson.fromJson(args[1], AuthRequest.AuthPasswordInterface.class);
+                password = gsonManager.gson.fromJson(args[1], AuthPassword.class);
             } else {
                 password = new AuthPlainPassword(args[1]);
             }

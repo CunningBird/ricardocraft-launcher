@@ -1,11 +1,14 @@
 package ru.ricardocraft.backend.base.request.auth.password;
 
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import lombok.NoArgsConstructor;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 
 import java.util.List;
 
-public class AuthMultiPassword implements AuthRequest.AuthPasswordInterface {
-    public List<AuthRequest.AuthPasswordInterface> list;
+@NoArgsConstructor
+public class AuthMultiPassword extends AuthPassword {
+
+    public List<AuthPassword> list;
 
     @Override
     public boolean check() {

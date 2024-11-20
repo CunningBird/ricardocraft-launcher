@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.socket;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -15,14 +15,12 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ErrorRequestEvent;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.base.request.WebSocketEvent;
 import ru.ricardocraft.backend.dto.SimpleResponse;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
 
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -41,11 +39,10 @@ public class WebSocketService {
     private final Map<Class<? extends SimpleResponse>, AbstractResponseService> services = new HashMap<>();
 
     private transient final LaunchServerConfig config;
-
-    private transient final Gson gson;
+    private transient final JacksonManager jacksonManager;
 
     @Autowired
-    public WebSocketService(LaunchServerConfig config, GsonManager gsonManager) {
+    public WebSocketService(LaunchServerConfig config, JacksonManager jacksonManager) {
         this.channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
         executors = switch (config.netty.performance.executorType) {
             case NONE -> null;
@@ -55,7 +52,7 @@ public class WebSocketService {
         };
 
         this.config = config;
-        this.gson = gsonManager.gson;
+        this.jacksonManager = jacksonManager;
     }
 
     public void registerService(Class<? extends SimpleResponse> responseClass, AbstractResponseService service) {
@@ -87,18 +84,17 @@ public class WebSocketService {
         }
     }
 
-    public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip, UUID connectUUID) {
+    public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip, UUID connectUUID) throws JsonProcessingException {
         String request = frame.text();
         WebSocketRequestContext context = new WebSocketRequestContext(ctx, request, client, ip, connectUUID);
-        SimpleResponse response = gson.fromJson(request, SimpleResponse.class);
+        SimpleResponse response = jacksonManager.getMapper().readValue(request, SimpleResponse.class); // gsonManager.gson.fromJson(request, SimpleResponse.class);
         context.response = response;
         if (response == null) {
             RequestEvent event = new ErrorRequestEvent("This type of request is not supported");
-            sendObject(ctx.channel(), event, WebSocketEvent.class);
+            sendObject(ctx.channel(), event);
             return;
         }
-        var safeStatus = config.netty.performance.disableThreadSafeClientObject ?
-                SimpleResponse.ThreadSafeStatus.NONE : response.getThreadSafeStatus();
+        var safeStatus = config.netty.performance.disableThreadSafeClientObject ? SimpleResponse.ThreadSafeStatus.NONE : response.getThreadSafeStatus();
         if (executors == null) {
             process(safeStatus, client, ip, context, response);
         } else {
@@ -152,33 +148,33 @@ public class WebSocketService {
     }
 
     public void sendObject(Channel channel, Object obj) {
-        String msg = gson.toJson(obj, WebSocketEvent.class);
-        if (logger.isTraceEnabled()) {
-            logger.trace("Send to channel {}: {}", getIPFromChannel(channel), msg);
+        try {
+            String msg = jacksonManager.getMapper().writeValueAsString(obj); //gsonManager.gson.toJson(obj, WebSocketEvent.class);
+            if (logger.isTraceEnabled()) {
+                logger.trace("Send to channel {}: {}", getIPFromChannel(channel), msg);
+            }
+            channel.writeAndFlush(new TextWebSocketFrame(msg), channel.voidPromise());
+        } catch (Exception e) {
+            logger.error("Error sending object to channel {}: {}", getIPFromChannel(channel), e.getMessage());
         }
-        channel.writeAndFlush(new TextWebSocketFrame(msg), channel.voidPromise());
     }
 
-    public void sendObject(Channel channel, Object obj, Type type) {
-        String msg = gson.toJson(obj, type);
-        if (logger.isTraceEnabled()) {
-            logger.trace("Send to channel {}: {}", getIPFromChannel(channel), msg);
-        }
-        channel.writeAndFlush(new TextWebSocketFrame(msg), channel.voidPromise());
-    }
-
-    public void sendObjectAll(Object obj, Type type) {
+    public void sendObjectAll(Object obj) {
         for (Channel ch : channels) {
-            sendObject(ch, obj, type);
+            sendObject(ch, obj);
         }
     }
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj) {
-        String msg = gson.toJson(obj, WebSocketEvent.class);
-        if (logger.isTraceEnabled()) {
-            logger.trace("Send and close {}: {}", getIPFromContext(ctx), msg);
+        try {
+            String msg = jacksonManager.getMapper().writeValueAsString(obj); //gsonManager.gson.toJson(obj, WebSocketEvent.class);
+            if (logger.isTraceEnabled()) {
+                logger.trace("Send and close {}: {}", getIPFromContext(ctx), msg);
+            }
+            ctx.writeAndFlush(new TextWebSocketFrame(msg)).addListener(ChannelFutureListener.CLOSE);
+        } catch (Exception e) {
+            logger.error("Error sending object to channel: {}", e.getMessage());
         }
-        ctx.writeAndFlush(new TextWebSocketFrame(msg)).addListener(ChannelFutureListener.CLOSE);
     }
 
     public static class WebSocketRequestContext {

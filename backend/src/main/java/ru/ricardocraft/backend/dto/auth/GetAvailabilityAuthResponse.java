@@ -4,8 +4,4 @@ import ru.ricardocraft.backend.dto.SimpleResponse;
 
 public class GetAvailabilityAuthResponse extends SimpleResponse {
 
-    @Override
-    public String getType() {
-        return "getAvailabilityAuth";
-    }
 }

@@ -13,11 +13,6 @@ public class LauncherResponse extends SimpleResponse {
     public String secureSalt;
 
     @Override
-    public String getType() {
-        return "launcher";
-    }
-
-    @Override
     public ThreadSafeStatus getThreadSafeStatus() {
         return ThreadSafeStatus.READ_WRITE;
     }

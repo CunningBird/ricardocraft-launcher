@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.HttpRequester;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.profiles.Texture;
-import ru.ricardocraft.backend.manangers.GsonManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 
 import java.io.IOException;
@@ -29,10 +28,10 @@ public class JsonTextureProvider extends TextureProvider {
     private transient final LaunchServerConfig.JsonTextureProviderConfig config;
 
     @Autowired
-    public JsonTextureProvider(GsonManager gsonManager,
-                               RequestTextureProvider requestTextureProvider,
-                               LaunchServerConfig config) {
-        this.requester = new HttpRequester(gsonManager);
+    public JsonTextureProvider(RequestTextureProvider requestTextureProvider,
+                               LaunchServerConfig config,
+                               HttpRequester requester) {
+        this.requester = requester;
         this.requestTextureProvider = requestTextureProvider;
         this.config = config.jsonTextureProviderConfig;
     }
@@ -70,7 +69,7 @@ public class JsonTextureProvider extends TextureProvider {
                 return new HashMap<>();
             }
             Map<String, Texture> res = new HashMap<>();
-            for(var e : map.entrySet()) {
+            for (var e : map.entrySet()) {
                 res.put(e.getKey(), e.getValue().toTexture());
             }
             return res;

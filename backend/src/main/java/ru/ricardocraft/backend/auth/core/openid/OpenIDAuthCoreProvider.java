@@ -13,7 +13,7 @@ import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 import ru.ricardocraft.backend.base.request.auth.password.AuthCodePassword;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
@@ -92,7 +92,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public AuthManager.AuthReport authorize(String login, AuthResponseService.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
+    public AuthManager.AuthReport authorize(String login, AuthResponseService.AuthContext context, AuthPassword password, boolean minecraftAccess) throws IOException {
         if (password == null) {
             throw AuthException.wrongPassword();
         }

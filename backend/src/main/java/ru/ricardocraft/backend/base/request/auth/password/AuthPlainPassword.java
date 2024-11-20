@@ -1,11 +1,14 @@
 package ru.ricardocraft.backend.base.request.auth.password;
 
+import lombok.NoArgsConstructor;
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 
-public class AuthPlainPassword implements AuthRequest.AuthPasswordInterface {
+@NoArgsConstructor
+public class AuthPlainPassword extends AuthPassword {
+
     @LauncherNetworkAPI
-    public final String password;
+    public String password;
 
     public AuthPlainPassword(String password) {
         this.password = password;

@@ -1,13 +1,12 @@
 package ru.ricardocraft.backend.base.request.auth.password;
 
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import lombok.NoArgsConstructor;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 
-public class AuthCodePassword implements AuthRequest.AuthPasswordInterface {
-    public final String uri;
+@NoArgsConstructor
+public class AuthCodePassword extends AuthPassword {
 
-    public AuthCodePassword(String uri) {
-        this.uri = uri;
-    }
+    public String uri;
 
     @Override
     public boolean check() {

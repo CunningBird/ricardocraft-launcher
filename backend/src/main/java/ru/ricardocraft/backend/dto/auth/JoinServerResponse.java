@@ -9,9 +9,4 @@ public class JoinServerResponse extends SimpleResponse {
     public String accessToken;
     public String username;
     public UUID uuid;
-
-    @Override
-    public String getType() {
-        return "joinServer";
-    }
 }

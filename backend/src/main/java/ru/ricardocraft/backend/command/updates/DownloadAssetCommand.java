@@ -39,17 +39,20 @@ public final class DownloadAssetCommand extends Command {
     private transient final MirrorManager mirrorManager;
     private transient final UpdatesManager updatesManager;
     private transient final GsonManager gsonManager;
+    private transient final HttpRequester requester;
 
     @Autowired
     public DownloadAssetCommand(LaunchServerDirectories directories,
                                 MirrorManager mirrorManager,
                                 UpdatesManager updatesManager,
-                                GsonManager gsonManager) {
+                                GsonManager gsonManager,
+                                HttpRequester requester) {
         super();
         this.directories = directories;
         this.mirrorManager = mirrorManager;
         this.updatesManager = updatesManager;
         this.gsonManager = gsonManager;
+        this.requester = requester;
     }
 
     @Override
@@ -78,7 +81,6 @@ public final class DownloadAssetCommand extends Command {
         }
 
         if (type.equals("mojang")) {
-            HttpRequester requester = new HttpRequester(gsonManager);
             logger.info("Fetch versions from {}", MINECRAFT_VERSIONS_URL);
             var versions = requester.send(requester.get(MINECRAFT_VERSIONS_URL, null), MinecraftVersions.class).getOrThrow();
             String profileUrl = null;

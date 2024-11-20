@@ -1,22 +1,16 @@
 package ru.ricardocraft.backend.dto.auth;
 
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 import ru.ricardocraft.backend.dto.SimpleResponse;
 
 public class AuthResponse extends SimpleResponse {
 
     public String login;
     public String client;
-
-    public AuthRequest.AuthPasswordInterface password;
-
+    public AuthPassword password;
+    public Boolean getSession;
     public String auth_id;
     public ConnectTypes authType;
-
-    @Override
-    public String getType() {
-        return "auth";
-    }
 
     public enum ConnectTypes {
         CLIENT,

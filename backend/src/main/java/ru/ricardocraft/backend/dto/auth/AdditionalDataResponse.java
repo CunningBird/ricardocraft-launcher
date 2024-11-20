@@ -7,9 +7,4 @@ import java.util.UUID;
 public class AdditionalDataResponse extends SimpleResponse {
     public String username;
     public UUID uuid;
-
-    @Override
-    public String getType() {
-        return "additionalData";
-    }
 }

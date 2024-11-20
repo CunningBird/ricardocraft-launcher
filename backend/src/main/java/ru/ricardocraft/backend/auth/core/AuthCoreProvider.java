@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.auth.core;
 
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 import ru.ricardocraft.backend.base.request.auth.details.AuthPasswordDetails;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
@@ -32,9 +32,9 @@ public abstract class AuthCoreProvider {
         // None
     }
 
-    public abstract AuthManager.AuthReport authorize(String login, AuthResponseService.AuthContext context /* may be null */, AuthRequest.AuthPasswordInterface password /* may be null */, boolean minecraftAccess) throws IOException;
+    public abstract AuthManager.AuthReport authorize(String login, AuthResponseService.AuthContext context /* may be null */, AuthPassword password /* may be null */, boolean minecraftAccess) throws IOException;
 
-    public AuthManager.AuthReport authorize(User user, AuthResponseService.AuthContext context /* may be null */, AuthRequest.AuthPasswordInterface password /* may be null */, boolean minecraftAccess) throws IOException {
+    public AuthManager.AuthReport authorize(User user, AuthResponseService.AuthContext context /* may be null */, AuthPassword password /* may be null */, boolean minecraftAccess) throws IOException {
         return authorize(user.getUsername(), context, password, minecraftAccess);
     }
 

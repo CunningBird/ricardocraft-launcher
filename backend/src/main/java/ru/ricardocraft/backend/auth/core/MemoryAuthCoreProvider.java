@@ -6,7 +6,7 @@ import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 import ru.ricardocraft.backend.base.request.auth.details.AuthLoginOnlyDetails;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
@@ -73,7 +73,7 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public AuthManager.AuthReport authorize(String login, AuthResponseService.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
+    public AuthManager.AuthReport authorize(String login, AuthResponseService.AuthContext context, AuthPassword password, boolean minecraftAccess) throws IOException {
         if (login == null) {
             throw AuthException.userNotFound();
         }

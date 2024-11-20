@@ -1,8 +1,11 @@
 package ru.ricardocraft.backend.base.request.auth.password;
 
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import lombok.NoArgsConstructor;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 
-public class AuthTOTPPassword implements AuthRequest.AuthPasswordInterface {
+@NoArgsConstructor
+public class AuthTOTPPassword extends AuthPassword {
+
     public String totp;
 
     @Override

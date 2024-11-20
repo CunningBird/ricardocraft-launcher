@@ -1,13 +1,12 @@
 package ru.ricardocraft.backend.base.request.auth.password;
 
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import lombok.NoArgsConstructor;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 
-public class AuthRSAPassword implements AuthRequest.AuthPasswordInterface {
-    public final byte[] password;
+@NoArgsConstructor
+public class AuthRSAPassword extends AuthPassword {
 
-    public AuthRSAPassword(byte[] rsaEncryptedPassword) {
-        this.password = rsaEncryptedPassword;
-    }
+    public byte[] password;
 
     @Override
     public boolean check() {

@@ -9,7 +9,7 @@ import ru.ricardocraft.backend.auth.core.interfaces.user.UserSupportTextures;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.profiles.Texture;
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 import ru.ricardocraft.backend.base.request.auth.password.AuthPlainPassword;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.GsonManager;
@@ -138,7 +138,7 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public AuthManager.AuthReport authorize(String login, AuthResponseService.AuthContext context, AuthRequest.AuthPasswordInterface password, boolean minecraftAccess) throws IOException {
+    public AuthManager.AuthReport authorize(String login, AuthResponseService.AuthContext context, AuthPassword password, boolean minecraftAccess) throws IOException {
         if (login == null) {
             throw AuthException.userNotFound();
         }

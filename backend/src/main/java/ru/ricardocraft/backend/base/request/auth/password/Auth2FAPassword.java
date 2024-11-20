@@ -1,10 +1,13 @@
 package ru.ricardocraft.backend.base.request.auth.password;
 
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import lombok.NoArgsConstructor;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 
-public class Auth2FAPassword implements AuthRequest.AuthPasswordInterface {
-    public AuthRequest.AuthPasswordInterface firstPassword;
-    public AuthRequest.AuthPasswordInterface secondPassword;
+@NoArgsConstructor
+public class Auth2FAPassword extends AuthPassword {
+
+    public AuthPassword firstPassword;
+    public AuthPassword secondPassword;
 
     @Override
     public boolean check() {

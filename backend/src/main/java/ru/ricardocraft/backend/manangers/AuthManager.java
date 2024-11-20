@@ -24,7 +24,7 @@ import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.profiles.PlayerProfile;
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 import ru.ricardocraft.backend.base.request.auth.password.*;
 import ru.ricardocraft.backend.dto.auth.AuthResponse;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
@@ -115,7 +115,7 @@ public class AuthManager {
      * @param password User password
      * @return Access token
      */
-    public AuthReport auth(AuthResponseService.AuthContext context, AuthRequest.AuthPasswordInterface password) throws AuthException {
+    public AuthReport auth(AuthResponseService.AuthContext context, AuthPassword password) throws AuthException {
         AuthCoreProvider provider = context.pair.core;
         provider.verifyAuth(context);
         if (password instanceof AuthOAuthPassword password1) {
@@ -280,13 +280,13 @@ public class AuthManager {
         return new PlayerProfile(uuid, username, assets, properties);
     }
 
-    public AuthRequest.AuthPasswordInterface decryptPassword(AuthRequest.AuthPasswordInterface password) throws AuthException {
+    public AuthPassword decryptPassword(AuthPassword password) throws AuthException {
         if (password instanceof Auth2FAPassword auth2FAPassword) {
             auth2FAPassword.firstPassword = tryDecryptPasswordPlain(auth2FAPassword.firstPassword);
             auth2FAPassword.secondPassword = tryDecryptPasswordPlain(auth2FAPassword.secondPassword);
         } else if (password instanceof AuthMultiPassword multiPassword) {
-            List<AuthRequest.AuthPasswordInterface> list = new ArrayList<>(multiPassword.list.size());
-            for (AuthRequest.AuthPasswordInterface p : multiPassword.list) {
+            List<AuthPassword> list = new ArrayList<>(multiPassword.list.size());
+            for (AuthPassword p : multiPassword.list) {
                 list.add(tryDecryptPasswordPlain(p));
             }
             multiPassword.list = list;
@@ -296,7 +296,7 @@ public class AuthManager {
         return password;
     }
 
-    private AuthRequest.AuthPasswordInterface tryDecryptPasswordPlain(AuthRequest.AuthPasswordInterface password) throws AuthException {
+    private AuthPassword tryDecryptPasswordPlain(AuthPassword password) throws AuthException {
         if (password instanceof AuthAESPassword authAESPassword) {
             try {
                 return new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(launchServerConfig.runtimeConfig.passwordEncryptKey

@@ -38,30 +38,13 @@ import ru.ricardocraft.backend.base.profiles.optional.triggers.OSTrigger;
 import ru.ricardocraft.backend.base.profiles.optional.triggers.OptionalTrigger;
 import ru.ricardocraft.backend.base.request.JsonResultSerializeAdapter;
 import ru.ricardocraft.backend.base.request.WebSocketEvent;
-import ru.ricardocraft.backend.base.request.auth.AuthRequest;
+import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 import ru.ricardocraft.backend.base.request.auth.details.AuthLoginOnlyDetails;
 import ru.ricardocraft.backend.base.request.auth.details.AuthPasswordDetails;
 import ru.ricardocraft.backend.base.request.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.backend.base.request.auth.password.*;
 import ru.ricardocraft.backend.base.utils.ProviderMap;
 import ru.ricardocraft.backend.base.utils.UniversalJsonAdapter;
-import ru.ricardocraft.backend.dto.SimpleResponse;
-import ru.ricardocraft.backend.dto.UnknownResponse;
-import ru.ricardocraft.backend.dto.auth.*;
-import ru.ricardocraft.backend.dto.cabinet.AssetUploadInfoResponse;
-import ru.ricardocraft.backend.dto.cabinet.GetAssetUploadInfoResponse;
-import ru.ricardocraft.backend.dto.management.FeaturesResponse;
-import ru.ricardocraft.backend.dto.management.GetConnectUUIDResponse;
-import ru.ricardocraft.backend.dto.management.GetPublicKeyResponse;
-import ru.ricardocraft.backend.dto.profile.BatchProfileByUsername;
-import ru.ricardocraft.backend.dto.profile.ProfileByUUIDResponse;
-import ru.ricardocraft.backend.dto.profile.ProfileByUsername;
-import ru.ricardocraft.backend.dto.secure.GetSecureLevelInfoResponse;
-import ru.ricardocraft.backend.dto.secure.HardwareReportResponse;
-import ru.ricardocraft.backend.dto.secure.SecurityReportResponse;
-import ru.ricardocraft.backend.dto.secure.VerifySecureLevelKeyResponse;
-import ru.ricardocraft.backend.dto.update.LauncherResponse;
-import ru.ricardocraft.backend.dto.update.UpdateResponse;
 
 @Component
 public class GsonManager {
@@ -89,9 +72,7 @@ public class GsonManager {
         builder.registerTypeAdapter(AuthCoreProvider.class, new UniversalJsonAdapter<>(registerAuthCoreProviders()));
         builder.registerTypeAdapter(PasswordVerifier.class, new UniversalJsonAdapter<>(registerPasswordVerifierProviders()));
         builder.registerTypeAdapter(ProtectHandler.class, new UniversalJsonAdapter<>(registerHandlerProviders()));
-        builder.registerTypeAdapter(SimpleResponse.class, new UniversalJsonAdapter<>(registerWebSocketResponseProviders(), UnknownResponse.class));
         builder.registerTypeAdapter(WebSocketEvent.class, new JsonResultSerializeAdapter());
-        builder.registerTypeAdapter(AuthRequest.AuthPasswordInterface.class, new UniversalJsonAdapter<>(registerAuthRequestProviders()));
         builder.registerTypeAdapter(GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails.class, new UniversalJsonAdapter<>(registerGetAvailabilityAuthProviders()));
         builder.registerTypeAdapter(OptionalAction.class, new UniversalJsonAdapter<>(registerOptionalActionProviders()));
         builder.registerTypeAdapter(OptionalTrigger.class, new UniversalJsonAdapter<>(registerOptionalTriggerProviders()));
@@ -119,8 +100,6 @@ public class GsonManager {
     public ProviderMap<TextureProvider> registerTextureProviders() {
         ProviderMap<TextureProvider> textureProviders = new ProviderMap<>("TextureProvider");
         textureProviders.register("void", VoidTextureProvider.class);
-
-        // Auth providers that doesn't do nothing :D
         textureProviders.register("request", RequestTextureProvider.class);
         textureProviders.register("json", JsonTextureProvider.class);
         return textureProviders;
@@ -132,64 +111,6 @@ public class GsonManager {
         protectHandlerProviders.register("std", StdProtectHandler.class);
         protectHandlerProviders.register("advanced", AdvancedProtectHandler.class);
         return protectHandlerProviders;
-    }
-
-    public ProviderMap<SimpleResponse> registerWebSocketResponseProviders() {
-        ProviderMap<SimpleResponse> webSocketResponseProviders = new ProviderMap<>();
-
-        // Auth
-        webSocketResponseProviders.register("additionalData", AdditionalDataResponse.class);
-        webSocketResponseProviders.register("auth", AuthResponse.class);
-        webSocketResponseProviders.register("checkServer", CheckServerResponse.class);
-        webSocketResponseProviders.register("currentUser", CurrentUserResponse.class);
-        webSocketResponseProviders.register("exit", ExitResponse.class);
-        webSocketResponseProviders.register("clientProfileKey", FetchClientProfileKeyResponse.class);
-        webSocketResponseProviders.register("getAvailabilityAuth", GetAvailabilityAuthResponse.class);
-        webSocketResponseProviders.register("joinServer", JoinServerResponse.class);
-        webSocketResponseProviders.register("profiles", ProfilesResponse.class);
-        webSocketResponseProviders.register("refreshToken", RefreshTokenResponse.class);
-        webSocketResponseProviders.register("restore", RestoreResponse.class);
-        webSocketResponseProviders.register("setProfile", SetProfileResponse.class);
-
-        // Update
-        webSocketResponseProviders.register("launcher", LauncherResponse.class);
-        webSocketResponseProviders.register("update", UpdateResponse.class);
-
-        // Profile
-        webSocketResponseProviders.register("batchProfileByUsername", BatchProfileByUsername.class);
-        webSocketResponseProviders.register("profileByUsername", ProfileByUsername.class);
-        webSocketResponseProviders.register("profileByUUID", ProfileByUUIDResponse.class);
-
-        // Secure
-        webSocketResponseProviders.register("getSecureLevelInfo", GetSecureLevelInfoResponse.class);
-        webSocketResponseProviders.register("hardwareReport", HardwareReportResponse.class);
-        webSocketResponseProviders.register("securityReport", SecurityReportResponse.class);
-        webSocketResponseProviders.register("verifySecureLevelKey", VerifySecureLevelKeyResponse.class);
-
-        // Management
-        webSocketResponseProviders.register("features", FeaturesResponse.class);
-        webSocketResponseProviders.register("getConnectUUID", GetConnectUUIDResponse.class);
-        webSocketResponseProviders.register("getPublicKey", GetPublicKeyResponse.class);
-
-        // Cabinet
-        webSocketResponseProviders.register("assetUploadInfo", AssetUploadInfoResponse.class);
-        webSocketResponseProviders.register("getAssetUploadUrl", GetAssetUploadInfoResponse.class);
-
-        return webSocketResponseProviders;
-    }
-
-    public ProviderMap<AuthRequest.AuthPasswordInterface> registerAuthRequestProviders() {
-        ProviderMap<AuthRequest.AuthPasswordInterface> authRequestProviders = new ProviderMap<>();
-        authRequestProviders.register("plain", AuthPlainPassword.class);
-        authRequestProviders.register("rsa2", AuthRSAPassword.class);
-        authRequestProviders.register("aes", AuthAESPassword.class);
-        authRequestProviders.register("2fa", Auth2FAPassword.class);
-        authRequestProviders.register("multi", AuthMultiPassword.class);
-        authRequestProviders.register("signature", AuthSignaturePassword.class);
-        authRequestProviders.register("totp", AuthTOTPPassword.class);
-        authRequestProviders.register("oauth", AuthOAuthPassword.class);
-        authRequestProviders.register("code", AuthCodePassword.class);
-        return authRequestProviders;
     }
 
     public ProviderMap<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> registerGetAvailabilityAuthProviders() {

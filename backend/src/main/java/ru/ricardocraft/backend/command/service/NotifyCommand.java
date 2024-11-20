@@ -2,7 +2,6 @@ package ru.ricardocraft.backend.command.service;
 
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.events.NotificationEvent;
-import ru.ricardocraft.backend.base.request.WebSocketEvent;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.socket.WebSocketService;
 
@@ -35,6 +34,6 @@ public class NotifyCommand extends Command {
         } else {
             event = new NotificationEvent(args[0], args[1], Enum.valueOf(NotificationEvent.NotificationType.class, args[2]));
         }
-        service.sendObjectAll(event, WebSocketEvent.class);
+        service.sendObjectAll(event);
     }
 }

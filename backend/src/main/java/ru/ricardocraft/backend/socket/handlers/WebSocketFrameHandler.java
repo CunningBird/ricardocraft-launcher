@@ -58,6 +58,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
                     service.process(ctx, textWebSocketFrame, client, context.ip, connectUUID);
                 } catch (Throwable ex) {
                     logger.warn("Client {} send invalid request. Connection force closed.", context.ip == null ? IOHelper.getIP(ctx.channel().remoteAddress()) : context.ip);
+                    ex.printStackTrace();
                     if (logger.isTraceEnabled()) {
                         logger.trace("Client message: {}", textWebSocketFrame.text());
                         logger.error("Process websockets request failed", ex);
