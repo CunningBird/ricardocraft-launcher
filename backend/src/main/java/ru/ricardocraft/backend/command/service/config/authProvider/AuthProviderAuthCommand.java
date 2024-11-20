@@ -8,7 +8,7 @@ import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 import ru.ricardocraft.backend.base.request.auth.password.AuthPlainPassword;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 
 @Component
 @RequiredArgsConstructor
@@ -18,7 +18,7 @@ public class AuthProviderAuthCommand extends Command {
 
     private final AuthCoreProvider authCoreProvider;
 
-    private final GsonManager gsonManager;
+    private final JacksonManager jacksonManager;
 
     @Override
     public String getArgsDescription() {
@@ -36,7 +36,7 @@ public class AuthProviderAuthCommand extends Command {
         AuthPassword password = null;
         if (args.length > 1) {
             if (args[1].startsWith("{")) {
-                password = gsonManager.gson.fromJson(args[1], AuthPassword.class);
+                password = jacksonManager.getMapper().readValue(args[1], AuthPassword.class);
             } else {
                 password = new AuthPlainPassword(args[1]);
             }

@@ -1,12 +1,12 @@
 package ru.ricardocraft.backend.auth.core.openid;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Jwk;
 import io.jsonwebtoken.security.JwkSet;
 import io.jsonwebtoken.security.Jwks;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
-import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
@@ -14,8 +14,11 @@ import ru.ricardocraft.backend.base.helper.CommonHelper;
 import ru.ricardocraft.backend.base.helper.QueryHelper;
 import ru.ricardocraft.backend.base.request.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.backend.base.request.auth.password.AuthCodePassword;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.repository.User;
+import ru.ricardocraft.backend.repository.UserEntity;
+import ru.ricardocraft.backend.socket.QueryBuilder;
 
 import java.io.IOException;
 import java.net.URI;
@@ -30,14 +33,15 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class OpenIDAuthenticator {
+
     private static final HttpClient CLIENT = HttpClient.newBuilder().build();
     private final LaunchServerConfig.OpenIDConfig openIDConfig;
     private final JwtParser jwtParser;
-    private final GsonManager gsonManager;
+    private final JacksonManager jacksonManager;
 
-    public OpenIDAuthenticator(LaunchServerConfig config, GsonManager gsonManager) {
+    public OpenIDAuthenticator(LaunchServerConfig config, JacksonManager jacksonManager) {
         this.openIDConfig = config.openIDConfig;
-        this.gsonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
         var keyLocator = loadKeyLocator(openIDConfig);
         this.jwtParser = Jwts.parser()
                 .keyLocator(keyLocator)
@@ -59,7 +63,7 @@ public class OpenIDAuthenticator {
         return List.of(new AuthWebViewDetails(uri, openIDConfig.redirectUri()));
     }
 
-    public TokenResponse refreshAccessToken(String oldRefreshToken) {
+    public TokenResponse refreshAccessToken(String oldRefreshToken) throws JsonProcessingException {
         var postBody = QueryBuilder.post()
                 .addQuery("grant_type", "refresh_token")
                 .addQuery("refresh_token", oldRefreshToken)
@@ -113,7 +117,6 @@ public class OpenIDAuthenticator {
             throw new AuthException("Auth error. Error: %s, description: %s".formatted(error, errorDescription));
         }
 
-
         var postBody = QueryBuilder.post()
                 .addQuery("grant_type", "authorization_code")
                 .addQuery("code", code)
@@ -158,7 +161,7 @@ public class OpenIDAuthenticator {
         return new UserEntity(username, uuid, new ClientPermissions());
     }
 
-    private AccessTokenResponse requestToken(String postBody) {
+    private AccessTokenResponse requestToken(String postBody) throws JsonProcessingException {
         var request = HttpRequest.newBuilder()
                 .uri(openIDConfig.tokenUri())
                 .header("Content-Type", "application/x-www-form-urlencoded")
@@ -172,7 +175,7 @@ public class OpenIDAuthenticator {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return gsonManager.gson.fromJson(resp.body(), AccessTokenResponse.class);
+        return jacksonManager.getMapper().readValue(resp.body(), AccessTokenResponse.class);
     }
 
     private static KeyLocator loadKeyLocator(LaunchServerConfig.OpenIDConfig openIDConfig) {

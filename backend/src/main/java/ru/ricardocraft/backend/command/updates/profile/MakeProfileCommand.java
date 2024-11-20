@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.command.updates.profile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,7 @@ import ru.ricardocraft.backend.base.helper.MakeProfileHelper;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.CommandException;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 @Component
@@ -19,16 +20,16 @@ public class MakeProfileCommand extends Command {
 
     private transient final LaunchServerDirectories directories;
     private transient final ProfileProvider profileProvider;
-    private transient final GsonManager gsonManager;
+    private transient final JacksonManager jacksonManager;
 
     @Autowired
     public MakeProfileCommand(LaunchServerDirectories directories,
                               ProfileProvider profileProvider,
-                              GsonManager gsonManager) {
+                              JacksonManager jacksonManager) {
         super();
         this.directories = directories;
         this.profileProvider = profileProvider;
-        this.gsonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
     }
 
     @Override
@@ -55,10 +56,10 @@ public class MakeProfileCommand extends Command {
         profileProvider.syncProfilesDir();
     }
 
-    protected ClientProfile.Version parseClientVersion(String arg) throws CommandException {
+    protected ClientProfile.Version parseClientVersion(String arg) throws CommandException, JsonProcessingException {
         if(arg.isEmpty()) {
             throw new CommandException("ClientVersion can't be empty");
         }
-        return gsonManager.gson.fromJson(arg, ClientProfile.Version.class);
+        return jacksonManager.getMapper().readValue(arg, ClientProfile.Version.class);
     }
 }

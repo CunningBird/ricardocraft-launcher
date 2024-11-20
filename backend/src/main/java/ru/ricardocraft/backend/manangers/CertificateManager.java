@@ -1,6 +1,7 @@
 package ru.ricardocraft.backend.manangers;
 
 
+import jakarta.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
@@ -11,6 +12,8 @@ import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
+import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.base.core.LauncherTrustManager;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
@@ -26,11 +29,35 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class CertificateManager {
 
     private transient final Logger logger = LogManager.getLogger(CertificateManager.class);
 
     public LauncherTrustManager trustManager;
+
+    @PostConstruct
+    public void init() throws IOException {
+        Path dir = IOHelper.WORKING_DIR;
+        try {
+            readTrustStore(dir.resolve("truststore"));
+        } catch (CertificateException e) {
+            throw new IOException(e);
+        }
+        {
+            LauncherTrustManager.CheckClassResult result = checkClass(LaunchServer.class);
+            if (result.type == LauncherTrustManager.CheckClassResultType.SUCCESS) {
+                logger.info("LaunchServer signed by {}", result.endCertificate.getSubjectX500Principal().getName());
+            } else if (result.type == LauncherTrustManager.CheckClassResultType.NOT_SIGNED) {
+                // None
+            } else {
+                if (result.exception != null) {
+                    logger.error(result.exception);
+                }
+                logger.warn("LaunchServer signed incorrectly. Status: {}", result.type.name());
+            }
+        }
+    }
 
     public void writePrivateKey(Path file, PrivateKey privateKey) throws IOException {
         writePrivateKey(IOHelper.newWriter(file), privateKey);

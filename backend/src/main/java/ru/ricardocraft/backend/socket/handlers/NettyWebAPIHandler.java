@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.socket.handlers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -8,7 +9,7 @@ import io.netty.handler.codec.http.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.socket.NettyConnectContext;
 
 import java.net.URLDecoder;
@@ -66,7 +67,7 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     @FunctionalInterface
     public interface SimpleServletHandler {
-        void handle(ChannelHandlerContext ctx, FullHttpRequest msg, NettyConnectContext context);
+        void handle(ChannelHandlerContext ctx, FullHttpRequest msg, NettyConnectContext context) throws JsonProcessingException;
 
         default Map<String, String> getParamsFromUri(String uri) {
             int ind = uri.indexOf("?");
@@ -89,8 +90,8 @@ public class NettyWebAPIHandler extends SimpleChannelInboundHandler<FullHttpRequ
             return map;
         }
 
-        default FullHttpResponse simpleJsonResponse(HttpResponseStatus status, Object body, GsonManager gsonManager) {
-            DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(HTTP_1_1, status, body != null ? Unpooled.wrappedBuffer(IOHelper.encode(gsonManager.gson.toJson(body))) : Unpooled.buffer());
+        default FullHttpResponse simpleJsonResponse(HttpResponseStatus status, Object body, JacksonManager jacksonManager) throws JsonProcessingException {
+            DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(HTTP_1_1, status, body != null ? Unpooled.wrappedBuffer(IOHelper.encode(jacksonManager.getMapper().writeValueAsString(body))) : Unpooled.buffer());
             httpResponse.headers().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
             return httpResponse;
         }

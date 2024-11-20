@@ -26,10 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
-import ru.ricardocraft.backend.manangers.CertificateManager;
-import ru.ricardocraft.backend.manangers.GsonManager;
-import ru.ricardocraft.backend.manangers.KeyAgreementManager;
-import ru.ricardocraft.backend.manangers.LaunchServerConfigManager;
+import ru.ricardocraft.backend.manangers.*;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
@@ -54,7 +51,7 @@ public class GenerateCertificateCommand extends Command {
     private transient final CertificateManager certificateManager;
     private transient final KeyAgreementManager keyAgreementManager;
     private transient final LaunchServerConfigManager launchServerConfigManager;
-    private transient final GsonManager gsonManager;
+    private transient final JacksonManager jacksonManager;
 
     @Autowired
     public GenerateCertificateCommand(CommandHandler commandHandler,
@@ -63,14 +60,14 @@ public class GenerateCertificateCommand extends Command {
                                       CertificateManager certificateManager,
                                       KeyAgreementManager keyAgreementManager,
                                       LaunchServerConfigManager launchServerConfigManager,
-                                      GsonManager gsonManager) {
+                                      JacksonManager jacksonManager) {
         super();
         this.config = config;
         this.directories = directories;
         this.certificateManager = certificateManager;
         this.keyAgreementManager = keyAgreementManager;
         this.launchServerConfigManager = launchServerConfigManager;
-        this.gsonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
 
         commandHandler.registerCommand("generatecertificate", this);
     }
@@ -129,7 +126,7 @@ public class GenerateCertificateCommand extends Command {
         conf.signAlgo = "SHA256WITHRSA";
         conf.keyAlias = projectName.concat("CodeSign").toLowerCase();
         conf.keyStore = p12FilePath.toString();
-        logger.info("Configuration: {}", gsonManager.configGson.toJson(conf));
+        logger.info("Configuration: {}", jacksonManager.getMapper().writeValueAsString(conf));
         logger.info("KeyAlias may be incorrect. Usage: 'keytool -storepass {} -keystore {} -list' for check alias", passwd, conf.keyStore);
         logger.warn("Must save your store password");
         if (!config.sign.enabled) {

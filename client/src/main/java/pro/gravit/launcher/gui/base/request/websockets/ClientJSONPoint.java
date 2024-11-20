@@ -4,7 +4,6 @@ import pro.gravit.launcher.gui.base.Downloader;
 import pro.gravit.launcher.gui.core.LauncherInject;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
-import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -32,10 +31,6 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
     private final Object syncObject = new Object();
     private final Object sendSyncObject = new Object();
     private volatile StringBuilder builder = new StringBuilder();
-
-    public ClientJSONPoint(final String uri) throws SSLException {
-        this(URI.create(uri));
-    }
 
     public ClientJSONPoint(URI uri) {
         this.uri = uri;

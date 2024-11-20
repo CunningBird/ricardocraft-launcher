@@ -6,19 +6,24 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
-import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.auth.core.UserSession;
+import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
 import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
+import ru.ricardocraft.backend.base.events.request.LauncherRequestEvent;
 import ru.ricardocraft.backend.base.events.request.RestoreRequestEvent;
 import ru.ricardocraft.backend.dto.SimpleResponse;
 import ru.ricardocraft.backend.dto.auth.AuthResponse;
 import ru.ricardocraft.backend.dto.auth.RestoreResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
+import ru.ricardocraft.backend.manangers.KeyAgreementManager;
+import ru.ricardocraft.backend.repository.User;
 import ru.ricardocraft.backend.service.AbstractResponseService;
+import ru.ricardocraft.backend.service.update.LauncherResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,20 +32,25 @@ public class RestoreResponseService extends AbstractResponseService {
 
     private final AuthProviders authProviders;
     private final AuthManager authManager;
-    private final Map<String, ExtendedTokenProvider> restoreProviders;
     private final CurrentUserResponseService currentUserResponseService;
+
+    private final Map<String, ExtendedTokenProvider> restoreProviders = new HashMap<>();
 
     @Autowired
     public RestoreResponseService(WebSocketService service,
-                                     AuthProviders authProviders,
-                                     AuthManager authManager,
-                                     Map<String, ExtendedTokenProvider> restoreProviders,
-                                     CurrentUserResponseService currentUserResponseService) {
+                                  AuthProviders authProviders,
+                                  AuthManager authManager,
+                                  KeyAgreementManager keyAgreementManager,
+                                  CurrentUserResponseService currentUserResponseService) {
         super(RestoreResponse.class, service);
         this.authProviders = authProviders;
         this.authManager = authManager;
-        this.restoreProviders = restoreProviders;
         this.currentUserResponseService = currentUserResponseService;
+
+        restoreProviders.put(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, new LauncherResponseService.LauncherTokenVerifier(keyAgreementManager));
+        restoreProviders.put("publicKey", new AdvancedProtectHandler.PublicKeyTokenVerifier(keyAgreementManager));
+        restoreProviders.put("hardware", new AdvancedProtectHandler.HardwareInfoTokenVerifier(keyAgreementManager));
+        restoreProviders.put("checkServer", new AuthManager.CheckServerVerifier(authManager, authProviders));
     }
 
     @Override
@@ -78,8 +88,8 @@ public class RestoreResponseService extends AbstractResponseService {
                 return;
             }
             User user = session.getUser();
-            if(user == null) {
-                sendError(ctx,"Internal Auth error: UserSession is broken", response.requestUUID);
+            if (user == null) {
+                sendError(ctx, "Internal Auth error: UserSession is broken", response.requestUUID);
                 return;
             }
             client.coreObject = user;

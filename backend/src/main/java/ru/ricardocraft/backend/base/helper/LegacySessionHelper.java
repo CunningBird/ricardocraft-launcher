@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.base.helper;
 
 import io.jsonwebtoken.Jwts;
-import ru.ricardocraft.backend.auth.core.User;
+import ru.ricardocraft.backend.repository.User;
 
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;

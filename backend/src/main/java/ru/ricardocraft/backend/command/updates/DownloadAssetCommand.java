@@ -8,14 +8,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.HttpRequester;
 import ru.ricardocraft.backend.base.Downloader;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
+import ru.ricardocraft.backend.socket.HttpRequester;
 
 import java.io.Writer;
 import java.nio.file.Files;
@@ -38,20 +38,20 @@ public final class DownloadAssetCommand extends Command {
     private transient final LaunchServerDirectories directories;
     private transient final MirrorManager mirrorManager;
     private transient final UpdatesManager updatesManager;
-    private transient final GsonManager gsonManager;
+    private transient final JacksonManager jacksonManager;
     private transient final HttpRequester requester;
 
     @Autowired
     public DownloadAssetCommand(LaunchServerDirectories directories,
                                 MirrorManager mirrorManager,
                                 UpdatesManager updatesManager,
-                                GsonManager gsonManager,
+                                JacksonManager jacksonManager,
                                 HttpRequester requester) {
         super();
         this.directories = directories;
         this.mirrorManager = mirrorManager;
         this.updatesManager = updatesManager;
-        this.gsonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
         this.requester = requester;
     }
 
@@ -104,7 +104,7 @@ public final class DownloadAssetCommand extends Command {
             JsonObject objects = assets.get("objects").getAsJsonObject();
             try (Writer writer = IOHelper.newWriter(indexPath)) {
                 logger.info("Save {}", indexPath);
-                gsonManager.configGson.toJson(assets, writer);
+                writer.write(jacksonManager.getMapper().writeValueAsString(assets));
             }
             if (!assetIndex.equals(versionName)) {
                 Path targetPath = assetDir.resolve("indexes").resolve(versionName + ".json");
@@ -147,7 +147,7 @@ public final class DownloadAssetCommand extends Command {
     private Downloader downloadWithProgressBar(String taskName, List<Downloader.SizedFile> list, String baseUrl, Path targetDir) throws Exception {
         long total = 0;
         for (Downloader.SizedFile file : list) {
-            if(file.size < 0) {
+            if (file.size < 0) {
                 continue;
             }
             total += file.size;

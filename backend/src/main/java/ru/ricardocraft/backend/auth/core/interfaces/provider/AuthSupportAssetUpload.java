@@ -1,10 +1,10 @@
 package ru.ricardocraft.backend.auth.core.interfaces.provider;
 
 import ru.ricardocraft.backend.auth.Feature;
-import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.base.events.request.AssetUploadInfoRequestEvent;
 import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
 import ru.ricardocraft.backend.base.events.request.GetAssetUploadUrlRequestEvent;
+import ru.ricardocraft.backend.repository.User;
 
 import java.util.Set;
 

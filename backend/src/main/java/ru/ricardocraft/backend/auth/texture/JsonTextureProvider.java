@@ -1,17 +1,15 @@
 package ru.ricardocraft.backend.auth.texture;
 
-import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.HttpRequester;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.profiles.Texture;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.socket.HttpRequester;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -21,7 +19,7 @@ public class JsonTextureProvider extends TextureProvider {
 
     private transient final Logger logger = LogManager.getLogger(JsonTextureProvider.class);
 
-    private static final Type MAP_TYPE = new TypeToken<Map<String, JsonTexture>>() {}.getType();
+    private static final Map<String, JsonTexture> map = new HashMap<>();
 
     private transient final HttpRequester requester;
     private transient final RequestTextureProvider requestTextureProvider;
@@ -51,7 +49,7 @@ public class JsonTextureProvider extends TextureProvider {
     @Override
     public Map<String, Texture> getAssets(UUID uuid, String username, String client) {
         try {
-            Map<String, JsonTexture> map = requester.<Map<String, JsonTexture>>send(requester.get(requestTextureProvider.getTextureURL(config.url, uuid, username, client), config.bearerToken), MAP_TYPE).getOrThrow();
+            Map<String, JsonTexture> map = requester.send(requester.get(requestTextureProvider.getTextureURL(config.url, uuid, username, client), config.bearerToken), (Class<Map<String, JsonTexture>>) this.map.getClass()).getOrThrow();
             return JsonTexture.convertMap(map);
         } catch (IOException e) {
             logger.error("JsonTextureProvider", e);

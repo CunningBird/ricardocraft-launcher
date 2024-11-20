@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.AuthProviders;
-import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.events.RequestEvent;
@@ -13,6 +12,7 @@ import ru.ricardocraft.backend.base.profiles.PlayerProfile;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.dto.auth.AuthResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
+import ru.ricardocraft.backend.repository.User;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
 

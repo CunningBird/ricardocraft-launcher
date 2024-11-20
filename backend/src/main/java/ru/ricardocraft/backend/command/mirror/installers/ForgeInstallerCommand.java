@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.*;
@@ -26,13 +26,13 @@ public class ForgeInstallerCommand extends Command {
     private transient final Logger logger = LogManager.getLogger(ForgeInstallerCommand.class);
 
     private transient final LaunchServerDirectories directories;
-    private transient final GsonManager gsonManager;
+    private transient final JacksonManager jacksonManager;
 
     @Autowired
-    public ForgeInstallerCommand(LaunchServerDirectories directories, GsonManager gsonManager) {
+    public ForgeInstallerCommand(LaunchServerDirectories directories, JacksonManager jacksonManager) {
         super();
         this.directories = directories;
-        this.gsonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
     }
 
     @Override
@@ -117,7 +117,7 @@ public class ForgeInstallerCommand extends Command {
 
     private ForgeInstallManifest readForgeInstallManifest(InputStream stream) throws IOException {
         try (Reader reader = new InputStreamReader(stream)) {
-            return gsonManager.configGson.fromJson(reader, ForgeInstallManifest.class);
+            return jacksonManager.getMapper().readValue(reader, ForgeInstallManifest.class);
         }
     }
 

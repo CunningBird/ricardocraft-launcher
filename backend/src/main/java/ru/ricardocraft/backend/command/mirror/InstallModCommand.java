@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.command.mirror;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +8,7 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.CommandException;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.mirror.InstallClient;
 import ru.ricardocraft.backend.manangers.mirror.modapi.CurseforgeAPI;
 import ru.ricardocraft.backend.manangers.mirror.modapi.ModrinthAPI;
@@ -27,18 +28,18 @@ public class InstallModCommand extends Command {
     private final LaunchServerDirectories directories;
     private final ModrinthAPI modrinthAPI;
     private final CurseforgeAPI curseforgeApi;
-    private final GsonManager gsonManager;
+    private final JacksonManager jacksonManager;
 
     @Autowired
     public InstallModCommand(LaunchServerDirectories directories,
                              CurseforgeAPI curseforgeAPI,
                              ModrinthAPI modrinthAPI,
-                             GsonManager gsonManager) {
+                             JacksonManager jacksonManager) {
         super();
         this.directories = directories;
         this.curseforgeApi = curseforgeAPI;
         this.modrinthAPI = modrinthAPI;
-        this.gsonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
     }
 
     @Override
@@ -80,10 +81,10 @@ public class InstallModCommand extends Command {
         }
     }
 
-    protected ClientProfile.Version parseClientVersion(String arg) throws CommandException {
+    protected ClientProfile.Version parseClientVersion(String arg) throws CommandException, JsonProcessingException {
         if(arg.isEmpty()) {
             throw new CommandException("ClientVersion can't be empty");
         }
-        return gsonManager.gson.fromJson(arg, ClientProfile.Version.class);
+        return jacksonManager.getMapper().readValue(arg, ClientProfile.Version.class);
     }
 }

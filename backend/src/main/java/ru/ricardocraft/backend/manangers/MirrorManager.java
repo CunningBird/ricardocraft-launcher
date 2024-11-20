@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.manangers;
 
-import com.google.gson.JsonElement;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,12 +36,12 @@ public class MirrorManager {
     @Getter
     private final WorkspaceTools tools;
 
-    private transient final GsonManager gsonManager;
+    private transient final JacksonManager jacksonManager;
 
     @Autowired
-    public MirrorManager(LaunchServerConfig config, WorkspaceTools tools, GsonManager gsonManager) {
+    public MirrorManager(LaunchServerConfig config, WorkspaceTools tools, JacksonManager jacksonManager) {
         this.tools = tools;
-        this.gsonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
 
         Arrays.stream(config.mirrors).forEach(this::addMirror);
     }
@@ -82,23 +82,23 @@ public class MirrorManager {
         throw new IOException("Error download %s. All mirrors return error".formatted(path.toString()));
     }
 
-    public JsonElement jsonRequest(Mirror mirror, JsonElement request, String method, String mask, Object... args) throws IOException {
+    public JsonNode jsonRequest(Mirror mirror, JsonNode request, String method, String mask, Object... args) throws IOException {
         if (!mirror.enabled) return null;
         URL url = mirror.getURL(mask, args);
         try {
             var response = client.send(HttpRequest.newBuilder()
-                            .method(method, request == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(gsonManager.gson.toJson(request)))
+                            .method(method, request == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(jacksonManager.getMapper().writeValueAsString(request)))
                             .uri(url.toURI())
                     .build(), HttpResponse.BodyHandlers.ofString());
-            return gsonManager.gson.fromJson(response.body(), JsonElement.class);
+            return jacksonManager.getMapper().readTree(response.body());
         } catch (IOException | URISyntaxException | InterruptedException e) {
             logger.error("JsonRequest {} failed({}: {})", url.toString(), e.getClass().getName(), e.getMessage());
             return null;
         }
     }
 
-    public JsonElement jsonRequest(JsonElement request, String method, String mask, Object... args) throws IOException {
-        JsonElement result = jsonRequest(defaultMirror, request, method, mask, args);
+    public JsonNode jsonRequest(JsonNode request, String method, String mask, Object... args) throws IOException {
+        JsonNode result = jsonRequest(defaultMirror, request, method, mask, args);
         if (result != null) return result;
         for (Mirror mirror : list) {
             if (mirror != defaultMirror) {

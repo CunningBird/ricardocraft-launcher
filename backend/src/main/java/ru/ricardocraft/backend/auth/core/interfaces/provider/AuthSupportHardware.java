@@ -1,10 +1,10 @@
 package ru.ricardocraft.backend.auth.core.interfaces.provider;
 
-import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.auth.core.interfaces.UserHardware;
 import ru.ricardocraft.backend.base.helper.DamerauHelper;
 import ru.ricardocraft.backend.base.request.secure.HardwareReportRequest;
+import ru.ricardocraft.backend.repository.User;
 
 import java.util.Arrays;
 

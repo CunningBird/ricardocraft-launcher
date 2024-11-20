@@ -1,18 +1,17 @@
 package ru.ricardocraft.backend.socket;
 
-import com.google.gson.JsonElement;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.HttpRequester;
 import ru.ricardocraft.backend.auth.core.MicrosoftAuthCoreProvider;
 import ru.ricardocraft.backend.base.request.RequestException;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.lang.reflect.Type;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -21,30 +20,30 @@ import java.net.http.HttpResponse;
 @RequiredArgsConstructor
 public class HttpSender {
 
-    public final GsonManager gsonManager;
+    public final JacksonManager jacksonManager;
 
-    public <T, E> HttpOptional<T, E> send(HttpClient client,
-                                          HttpRequest request,
-                                          HttpErrorHandler<T, E> handler) throws IOException {
+    private final HttpClient client = HttpClient.newBuilder().build();
+
+    public <T, E> HttpOptional<T, E> send(HttpRequest request, HttpErrorHandler<T, E> handler) throws IOException {
         try {
             var response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-            return handler.apply(response, gsonManager);
+            return handler.apply(response, jacksonManager);
         } catch (InterruptedException e) {
             throw new IOException(e);
         }
     }
 
     public interface HttpErrorHandler<T, E> {
-        HttpOptional<T, E> apply(HttpResponse<InputStream> response, GsonManager gsonManager);
+        HttpOptional<T, E> apply(HttpResponse<InputStream> response, JacksonManager jacksonManager);
     }
 
     public interface HttpJsonErrorHandler<T, E> extends HttpErrorHandler<T, E> {
-        HttpOptional<T, E> applyJson(JsonElement response, int statusCode, GsonManager gsonManager);
+        HttpOptional<T, E> applyJson(JsonNode response, int statusCode, JacksonManager jacksonManager) throws JsonProcessingException;
 
-        default HttpOptional<T, E> apply(HttpResponse<InputStream> response, GsonManager gsonManager) {
+        default HttpOptional<T, E> apply(HttpResponse<InputStream> response, JacksonManager jacksonManager) {
             try (Reader reader = new InputStreamReader(response.body())) {
-                var element = gsonManager.gson.fromJson(reader, JsonElement.class);
-                return applyJson(element, response.statusCode(), gsonManager);
+                var element = jacksonManager.getMapper().readTree(reader);
+                return applyJson(element, response.statusCode(), jacksonManager);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -95,26 +94,26 @@ public class HttpSender {
         }
 
         @Override
-        public HttpOptional<T, Void> applyJson(JsonElement response, int statusCode, GsonManager gsonManager) {
-            return new HttpOptional<>(gsonManager.gson.fromJson(response, type), null, statusCode);
+        public HttpOptional<T, Void> applyJson(JsonNode response, int statusCode, JacksonManager jacksonManager) throws JsonProcessingException {
+            return new HttpOptional<>(jacksonManager.getMapper().readValue(response.asText(), type), null, statusCode);
         }
     }
 
     public static class ModrinthErrorHandler<T> implements HttpSender.HttpErrorHandler<T, Void> {
-        private final Type type;
+        private final Class<T> type;
 
-        public ModrinthErrorHandler(Type type) {
+        public ModrinthErrorHandler(Class<T> type) {
             this.type = type;
         }
 
         @Override
-        public HttpSender.HttpOptional<T, Void> apply(HttpResponse<InputStream> response, GsonManager gsonManager) {
+        public HttpSender.HttpOptional<T, Void> apply(HttpResponse<InputStream> response, JacksonManager jacksonManager) {
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
                 return new HttpSender.HttpOptional<>(null, null, response.statusCode());
             }
             try (Reader reader = new InputStreamReader(response.body())) {
-                JsonElement element = gsonManager.gson.fromJson(reader, JsonElement.class);
-                return new HttpSender.HttpOptional<>(gsonManager.gson.fromJson(element, type), null, response.statusCode());
+                JsonNode element = jacksonManager.getMapper().readTree(reader);
+                return new HttpSender.HttpOptional<>(jacksonManager.getMapper().readValue(element.asText(), type), null, response.statusCode());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -129,13 +128,13 @@ public class HttpSender {
         }
 
         @Override
-        public HttpSender.HttpOptional<T, Void> apply(HttpResponse<InputStream> response, GsonManager gsonManager) {
+        public HttpSender.HttpOptional<T, Void> apply(HttpResponse<InputStream> response, JacksonManager jacksonManager) {
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
                 return new HttpSender.HttpOptional<>(null, null, response.statusCode());
             }
             try (Reader reader = new InputStreamReader(response.body())) {
-                JsonElement element = gsonManager.gson.fromJson(reader, JsonElement.class);
-                return new HttpSender.HttpOptional<>(gsonManager.gson.fromJson(element.getAsJsonObject().get("data"), type), null, response.statusCode());
+                JsonNode element = jacksonManager.getMapper().readTree(reader);
+                return new HttpSender.HttpOptional<>(jacksonManager.getMapper().readValue(element.get("data").asText(), type), null, response.statusCode());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -150,11 +149,11 @@ public class HttpSender {
         }
 
         @Override
-        public HttpSender.HttpOptional<T, MicrosoftAuthCoreProvider.XSTSError> applyJson(JsonElement response, int statusCode, GsonManager gsonManager) {
+        public HttpSender.HttpOptional<T, MicrosoftAuthCoreProvider.XSTSError> applyJson(JsonNode response, int statusCode, JacksonManager jacksonManager) throws JsonProcessingException {
             if (statusCode < 200 || statusCode >= 300) {
-                return new HttpSender.HttpOptional<>(null, gsonManager.gson.fromJson(response, MicrosoftAuthCoreProvider.XSTSError.class), statusCode);
+                return new HttpSender.HttpOptional<>(null, jacksonManager.getMapper().readValue(response.asText(), MicrosoftAuthCoreProvider.XSTSError.class), statusCode);
             } else {
-                return new HttpSender.HttpOptional<>(gsonManager.gson.fromJson(response, type), null, statusCode);
+                return new HttpSender.HttpOptional<>(jacksonManager.getMapper().readValue(response.asText(), type), null, statusCode);
             }
         }
     }
@@ -167,31 +166,31 @@ public class HttpSender {
         }
 
         @Override
-        public HttpSender.HttpOptional<T, MicrosoftAuthCoreProvider.MicrosoftError> applyJson(JsonElement response, int statusCode, GsonManager gsonManager) {
+        public HttpSender.HttpOptional<T, MicrosoftAuthCoreProvider.MicrosoftError> applyJson(JsonNode response, int statusCode, JacksonManager jacksonManager) throws JsonProcessingException {
             if (statusCode < 200 || statusCode >= 300) {
-                return new HttpSender.HttpOptional<>(null, gsonManager.gson.fromJson(response, MicrosoftAuthCoreProvider.MicrosoftError.class), statusCode);
+                return new HttpSender.HttpOptional<>(null, jacksonManager.getMapper().readValue(response.asText(), MicrosoftAuthCoreProvider.MicrosoftError.class), statusCode);
             } else {
-                return new HttpSender.HttpOptional<>(gsonManager.gson.fromJson(response, type), null, statusCode);
+                return new HttpSender.HttpOptional<>(jacksonManager.getMapper().readValue(response.asText(), type), null, statusCode);
             }
         }
     }
 
     public static class SimpleErrorHandler<T> implements HttpSender.HttpJsonErrorHandler<T, HttpRequester.SimpleError> {
-        private final Type type;
+        private final Class<T> type;
 
-        public SimpleErrorHandler(Type type) {
+        public SimpleErrorHandler(Class<T> type) {
             this.type = type;
         }
 
         @Override
-        public HttpSender.HttpOptional<T, HttpRequester.SimpleError> applyJson(JsonElement response, int statusCode, GsonManager gsonManager) {
+        public HttpSender.HttpOptional<T, HttpRequester.SimpleError> applyJson(JsonNode response, int statusCode, JacksonManager jacksonManager) throws JsonProcessingException {
             if (statusCode < 200 || statusCode >= 300) {
-                return new HttpSender.HttpOptional<>(null, gsonManager.gson.fromJson(response, HttpRequester.SimpleError.class), statusCode);
+                return new HttpSender.HttpOptional<>(null, jacksonManager.getMapper().readValue(response.asText(), HttpRequester.SimpleError.class), statusCode);
             }
             if (type == Void.class) {
                 return new HttpSender.HttpOptional<>(null, null, statusCode);
             }
-            return new HttpSender.HttpOptional<>(gsonManager.gson.fromJson(response, type), null, statusCode);
+            return new HttpSender.HttpOptional<>(jacksonManager.getMapper().readValue(response.asText(), type), null, statusCode);
         }
     }
 }

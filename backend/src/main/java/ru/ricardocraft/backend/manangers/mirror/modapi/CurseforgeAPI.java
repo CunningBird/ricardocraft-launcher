@@ -7,16 +7,15 @@ import ru.ricardocraft.backend.socket.HttpSender;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.util.List;
 
 @Component
 public class CurseforgeAPI {
+
     private static final String BASE_URL = "https://api.curseforge.com";
     private final String apiKey;
     private final HttpSender sender;
-    private final HttpClient client = HttpClient.newBuilder().build();
 
     public CurseforgeAPI(LaunchServerConfig config, HttpSender sender) {
         this.apiKey = config.mirrorConfig.curseforgeApiKey;
@@ -24,7 +23,7 @@ public class CurseforgeAPI {
     }
 
     public Mod fetchModById(long id) throws IOException, URISyntaxException {
-        return sender.send(client, HttpRequest.newBuilder()
+        return sender.send(HttpRequest.newBuilder()
                 .GET()
                 .uri(new URI(BASE_URL + "/v1/mods/" + id))
                 .header("Accept", "application/json")
@@ -33,7 +32,7 @@ public class CurseforgeAPI {
     }
 
     public String fetchModDescriptionById(long id) throws IOException, URISyntaxException {
-        return sender.send(client, HttpRequest.newBuilder()
+        return sender.send(HttpRequest.newBuilder()
                 .GET()
                 .uri(new URI(BASE_URL + "/v1/mods/" + id + "/description"))
                 .header("Accept", "application/json")
@@ -42,7 +41,7 @@ public class CurseforgeAPI {
     }
 
     public Artifact fetchModFileById(long modId, long fileId) throws IOException, URISyntaxException {
-        return sender.send(client, HttpRequest.newBuilder()
+        return sender.send(HttpRequest.newBuilder()
                 .GET()
                 .uri(new URI(BASE_URL + "/v1/mods/" + modId + "/files/" + fileId))
                 .header("Accept", "application/json")
@@ -51,7 +50,7 @@ public class CurseforgeAPI {
     }
 
     public String fetchModFileUrlById(long modId, long fileId) throws IOException, URISyntaxException {
-        return sender.send(client, HttpRequest.newBuilder()
+        return sender.send(HttpRequest.newBuilder()
                 .GET()
                 .uri(new URI(BASE_URL + "/v1/mods/" + modId + "/files/" + fileId + "/download-url"))
                 .header("Accept", "application/json")

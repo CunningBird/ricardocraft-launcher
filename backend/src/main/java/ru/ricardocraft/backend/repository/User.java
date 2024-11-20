@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.auth.core;
+package ru.ricardocraft.backend.repository;
 
 import ru.ricardocraft.backend.base.ClientPermissions;
 

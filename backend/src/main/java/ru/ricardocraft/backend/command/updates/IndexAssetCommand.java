@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.command.updates;
 
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,7 @@ import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper.DigestAlgorithm;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.CommandException;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
+import java.util.Map;
 
 @Component
 public final class IndexAssetCommand extends Command {
@@ -30,7 +31,7 @@ public final class IndexAssetCommand extends Command {
 
     private transient final LaunchServerDirectories directories;
     private transient final UpdatesManager updatesManager;
-    private transient final GsonManager gsonManager;
+    private transient final JacksonManager jacksonManager;
 
     public static final String INDEXES_DIR = "indexes";
     public static final String OBJECTS_DIR = "objects";
@@ -39,11 +40,11 @@ public final class IndexAssetCommand extends Command {
     @Autowired
     public IndexAssetCommand(LaunchServerDirectories directories,
                              UpdatesManager updatesManager,
-                             GsonManager gsonManager) {
+                             JacksonManager jacksonManager) {
         super();
         this.directories = directories;
         this.updatesManager = updatesManager;
-        this.gsonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
     }
 
     public static Path resolveIndexFile(Path assetDir, String name) {
@@ -80,7 +81,7 @@ public final class IndexAssetCommand extends Command {
         Files.createDirectory(outputAssetDir);
 
         // Index objects
-        JsonObject objects = new JsonObject();
+        Map<String, JsonNode> objects = Map.of();
         logger.info("Indexing objects");
         IOHelper.walk(inputAssetDir, new IndexAssetVisitor(objects, inputAssetDir, outputAssetDir), false);
 
@@ -88,9 +89,7 @@ public final class IndexAssetCommand extends Command {
         logger.info("Writing asset index file: '{}'", indexFileName);
 
         try (BufferedWriter writer = IOHelper.newWriter(resolveIndexFile(outputAssetDir, indexFileName))) {
-            JsonObject result = new JsonObject();
-            result.add("objects", objects);
-            writer.write(gsonManager.gson.toJson(result));
+            writer.write(jacksonManager.getMapper().writeValueAsString(objects));
         }
 
         // Finished
@@ -109,11 +108,11 @@ public final class IndexAssetCommand extends Command {
     }
 
     private final class IndexAssetVisitor extends SimpleFileVisitor<Path> {
-        private final JsonObject objects;
+        private final Map<String, JsonNode> objects;
         private final Path inputAssetDir;
         private final Path outputAssetDir;
 
-        private IndexAssetVisitor(JsonObject objects, Path inputAssetDir, Path outputAssetDir) {
+        private IndexAssetVisitor(Map<String, JsonNode> objects, Path inputAssetDir, Path outputAssetDir) {
             this.objects = objects;
             this.inputAssetDir = inputAssetDir;
             this.outputAssetDir = outputAssetDir;
@@ -127,7 +126,7 @@ public final class IndexAssetCommand extends Command {
             // Add to index and copy file
             String digest = SecurityHelper.toHex(SecurityHelper.digest(DigestAlgorithm.SHA1, file));
             IndexObject obj = new IndexObject(attrs.size(), digest);
-            objects.add(name, gsonManager.gson.toJsonTree(obj));
+            objects.put(name, jacksonManager.getMapper().valueToTree(obj));
             IOHelper.copy(file, resolveObjectFile(outputAssetDir, digest));
 
             // Continue visiting

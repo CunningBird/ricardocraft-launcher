@@ -1,11 +1,10 @@
-package ru.ricardocraft.backend.auth.core.openid;
+package ru.ricardocraft.backend.repository;
 
-import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.base.ClientPermissions;
 
 import java.util.UUID;
 
-record UserEntity(String username, UUID uuid, ClientPermissions permissions) implements User {
+public record UserEntity(String username, UUID uuid, ClientPermissions permissions) implements User {
     @Override
     public String getUsername() {
         return username;

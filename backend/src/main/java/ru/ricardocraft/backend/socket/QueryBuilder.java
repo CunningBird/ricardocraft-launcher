@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.auth.core.openid;
+package ru.ricardocraft.backend.socket;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

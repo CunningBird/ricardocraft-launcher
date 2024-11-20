@@ -10,14 +10,13 @@ import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ProfilesRequestEvent;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -33,19 +32,19 @@ public class LocalProfileProvider extends  ProfileProvider {
     private final transient LaunchServerProperties properties;
     private final transient ProtectHandler handler;
     private final transient WebSocketService service;
-    private final transient GsonManager gsonManager;
+    private final transient JacksonManager jacksonManager;
 
     @Autowired
     public LocalProfileProvider(LaunchServerConfig config,
                                 LaunchServerProperties properties,
                                 ProtectHandler handler,
                                 WebSocketService service,
-                                GsonManager gsonManager) {
+                                JacksonManager jacksonManager) {
         this.config = config;
         this.properties = properties;
         this.handler = handler;
         this.service = service;
-        this.gsonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
     }
 
     @Override
@@ -82,9 +81,7 @@ public class LocalProfileProvider extends  ProfileProvider {
                 throw new FileAlreadyExistsException(target.toString());
             }
         }
-        try (BufferedWriter writer = IOHelper.newWriter(target)) {
-            gsonManager.configGson.toJson(profile, writer);
-        }
+        jacksonManager.getMapper().writeValueAsString(profile);
         addProfile(target, profile);
     }
 
@@ -162,7 +159,7 @@ public class LocalProfileProvider extends  ProfileProvider {
             // Read profile
             ClientProfile profile;
             try (BufferedReader reader = IOHelper.newReader(file)) {
-                profile = gsonManager.gson.fromJson(reader, ClientProfile.class);
+                profile = jacksonManager.getMapper().readValue(reader, ClientProfile.class);
             }
             profile.verify();
 

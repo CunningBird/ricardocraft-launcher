@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.auth.core;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,8 @@ import ru.ricardocraft.backend.base.profiles.Texture;
 import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 import ru.ricardocraft.backend.base.request.auth.password.AuthPlainPassword;
 import ru.ricardocraft.backend.manangers.AuthManager;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
+import ru.ricardocraft.backend.repository.User;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 
@@ -37,12 +39,12 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
     private static final Pattern UUID_REGEX = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
     private transient HttpClient client;
 
-    protected final GsonManager gsonManager;
+    protected final JacksonManager jacksonManager;
 
     @Autowired
-    public MojangAuthCoreProvider(GsonManager gsonManager) {
+    public MojangAuthCoreProvider(JacksonManager jacksonManager) {
         this.client = HttpClient.newBuilder().build();
-        this.gsonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
     }
 
     public static UUID getUUIDFromMojangHash(String hash) {
@@ -70,7 +72,7 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
         return user;
     }
 
-    private MojangUser getUserByProfileResponse(MojangProfileResponse response1) {
+    private MojangUser getUserByProfileResponse(MojangProfileResponse response1) throws JsonProcessingException {
         MojangUser user = new MojangUser();
         user.username = response1.name;
         user.uuid = getUUIDFromMojangHash(response1.id);
@@ -147,8 +149,7 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
         }
         MojangAuthRequest request = new MojangAuthRequest(login, ((AuthPlainPassword) password).password);
         try {
-            var result =
-                    mojangRequest("POST", "https://authserver.mojang.com/authenticate", null, request, MojangAuthResponse.class);
+            var result = mojangRequest("POST", "https://authserver.mojang.com/authenticate", null, request, MojangAuthResponse.class);
             if (result == null) {
                 throw AuthException.wrongPassword();
             }
@@ -174,7 +175,7 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
         MojangUser user = (MojangUser) client.getUser();
         if (user == null) return false;
         MojangJoinServerRequest request;
-        if(uuid == null) { // Before 1.20.2
+        if (uuid == null) { // Before 1.20.2
             request = new MojangJoinServerRequest(accessToken, user.uuid, serverID);
         } else {
             request = new MojangJoinServerRequest(accessToken, uuid, serverID);
@@ -192,7 +193,7 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
         String url = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=%s&serverId=%s".formatted(username, serverID);
         try {
             MojangProfileResponse result = mojangRequest(url, null, MojangProfileResponse.class);
-            if(result == null) {
+            if (result == null) {
                 return null;
             }
             return getUserByProfileResponse(result);
@@ -209,7 +210,7 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
     protected <T, V> T mojangRequest(String method, String url, String accessToken, V request, Class<T> clazz) throws IOException, URISyntaxException, InterruptedException {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .method(method, request == null ? HttpRequest.BodyPublishers.noBody() :
-                        HttpRequest.BodyPublishers.ofString(gsonManager.gson.toJson(request)))
+                        HttpRequest.BodyPublishers.ofString(jacksonManager.getMapper().writeValueAsString(request)))
                 .uri(new URI(url))
                 .header("Accept", "application/json");
         if (request != null) {
@@ -227,7 +228,7 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
             }
             return null;
         }
-        return gsonManager.gson.fromJson(response.body(), clazz);
+        return jacksonManager.getMapper().readValue(response.body(), clazz);
     }
 
     private static class MojangUUIDResponse {
@@ -238,7 +239,7 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
     public class AbstractMojangPropertiesResponse {
         public List<MojangProfileProperty> properties;
 
-        public MojangProfilePropertyTexture getTextures() {
+        public MojangProfilePropertyTexture getTextures() throws JsonProcessingException {
             MojangProfileProperty property = null;
             for (var e : properties) {
                 if ("textures".equals(e.name)) {
@@ -250,7 +251,7 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
                 return null;
             }
             String jsonData = new String(Base64.getDecoder().decode(property.value), StandardCharsets.UTF_8);
-            return gsonManager.gson.fromJson(jsonData, MojangProfilePropertyTexture.class);
+            return jacksonManager.getMapper().readValue(jsonData, MojangProfilePropertyTexture.class);
         }
 
         public static class MojangProfileProperty {

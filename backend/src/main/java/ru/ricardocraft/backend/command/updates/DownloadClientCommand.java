@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.command.updates;
 
-import com.google.gson.JsonElement;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,7 @@ import ru.ricardocraft.backend.base.profiles.ClientProfileBuilder;
 import ru.ricardocraft.backend.base.profiles.ClientProfileVersions;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.CommandException;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
@@ -32,20 +32,20 @@ public final class DownloadClientCommand extends Command {
     private transient final MirrorManager mirrorManager;
     private transient final UpdatesManager updatesManager;
     private transient final ProfileProvider profileProvider;
-    private transient final GsonManager gsonManager;
+    private transient final JacksonManager jacksonManager;
 
     @Autowired
     public DownloadClientCommand(LaunchServerDirectories directories,
                                  MirrorManager mirrorManager,
                                  UpdatesManager updatesManager,
                                  ProfileProvider profileProvider,
-                                 GsonManager gsonManager) {
+                                 JacksonManager jacksonManager) {
         super();
         this.directories = directories;
         this.mirrorManager = mirrorManager;
         this.updatesManager = updatesManager;
         this.profileProvider = profileProvider;
-        this.gsonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
     }
 
     @Override
@@ -81,8 +81,8 @@ public final class DownloadClientCommand extends Command {
         ClientProfile clientProfile = null;
         if (isMirrorClientDownload) {
             try {
-                JsonElement clientJson = mirrorManager.jsonRequest(null, "GET", "clients/%s.json", versionName);
-                clientProfile = gsonManager.configGson.fromJson(clientJson, ClientProfile.class);
+                JsonNode clientJson = mirrorManager.jsonRequest(null, "GET", "clients/%s.json", versionName);
+                clientProfile = jacksonManager.getMapper().readValue(clientJson.asText(), ClientProfile.class);
                 var builder = new ClientProfileBuilder(clientProfile);
                 builder.setTitle(dirName);
                 builder.setDir(dirName);

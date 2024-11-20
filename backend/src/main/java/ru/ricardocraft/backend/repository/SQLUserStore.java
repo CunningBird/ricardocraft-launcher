@@ -1,9 +1,7 @@
-package ru.ricardocraft.backend.auth.core.openid;
+package ru.ricardocraft.backend.repository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.ricardocraft.backend.auth.HikariSQLSourceConfig;
-import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.base.ClientPermissions;
 
 import java.sql.SQLException;

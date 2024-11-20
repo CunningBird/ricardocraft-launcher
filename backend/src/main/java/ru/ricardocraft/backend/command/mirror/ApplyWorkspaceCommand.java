@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Downloader;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.mirror.MirrorWorkspace;
 
@@ -22,13 +22,13 @@ public class ApplyWorkspaceCommand extends Command {
     private final Logger logger = LogManager.getLogger(ApplyWorkspaceCommand.class);
 
     private transient final MirrorManager mirrorManager;
-    private transient final GsonManager gsonManager;
+    private transient final JacksonManager jacksonManager;
 
     @Autowired
-    public ApplyWorkspaceCommand(MirrorManager mirrorManager, GsonManager gsonManager) {
+    public ApplyWorkspaceCommand(MirrorManager mirrorManager, JacksonManager jacksonManager) {
         super();
         this.mirrorManager = mirrorManager;
-        this.gsonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
     }
 
     @Override
@@ -45,24 +45,24 @@ public class ApplyWorkspaceCommand extends Command {
     public void invoke(String... args) throws Exception {
         URI url = null;
         Path workspaceFilePath = null;
-        if(args.length == 0) {
+        if (args.length == 0) {
             url = mirrorManager.getDefaultMirror().getURL("workspace.json").toURI();
-        } else if(args[0].startsWith("http://") || args[0].startsWith("https://")) {
+        } else if (args[0].startsWith("http://") || args[0].startsWith("https://")) {
             url = new URI(args[0]);
         } else {
             workspaceFilePath = Paths.get(args[0]);
         }
-        if(url != null) {
+        if (url != null) {
             workspaceFilePath = mirrorManager.getTools().getConfigDir().resolve("workspace.json");
             logger.info("Download {} to {}", url, workspaceFilePath);
             Downloader.downloadFile(url, workspaceFilePath, null).getFuture().get();
         }
         MirrorWorkspace workspace;
-        try(Reader reader = IOHelper.newReader(workspaceFilePath)) {
-            workspace = gsonManager.gson.fromJson(reader, MirrorWorkspace.class);
+        try (Reader reader = IOHelper.newReader(workspaceFilePath)) {
+            workspace = jacksonManager.getMapper().readValue(reader, MirrorWorkspace.class);
         }
         Path workspacePath = mirrorManager.getTools().getWorkspaceDir();
-        if(Files.exists(workspacePath)) {
+        if (Files.exists(workspacePath)) {
             logger.warn("THIS ACTION DELETE ALL FILES IN {}", workspacePath);
             IOHelper.deleteDir(workspacePath, false);
         } else {

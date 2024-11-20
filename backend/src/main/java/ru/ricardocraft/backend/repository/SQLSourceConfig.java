@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.auth;
+package ru.ricardocraft.backend.repository;
 
 import java.sql.Connection;
 import java.sql.SQLException;

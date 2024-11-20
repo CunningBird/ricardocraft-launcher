@@ -1,7 +1,9 @@
 package ru.ricardocraft.backend;
 
+import jakarta.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
@@ -13,6 +15,7 @@ import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 
 import java.io.IOException;
+import java.security.Security;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -27,29 +30,29 @@ public final class LaunchServer implements Runnable, AutoCloseable {
     private final AtomicBoolean started = new AtomicBoolean(false);
 
     private final LaunchServerProperties properties;
-
     private final ProfileProvider profileProvider;
     private final UpdatesProvider updatesProvider;
-
     private final CommandHandler commandHandler;
     private final NettyServerSocketHandler nettyServerSocketHandler;
 
     @Autowired
     public LaunchServer(LaunchServerProperties properties,
-
                         ProfileProvider profileProvider,
                         UpdatesProvider updatesProvider,
-
                         CommandHandler commandHandler,
                         NettyServerSocketHandler nettyServerSocketHandler) throws IOException {
 
         this.properties = properties;
-
         this.profileProvider = profileProvider;
         this.updatesProvider = updatesProvider;
-
         this.commandHandler = commandHandler;
         this.nettyServerSocketHandler = nettyServerSocketHandler;
+    }
+
+    @PostConstruct
+    public void init() {
+        JVMHelper.verifySystemProperties(LaunchServer.class, false);
+        Security.addProvider(new BouncyCastleProvider());
     }
 
     @Override

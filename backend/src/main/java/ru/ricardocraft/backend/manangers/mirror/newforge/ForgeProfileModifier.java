@@ -5,7 +5,7 @@ import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.profiles.ClientProfileBuilder;
 import ru.ricardocraft.backend.base.utils.ClientToolkit;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -24,9 +24,9 @@ public class ForgeProfileModifier {
     public static List<String> exclusionList = List.of("AutoRenamingTool", "net/minecraft/client");
     private static List<String> prevArgsList = List.of("-p", "--add-modules", "--add-opens", "--add-exports");
 
-    public ForgeProfileModifier(Path forgeProfilePath, ClientProfile profile, Path clientDir, GsonManager gsonManager) {
+    public ForgeProfileModifier(Path forgeProfilePath, ClientProfile profile, Path clientDir, JacksonManager jacksonManager) {
         try(Reader reader = IOHelper.newReader(forgeProfilePath)) {
-            this.forgeProfile = gsonManager.gson.fromJson(reader, ForgeProfile.class);
+            this.forgeProfile = jacksonManager.getMapper().readValue(reader, ForgeProfile.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

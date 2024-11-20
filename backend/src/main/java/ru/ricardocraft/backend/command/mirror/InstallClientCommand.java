@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.command.mirror;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
@@ -9,7 +10,7 @@ import ru.ricardocraft.backend.command.CommandException;
 import ru.ricardocraft.backend.command.mirror.installers.FabricInstallerCommand;
 import ru.ricardocraft.backend.command.mirror.installers.QuiltInstallerCommand;
 import ru.ricardocraft.backend.command.updates.profile.MakeProfileCommand;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.manangers.mirror.InstallClient;
@@ -29,7 +30,7 @@ public class InstallClientCommand extends Command {
     private final transient LaunchServerDirectories directories;
     private final transient UpdatesManager updatesManager;
     private final transient MirrorManager mirrorManager;
-    private final transient GsonManager gsonManager;
+    private final transient JacksonManager jacksonManager;
     private final transient ProfileProvider profileProvider;
     private final transient ModrinthAPI modrinthAPI;
     private final transient CurseforgeAPI curseforgeApi;
@@ -44,7 +45,7 @@ public class InstallClientCommand extends Command {
                                 LaunchServerDirectories directories,
                                 UpdatesManager updatesManager,
                                 MirrorManager mirrorManager,
-                                GsonManager gsonManager,
+                                JacksonManager jacksonManager,
                                 ModrinthAPI modrinthAPI,
                                 CurseforgeAPI curseforgeApi,
                                 ProfileProvider profileProvider,
@@ -57,7 +58,7 @@ public class InstallClientCommand extends Command {
         this.directories = directories;
         this.updatesManager = updatesManager;
         this.mirrorManager = mirrorManager;
-        this.gsonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
         this.profileProvider = profileProvider;
         this.modrinthAPI = modrinthAPI;
         this.curseforgeApi = curseforgeApi;
@@ -98,16 +99,16 @@ public class InstallClientCommand extends Command {
         if (args.length > 3) {
             mods = Arrays.stream(args[3].split(",")).toList();
         }
-        InstallClient run = new InstallClient(config, directories, updatesManager, mirrorManager, gsonManager,
+        InstallClient run = new InstallClient(config, directories, updatesManager, mirrorManager, jacksonManager,
                 profileProvider, modrinthAPI, curseforgeApi, fabricInstallerCommand, quiltInstallerCommand,
                 deDupLibrariesCommand, makeProfileCommand, name, version, mods, versionType, mirrorWorkspace);
         run.run();
     }
 
-    protected ClientProfile.Version parseClientVersion(String arg) throws CommandException {
+    protected ClientProfile.Version parseClientVersion(String arg) throws CommandException, JsonProcessingException {
         if(arg.isEmpty()) {
             throw new CommandException("ClientVersion can't be empty");
         }
-        return gsonManager.gson.fromJson(arg, ClientProfile.Version.class);
+        return jacksonManager.getMapper().readValue(arg, ClientProfile.Version.class);
     }
 }

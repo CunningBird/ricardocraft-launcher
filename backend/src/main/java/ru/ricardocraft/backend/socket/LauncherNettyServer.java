@@ -15,7 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import ru.ricardocraft.backend.command.CommandHandler;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 import ru.ricardocraft.backend.socket.handlers.NettyIpForwardHandler;
@@ -42,7 +42,7 @@ public class LauncherNettyServer implements AutoCloseable {
                                LaunchServerDirectories directories,
                                WebSocketService service,
                                CommandHandler commandHandler,
-                               GsonManager gsonManager) {
+                               JacksonManager jacksonManager) {
         this.service = service;
         this.commandHandler = commandHandler;
 
@@ -79,7 +79,7 @@ public class LauncherNettyServer implements AutoCloseable {
                     }
                 });
 
-        NettyWebAPIHandler.addNewServlet("remotecontrol/command", new RemoteControlWebServlet(config, commandHandler, gsonManager));
+        NettyWebAPIHandler.addNewServlet("remotecontrol/command", new RemoteControlWebServlet(config, commandHandler, jacksonManager));
     }
 
     public void bind(InetSocketAddress address) {

@@ -13,7 +13,7 @@ import ru.ricardocraft.backend.command.mirror.DeDupLibrariesCommand;
 import ru.ricardocraft.backend.command.mirror.installers.FabricInstallerCommand;
 import ru.ricardocraft.backend.command.mirror.installers.QuiltInstallerCommand;
 import ru.ricardocraft.backend.command.updates.profile.MakeProfileCommand;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.manangers.mirror.modapi.CurseforgeAPI;
@@ -44,7 +44,7 @@ public class InstallClient {
 
     private final transient LaunchServerDirectories directories;
     private final transient UpdatesManager updatesManager;
-    private final transient GsonManager gsonManager;
+    private final transient JacksonManager jacksonManager;
     private final transient ProfileProvider profileProvider;
     private final transient ModrinthAPI modrinthAPI;
     private final transient CurseforgeAPI curseforgeApi;
@@ -68,7 +68,7 @@ public class InstallClient {
                          LaunchServerDirectories directories,
                          UpdatesManager updatesManager,
                          MirrorManager mirrorManager,
-                         GsonManager gsonManager,
+                         JacksonManager jacksonManager,
                          ProfileProvider profileProvider,
                          ModrinthAPI modrinthAPI,
                          CurseforgeAPI curseforgeApi,
@@ -83,7 +83,7 @@ public class InstallClient {
                          MirrorWorkspace mirrorWorkspace) {
         this.directories = directories;
         this.updatesManager = updatesManager;
-        this.gsonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
         this.profileProvider = profileProvider;
         this.modrinthAPI = modrinthAPI;
         this.curseforgeApi = curseforgeApi;
@@ -153,9 +153,7 @@ public class InstallClient {
         } else {
             IOHelper.createParentDirs(vanillaProfileJson);
             obj = ClientDownloader.gainClient(version.toString());
-            try (Writer writer = IOHelper.newWriter(vanillaProfileJson)) {
-                gsonManager.configGson.toJson(obj, writer);
-            }
+            jacksonManager.getMapper().writeValueAsString(obj);
         }
         IOHelper.createParentDirs(clientDir);
         ClientDownloader.ClientInfo info = ClientDownloader.getClient(obj);
@@ -279,7 +277,7 @@ public class InstallClient {
                     logger.debug("Forge profile {}", forgeProfileFile);
                     ForgeProfile forgeProfile;
                     try (Reader reader = IOHelper.newReader(forgeProfileFile)) {
-                        forgeProfile = gsonManager.configGson.fromJson(reader, ForgeProfile.class);
+                        forgeProfile = jacksonManager.getMapper().readValue(reader, ForgeProfile.class);
                     }
                     for (ForgeProfile.ForgeProfileLibrary library : forgeProfile.libraries()) {
                         String libUrl = library.downloads() == null ? null : library.downloads().artifact().url();
@@ -395,14 +393,14 @@ public class InstallClient {
         if ((versionType == VersionType.FORGE || versionType == VersionType.NEOFORGE) && version.compareTo(ClientProfileVersions.MINECRAFT_1_17) >= 0) {
             ClientProfile profile = profileProvider.getProfile(name);
             logger.info("Run ForgeProfileModifier");
-            ForgeProfileModifier modifier = new ForgeProfileModifier(originalMinecraftProfile, profile, clientPath, gsonManager);
+            ForgeProfileModifier modifier = new ForgeProfileModifier(originalMinecraftProfile, profile, clientPath, jacksonManager);
             profile = modifier.build();
             profileProvider.addProfile(profile);
         }
         if (versionType == VersionType.FORGE && version.compareTo(ClientProfileVersions.MINECRAFT_1_12_2) == 0) {
             ClientProfile profile = profileProvider.getProfile(name);
             logger.info("Run ForgeProfileModifierCleanRoom");
-            ForgeProfileModifier modifier = new ForgeProfileModifier(originalMinecraftProfile, profile, clientPath, gsonManager);
+            ForgeProfileModifier modifier = new ForgeProfileModifier(originalMinecraftProfile, profile, clientPath, jacksonManager);
             profile = modifier.buildCleanRoom();
             profileProvider.addProfile(profile);
         }

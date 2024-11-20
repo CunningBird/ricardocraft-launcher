@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.auth.core;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 import ru.ricardocraft.backend.base.request.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.backend.base.request.auth.password.AuthCodePassword;
 import ru.ricardocraft.backend.manangers.AuthManager;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
@@ -23,7 +24,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -37,16 +37,14 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
 
     private transient final Logger logger = LogManager.getLogger(MicrosoftAuthCoreProvider.class);
 
-    private static final String AUTH_CODE_URL = "https://login.live.com/oauth20_authorize.srf?client_id=%s&response_type=code&redirect_uri=%s&scope=XboxLive.signin offline_access";
-    private transient final HttpClient client = HttpClient.newBuilder().build();
     private transient final LaunchServerConfig.MicrosoftAuthCoreProviderConfig config;
     private transient final HttpSender sender;
 
     @Autowired
-    public MicrosoftAuthCoreProvider(GsonManager gsonManager,
+    public MicrosoftAuthCoreProvider(JacksonManager jacksonManager,
                                      LaunchServerConfig config,
                                      HttpSender sender) {
-        super(gsonManager);
+        super(jacksonManager);
         this.config = config.microsoftAuthCoreProviderConfig;
         this.sender = sender;
     }
@@ -56,7 +54,7 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
         String uuid = UUID.randomUUID().toString();
         client.setStaticProperty("microsoftCode", uuid);
         return List.of(new AuthWebViewDetails(
-                AUTH_CODE_URL.formatted(
+                config.authCodeUrl.formatted(
                         config.clientId,
                         config.redirectUrl.formatted(uuid)
                 ), config.redirectUrl.formatted(uuid)
@@ -156,7 +154,7 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
                 .GET()
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .build();
-        var e = sender.send(client, request, new HttpSender.MicrosoftErrorHandler<>(MicrosoftOAuthTokenResponse.class));
+        var e = sender.send(request, new HttpSender.MicrosoftErrorHandler<>(MicrosoftOAuthTokenResponse.class));
         return e.getOrThrow();
     }
 
@@ -166,7 +164,7 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .build();
-        var e = sender.send(client, request, new HttpSender.MicrosoftErrorHandler<>(MicrosoftOAuthTokenResponse.class));
+        var e = sender.send(request, new HttpSender.MicrosoftErrorHandler<>(MicrosoftOAuthTokenResponse.class));
         return e.getOrThrow();
     }
 
@@ -177,7 +175,7 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
                 .header("Accept", "application/json")
                 .POST(jsonBodyPublisher(new MicrosoftXBoxLiveRequest(accessToken)))
                 .build();
-        var e = sender.send(client, request, new HttpSender.BasicJsonHttpErrorHandler<>(MicrosoftXBoxLiveResponse.class));
+        var e = sender.send(request, new HttpSender.BasicJsonHttpErrorHandler<>(MicrosoftXBoxLiveResponse.class));
         return e.getOrThrow();
     }
 
@@ -188,7 +186,7 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
                 .header("Accept", "application/json")
                 .POST(jsonBodyPublisher(new MicrosoftXSTSRequest(xblToken)))
                 .build();
-        var e = sender.send(client, request, new HttpSender.XSTSErrorHandler<>(MicrosoftXBoxLiveResponse.class));
+        var e = sender.send(request, new HttpSender.XSTSErrorHandler<>(MicrosoftXBoxLiveResponse.class));
         return e.getOrThrow();
     }
 
@@ -199,12 +197,12 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
                 .header("Accept", "application/json")
                 .POST(jsonBodyPublisher(new MinecraftLoginWithXBoxRequest(uhs, xstsToken)))
                 .build();
-        var e = sender.send(client, request, new HttpSender.BasicJsonHttpErrorHandler<>(MinecraftLoginWithXBoxResponse.class));
+        var e = sender.send(request, new HttpSender.BasicJsonHttpErrorHandler<>(MinecraftLoginWithXBoxResponse.class));
         return e.getOrThrow();
     }
 
-    public <T> HttpRequest.BodyPublisher jsonBodyPublisher(T obj) {
-        return HttpRequest.BodyPublishers.ofString(gsonManager.gson.toJson(obj));
+    public <T> HttpRequest.BodyPublisher jsonBodyPublisher(T obj) throws JsonProcessingException {
+        return HttpRequest.BodyPublishers.ofString(jacksonManager.getMapper().writeValueAsString(obj));
     }
 
     private URI makeURI(String s) throws IOException {

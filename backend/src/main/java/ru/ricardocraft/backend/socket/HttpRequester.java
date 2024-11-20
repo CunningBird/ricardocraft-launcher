@@ -1,21 +1,15 @@
-package ru.ricardocraft.backend;
+package ru.ricardocraft.backend.socket;
 
-import com.google.gson.JsonElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.manangers.GsonManager;
-import ru.ricardocraft.backend.socket.HttpSender;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.time.Duration;
 
 @Component
 public class HttpRequester {
-    private transient final HttpClient httpClient = HttpClient.newBuilder().build();
     private transient final HttpSender httpSender;
 
     @Autowired
@@ -24,10 +18,6 @@ public class HttpRequester {
     }
 
     public <T> HttpSender.SimpleErrorHandler<T> makeEH(Class<T> clazz) {
-        return new HttpSender.SimpleErrorHandler<>(clazz);
-    }
-
-    public <T> HttpSender.SimpleErrorHandler<T> makeEH(Type clazz) {
         return new HttpSender.SimpleErrorHandler<>(clazz);
     }
 
@@ -49,11 +39,7 @@ public class HttpRequester {
     }
 
     public <T> HttpSender.HttpOptional<T, SimpleError> send(HttpRequest request, Class<T> clazz) throws IOException {
-        return httpSender.send(httpClient, request, makeEH(clazz));
-    }
-
-    public <T> HttpSender.HttpOptional<T, SimpleError> send(HttpRequest request, Type type) throws IOException {
-        return httpSender.send(httpClient, request, makeEH(type));
+        return httpSender.send(request, makeEH(clazz));
     }
 
     public static class SimpleError {

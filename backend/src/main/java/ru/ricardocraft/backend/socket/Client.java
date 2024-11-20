@@ -5,6 +5,7 @@ import ru.ricardocraft.backend.auth.core.interfaces.UserHardware;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.dto.auth.AuthResponse;
+import ru.ricardocraft.backend.repository.User;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +29,7 @@ public class Client {
 
     public transient AuthProviderPair auth;
 
-    public transient ru.ricardocraft.backend.auth.core.User coreObject;
+    public transient User coreObject;
 
     public transient ru.ricardocraft.backend.auth.core.UserSession sessionObject;
 
@@ -62,7 +63,7 @@ public class Client {
         staticProperties.put(name, value);
     }
 
-    public ru.ricardocraft.backend.auth.core.User getUser() {
+    public User getUser() {
         if (coreObject != null) return coreObject;
         if (auth != null && uuid != null) {
             coreObject = auth.core.getUserByUUID(uuid);

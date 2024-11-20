@@ -5,8 +5,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
-import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.repository.User;
 
 import java.util.UUID;
 

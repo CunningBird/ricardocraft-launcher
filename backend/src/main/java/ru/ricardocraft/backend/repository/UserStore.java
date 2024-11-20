@@ -1,6 +1,4 @@
-package ru.ricardocraft.backend.auth.core.openid;
-
-import ru.ricardocraft.backend.auth.core.User;
+package ru.ricardocraft.backend.repository;
 
 import java.util.UUID;
 

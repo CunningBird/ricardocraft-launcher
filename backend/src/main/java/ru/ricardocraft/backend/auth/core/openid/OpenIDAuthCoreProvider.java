@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.auth.core.openid;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import org.slf4j.Logger;
@@ -7,9 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthException;
-import ru.ricardocraft.backend.auth.HikariSQLSourceConfig;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
-import ru.ricardocraft.backend.auth.core.User;
 import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
@@ -17,6 +16,7 @@ import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 import ru.ricardocraft.backend.base.request.auth.password.AuthCodePassword;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
+import ru.ricardocraft.backend.repository.*;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 
@@ -73,7 +73,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public AuthManager.AuthReport refreshAccessToken(String oldRefreshToken, AuthResponseService.AuthContext context) {
+    public AuthManager.AuthReport refreshAccessToken(String oldRefreshToken, AuthResponseService.AuthContext context) throws JsonProcessingException {
         var tokens = openIDAuthenticator.refreshAccessToken(oldRefreshToken);
         var accessToken = tokens.accessToken();
         var refreshToken = tokens.refreshToken();

@@ -262,6 +262,7 @@ public final class LaunchServerConfig {
     }
 
     public static class MicrosoftAuthCoreProviderConfig {
+        public String authCodeUrl = "https://login.live.com/oauth20_authorize.srf?client_id=%s&response_type=code&redirect_uri=%s&scope=XboxLive.signin offline_access";
         public String redirectUrl = "https://login.live.com/oauth20_desktop.srf";
         public String clientId = "00000000402b5328";
         public String clientSecret;

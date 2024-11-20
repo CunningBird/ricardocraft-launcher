@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.CommandHandler;
-import ru.ricardocraft.backend.manangers.GsonManager;
+import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.properties.LaunchServerConfig;
 import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 import ru.ricardocraft.backend.socket.LauncherNettyServer;
@@ -22,7 +22,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     private transient final LaunchServerDirectories directories;
     private transient final WebSocketService service;
     private transient final CommandHandler commandHandler;
-    private transient final GsonManager gsonManager;
+    private transient final JacksonManager jacksonManager;
 
     private transient LauncherNettyServer nettyServer;
 
@@ -31,12 +31,12 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
                                     LaunchServerDirectories directories,
                                     WebSocketService service,
                                     CommandHandler commandHandler,
-                                    GsonManager gsonManager) {
+                                    JacksonManager jacksonManager) {
         this.config = config;
         this.directories = directories;
         this.service = service;
         this.commandHandler = commandHandler;
-        this.gsonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
     }
 
     @Override
@@ -49,7 +49,7 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     @Override
     public void run() {
         logger.info("Starting netty server socket thread");
-        nettyServer = new LauncherNettyServer(config, directories, service, commandHandler, gsonManager);
+        nettyServer = new LauncherNettyServer(config, directories, service, commandHandler, jacksonManager);
         for (LaunchServerConfig.NettyBindAddress address : config.netty.binds) {
             nettyServer.bind(new InetSocketAddress(address.address, address.port));
         }

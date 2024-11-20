@@ -1,9 +1,11 @@
 package ru.ricardocraft.backend.auth.core;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
 import ru.ricardocraft.backend.base.request.auth.AuthPassword;
 import ru.ricardocraft.backend.base.request.auth.details.AuthPasswordDetails;
 import ru.ricardocraft.backend.manangers.AuthManager;
+import ru.ricardocraft.backend.repository.User;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 
@@ -26,7 +28,7 @@ public abstract class AuthCoreProvider {
 
     public abstract UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired;
 
-    public abstract AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponseService.AuthContext context /* may be null */);
+    public abstract AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponseService.AuthContext context /* may be null */) throws JsonProcessingException;
 
     public void verifyAuth(AuthResponseService.AuthContext context) {
         // None
