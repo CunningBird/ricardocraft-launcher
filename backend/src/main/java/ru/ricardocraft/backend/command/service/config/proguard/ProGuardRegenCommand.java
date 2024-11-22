@@ -2,14 +2,14 @@ package ru.ricardocraft.backend.command.service.config.proguard;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.base.ProGuard;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.properties.config.ProguardConfig;
 
 @Component
 @RequiredArgsConstructor
 public class ProGuardRegenCommand extends Command {
 
-    private final ProGuard proGuard;
+    private final ProguardConfig proguardConfig;
 
     @Override
     public String getArgsDescription() {
@@ -23,6 +23,6 @@ public class ProGuardRegenCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        proGuard.getProguardConf().genWords(true);
+        proguardConfig.genWords(true);
     }
 }

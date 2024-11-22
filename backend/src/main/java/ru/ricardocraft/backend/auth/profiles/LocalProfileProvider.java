@@ -10,38 +10,39 @@ import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ProfilesRequestEvent;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.properties.LaunchServerProperties;
+import ru.ricardocraft.backend.properties.NettyProperties;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
 @Component
-public class LocalProfileProvider extends  ProfileProvider {
+public class LocalProfileProvider extends ProfileProvider {
 
     private transient volatile Map<Path, ClientProfile> profilesMap;
     private transient volatile Set<ClientProfile> profilesList; // Cache
 
-    private final transient LaunchServerConfig config;
-    private final transient LaunchServerProperties properties;
+    private final transient DirectoriesManager directoriesManager;
+    private final transient NettyProperties nettyProperties;
     private final transient ProtectHandler handler;
     private final transient WebSocketService service;
     private final transient JacksonManager jacksonManager;
 
     @Autowired
-    public LocalProfileProvider(LaunchServerConfig config,
-                                LaunchServerProperties properties,
+    public LocalProfileProvider(DirectoriesManager directoriesManager,
+                                NettyProperties nettyProperties,
                                 ProtectHandler handler,
                                 WebSocketService service,
                                 JacksonManager jacksonManager) {
-        this.config = config;
-        this.properties = properties;
+        this.directoriesManager = directoriesManager;
+        this.nettyProperties = nettyProperties;
         this.handler = handler;
         this.service = service;
         this.jacksonManager = jacksonManager;
@@ -49,11 +50,8 @@ public class LocalProfileProvider extends  ProfileProvider {
 
     @Override
     public void sync() throws IOException {
-        Path profilesDirPath = Path.of(config.localProfileProvider.profilesDir);
-        if (!IOHelper.isDir(profilesDirPath))
-            Files.createDirectory(profilesDirPath);
         Map<Path, ClientProfile> newProfiles = new HashMap<>();
-        IOHelper.walk(profilesDirPath, new ProfilesFileVisitor(newProfiles), false);
+        IOHelper.walk(directoriesManager.getProfilesDir(), new ProfilesFileVisitor(newProfiles), false);
         Set<ClientProfile> newProfilesList = new HashSet<>(newProfiles.values());
         profilesMap = newProfiles;
         profilesList = newProfilesList;
@@ -66,7 +64,6 @@ public class LocalProfileProvider extends  ProfileProvider {
 
     @Override
     public void addProfile(ClientProfile profile) throws IOException {
-        Path profilesDirPath = Path.of(config.localProfileProvider.profilesDir);
         ClientProfile oldProfile;
         Path target = null;
         for (var e : profilesMap.entrySet()) {
@@ -75,13 +72,15 @@ public class LocalProfileProvider extends  ProfileProvider {
             }
         }
         if (target == null) {
-            target = profilesDirPath.resolve(profile.getTitle() + ".json");
+            target = directoriesManager.getProfilesDir().resolve(profile.getTitle() + ".json");
             oldProfile = profilesMap.get(target);
             if (oldProfile != null && !oldProfile.getUUID().equals(profile.getUUID())) {
                 throw new FileAlreadyExistsException(target.toString());
             }
         }
-        jacksonManager.getMapper().writeValueAsString(profile);
+        try (BufferedWriter writer = IOHelper.newWriter(target)) {
+            jacksonManager.getMapper().writeValue(writer, profile);
+        }
         addProfile(target, profile);
     }
 
@@ -128,8 +127,8 @@ public class LocalProfileProvider extends  ProfileProvider {
 
     @Override
     public void syncProfilesDir() throws IOException {
-        this.sync();
-        if (properties.getNetty().getSendProfileUpdatesEvent()) {
+        sync();
+        if (nettyProperties.getSendProfileUpdatesEvent()) {
             service.forEachActiveChannels((ch, handler) -> {
                 Client client = handler.getClient();
                 if (client == null || !client.isAuth) {

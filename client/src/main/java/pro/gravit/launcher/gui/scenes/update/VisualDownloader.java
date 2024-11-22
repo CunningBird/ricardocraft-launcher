@@ -197,38 +197,28 @@ public class VisualDownloader {
                 errorHandle.accept(e);
             }
         };
-        {
-            String assetIndexPath = "indexes/".concat(assetIndex).concat(".json");
-            Path localAssetIndexPath = dir.resolve(assetIndexPath);
-            boolean needUpdateIndex;
-            HashedDir.FindRecursiveResult result = targetHDir.findRecursive(assetIndexPath);
-            if (!(result.entry instanceof HashedFile)) {
-                addLog.accept("ERROR: assetIndex %s not found".formatted(assetIndex));
-                updateStatus.accept(UpdateScene.DownloadStatus.ERROR);
-                errorHandle.accept(new RuntimeException("assetIndex not found"));
-                return;
-            }
-            if (Files.exists(localAssetIndexPath)) {
-                HashedFile file = new HashedFile(localAssetIndexPath, Files.size(localAssetIndexPath), true);
-                needUpdateIndex = !((HashedFile) result.entry).isSame(file);
-            } else {
-                IOHelper.createParentDirs(localAssetIndexPath);
-                needUpdateIndex = true;
-            }
-            if (needUpdateIndex) {
-                List<Downloader.SizedFile> adds = new ArrayList<>(1);
-                adds.add(new Downloader.SizedFile(assetIndexPath, ((HashedFile) result.entry).size));
-                downloadFiles(dir, adds, baseUrl, () -> {
-                    try {
-                        AssetIndexHelper.AssetIndex index = AssetIndexHelper.parse(localAssetIndexPath);
-                        AssetIndexHelper.modifyHashedDir(index, targetHDir);
-                        downloadAssetRunnable.accept(targetHDir);
-                    } catch (Exception e) {
-                        updateStatus.accept(UpdateScene.DownloadStatus.ERROR);
-                        errorHandle.accept(e);
-                    }
-                });
-            } else {
+
+        String assetIndexPath = "indexes/".concat(assetIndex).concat(".json");
+        Path localAssetIndexPath = dir.resolve(assetIndexPath);
+        boolean needUpdateIndex;
+        HashedDir.FindRecursiveResult result = targetHDir.findRecursive(assetIndexPath);
+        if (!(result.entry instanceof HashedFile)) {
+            addLog.accept("ERROR: assetIndex %s not found".formatted(assetIndex));
+            updateStatus.accept(UpdateScene.DownloadStatus.ERROR);
+            errorHandle.accept(new RuntimeException("assetIndex not found"));
+            return;
+        }
+        if (Files.exists(localAssetIndexPath)) {
+            HashedFile file = new HashedFile(localAssetIndexPath, Files.size(localAssetIndexPath), true);
+            needUpdateIndex = !((HashedFile) result.entry).isSame(file);
+        } else {
+            IOHelper.createParentDirs(localAssetIndexPath);
+            needUpdateIndex = true;
+        }
+        if (needUpdateIndex) {
+            List<Downloader.SizedFile> adds = new ArrayList<>(1);
+            adds.add(new Downloader.SizedFile(assetIndexPath, ((HashedFile) result.entry).size));
+            downloadFiles(dir, adds, baseUrl, () -> {
                 try {
                     AssetIndexHelper.AssetIndex index = AssetIndexHelper.parse(localAssetIndexPath);
                     AssetIndexHelper.modifyHashedDir(index, targetHDir);
@@ -237,6 +227,15 @@ public class VisualDownloader {
                     updateStatus.accept(UpdateScene.DownloadStatus.ERROR);
                     errorHandle.accept(e);
                 }
+            });
+        } else {
+            try {
+                AssetIndexHelper.AssetIndex index = AssetIndexHelper.parse(localAssetIndexPath);
+                AssetIndexHelper.modifyHashedDir(index, targetHDir);
+                downloadAssetRunnable.accept(targetHDir);
+            } catch (Exception e) {
+                updateStatus.accept(UpdateScene.DownloadStatus.ERROR);
+                errorHandle.accept(e);
             }
         }
     }

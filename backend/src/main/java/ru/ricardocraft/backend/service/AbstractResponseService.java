@@ -3,7 +3,7 @@ package ru.ricardocraft.backend.service;
 import io.netty.channel.ChannelHandlerContext;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ErrorRequestEvent;
-import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.socket.SimpleResponse;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
 

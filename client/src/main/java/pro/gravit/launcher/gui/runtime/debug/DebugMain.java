@@ -30,13 +30,14 @@ public class DebugMain {
     public static String unlockSecret = System.getProperty("launcherdebug.unlocksecret", "");
     public static boolean offlineMode = Boolean.getBoolean("launcherdebug.offlinemode");
     public static boolean disableAutoRefresh = Boolean.getBoolean("launcherdebug.disableautorefresh");
-    public static String[] moduleClasses = System.getProperty("launcherdebug.modules", "").split(",");
+    public static String[] moduleClasses = System.getProperty("launcherdebug.modules", "pro.gravit.launcher.gui.JavaRuntimeModule").split(",");
     public static String[] moduleFiles = System.getProperty("launcherdebug.modulefiles", "").split(",");
-    public static LauncherConfig.LauncherEnvironment environment = LauncherConfig.LauncherEnvironment.valueOf(System.getProperty("launcherdebug.env", "STD"));
+    public static LauncherConfig.LauncherEnvironment environment = LauncherConfig.LauncherEnvironment.valueOf(System.getProperty("launcherdebug.env", "DEBUG"));
 
     public static void main(String[] args) throws Throwable {
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
+
         IS_DEBUG.set(true);
         LogHelper.info("Launcher start in DEBUG mode (Only for developers)");
         LogHelper.debug("Initialization LauncherConfig");

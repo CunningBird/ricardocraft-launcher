@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.command.updates;
 
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.JsonNode;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
@@ -11,10 +11,12 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Downloader;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.dto.updates.MinecraftVersions;
+import ru.ricardocraft.backend.dto.updates.MiniVersion;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 import ru.ricardocraft.backend.socket.HttpRequester;
 
 import java.io.Writer;
@@ -23,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
@@ -35,20 +38,20 @@ public final class DownloadAssetCommand extends Command {
     private static final String MINECRAFT_VERSIONS_URL = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
     private static final String RESOURCES_DOWNLOAD_URL = "https://resources.download.minecraft.net/";
 
-    private transient final LaunchServerDirectories directories;
+    private transient final DirectoriesManager directoriesManager;
     private transient final MirrorManager mirrorManager;
     private transient final UpdatesManager updatesManager;
     private transient final JacksonManager jacksonManager;
     private transient final HttpRequester requester;
 
     @Autowired
-    public DownloadAssetCommand(LaunchServerDirectories directories,
+    public DownloadAssetCommand(DirectoriesManager directoriesManager,
                                 MirrorManager mirrorManager,
                                 UpdatesManager updatesManager,
                                 JacksonManager jacksonManager,
                                 HttpRequester requester) {
         super();
-        this.directories = directories;
+        this.directoriesManager = directoriesManager;
         this.mirrorManager = mirrorManager;
         this.updatesManager = updatesManager;
         this.jacksonManager = jacksonManager;
@@ -68,25 +71,18 @@ public final class DownloadAssetCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
-        //Version version = Version.byName(args[0]);
         String versionName = args[0];
         String dirName = IOHelper.verifyFileName(args.length > 1 ? args[1] : "assets");
         String type = args.length > 2 ? args[2] : "mojang";
-        Path assetDir = directories.updatesDir.resolve(dirName);
 
-        // Create asset dir
-        if (Files.notExists(assetDir)) {
-            logger.info("Creating asset dir: '{}'", dirName);
-            Files.createDirectory(assetDir);
-        }
-
+        Path assetDir = directoriesManager.getUpdatesAssetsDir();
         if (type.equals("mojang")) {
             logger.info("Fetch versions from {}", MINECRAFT_VERSIONS_URL);
             var versions = requester.send(requester.get(MINECRAFT_VERSIONS_URL, null), MinecraftVersions.class).getOrThrow();
             String profileUrl = null;
-            for (var e : versions.versions) {
-                if (e.id.equals(versionName)) {
-                    profileUrl = e.url;
+            for (var e : versions.getVersions()) {
+                if (e.getId().equals(versionName)) {
+                    profileUrl = e.getUrl();
                     break;
                 }
             }
@@ -96,12 +92,12 @@ public final class DownloadAssetCommand extends Command {
             }
             logger.info("Fetch profile {} from {}", versionName, profileUrl);
             var profileInfo = requester.send(requester.get(profileUrl, null), MiniVersion.class).getOrThrow();
-            String assetsIndexUrl = profileInfo.assetIndex.url;
-            String assetIndex = profileInfo.assetIndex.id;
+            String assetsIndexUrl = profileInfo.getAssetIndex().getUrl();
+            String assetIndex = profileInfo.getAssetIndex().getId();
             Path indexPath = assetDir.resolve("indexes").resolve(assetIndex + ".json");
             logger.info("Fetch asset index {} from {}", assetIndex, assetsIndexUrl);
-            JsonObject assets = requester.send(requester.get(assetsIndexUrl, null), JsonObject.class).getOrThrow();
-            JsonObject objects = assets.get("objects").getAsJsonObject();
+            JsonNode assets = requester.send(requester.get(assetsIndexUrl, null), JsonNode.class).getOrThrow();
+
             try (Writer writer = IOHelper.newWriter(indexPath)) {
                 logger.info("Save {}", indexPath);
                 writer.write(jacksonManager.getMapper().writeValueAsString(assets));
@@ -112,11 +108,12 @@ public final class DownloadAssetCommand extends Command {
                 Files.copy(indexPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
             }
             List<Downloader.SizedFile> toDownload = new ArrayList<>(128);
-            for (var e : objects.entrySet()) {
-                var value = e.getValue().getAsJsonObject();
-                var hash = value.get("hash").getAsString();
+
+            JsonNode objects = assets.get("objects");
+            for (JsonNode e : objects) {
+                var hash = e.get("hash").textValue();
                 hash = hash.substring(0, 2) + "/" + hash;
-                var size = value.get("size").getAsLong();
+                var size = e.get("size").asLong();
                 var path = "objects/" + hash;
                 var target = assetDir.resolve(path);
                 if (Files.exists(target)) {
@@ -135,7 +132,6 @@ public final class DownloadAssetCommand extends Command {
         } else {
             // Download required asset
             logger.info("Downloading asset, it may take some time");
-            //HttpDownloader.downloadZip(server.mirrorManager.getDefaultMirror().getAssetsURL(version.name), assetDir);
             mirrorManager.downloadZip(assetDir, "assets/%s.zip", versionName);
         }
 
@@ -185,21 +181,5 @@ public final class DownloadAssetCommand extends Command {
             return future;
         });
         return downloader;
-    }
-
-    public record MiniVersionInfo(String id, String url) {
-
-    }
-
-    public record MinecraftVersions(List<MiniVersionInfo> versions) {
-
-    }
-
-    public record MinecraftAssetIndexInfo(String id, String url) {
-
-    }
-
-    public record MiniVersion(MinecraftAssetIndexInfo assetIndex) {
-
     }
 }

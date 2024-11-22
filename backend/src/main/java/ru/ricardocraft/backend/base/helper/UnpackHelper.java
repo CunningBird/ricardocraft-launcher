@@ -31,22 +31,6 @@ public final class UnpackHelper {
         }
     }
 
-    public static boolean unpackZipNoCheck(URL resource, Path target) throws IOException {
-        if (Files.isDirectory(target))
-            return false;
-        Files.deleteIfExists(target);
-        Files.createDirectory(target);
-        try (ZipInputStream input = IOHelper.newZipInput(resource)) {
-            for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
-                if (entry.isDirectory())
-                    continue; // Skip dirs
-                // Unpack file
-                IOHelper.transfer(input, target.resolve(IOHelper.toPath(entry.getName())));
-            }
-        }
-        return true;
-    }
-
     public static void unpackZipNoCheck(String resource, Path target) throws IOException {
         try {
             if (Files.isDirectory(target))

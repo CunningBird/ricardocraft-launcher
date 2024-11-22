@@ -7,6 +7,9 @@ import ru.ricardocraft.backend.base.profiles.optional.OptionalFile;
 import ru.ricardocraft.backend.base.profiles.optional.actions.OptionalActionFile;
 import ru.ricardocraft.backend.base.profiles.optional.actions.OptionalActionJvmArgs;
 import ru.ricardocraft.backend.base.profiles.optional.triggers.OSTrigger;
+import ru.ricardocraft.backend.dto.updates.ClassLoaderConfig;
+import ru.ricardocraft.backend.dto.updates.ServerProfile;
+import ru.ricardocraft.backend.dto.updates.Version;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,7 +17,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class MakeProfileHelper {
-    public static ClientProfile makeProfile(ClientProfile.Version version, String title, MakeProfileOption... options) {
+    public static ClientProfile makeProfile(Version version, String title, MakeProfileOption... options) {
         ClientProfileBuilder builder = new ClientProfileBuilder();
         builder.setVersion(version);
         builder.setDir(title);
@@ -24,7 +27,7 @@ public class MakeProfileHelper {
         builder.setTitle(title);
         builder.setUuid(UUID.randomUUID());
         builder.setMainClass(getMainClassByVersion(version, options));
-        builder.setServers(List.of(new ClientProfile.ServerProfile(title, "localhost", 25565)));
+        builder.setServers(List.of(new ServerProfile(title, "localhost", 25565)));
         // ------------
         var lwjgl3ify = findOption(options, Lwjgl3ifyOption.class);
         builder.setUpdateVerify(List.of("libraries", "natives", "mods", "minecraft.jar", "forge.jar", "liteloader.jar"));
@@ -102,10 +105,10 @@ public class MakeProfileHelper {
         }
         if (fabric.isPresent()) {
             builder.setAltClassPath(fabric.orElseThrow().getAltClassPath());
-            jvmArgs.add("-Dsodium.checks.issue2561=false"); // Please don't check LWJL3 version (Sodium: https://github.com/CaffeineMC/sodium-fabric/issues/2561 )
+            jvmArgs.add("-Dsodium.checks.issue2561=false"); // Please don't multiModCheck LWJL3 version (Sodium: https://github.com/CaffeineMC/sodium-fabric/issues/2561 )
         }
         if(quilt.isPresent()) {
-            builder.setClassLoaderConfig(ClientProfile.ClassLoaderConfig.SYSTEM_ARGS);
+            builder.setClassLoaderConfig(ClassLoaderConfig.SYSTEM_ARGS);
         }
         if (findOption(options, MakeProfileOptionLwjgl.class).isPresent()) {
             OptionalFile optionalMac = new OptionalFile();
@@ -192,7 +195,7 @@ public class MakeProfileHelper {
         return (Optional<T>) Arrays.stream(options).filter((o) -> clazz.isAssignableFrom(o.getClass())).findFirst();
     }
 
-    public static String getMainClassByVersion(ClientProfile.Version version, MakeProfileOption... options) {
+    public static String getMainClassByVersion(Version version, MakeProfileOption... options) {
         if(version.compareTo(ClientProfileVersions.MINECRAFT_1_7_10) == 0) {
             return  "com.gtnewhorizons.retrofuturabootstrap.Main";
         }
@@ -232,7 +235,7 @@ public class MakeProfileHelper {
         return null;
     }
 
-    public static MakeProfileOption[] getMakeProfileOptionsFromDir(Path dir, ClientProfile.Version version) throws IOException {
+    public static MakeProfileOption[] getMakeProfileOptionsFromDir(Path dir, Version version) throws IOException {
         List<MakeProfileOption> options = new ArrayList<>(2);
         if (Files.exists(dir.resolve("forge.jar"))) {
             options.add(new MakeProfileOptionForge());

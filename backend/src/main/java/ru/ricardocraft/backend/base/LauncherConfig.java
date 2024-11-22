@@ -2,13 +2,13 @@ package ru.ricardocraft.backend.base;
 
 import ru.ricardocraft.backend.base.core.LauncherInject;
 import ru.ricardocraft.backend.base.core.LauncherInjectionConstructor;
-import ru.ricardocraft.backend.base.core.LauncherTrustManager;
 import ru.ricardocraft.backend.base.core.serialize.HInput;
 import ru.ricardocraft.backend.base.core.serialize.HOutput;
 import ru.ricardocraft.backend.base.core.serialize.StreamObject;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.helper.VerifyHelper;
-import ru.ricardocraft.backend.properties.LauncherEnvironment;
+import ru.ricardocraft.backend.manangers.LauncherTrustManager;
+import ru.ricardocraft.backend.properties.config.LauncherEnvironment;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;

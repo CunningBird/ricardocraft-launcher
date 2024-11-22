@@ -7,16 +7,20 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import ru.ricardocraft.backend.base.LauncherConfig;
-import ru.ricardocraft.backend.base.asm.ClassMetadataReader;
-import ru.ricardocraft.backend.base.asm.InjectClassAcceptor;
-import ru.ricardocraft.backend.base.asm.SafeClassWriter;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
-import ru.ricardocraft.backend.binary.BuildContext;
-import ru.ricardocraft.backend.binary.JARLauncherBinary;
+import ru.ricardocraft.backend.binary.JarLauncherBinary;
+import ru.ricardocraft.backend.binary.JarLauncherInfo;
+import ru.ricardocraft.backend.binary.tasks.main.BuildContext;
+import ru.ricardocraft.backend.binary.tasks.main.ClassMetadataReader;
+import ru.ricardocraft.backend.binary.tasks.main.InjectClassAcceptor;
+import ru.ricardocraft.backend.binary.tasks.main.SafeClassWriter;
 import ru.ricardocraft.backend.manangers.CertificateManager;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.DirectoriesProperties;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
+import ru.ricardocraft.backend.properties.NettyProperties;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,26 +34,34 @@ public class MainBuildTask implements LauncherBuildTask {
 
     private transient final Logger logger = LogManager.getLogger(MainBuildTask.class);
 
-    public final ClassMetadataReader reader;
-    public final Set<String> blacklist = new HashSet<>();
-    public final List<Transformer> transformers = new ArrayList<>();
-    public final Map<String, Object> properties = new HashMap<>();
+    private final ClassMetadataReader reader;
+    private final Set<String> blacklist = new HashSet<>();
+    private final List<Transformer> transformers = new ArrayList<>();
+    private final Map<String, Object> properties = new HashMap<>();
 
-    private final JARLauncherBinary launcherBinary;
-    private final LaunchServerConfig config;
+    private final JarLauncherInfo jarLauncherInfo;
+    private final JarLauncherBinary launcherBinary;
+    private final LaunchServerProperties config;
+    private final DirectoriesProperties directoriesProperties;
+    private final DirectoriesManager directoriesManager;
+    private final NettyProperties nettyProperties;
     private final KeyAgreementManager keyAgreementManager;
     private final CertificateManager certificateManager;
 
-    public static final String CONFIG_FILE = "config.bin";
-    public static final String RUNTIME_DIR = "runtime";
-
-    public MainBuildTask(JARLauncherBinary launcherBinary,
-                         LaunchServerConfig config,
+    public MainBuildTask(JarLauncherInfo jarLauncherInfo,
+                         JarLauncherBinary launcherBinary,
+                         LaunchServerProperties config,
+                         DirectoriesProperties directoriesProperties,
+                         DirectoriesManager directoriesManager,
+                         NettyProperties nettyProperties,
                          KeyAgreementManager keyAgreementManager,
                          CertificateManager certificateManager) {
-
+        this.jarLauncherInfo = jarLauncherInfo;
         this.launcherBinary = launcherBinary;
         this.config = config;
+        this.directoriesProperties = directoriesProperties;
+        this.directoriesManager = directoriesManager;
+        this.nettyProperties = nettyProperties;
         this.keyAgreementManager = keyAgreementManager;
         this.certificateManager = certificateManager;
 
@@ -67,13 +79,13 @@ public class MainBuildTask implements LauncherBuildTask {
     public Path process(Path inputJar) throws IOException {
         Path outputJar = launcherBinary.nextPath(this);
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
-            BuildContext context = new BuildContext(output, reader.getCp(), this, launcherBinary.runtimeDir);
+            BuildContext context = new BuildContext(output, reader.getCp(), this, directoriesManager.getRuntimeDir());
             initProps();
             properties.put("launcher.legacymodules", context.legacyClientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             properties.put("launcher.modules", context.clientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             postInitProps();
             reader.getCp().add(new JarFile(inputJar.toFile()));
-            for (Path e : launcherBinary.coreLibs) {
+            for (Path e : jarLauncherInfo.getCoreLibs()) {
                 reader.getCp().add(new JarFile(e.toFile()));
             }
             context.pushJarFile(inputJar, (e) -> blacklist.contains(e.getName()) || e.getName().startsWith("pro/gravit/launcher/debug/"), (e) -> true);
@@ -81,17 +93,17 @@ public class MainBuildTask implements LauncherBuildTask {
             // map for guard
             Map<String, byte[]> runtime = new HashMap<>(256);
             // Write launcher guard dir
-            if (config.launcher.encryptRuntime) {
-                context.pushEncryptedDir(context.getRuntimeDir(), RUNTIME_DIR, this.config.runtimeConfig.runtimeEncryptKey, runtime, false);
+            if (config.getLauncher().getEncryptRuntime()) {
+                context.pushEncryptedDir(context.getRuntimeDir(), directoriesManager.getRuntimeDir(), this.config.getRuntime().getRuntimeEncryptKey(), runtime, false);
             } else {
-                context.pushDir(context.getRuntimeDir(), RUNTIME_DIR, runtime, false);
+                context.pushDir(context.getRuntimeDir(), directoriesManager.getRuntimeDir(), runtime, false);
             }
             if (context.isDeleteRuntimeDir()) {
                 IOHelper.deleteDir(context.getRuntimeDir(), true);
             }
 
-            LauncherConfig launcherConfig = new LauncherConfig(config.netty.address, keyAgreementManager.ecdsaPublicKey, keyAgreementManager.rsaPublicKey, runtime, config.projectName);
-            context.pushFile(CONFIG_FILE, launcherConfig);
+            LauncherConfig launcherConfig = new LauncherConfig(nettyProperties.getAddress(), keyAgreementManager.ecdsaPublicKey, keyAgreementManager.rsaPublicKey, runtime, config.getProjectName());
+            context.pushFile(directoriesProperties.getLauncherConfigFile(), launcherConfig);
         }
         reader.close();
         return outputJar;
@@ -106,7 +118,7 @@ public class MainBuildTask implements LauncherBuildTask {
                 return new byte[0];
             }
         }).collect(Collectors.toList());
-        if (!config.sign.enabled) {
+        if (!config.getSign().getEnabled()) {
             CertificateAutogenTask task = launcherBinary.getTaskByClass(CertificateAutogenTask.class).get();
             try {
                 certificates.add(task.certificate.getEncoded());
@@ -119,29 +131,23 @@ public class MainBuildTask implements LauncherBuildTask {
 
     protected void initProps() {
         properties.clear();
-        properties.put("launcher.address", config.netty.address);
-        properties.put("launcher.projectName", config.projectName);
+        properties.put("launcher.address", nettyProperties.getAddress());
+        properties.put("launcher.projectName", config.getProjectName());
         properties.put("runtimeconfig.secretKeyClient", SecurityHelper.randomStringAESKey());
         properties.put("launcher.port", 32148 + SecurityHelper.newRandom().nextInt(512));
-        properties.put("launchercore.env", config.env);
-        properties.put("launcher.memory", config.launcher.memoryLimit);
-        properties.put("launcher.customJvmOptions", config.launcher.customJvmOptions);
-        if (config.launcher.encryptRuntime) {
-            if (config.runtimeConfig.runtimeEncryptKey == null)
-                config.runtimeConfig.runtimeEncryptKey = SecurityHelper.randomStringToken();
-            properties.put("runtimeconfig.runtimeEncryptKey", config.runtimeConfig.runtimeEncryptKey);
-        }
-        properties.put("launcher.certificatePinning", config.launcher.certificatePinning);
-        properties.put("runtimeconfig.passwordEncryptKey", config.runtimeConfig.passwordEncryptKey);
+        properties.put("launchercore.env", config.getEnv());
+        properties.put("launcher.memory", config.getLauncher().getMemoryLimit());
+        properties.put("launcher.customJvmOptions", config.getLauncher().getCustomJvmOptions());
+        properties.put("runtimeconfig.runtimeEncryptKey", config.getRuntime().getRuntimeEncryptKey());
+        properties.put("launcher.certificatePinning", config.getLauncher().getCertificatePinning());
+        properties.put("runtimeconfig.passwordEncryptKey", config.getRuntime().getPasswordEncryptKey());
         String launcherSalt = SecurityHelper.randomStringToken();
         byte[] launcherSecureHash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
-                config.runtimeConfig.clientCheckSecret.concat(".").concat(launcherSalt));
+                config.getRuntime().getClientCheckSecret().concat(".").concat(launcherSalt));
         properties.put("runtimeconfig.secureCheckHash", Base64.getEncoder().encodeToString(launcherSecureHash));
         properties.put("runtimeconfig.secureCheckSalt", launcherSalt);
-        if (config.runtimeConfig.unlockSecret == null) config.runtimeConfig.unlockSecret = SecurityHelper.randomStringToken();
-        properties.put("runtimeconfig.unlockSecret", config.runtimeConfig.unlockSecret);
-        config.runtimeConfig.buildNumber++;
-        properties.put("runtimeconfig.buildNumber", config.runtimeConfig.buildNumber);
+        properties.put("runtimeconfig.unlockSecret", config.getRuntime().getUnlockSecret());
+        properties.put("runtimeconfig.buildNumber", config.getRuntime().getBuildNumber());
     }
 
     public byte[] transformClass(byte[] bytes, String classname, BuildContext context) {

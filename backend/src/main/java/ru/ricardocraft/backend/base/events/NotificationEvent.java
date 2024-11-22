@@ -1,9 +1,9 @@
 package ru.ricardocraft.backend.base.events;
 
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
-import ru.ricardocraft.backend.base.request.WebSocketEvent;
+import ru.ricardocraft.backend.base.request.TypeSerializeInterface;
 
-public class NotificationEvent implements WebSocketEvent {
+public class NotificationEvent implements TypeSerializeInterface {
     @LauncherNetworkAPI
     public final String head;
     @LauncherNetworkAPI

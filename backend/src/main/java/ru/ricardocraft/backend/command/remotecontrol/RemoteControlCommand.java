@@ -4,13 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.CommandHandler;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 @Component
 public class RemoteControlCommand extends Command {
 
     @Autowired
-    public RemoteControlCommand(CommandHandler commandHandler, LaunchServerConfig config) {
+    public RemoteControlCommand(CommandHandler commandHandler, LaunchServerProperties config) {
         super();
         childCommands.put("list", new ListCommand(config));
 

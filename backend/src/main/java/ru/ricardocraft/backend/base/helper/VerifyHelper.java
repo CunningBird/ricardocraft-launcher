@@ -5,7 +5,6 @@ import java.util.Objects;
 import java.util.function.IntPredicate;
 import java.util.function.LongPredicate;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 public final class VerifyHelper {
 
@@ -13,15 +12,9 @@ public final class VerifyHelper {
 
     public static final IntPredicate NOT_NEGATIVE = i -> i >= 0;
 
-    public static final LongPredicate L_POSITIVE = l -> l > 0;
-
     public static final LongPredicate L_NOT_NEGATIVE = l -> l >= 0;
 
     public static final Predicate<String> NOT_EMPTY = s -> !s.isEmpty();
-
-    public static final Pattern USERNAME_PATTERN = Pattern.compile(Boolean.parseBoolean(System.getProperty("username.russian", "true")) ? "[a-zA-Zа-яА-Я0-9_.\\-]{1,16}" : "[a-zA-Z0-9-_\\\\.]{1,16}");
-    private static final Pattern SERVERID_PATTERN = Pattern.compile("-?[0-9a-f]{1,40}");
-
 
     private VerifyHelper() {
     }
@@ -36,14 +29,6 @@ public final class VerifyHelper {
 
     public static boolean isValidIDNameChar(int ch) {
         return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9' || ch == '-' || ch == '_';
-    }
-
-    public static boolean isValidServerID(CharSequence serverID) {
-        return SERVERID_PATTERN.matcher(serverID).matches();
-    }
-
-    public static boolean isValidUsername(CharSequence username) {
-        return USERNAME_PATTERN.matcher(username).matches();
     }
 
     public static <K, V> void putIfAbsent(Map<K, V> map, K key, V value, String error) {
@@ -70,14 +55,5 @@ public final class VerifyHelper {
         if (predicate.test(l))
             return l;
         throw new IllegalArgumentException(error);
-    }
-
-    public static String verifyServerID(String serverID) {
-        return verify(serverID, VerifyHelper::isValidServerID,
-                String.format("Invalid server ID: '%s'", serverID));
-    }
-
-    public static String verifyUsername(String username) {
-        return verify(username, VerifyHelper::isValidUsername, String.format("Invalid username: '%s'", username));
     }
 }

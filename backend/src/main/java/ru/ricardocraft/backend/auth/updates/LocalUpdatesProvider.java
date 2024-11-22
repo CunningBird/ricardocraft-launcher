@@ -8,7 +8,8 @@ import ru.ricardocraft.backend.base.core.hasher.HashedDir;
 import ru.ricardocraft.backend.base.core.serialize.HInput;
 import ru.ricardocraft.backend.base.core.serialize.HOutput;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -23,13 +24,71 @@ public class LocalUpdatesProvider extends UpdatesProvider {
 
     private final Logger logger = LogManager.getLogger(LocalUpdatesProvider.class);
 
-    private final LaunchServerConfig config;
+    private final LaunchServerProperties config;
+    private final DirectoriesManager directoriesManager;
 
     private volatile transient Map<String, HashedDir> updatesDirMap;
 
     @Autowired
-    public LocalUpdatesProvider(LaunchServerConfig config) {
+    public LocalUpdatesProvider(LaunchServerProperties config, DirectoriesManager directoriesManager) {
         this.config = config;
+        this.directoriesManager = directoriesManager;
+    }
+
+    @Override
+    public void syncInitially() throws IOException {
+        readUpdatesDir();
+    }
+
+    @Override
+    public HashedDir getUpdatesDir(String updateName) {
+        return updatesDirMap.get(updateName);
+    }
+
+    @Override
+    public void upload(String updateName, Map<String, Path> files, boolean deleteAfterUpload) throws IOException {
+        var path = resolveUpdateName(updateName);
+        for (var e : files.entrySet()) {
+            var target = path.resolve(e.getKey());
+            var source = e.getValue();
+            IOHelper.createParentDirs(target);
+            if (deleteAfterUpload) {
+                Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+            } else {
+                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+            }
+        }
+    }
+
+    @Override
+    public Map<String, Path> download(String updateName, List<String> files) {
+        var path = resolveUpdateName(updateName);
+        Map<String, Path> map = new HashMap<>();
+        for (var e : files) {
+            map.put(e, path.resolve(e));
+        }
+        return map;
+    }
+
+    @Override
+    public void delete(String updateName, List<String> files) throws IOException {
+        var path = resolveUpdateName(updateName);
+        for (var e : files) {
+            var target = path.resolve(e);
+            Files.delete(target);
+        }
+    }
+
+    @Override
+    public void delete(String updateName) throws IOException {
+        var path = resolveUpdateName(updateName);
+        IOHelper.deleteDir(path, true);
+    }
+
+    @Override
+    public void create(String updateName) throws IOException {
+        var path = resolveUpdateName(updateName);
+        Files.createDirectories(path);
     }
 
     private void writeCache(Path file) throws IOException {
@@ -58,8 +117,8 @@ public class LocalUpdatesProvider extends UpdatesProvider {
     }
 
     public void readUpdatesDir() throws IOException {
-        var cacheFilePath = Path.of(config.localUpdatesProviderConfig.cacheFile);
-        if (config.localUpdatesProviderConfig.cacheUpdates) {
+        var cacheFilePath = directoriesManager.getCacheFile();
+        if (config.getLocalUpdatesProvider().getCacheUpdates()) {
             if (Files.exists(cacheFilePath)) {
                 try {
                     readCache(cacheFilePath);
@@ -72,26 +131,10 @@ public class LocalUpdatesProvider extends UpdatesProvider {
         sync(null);
     }
 
-    @Override
-    public void init() {
-        super.init();
-        try {
-            if (!IOHelper.isDir(Path.of(config.localUpdatesProviderConfig.updatesDir)))
-                Files.createDirectory(Path.of(config.localUpdatesProviderConfig.updatesDir));
-        } catch (IOException e) {
-            logger.error("Updates not synced", e);
-        }
-    }
-
-    @Override
-    public void syncInitially() throws IOException {
-        readUpdatesDir();
-    }
-
     public void sync(Collection<String> dirs) throws IOException {
         logger.info("Syncing updates dir");
         Map<String, HashedDir> newUpdatesDirMap = new HashMap<>(16);
-        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(Path.of(config.localUpdatesProviderConfig.updatesDir))) {
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directoriesManager.getUpdatesDir())) {
             for (final Path updateDir : dirStream) {
                 if (Files.isHidden(updateDir))
                     continue; // Skip hidden
@@ -120,70 +163,17 @@ public class LocalUpdatesProvider extends UpdatesProvider {
             }
         }
         updatesDirMap = Collections.unmodifiableMap(newUpdatesDirMap);
-        if (config.localUpdatesProviderConfig.cacheUpdates) {
+        if (config.getLocalUpdatesProvider().getCacheUpdates()) {
             try {
-                writeCache(Path.of(config.localUpdatesProviderConfig.cacheFile));
+                writeCache(directoriesManager.getCacheFile());
             } catch (Throwable e) {
                 logger.error("Write updates cache failed", e);
             }
         }
     }
 
-    @Override
-    public HashedDir getUpdatesDir(String updateName) {
-        return updatesDirMap.get(updateName);
-    }
-
     private Path resolveUpdateName(String updateName) {
-        if(updateName == null) {
-            return Path.of(config.localUpdatesProviderConfig.updatesDir);
-        }
-        return Path.of(config.localUpdatesProviderConfig.updatesDir).resolve(updateName);
-    }
-
-    @Override
-    public void upload(String updateName, Map<String, Path> files, boolean deleteAfterUpload) throws IOException {
-        var path = resolveUpdateName(updateName);
-        for(var e : files.entrySet()) {
-            var target = path.resolve(e.getKey());
-            var source = e.getValue();
-            IOHelper.createParentDirs(target);
-            if(deleteAfterUpload) {
-                Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
-            } else {
-                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-            }
-        }
-    }
-
-    @Override
-    public Map<String, Path> download(String updateName, List<String> files) {
-        var path = resolveUpdateName(updateName);
-        Map<String, Path> map = new HashMap<>();
-        for(var e : files) {
-            map.put(e, path.resolve(e));
-        }
-        return map;
-    }
-
-    @Override
-    public void delete(String updateName, List<String> files) throws IOException {
-        var path = resolveUpdateName(updateName);
-        for(var e : files) {
-            var target = path.resolve(e);
-            Files.delete(target);
-        }
-    }
-
-    @Override
-    public void delete(String updateName) throws IOException {
-        var path = resolveUpdateName(updateName);
-        IOHelper.deleteDir(path, true);
-    }
-
-    @Override
-    public void create(String updateName) throws IOException {
-        var path = resolveUpdateName(updateName);
-        Files.createDirectories(path);
+        if (updateName == null) return directoriesManager.getUpdatesDir();
+        return directoriesManager.getUpdatesDir().resolve(updateName);
     }
 }

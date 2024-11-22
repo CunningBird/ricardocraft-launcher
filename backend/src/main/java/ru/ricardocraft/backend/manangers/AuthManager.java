@@ -15,6 +15,7 @@ import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportExtended
 import ru.ricardocraft.backend.auth.core.interfaces.session.UserSessionSupportKeys;
 import ru.ricardocraft.backend.auth.core.interfaces.user.UserSupportProperties;
 import ru.ricardocraft.backend.auth.core.interfaces.user.UserSupportTextures;
+import ru.ricardocraft.backend.auth.password.*;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.texture.TextureProvider;
 import ru.ricardocraft.backend.base.ClientPermissions;
@@ -23,10 +24,8 @@ import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.profiles.PlayerProfile;
-import ru.ricardocraft.backend.base.request.auth.AuthPassword;
-import ru.ricardocraft.backend.base.request.auth.password.*;
-import ru.ricardocraft.backend.dto.auth.AuthResponse;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.dto.socket.auth.AuthResponse;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.repository.User;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.service.auth.RestoreResponseService;
@@ -42,16 +41,16 @@ public class AuthManager {
     private final Logger logger = LogManager.getLogger(AuthManager.class);
 
     private final KeyAgreementManager keyAgreementManager;
-    private final LaunchServerConfig launchServerConfig;
+    private final LaunchServerProperties properties;
     private final ProtectHandler protectHandler;
     private final JwtParser checkServerTokenParser;
 
     @Autowired
-    public AuthManager(LaunchServerConfig launchServerConfig,
+    public AuthManager(LaunchServerProperties properties,
                        ProtectHandler protectHandler,
                        KeyAgreementManager keyAgreementManager) {
         this.keyAgreementManager = keyAgreementManager;
-        this.launchServerConfig = launchServerConfig;
+        this.properties = properties;
         this.protectHandler = protectHandler;
         this.checkServerTokenParser = Jwts.parser()
                 .requireIssuer("LaunchServer")
@@ -299,8 +298,7 @@ public class AuthManager {
     private AuthPassword tryDecryptPasswordPlain(AuthPassword password) throws AuthException {
         if (password instanceof AuthAESPassword authAESPassword) {
             try {
-                return new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(launchServerConfig.runtimeConfig.passwordEncryptKey
-                        , authAESPassword.password)));
+                return new AuthPlainPassword(IOHelper.decode(SecurityHelper.decrypt(properties.getRuntime().getPasswordEncryptKey(), authAESPassword.password)));
             } catch (Exception ignored) {
                 throw new AuthException("Password decryption error");
             }

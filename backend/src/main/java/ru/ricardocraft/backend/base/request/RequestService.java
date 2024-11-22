@@ -5,14 +5,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public interface RequestService {
-    <T extends WebSocketEvent> CompletableFuture<T> request(Request<T> request) throws IOException;
+    <T extends TypeSerializeInterface> CompletableFuture<T> request(Request<T> request) throws IOException;
     void open() throws Exception;
 
     void registerEventHandler(EventHandler handler);
 
     void unregisterEventHandler(EventHandler handler);
 
-    default <T extends WebSocketEvent> T requestSync(Request<T> request) throws IOException {
+    default <T extends TypeSerializeInterface> T requestSync(Request<T> request) throws IOException {
         try {
             return request(request).get();
         } catch (InterruptedException e) {
@@ -36,7 +36,7 @@ public interface RequestService {
          * @param <T>   event type
          * @return false - continue, true - stop
          */
-        <T extends WebSocketEvent> boolean eventHandle(T event);
+        <T extends TypeSerializeInterface> boolean eventHandle(T event);
     }
 }
 

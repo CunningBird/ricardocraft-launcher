@@ -9,7 +9,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.command.CommandHandler;
 import ru.ricardocraft.backend.manangers.JacksonManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
+import ru.ricardocraft.backend.properties.config.RemoteControlTokenProperties;
 import ru.ricardocraft.backend.socket.NettyConnectContext;
 import ru.ricardocraft.backend.socket.handlers.NettyWebAPIHandler;
 
@@ -19,11 +20,11 @@ public class RemoteControlWebServlet implements NettyWebAPIHandler.SimpleServlet
 
     private transient final Logger logger = LogManager.getLogger(RemoteControlWebServlet.class);
 
-    private final LaunchServerConfig config;
+    private final LaunchServerProperties config;
     private final CommandHandler commandHandler;
     private final JacksonManager jacksonManager;
 
-    public RemoteControlWebServlet(LaunchServerConfig config,
+    public RemoteControlWebServlet(LaunchServerProperties config,
                                    CommandHandler commandHandler,
                                    JacksonManager jacksonManager) {
         this.config = config;
@@ -33,7 +34,7 @@ public class RemoteControlWebServlet implements NettyWebAPIHandler.SimpleServlet
 
     @Override
     public void handle(ChannelHandlerContext ctx, FullHttpRequest msg, NettyConnectContext context) throws JsonProcessingException {
-        if (!config.remoteControlConfig.enabled) {
+        if (!config.getRemoteControl().getEnabled()) {
             sendHttpResponse(ctx, simpleJsonResponse(HttpResponseStatus.FORBIDDEN, new RemoteControlResponse<Void>("RemoteControl disabled"), jacksonManager));
             return;
         }
@@ -47,13 +48,13 @@ public class RemoteControlWebServlet implements NettyWebAPIHandler.SimpleServlet
             sendHttpResponse(ctx, simpleJsonResponse(HttpResponseStatus.BAD_REQUEST, new RemoteControlResponse<Void>("Missing required parameter: token"), jacksonManager));
             return;
         }
-        LaunchServerConfig.RemoteControlConfig.RemoteControlToken token = config.remoteControlConfig.find(accessToken);
+        RemoteControlTokenProperties token = find(accessToken);
         if (token == null) {
             sendHttpResponse(ctx, simpleJsonResponse(HttpResponseStatus.FORBIDDEN, new RemoteControlResponse<Void>("Token not valid"), jacksonManager));
             return;
         }
         String command;
-        if (token.allowAll) {
+        if (token.getAllowAll()) {
             command = params.get("command");
             if (command == null) {
                 sendHttpResponse(ctx, simpleJsonResponse(HttpResponseStatus.BAD_REQUEST, new RemoteControlResponse<Void>("Missing required parameter: command"), jacksonManager));
@@ -62,14 +63,14 @@ public class RemoteControlWebServlet implements NettyWebAPIHandler.SimpleServlet
         } else {
             command = params.get("command");
             if (command == null) {
-                if (token.commands.size() != 1) {
+                if (token.getCommands().size() != 1) {
                     sendHttpResponse(ctx, simpleJsonResponse(HttpResponseStatus.BAD_REQUEST, new RemoteControlResponse<Void>("Missing required parameter: command"), jacksonManager));
                     return;
                 }
-                command = token.commands.getFirst();
+                command = token.getCommands().getFirst();
             }
             String finalCommand = command;
-            if (token.startWithMode ? token.commands.stream().noneMatch(finalCommand::startsWith) : !token.commands.contains(command)) {
+            if (token.getStartWithMode() ? token.getCommands().stream().noneMatch(finalCommand::startsWith) : !token.getCommands().contains(command)) {
                 sendHttpResponse(ctx, simpleJsonResponse(HttpResponseStatus.FORBIDDEN, new RemoteControlResponse<Void>("You cannot execute this command"), jacksonManager));
                 return;
             }
@@ -86,6 +87,15 @@ public class RemoteControlWebServlet implements NettyWebAPIHandler.SimpleServlet
         response.exception = exception;
         response.success = exception == null;
         sendHttpResponse(ctx, simpleJsonResponse(HttpResponseStatus.OK, new RemoteControlResponse<>(response), jacksonManager));
+    }
+
+    public RemoteControlTokenProperties find(String token) {
+        for (RemoteControlTokenProperties r : config.getRemoteControl().getList()) {
+            if (token.equals(r.getToken())) {
+                return r;
+            }
+        }
+        return null;
     }
 
     public static class RemoteControlResponse<T> {

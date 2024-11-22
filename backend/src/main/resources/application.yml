@@ -24,53 +24,19 @@ launch-server-config:
       displayName: Default
       visible: true
   protectHandler:
-    profileWhitelist: {}
-    allowUpdates: []
-  components:
-    authLimiter:
-      message: Превышен лимит авторизаций
-      exclude: []
-      rateLimit: 3
-      rateLimitMillis: 8000
-    proguard:
-      modeAfter: MainBuild
-      dir: proguard
-      jvmArgs:
-        - '-Xmx512M'
-      enabled: true
-      mappings: true
-  profileProvider:
-    profilesDir: profiles
-  updatesProvider:
-    cacheFile: .updates-cache
-    updatesDir: updates
-    cacheUpdates: true
-  netty:
-    fileServerEnabled: true
-    ipForwarding: false
-    disableWebApiInterface: false
-    showHiddenFiles: false
-    sendProfileUpdatesEvent: true
-    launcherURL: http://localhost:9274/Launcher.jar
-    downloadURL: http://localhost:9274/%dirname%/
-    launcherEXEURL: http://localhost:9274/Launcher.exe
-    address: ws://localhost:9274/api
-    bindings: {}
-    performance:
-      usingEpoll: false
-      bossThread: 2
-      workerThread: 8
-      schedulerThread: 2
-      maxWebSocketRequestBytes: 1048576
-      disableThreadSafeClientObject: false
-      executorType: VIRTUAL_THREADS
-    security:
-      hardwareTokenExpire: 28800
-      publicKeyTokenExpire: 28800
-      launcherTokenExpire: 28800
-    binds:
-      - address: 0.0.0.0
-        port: 9274
+    profileWhitelist: { }
+    allowUpdates: [ ]
+  authLimiter:
+    message: Превышен лимит авторизаций
+    exclude: [ ]
+    rateLimit: 3
+    rateLimitMillis: 8000
+  proguard:
+    modeAfter: MainBuild
+    jvmArgs:
+      - '-Xmx512M'
+    enabled: true
+    mappings: true
   launcher:
     compress: true
     stripLineNumbers: true
@@ -90,7 +56,7 @@ launch-server-config:
     metaInfKeyName: SIGNUMO.RSA
     metaInfSfName: SIGNUMO.SF
     signAlgo: SHA256WITHRSA
-    checkCertificateExpired: true
+    checkCertificateExpired: false
   osslSignCodeConfig:
     timestampServer: http://timestamp.sectigo.com
     osslsigncodePath: osslsigncode
@@ -106,15 +72,60 @@ launch-server-config:
         permissions: 0
         allowAll: true
         startWithMode: false
-        commands: []
+        commands: [ ]
     enabled: true
-  mirrorConfig:
-    curseforgeApiKey: API_KEY
-    deleteTmpDir: false
   runtimeConfig:
     passwordEncryptKey: aad2ebe2604f9c71c54079c42ffc5b97
     runtimeEncryptKey: 60d7abd7904405be99f10b7641ace3b6
     registerApiKey: ec88066104566ff76136196baf0c0b2f
     clientCheckSecret: fc6c5add66786fb6cf525b2b3ffd7174
     buildNumber: 0
+  mirror:
+    curseForgeApiKey: 'cead39c6-df96-48aa-9d60-38bf8183beb2'
+    deleteTmpDir: false
+    workspace:
+      fabricMods: []
+      quiltMods: []
+      forgeMods: []
+      lwjgl3version: ''
+      lwjglVersionOverride: []
+      fabricLoaderVersion: ''
+      multiMods: {}
+      libraries: []
+      build: {}
+  localUpdatesProvider:
+    cacheFile: .updates-cache
+    cacheUpdates: true
 
+directories:
+  launcherConfigFile: 'config.bin'
+  cacheFile: '.updates-cache'
+  root: 'C:\Users\cunningbird\IdeaProjects\ricardocraft-launcher\backend\build\app'
+
+netty:
+  fileServerEnabled: true
+  ipForwarding: false
+  disableWebApiInterface: false
+  showHiddenFiles: false
+  sendProfileUpdatesEvent: true
+  launcherURL: http://localhost:9274/Launcher.jar
+  downloadURL: http://localhost:9274/%dirname%/
+  launcherEXEURL: http://localhost:9274/Launcher.exe
+  address: ws://localhost:9274/api
+  logLevel: DEBUG
+  bindings: { }
+  performance:
+    usingEpoll: false
+    bossThread: 2
+    workerThread: 8
+    schedulerThread: 2
+    maxWebSocketRequestBytes: 1048576
+    disableThreadSafeClientObject: false
+    executorType: VIRTUAL_THREADS
+  security:
+    hardwareTokenExpire: 28800
+    publicKeyTokenExpire: 28800
+    launcherTokenExpire: 28800
+  binds:
+    - address: 0.0.0.0
+      port: 9274

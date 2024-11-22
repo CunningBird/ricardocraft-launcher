@@ -1,8 +1,9 @@
 package ru.ricardocraft.backend.binary.tasks;
 
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.binary.JARLauncherBinary;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.binary.JarLauncherBinary;
+import ru.ricardocraft.backend.binary.JarLauncherInfo;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -13,12 +14,17 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class AttachJarsTask implements LauncherBuildTask {
-    private final JARLauncherBinary launcherBinary;
-    private final LaunchServerConfig config;
+
+    private final JarLauncherInfo jarLauncherInfo;
+    private final JarLauncherBinary launcherBinary;
+    private final LaunchServerProperties config;
     private final List<Path> jars;
     private final List<String> exclusions;
 
-    public AttachJarsTask(JARLauncherBinary launcherBinary, LaunchServerConfig config) {
+    public AttachJarsTask(JarLauncherInfo jarLauncherInfo,
+                          JarLauncherBinary launcherBinary,
+                          LaunchServerProperties config) {
+        this.jarLauncherInfo = jarLauncherInfo;
         this.launcherBinary = launcherBinary;
         this.config = config;
 
@@ -50,9 +56,9 @@ public class AttachJarsTask implements LauncherBuildTask {
                 IOHelper.transfer(input, output);
                 e = input.getNextEntry();
             }
-            attach(output, inputFile, launcherBinary.coreLibs);
+            attach(output, inputFile, jarLauncherInfo.getCoreLibs());
             attach(output, inputFile, jars);
-            for(var entry : launcherBinary.files.entrySet()) {
+            for(var entry : jarLauncherInfo.getFiles().entrySet()) {
                 ZipEntry newEntry = IOHelper.newZipEntry(entry.getKey());
                 output.putNextEntry(newEntry);
                 IOHelper.transfer(entry.getValue(), output);
@@ -70,10 +76,6 @@ public class AttachJarsTask implements LauncherBuildTask {
     private boolean filter(String name) {
         if (name.startsWith("META-INF/services")) return false;
         return exclusions.stream().anyMatch(name::startsWith);
-    }
-
-    public List<Path> getJars() {
-        return jars;
     }
 
     public List<String> getExclusions() {

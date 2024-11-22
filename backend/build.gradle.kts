@@ -85,27 +85,4 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-    testLogging {
-        events("passed", "skipped", "failed")
-    }
-}
-
-tasks.register<Jar>("sourcesJar") {
-    from(sourceSets.main.get().allJava)
-    archiveClassifier.set("sources")
-}
-
-tasks.register<Jar>("javadocJar") {
-    from(tasks.javadoc)
-    archiveClassifier.set("javadoc")
-}
-
-tasks.register<Jar>("cleanjar") {
-    dependsOn(tasks.jar)
-    archiveClassifier.set("clean")
-    manifest {
-        attributes["Main-Class"] = "pro.gravit.launchserver.Main"
-        attributes["Automatic-Module-Name"] = "launchserver"
-    }
-    from(sourceSets.main.get().output)
 }

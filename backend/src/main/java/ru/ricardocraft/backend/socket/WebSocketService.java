@@ -15,9 +15,9 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.events.RequestEvent;
 import ru.ricardocraft.backend.base.events.request.ErrorRequestEvent;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.dto.SimpleResponse;
+import ru.ricardocraft.backend.dto.socket.SimpleResponse;
 import ru.ricardocraft.backend.manangers.JacksonManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.NettyProperties;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
 
@@ -38,20 +38,20 @@ public class WebSocketService {
 
     private final Map<Class<? extends SimpleResponse>, AbstractResponseService> services = new HashMap<>();
 
-    private transient final LaunchServerConfig config;
+    private transient final NettyProperties nettyProperties;
     private transient final JacksonManager jacksonManager;
 
     @Autowired
-    public WebSocketService(LaunchServerConfig config, JacksonManager jacksonManager) {
+    public WebSocketService(NettyProperties nettyProperties, JacksonManager jacksonManager) {
         this.channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-        executors = switch (config.netty.performance.executorType) {
+        executors = switch (nettyProperties.getPerformance().getExecutorType()) {
             case NONE -> null;
             case DEFAULT -> Executors.newCachedThreadPool();
             case WORK_STEAL -> Executors.newWorkStealingPool();
             case VIRTUAL_THREADS -> Executors.newVirtualThreadPerTaskExecutor();
         };
 
-        this.config = config;
+        this.nettyProperties = nettyProperties;
         this.jacksonManager = jacksonManager;
     }
 
@@ -94,7 +94,7 @@ public class WebSocketService {
             sendObject(ctx.channel(), event);
             return;
         }
-        var safeStatus = config.netty.performance.disableThreadSafeClientObject ? SimpleResponse.ThreadSafeStatus.NONE : response.getThreadSafeStatus();
+        var safeStatus = nettyProperties.getPerformance().getDisableThreadSafeClientObject() ? SimpleResponse.ThreadSafeStatus.NONE : response.getThreadSafeStatus();
         if (executors == null) {
             process(safeStatus, client, ip, context, response);
         } else {
@@ -149,7 +149,7 @@ public class WebSocketService {
 
     public void sendObject(Channel channel, Object obj) {
         try {
-            String msg = jacksonManager.getMapper().writeValueAsString(obj); //gsonManager.gson.toJson(obj, WebSocketEvent.class);
+            String msg = jacksonManager.getMapper().writeValueAsString(obj); //gsonManager.gson.toJson(obj, TypeSerializeInterface.class);
             if (logger.isTraceEnabled()) {
                 logger.trace("Send to channel {}: {}", getIPFromChannel(channel), msg);
             }
@@ -167,7 +167,7 @@ public class WebSocketService {
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj) {
         try {
-            String msg = jacksonManager.getMapper().writeValueAsString(obj); //gsonManager.gson.toJson(obj, WebSocketEvent.class);
+            String msg = jacksonManager.getMapper().writeValueAsString(obj); //gsonManager.gson.toJson(obj, TypeSerializeInterface.class);
             if (logger.isTraceEnabled()) {
                 logger.trace("Send and close {}: {}", getIPFromContext(ctx), msg);
             }

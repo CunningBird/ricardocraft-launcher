@@ -12,12 +12,13 @@ import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.base.events.request.LauncherRequestEvent;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.binary.EXELauncherBinary;
-import ru.ricardocraft.backend.binary.JARLauncherBinary;
-import ru.ricardocraft.backend.dto.SimpleResponse;
-import ru.ricardocraft.backend.dto.auth.AuthResponse;
-import ru.ricardocraft.backend.dto.update.LauncherResponse;
+import ru.ricardocraft.backend.binary.JarLauncherBinary;
+import ru.ricardocraft.backend.dto.socket.SimpleResponse;
+import ru.ricardocraft.backend.dto.socket.auth.AuthResponse;
+import ru.ricardocraft.backend.dto.socket.update.LauncherResponse;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
+import ru.ricardocraft.backend.properties.NettyProperties;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.service.auth.RestoreResponseService;
 import ru.ricardocraft.backend.socket.Client;
@@ -32,19 +33,22 @@ import java.util.Date;
 @Component
 public class LauncherResponseService extends AbstractResponseService {
 
-    private final LaunchServerConfig config;
-    private final JARLauncherBinary launcherBinary;
+    private final LaunchServerProperties config;
+    private final NettyProperties nettyProperties;
+    private final JarLauncherBinary launcherBinary;
     private final EXELauncherBinary exeLauncherBinary;
     private final KeyAgreementManager keyAgreementManager;
 
     @Autowired
     public LauncherResponseService(WebSocketService service,
-                                   LaunchServerConfig config,
-                                   JARLauncherBinary launcherBinary,
+                                   LaunchServerProperties config,
+                                   NettyProperties nettyProperties,
+                                   JarLauncherBinary launcherBinary,
                                    EXELauncherBinary exeLauncherBinary,
                                    KeyAgreementManager keyAgreementManager) {
         super(LauncherResponse.class, service);
         this.config = config;
+        this.nettyProperties = nettyProperties;
         this.launcherBinary = launcherBinary;
         this.exeLauncherBinary = exeLauncherBinary;
         this.keyAgreementManager = keyAgreementManager;
@@ -62,23 +66,23 @@ public class LauncherResponseService extends AbstractResponseService {
         if (response.launcher_type == 1) {
             byte[] hash = launcherBinary.getDigest();
             if (hash == null)
-                service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, config.netty.launcherURL));
+                service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherURL()));
             if (Arrays.equals(bytes, hash) && checkSecure(response.secureHash, response.secureSalt)) {
                 client.checkSign = true;
-                sendResult(ctx, new LauncherRequestEvent(false, config.netty.launcherURL, createLauncherExtendedToken(), config.netty.security.launcherTokenExpire * 1000), response.requestUUID);
+                sendResult(ctx, new LauncherRequestEvent(false, nettyProperties.getLauncherURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000), response.requestUUID);
             } else {
-                sendResultAndClose(ctx, new LauncherRequestEvent(true, config.netty.launcherURL, null, 0), response.requestUUID);
+                sendResultAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherURL(), null, 0), response.requestUUID);
             }
         } else if (response.launcher_type == 2) //EXE
         {
             byte[] hash = exeLauncherBinary.getDigest();
             if (hash == null)
-                sendResultAndClose(ctx, new LauncherRequestEvent(true, config.netty.launcherEXEURL), response.requestUUID);
+                sendResultAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherEXEURL()), response.requestUUID);
             if (Arrays.equals(bytes, hash) && checkSecure(response.secureHash, response.secureSalt)) {
                 client.checkSign = true;
-                sendResult(ctx, new LauncherRequestEvent(false, config.netty.launcherEXEURL, createLauncherExtendedToken(), config.netty.security.launcherTokenExpire * 1000), response.requestUUID);
+                sendResult(ctx, new LauncherRequestEvent(false, nettyProperties.getLauncherEXEURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000), response.requestUUID);
             } else {
-                sendResultAndClose(ctx, new LauncherRequestEvent(true, config.netty.launcherEXEURL, null, 0), response.requestUUID);
+                sendResultAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherEXEURL(), null, 0), response.requestUUID);
             }
         } else sendError(ctx, "Request launcher type error", response.requestUUID);
     }
@@ -87,7 +91,7 @@ public class LauncherResponseService extends AbstractResponseService {
         return Jwts.builder()
                 .setIssuer("LaunchServer")
                 .claim("checkSign", true)
-                .setExpiration(Date.from(LocalDateTime.now().plusSeconds(config.netty.security.launcherTokenExpire).toInstant(ZoneOffset.UTC)))
+                .setExpiration(Date.from(LocalDateTime.now().plusSeconds(nettyProperties.getSecurity().getLauncherTokenExpire()).toInstant(ZoneOffset.UTC)))
                 .signWith(keyAgreementManager.ecdsaPrivateKey, SignatureAlgorithm.ES256)
                 .compact();
     }
@@ -95,7 +99,7 @@ public class LauncherResponseService extends AbstractResponseService {
     private boolean checkSecure(String hash, String salt) {
         if (hash == null || salt == null) return false;
         byte[] normal_hash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
-                config.runtimeConfig.clientCheckSecret.concat(".").concat(salt));
+                config.getRuntime().getClientCheckSecret().concat(".").concat(salt));
         byte[] launcher_hash = Base64.getDecoder().decode(hash);
         return Arrays.equals(normal_hash, launcher_hash);
     }
@@ -121,7 +125,7 @@ public class LauncherResponseService extends AbstractResponseService {
                 client.type = AuthResponse.ConnectTypes.CLIENT;
                 return true;
             } catch (Exception e) {
-                logger.error("JWT check failed", e);
+                logger.error("JWT multiModCheck failed", e);
                 return false;
             }
 

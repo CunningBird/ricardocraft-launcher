@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.binary.tasks;
 
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.binary.JARLauncherBinary;
+import ru.ricardocraft.backend.binary.JarLauncherBinary;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -11,9 +11,10 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class CompressBuildTask implements LauncherBuildTask {
-    private final transient JARLauncherBinary launcherBinary;
 
-    public CompressBuildTask(JARLauncherBinary launcherBinary) {
+    private final transient JarLauncherBinary launcherBinary;
+
+    public CompressBuildTask(JarLauncherBinary launcherBinary) {
         this.launcherBinary = launcherBinary;
     }
 

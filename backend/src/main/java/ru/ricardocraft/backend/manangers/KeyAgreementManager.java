@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -22,8 +21,6 @@ import java.security.spec.InvalidKeySpecException;
 @Component
 public class KeyAgreementManager {
 
-    private transient final Logger logger = LogManager.getLogger(KeyAgreementManager.class);
-
     public final ECPublicKey ecdsaPublicKey;
     public final ECPrivateKey ecdsaPrivateKey;
     public final RSAPublicKey rsaPublicKey;
@@ -32,9 +29,11 @@ public class KeyAgreementManager {
     public final Path keyDirectory;
 
     @Autowired
-    public KeyAgreementManager(LaunchServerDirectories directories) throws IOException, InvalidKeySpecException {
-        this.keyDirectory = directories.keyDirectory;
+    public KeyAgreementManager(DirectoriesManager directoriesManager) throws IOException, InvalidKeySpecException {
+        this.keyDirectory = directoriesManager.getKeyDirectoryDir();
         Path ecdsaPublicKeyPath = keyDirectory.resolve("ecdsa_id.pub"), ecdsaPrivateKeyPath = keyDirectory.resolve("ecdsa_id");
+        Logger logger = LogManager.getLogger(KeyAgreementManager.class);
+
         if (IOHelper.isFile(ecdsaPublicKeyPath) && IOHelper.isFile(ecdsaPrivateKeyPath)) {
             logger.info("Reading ECDSA keypair");
             ecdsaPublicKey = SecurityHelper.toPublicECDSAKey(IOHelper.read(ecdsaPublicKeyPath));

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.profiles.Texture;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.socket.HttpRequester;
 
 import java.io.IOException;
@@ -23,15 +23,15 @@ public class JsonTextureProvider extends TextureProvider {
 
     private transient final HttpRequester requester;
     private transient final RequestTextureProvider requestTextureProvider;
-    private transient final LaunchServerConfig.JsonTextureProviderConfig config;
+    private transient final LaunchServerProperties config;
 
     @Autowired
     public JsonTextureProvider(RequestTextureProvider requestTextureProvider,
-                               LaunchServerConfig config,
-                               HttpRequester requester) {
+                               HttpRequester requester,
+                               LaunchServerProperties config) {
         this.requester = requester;
         this.requestTextureProvider = requestTextureProvider;
-        this.config = config.jsonTextureProviderConfig;
+        this.config = config;
     }
 
     @Override
@@ -49,7 +49,8 @@ public class JsonTextureProvider extends TextureProvider {
     @Override
     public Map<String, Texture> getAssets(UUID uuid, String username, String client) {
         try {
-            Map<String, JsonTexture> map = requester.send(requester.get(requestTextureProvider.getTextureURL(config.url, uuid, username, client), config.bearerToken), (Class<Map<String, JsonTexture>>) this.map.getClass()).getOrThrow();
+            Map<String, JsonTexture> map = requester.send(requester.get(requestTextureProvider.getTextureURL(
+                    config.getJsonTextureProvider().getUrl(), uuid, username, client), config.getJsonTextureProvider().getBearerToken()), (Class<Map<String, JsonTexture>>) this.map.getClass()).getOrThrow();
             return JsonTexture.convertMap(map);
         } catch (IOException e) {
             logger.error("JsonTextureProvider", e);

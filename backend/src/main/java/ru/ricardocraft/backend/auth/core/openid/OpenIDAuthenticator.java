@@ -8,14 +8,15 @@ import io.jsonwebtoken.security.Jwks;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.auth.core.UserSession;
+import ru.ricardocraft.backend.auth.details.AuthWebViewDetails;
+import ru.ricardocraft.backend.auth.password.AuthCodePassword;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
 import ru.ricardocraft.backend.base.helper.CommonHelper;
 import ru.ricardocraft.backend.base.helper.QueryHelper;
-import ru.ricardocraft.backend.base.request.auth.details.AuthWebViewDetails;
-import ru.ricardocraft.backend.base.request.auth.password.AuthCodePassword;
 import ru.ricardocraft.backend.manangers.JacksonManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
+import ru.ricardocraft.backend.properties.config.OpenIDProperties;
 import ru.ricardocraft.backend.repository.User;
 import ru.ricardocraft.backend.repository.UserEntity;
 import ru.ricardocraft.backend.socket.QueryBuilder;
@@ -35,40 +36,40 @@ import java.util.stream.Collectors;
 public class OpenIDAuthenticator {
 
     private static final HttpClient CLIENT = HttpClient.newBuilder().build();
-    private final LaunchServerConfig.OpenIDConfig openIDConfig;
+    private final OpenIDProperties openIdProperties;
     private final JwtParser jwtParser;
     private final JacksonManager jacksonManager;
 
-    public OpenIDAuthenticator(LaunchServerConfig config, JacksonManager jacksonManager) {
-        this.openIDConfig = config.openIDConfig;
+    public OpenIDAuthenticator(LaunchServerProperties properties, JacksonManager jacksonManager) {
+        this.openIdProperties = properties.getOpenid();
         this.jacksonManager = jacksonManager;
-        var keyLocator = loadKeyLocator(openIDConfig);
+        var keyLocator = loadKeyLocator(openIdProperties);
         this.jwtParser = Jwts.parser()
                 .keyLocator(keyLocator)
-                .requireIssuer(openIDConfig.issuer())
-                .require("azp", openIDConfig.clientId())
+                .requireIssuer(openIdProperties.getIssuer())
+                .require("azp", openIdProperties.getClientId())
                 .build();
     }
 
     public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails() {
         var state = UUID.randomUUID().toString();
-        var uri = QueryBuilder.get(openIDConfig.authorizationEndpoint())
+        var uri = QueryBuilder.get(openIdProperties.getAuthorizationEndpoint())
                 .addQuery("response_type", "code")
-                .addQuery("client_id", openIDConfig.clientId())
-                .addQuery("redirect_uri", openIDConfig.redirectUri())
-                .addQuery("scope", openIDConfig.scopes())
+                .addQuery("client_id", openIdProperties.getClientId())
+                .addQuery("redirect_uri", openIdProperties.getRedirectUri())
+                .addQuery("scope", openIdProperties.getScopes())
                 .addQuery("state", state)
                 .toUriString();
 
-        return List.of(new AuthWebViewDetails(uri, openIDConfig.redirectUri()));
+        return List.of(new AuthWebViewDetails(uri, openIdProperties.getRedirectUri()));
     }
 
     public TokenResponse refreshAccessToken(String oldRefreshToken) throws JsonProcessingException {
         var postBody = QueryBuilder.post()
                 .addQuery("grant_type", "refresh_token")
                 .addQuery("refresh_token", oldRefreshToken)
-                .addQuery("client_id", openIDConfig.clientId())
-                .addQuery("client_secret", openIDConfig.clientSecret())
+                .addQuery("client_id", openIdProperties.getClientId())
+                .addQuery("client_secret", openIdProperties.getClientSecret())
                 .toString();
 
         var accessTokenResponse = requestToken(postBody);
@@ -120,9 +121,9 @@ public class OpenIDAuthenticator {
         var postBody = QueryBuilder.post()
                 .addQuery("grant_type", "authorization_code")
                 .addQuery("code", code)
-                .addQuery("redirect_uri", openIDConfig.redirectUri())
-                .addQuery("client_id", openIDConfig.clientId())
-                .addQuery("client_secret", openIDConfig.clientSecret())
+                .addQuery("redirect_uri", openIdProperties.getRedirectUri())
+                .addQuery("client_id", openIdProperties.getClientId())
+                .addQuery("client_secret", openIdProperties.getClientSecret())
                 .toString();
 
         var accessTokenResponse = requestToken(postBody);
@@ -155,15 +156,15 @@ public class OpenIDAuthenticator {
     }
 
     private User createUserFromToken(Jws<Claims> token) {
-        var username = token.getPayload().get(openIDConfig.extractorConfig().usernameClaim(), String.class);
-        var uuidStr = token.getPayload().get(openIDConfig.extractorConfig().uuidClaim(), String.class);
+        var username = token.getPayload().get(openIdProperties.getExtractor().getUsernameClaim(), String.class);
+        var uuidStr = token.getPayload().get(openIdProperties.getExtractor().getUuidClaim(), String.class);
         var uuid = UUID.fromString(uuidStr);
         return new UserEntity(username, uuid, new ClientPermissions());
     }
 
     private AccessTokenResponse requestToken(String postBody) throws JsonProcessingException {
         var request = HttpRequest.newBuilder()
-                .uri(openIDConfig.tokenUri())
+                .uri(openIdProperties.getTokenUri())
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .header("Accept", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(postBody))
@@ -178,16 +179,15 @@ public class OpenIDAuthenticator {
         return jacksonManager.getMapper().readValue(resp.body(), AccessTokenResponse.class);
     }
 
-    private static KeyLocator loadKeyLocator(LaunchServerConfig.OpenIDConfig openIDConfig) {
-        var request = HttpRequest.newBuilder(openIDConfig.jwksUri()).GET().build();
+    private static KeyLocator loadKeyLocator(OpenIDProperties openIdProperties) {
+        var request = HttpRequest.newBuilder(openIdProperties.getJwksUri()).GET().build();
         HttpResponse<String> response;
         try {
             response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        var jwks = Jwks.setParser().build().parse(response.body());
-        return new KeyLocator(jwks);
+        return new KeyLocator(Jwks.setParser().build().parse(response.body()));
     }
 
     private static class KeyLocator extends LocatorAdapter<Key> {

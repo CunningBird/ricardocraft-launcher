@@ -3,6 +3,7 @@ package ru.ricardocraft.backend.properties;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import ru.ricardocraft.backend.properties.config.*;
 
 @Getter
 @Setter
@@ -13,19 +14,22 @@ public class LaunchServerProperties {
     private String binaryName;
     private Boolean copyBinaries;
     private LauncherEnvironment env;
-    private TextureProviderProperties textureProvider;
 
-    private ProtectHandlerProperties protectHandler;
-    private ComponentsProperties components;
-    private ProfileProviderProperties profileProvider;
-    private UpdatesProviderProperties updatesProvider;
+    private TextureProviderProperties textureProvider;
+    private AuthLimiterProperties authLimiter;
+    private ProguardProperties proguard;
     private NettyProperties netty;
     private LauncherProperties launcher;
-
+    private OpenIDProperties openid;
+    private MicrosoftAuthCoreProviderProperties microsoftAuthCoreProvider;
     private JarSignerProperties sign;
+    private OSSLSignCodeProperties osslSignCode;
+    private RemoteControlProperties remoteControl;
+    private MirrorProperties mirror;
+    private LaunchServerRuntimeProperties runtime;
+    private ProtectHandlerProperties protectHandler;
+    private AdvancedProtectHandlerProperties advancedProtectHandler;
+    private JsonTextureProviderProperties jsonTextureProvider;
 
-    private OSSLSignCodeProperties osslSignCodeConfig;
-    private RemoteControlProperties remoteControlConfig;
-    private MirrorProperties mirrorConfig;
-    private LaunchServerRuntimeProperties runtimeConfig;
+    private LocalUpdatesProviderProperties localUpdatesProvider;
 }

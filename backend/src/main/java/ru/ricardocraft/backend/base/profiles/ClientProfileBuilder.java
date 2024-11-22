@@ -2,13 +2,14 @@ package ru.ricardocraft.backend.base.profiles;
 
 import ru.ricardocraft.backend.base.LaunchOptions;
 import ru.ricardocraft.backend.base.profiles.optional.OptionalFile;
+import ru.ricardocraft.backend.dto.updates.*;
 
 import java.util.*;
 
 public class ClientProfileBuilder {
     private String title;
     private UUID uuid;
-    private ClientProfile.Version version;
+    private Version version;
     private String info;
     private String dir;
     private int sortIndex;
@@ -25,13 +26,13 @@ public class ClientProfileBuilder {
     private List<String> compatClasses;
     private List<String> loadNatives;
     private Map<String, String> properties;
-    private List<ClientProfile.ServerProfile> servers;
-    private ClientProfile.ClassLoaderConfig classLoaderConfig;
-    private List<ClientProfile.CompatibilityFlags> flags;
+    private List<ServerProfile> servers;
+    private ClassLoaderConfig classLoaderConfig;
+    private List<CompatibilityFlags> flags;
     private int recommendJavaVersion;
     private int minJavaVersion;
     private int maxJavaVersion;
-    private ClientProfile.ProfileDefaultSettings settings;
+    private ProfileDefaultSettings settings;
     private boolean limited;
     private String mainClass;
     private String mainModule;
@@ -51,11 +52,11 @@ public class ClientProfileBuilder {
         this.properties = new HashMap<>();
         this.servers = new ArrayList<>();
         this.flags = new ArrayList<>();
-        this.settings = new ClientProfile.ProfileDefaultSettings();
+        this.settings = new ProfileDefaultSettings();
         this.recommendJavaVersion = 21;
         this.minJavaVersion = 17;
         this.maxJavaVersion = 999;
-        this.classLoaderConfig = ClientProfile.ClassLoaderConfig.LAUNCHER;
+        this.classLoaderConfig = ClassLoaderConfig.LAUNCHER;
     }
 
     public ClientProfileBuilder(ClientProfile profile) {
@@ -101,7 +102,7 @@ public class ClientProfileBuilder {
         return this;
     }
 
-    public ClientProfileBuilder setVersion(ClientProfile.Version version) {
+    public ClientProfileBuilder setVersion(Version version) {
         this.version = version;
         return this;
     }
@@ -242,27 +243,27 @@ public class ClientProfileBuilder {
         return this;
     }
 
-    public ClientProfileBuilder setServers(List<ClientProfile.ServerProfile> servers) {
+    public ClientProfileBuilder setServers(List<ServerProfile> servers) {
         this.servers = servers;
         return this;
     }
 
-    public ClientProfileBuilder server(ClientProfile.ServerProfile value) {
+    public ClientProfileBuilder server(ServerProfile value) {
         this.servers.add(value);
         return this;
     }
 
-    public ClientProfileBuilder setClassLoaderConfig(ClientProfile.ClassLoaderConfig classLoaderConfig) {
+    public ClientProfileBuilder setClassLoaderConfig(ClassLoaderConfig classLoaderConfig) {
         this.classLoaderConfig = classLoaderConfig;
         return this;
     }
 
-    public ClientProfileBuilder setFlags(List<ClientProfile.CompatibilityFlags> flags) {
+    public ClientProfileBuilder setFlags(List<CompatibilityFlags> flags) {
         this.flags = flags;
         return this;
     }
 
-    public ClientProfileBuilder flag(ClientProfile.CompatibilityFlags value) {
+    public ClientProfileBuilder flag(CompatibilityFlags value) {
         this.flags.add(value);
         return this;
     }
@@ -282,7 +283,7 @@ public class ClientProfileBuilder {
         return this;
     }
 
-    public ClientProfileBuilder setSettings(ClientProfile.ProfileDefaultSettings settings) {
+    public ClientProfileBuilder setSettings(ProfileDefaultSettings settings) {
         this.settings = settings;
         return this;
     }

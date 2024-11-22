@@ -5,12 +5,12 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.binary.JARLauncherBinary;
+import ru.ricardocraft.backend.binary.JarLauncherBinary;
 import ru.ricardocraft.backend.binary.LauncherBinary;
 import ru.ricardocraft.backend.binary.tasks.SignJarTask;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -22,15 +22,17 @@ public class SignDirCommand extends Command {
 
     private transient final Logger logger = LogManager.getLogger(SignDirCommand.class);
 
-    private transient final LaunchServerConfig config;
-    private transient final LaunchServerDirectories directories;
+    private transient final LaunchServerProperties config;
+    private transient final DirectoriesManager directoriesManager;
     private transient final LauncherBinary launcherBinary;
 
     @Autowired
-    public SignDirCommand(LaunchServerConfig config, LaunchServerDirectories directories, JARLauncherBinary launcherBinary) {
+    public SignDirCommand(LaunchServerProperties config,
+                          DirectoriesManager directoriesManager,
+                          JarLauncherBinary launcherBinary) {
         super();
         this.config = config;
-        this.directories = directories;
+        this.directoriesManager = directoriesManager;
         this.launcherBinary = launcherBinary;
     }
 
@@ -66,9 +68,9 @@ public class SignDirCommand extends Command {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             if (file.toFile().getName().endsWith(".jar")) {
-                Path tmpSign = directories.dir.resolve("build").resolve(file.toFile().getName());
+                Path tmpSign = directoriesManager.getBuildDir().resolve(file.toFile().getName());
                 logger.info("Signing jar {}", file.toString());
-                task.sign(config.sign, file, tmpSign);
+                task.sign(config.getSign(), file, tmpSign);
                 Files.deleteIfExists(file);
                 Files.move(tmpSign, file);
             }

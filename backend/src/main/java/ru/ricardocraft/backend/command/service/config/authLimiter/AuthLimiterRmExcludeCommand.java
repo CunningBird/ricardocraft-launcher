@@ -2,7 +2,7 @@ package ru.ricardocraft.backend.command.service.config.authLimiter;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.base.AuthLimiter;
+import ru.ricardocraft.backend.auth.AuthLimiter;
 import ru.ricardocraft.backend.command.Command;
 
 @Component

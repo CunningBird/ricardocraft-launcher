@@ -1,24 +1,21 @@
 package ru.ricardocraft.backend.manangers;
 
 
-import jakarta.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
-import org.bouncycastle.crypto.util.PrivateKeyFactory;
-import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
 import org.bouncycastle.util.io.pem.PemObject;
-import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.LaunchServer;
-import ru.ricardocraft.backend.base.core.LauncherTrustManager;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.net.URL;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -36,26 +33,19 @@ public class CertificateManager {
 
     public LauncherTrustManager trustManager;
 
-    @PostConstruct
-    public void init() throws IOException {
-        Path dir = IOHelper.WORKING_DIR;
-        try {
-            readTrustStore(dir.resolve("truststore"));
-        } catch (CertificateException e) {
-            throw new IOException(e);
-        }
-        {
-            LauncherTrustManager.CheckClassResult result = checkClass(LaunchServer.class);
-            if (result.type == LauncherTrustManager.CheckClassResultType.SUCCESS) {
-                logger.info("LaunchServer signed by {}", result.endCertificate.getSubjectX500Principal().getName());
-            } else if (result.type == LauncherTrustManager.CheckClassResultType.NOT_SIGNED) {
-                // None
-            } else {
-                if (result.exception != null) {
-                    logger.error(result.exception);
-                }
-                logger.warn("LaunchServer signed incorrectly. Status: {}", result.type.name());
+    @Autowired
+    public CertificateManager(DirectoriesManager directoriesManager) throws CertificateException, IOException {
+        readTrustStore(directoriesManager.getTrustStoreDir());
+        LauncherTrustManager.CheckClassResult result = checkClass(LaunchServer.class);
+        if (result.type == LauncherTrustManager.CheckClassResultType.SUCCESS) {
+            logger.info("LaunchServer signed by {}", result.endCertificate.getSubjectX500Principal().getName());
+        } else if (result.type == LauncherTrustManager.CheckClassResultType.NOT_SIGNED) {
+            // None
+        } else {
+            if (result.exception != null) {
+                logger.error(result.exception);
             }
+            logger.warn("LaunchServer signed incorrectly. Status: {}", result.type.name());
         }
     }
 
@@ -69,17 +59,6 @@ public class CertificateManager {
         }
     }
 
-    public void writePrivateKey(Path file, AsymmetricKeyParameter key) throws IOException {
-        writePrivateKey(IOHelper.newWriter(file), key);
-    }
-
-    public void writePrivateKey(Writer writer, AsymmetricKeyParameter key) throws IOException {
-        PrivateKeyInfo info = PrivateKeyInfoFactory.createPrivateKeyInfo(key);
-        try (PemWriter writer1 = new PemWriter(writer)) {
-            writer1.writeObject(new PemObject("PRIVATE KEY", info.getEncoded()));
-        }
-    }
-
     public void writeCertificate(Path file, X509CertificateHolder holder) throws IOException {
         writeCertificate(IOHelper.newWriter(file), holder);
     }
@@ -88,35 +67,6 @@ public class CertificateManager {
         try (PemWriter writer1 = new PemWriter(writer)) {
             writer1.writeObject(new PemObject("CERTIFICATE", holder.toASN1Structure().getEncoded()));
         }
-    }
-
-    public AsymmetricKeyParameter readPrivateKey(Path file) throws IOException {
-        return readPrivateKey(IOHelper.newReader(file));
-    }
-
-    public AsymmetricKeyParameter readPrivateKey(Reader reader) throws IOException {
-        AsymmetricKeyParameter ret;
-        try (PemReader reader1 = new PemReader(reader)) {
-            byte[] bytes = reader1.readPemObject().getContent();
-            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
-
-                ret = PrivateKeyFactory.createKey(inputStream);
-            }
-        }
-        return ret;
-    }
-
-    public X509CertificateHolder readCertificate(Path file) throws IOException {
-        return readCertificate(IOHelper.newReader(file));
-    }
-
-    public X509CertificateHolder readCertificate(Reader reader) throws IOException {
-        X509CertificateHolder ret;
-        try (PemReader reader1 = new PemReader(reader)) {
-            byte[] bytes = reader1.readPemObject().getContent();
-            ret = new X509CertificateHolder(bytes);
-        }
-        return ret;
     }
 
     public void readTrustStore(Path dir) throws IOException, CertificateException {

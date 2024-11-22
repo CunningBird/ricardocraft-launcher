@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.binary.EXELauncherBinary;
-import ru.ricardocraft.backend.binary.JARLauncherBinary;
+import ru.ricardocraft.backend.binary.JarLauncherBinary;
 import ru.ricardocraft.backend.command.Command;
 
 import java.io.IOException;
@@ -15,11 +15,11 @@ public final class SyncBinariesCommand extends Command {
 
     private transient final Logger logger = LogManager.getLogger(SyncBinariesCommand.class);
 
-    private transient final JARLauncherBinary launcherBinary;
+    private transient final JarLauncherBinary launcherBinary;
     private transient final EXELauncherBinary exeLauncherBinary;
 
     @Autowired
-    public SyncBinariesCommand(JARLauncherBinary launcherBinary, EXELauncherBinary exeLauncherBinary) {
+    public SyncBinariesCommand(JarLauncherBinary launcherBinary, EXELauncherBinary exeLauncherBinary) {
         super();
         this.launcherBinary = launcherBinary;
         this.exeLauncherBinary = exeLauncherBinary;

@@ -2,23 +2,29 @@ package ru.ricardocraft.backend.socket;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.manangers.JacksonManager;
+import ru.ricardocraft.backend.socket.handlers.error.HttpErrorHandler;
+import ru.ricardocraft.backend.socket.handlers.error.HttpOptional;
+import ru.ricardocraft.backend.socket.handlers.error.SimpleError;
+import ru.ricardocraft.backend.socket.handlers.error.SimpleErrorHandler;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Duration;
 
 @Component
 public class HttpRequester {
-    private transient final HttpSender httpSender;
+
+    private final HttpClient client = HttpClient.newBuilder().build();
+
+    private transient final JacksonManager jacksonManager;
 
     @Autowired
-    public HttpRequester(HttpSender httpSender) {
-        this.httpSender = httpSender;
-    }
-
-    public <T> HttpSender.SimpleErrorHandler<T> makeEH(Class<T> clazz) {
-        return new HttpSender.SimpleErrorHandler<>(clazz);
+    public HttpRequester(JacksonManager jacksonManager) {
+        this.jacksonManager = jacksonManager;
     }
 
     public HttpRequest get(String url, String token) {
@@ -38,24 +44,16 @@ public class HttpRequester {
         }
     }
 
-    public <T> HttpSender.HttpOptional<T, SimpleError> send(HttpRequest request, Class<T> clazz) throws IOException {
-        return httpSender.send(request, makeEH(clazz));
+    public <T> HttpOptional<T, SimpleError> send(HttpRequest request, Class<T> clazz) throws IOException {
+        return send(request, new SimpleErrorHandler<>(clazz));
     }
 
-    public static class SimpleError {
-        public String error;
-        public int code;
-
-        public SimpleError(String error) {
-            this.error = error;
-        }
-
-        @Override
-        public String toString() {
-            return "SimpleError{" +
-                    "error='" + error + '\'' +
-                    ", code=" + code +
-                    '}';
+    public <T, E> HttpOptional<T, E> send(HttpRequest request, HttpErrorHandler<T, E> handler) throws IOException {
+        try {
+            var response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            return handler.apply(response, jacksonManager);
+        } catch (InterruptedException e) {
+            throw new IOException(e);
         }
     }
 }

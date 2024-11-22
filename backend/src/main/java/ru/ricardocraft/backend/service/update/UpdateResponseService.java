@@ -8,10 +8,11 @@ import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
 import ru.ricardocraft.backend.base.core.hasher.HashedDir;
 import ru.ricardocraft.backend.base.events.request.UpdateRequestEvent;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.dto.SimpleResponse;
-import ru.ricardocraft.backend.dto.update.UpdateResponse;
+import ru.ricardocraft.backend.dto.socket.SimpleResponse;
+import ru.ricardocraft.backend.dto.socket.update.UpdateResponse;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.NettyProperties;
+import ru.ricardocraft.backend.properties.netty.NettyUpdatesBindProperties;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
@@ -19,17 +20,17 @@ import ru.ricardocraft.backend.socket.WebSocketService;
 @Component
 public class UpdateResponseService extends AbstractResponseService {
 
-    private final LaunchServerConfig config;
+    private final NettyProperties nettyProperties;
     private final ProtectHandler protectHandler;
     private final UpdatesManager updatesManager;
 
     @Autowired
     public UpdateResponseService(WebSocketService service,
-                                 LaunchServerConfig config,
+                                 NettyProperties nettyProperties,
                                  ProtectHandler protectHandler,
                                  UpdatesManager updatesManager) {
         super(UpdateResponse.class, service);
-        this.config = config;
+        this.nettyProperties = nettyProperties;
         this.protectHandler = protectHandler;
         this.updatesManager = updatesManager;
     }
@@ -51,12 +52,12 @@ public class UpdateResponseService extends AbstractResponseService {
             sendError(ctx, "Directory %s not found".formatted(response.dirName), response.requestUUID);
             return;
         }
-        String url = config.netty.downloadURL.replace("%dirname%", IOHelper.urlEncode(response.dirName));
+        String url = nettyProperties.getDownloadURL().replace("%dirname%", IOHelper.urlEncode(response.dirName));
         boolean zip = false;
-        if (config.netty.bindings.get(response.dirName) != null) {
-            LaunchServerConfig.NettyUpdatesBind bind = config.netty.bindings.get(response.dirName);
-            url = bind.url;
-            zip = bind.zip;
+        if (nettyProperties.getBindings().get(response.dirName) != null) {
+            NettyUpdatesBindProperties bind = nettyProperties.getBindings().get(response.dirName);
+            url = bind.getUrl();
+            zip = bind.getZip();
         }
         sendResult(ctx, new UpdateRequestEvent(dir, url, zip), response.requestUUID);
     }

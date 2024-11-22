@@ -4,7 +4,8 @@ import ru.ricardocraft.backend.base.LaunchOptions;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.profiles.ClientProfileBuilder;
-import ru.ricardocraft.backend.base.utils.ClientToolkit;
+import ru.ricardocraft.backend.dto.updates.ClassLoaderConfig;
+import ru.ricardocraft.backend.dto.updates.CompatibilityFlags;
 import ru.ricardocraft.backend.manangers.JacksonManager;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ public class ForgeProfileModifier {
     private static List<String> prevArgsList = List.of("-p", "--add-modules", "--add-opens", "--add-exports");
 
     public ForgeProfileModifier(Path forgeProfilePath, ClientProfile profile, Path clientDir, JacksonManager jacksonManager) {
-        try(Reader reader = IOHelper.newReader(forgeProfilePath)) {
+        try (Reader reader = IOHelper.newReader(forgeProfilePath)) {
             this.forgeProfile = jacksonManager.getMapper().readValue(reader, ForgeProfile.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -35,8 +36,8 @@ public class ForgeProfileModifier {
     }
 
     public boolean containsInExclusionList(String value) {
-        for(var e : exclusionList) {
-            if(value.contains(e)) {
+        for (var e : exclusionList) {
+            if (value.contains(e)) {
                 return true;
             }
         }
@@ -45,27 +46,27 @@ public class ForgeProfileModifier {
 
     public ClientProfile build() throws IOException {
         ClientProfileBuilder builder = new ClientProfileBuilder(profile);
-        builder.setMainClass(forgeProfile.mainClass());
+        builder.setMainClass(forgeProfile.getMainClass());
         List<String> cp = new ArrayList<>(32);
         Path librariesPath = clientDir.resolve("libraries");
-        try(Stream<Path> stream = Files.walk(librariesPath)) {
+        try (Stream<Path> stream = Files.walk(librariesPath)) {
             cp.addAll(stream
                     .filter(e -> e.getFileName().toString().endsWith(".jar"))
                     .map(e -> clientDir.relativize(e).toString())
                     .filter(e -> !containsInExclusionList(e)).toList());
         }
         builder.setClassPath(cp);
-        builder.setClassLoaderConfig(ClientProfile.ClassLoaderConfig.LAUNCHER);
-        builder.setFlags(List.of(ClientProfile.CompatibilityFlags.ENABLE_HACKS));
+        builder.setClassLoaderConfig(ClassLoaderConfig.LAUNCHER);
+        builder.setFlags(List.of(CompatibilityFlags.ENABLE_HACKS));
         LaunchOptions.ModuleConf conf = new LaunchOptions.ModuleConf();
-        List<String> jvmArgs = new ArrayList<>(forgeProfile.arguments().jvm().stream().map(this::processPlaceholders).toList());
+        List<String> jvmArgs = new ArrayList<>(forgeProfile.getArguments().getJvm().stream().map(this::processPlaceholders).toList());
         AtomicReference<String> prevArg = new AtomicReference<>();
         jvmArgs.removeIf(arg -> {
-            if(prevArgsList.contains(arg)) {
+            if (prevArgsList.contains(arg)) {
                 prevArg.set(arg);
                 return true;
             }
-            if(prevArg.get() != null) {
+            if (prevArg.get() != null) {
                 processArg(prevArg.get(), arg, conf);
                 prevArg.set(null);
                 return true;
@@ -75,7 +76,7 @@ public class ForgeProfileModifier {
         jvmArgs.add("--add-opens");
         jvmArgs.add("java.base/java.lang.invoke=ALL-UNNAMED");
         builder.setJvmArgs(jvmArgs);
-        builder.setClientArgs(new ArrayList<>(forgeProfile.arguments().game()));
+        builder.setClientArgs(new ArrayList<>(forgeProfile.getArguments().getGame()));
 //        List<String> compatClasses = new ArrayList<>();
 //        for(var e : cp) {
 //            if(e.toLowerCase().contains("filesystemfixer")) {
@@ -90,12 +91,12 @@ public class ForgeProfileModifier {
 
     public ClientProfile buildCleanRoom() {
         ClientProfileBuilder builder = new ClientProfileBuilder(profile);
-        builder.setMainClass(forgeProfile.mainClass());
-        builder.setClassLoaderConfig(ClientProfile.ClassLoaderConfig.LAUNCHER);
+        builder.setMainClass(forgeProfile.getMainClass());
+        builder.setClassLoaderConfig(ClassLoaderConfig.LAUNCHER);
 
         List<String> clientArgs = new ArrayList<>();
-        clientArgs.addAll(ClientToolkit.findValuesForKey(forgeProfile.minecraftArguments(), "tweakClass"));
-        clientArgs.addAll(ClientToolkit.findValuesForKey(forgeProfile.minecraftArguments(), "versionType"));
+        clientArgs.addAll(ClientToolkit.findValuesForKey(forgeProfile.getMinecraftArguments(), "tweakClass"));
+        clientArgs.addAll(ClientToolkit.findValuesForKey(forgeProfile.getMinecraftArguments(), "versionType"));
         builder.setClientArgs(clientArgs);
         builder.setRecommendJavaVersion(21);
         builder.setMinJavaVersion(21);
@@ -107,31 +108,30 @@ public class ForgeProfileModifier {
     }
 
     private void processArg(String key, String value, LaunchOptions.ModuleConf conf) {
-        if(key.equals("-p")) {
+        if (key.equals("-p")) {
             String[] splited = value.split("\\$\\{classpath_separator}");
             conf.modulePath = new ArrayList<>(List.of(splited));
             return;
         }
-        if(key.equals("--add-modules")) {
+        if (key.equals("--add-modules")) {
             String[] splited = value.split(",");
             conf.modules = new ArrayList<>(List.of(splited));
             return;
         }
-        if(key.equals("--add-opens")) {
+        if (key.equals("--add-opens")) {
             String[] splited = value.split("=");
-            if(conf.opens == null) {
+            if (conf.opens == null) {
                 conf.opens = new HashMap<>();
             }
             conf.opens.put(splited[0], splited[1]);
             return;
         }
-        if(key.equals("--add-exports")) {
+        if (key.equals("--add-exports")) {
             String[] splited = value.split("=");
-            if(conf.exports == null) {
+            if (conf.exports == null) {
                 conf.exports = new HashMap<>();
             }
             conf.exports.put(splited[0], splited[1]);
-            return;
         }
     }
 }

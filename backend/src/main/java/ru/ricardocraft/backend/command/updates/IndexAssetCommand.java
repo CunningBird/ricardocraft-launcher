@@ -10,9 +10,9 @@ import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper.DigestAlgorithm;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.CommandException;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -29,7 +29,7 @@ public final class IndexAssetCommand extends Command {
 
     private transient final Logger logger = LogManager.getLogger(IndexAssetCommand.class);
 
-    private transient final LaunchServerDirectories directories;
+    private transient final DirectoriesManager directoriesManager;
     private transient final UpdatesManager updatesManager;
     private transient final JacksonManager jacksonManager;
 
@@ -38,11 +38,11 @@ public final class IndexAssetCommand extends Command {
     private static final String JSON_EXTENSION = ".json";
 
     @Autowired
-    public IndexAssetCommand(LaunchServerDirectories directories,
+    public IndexAssetCommand(DirectoriesManager directoriesManager,
                              UpdatesManager updatesManager,
                              JacksonManager jacksonManager) {
         super();
-        this.directories = directories;
+        this.directoriesManager = directoriesManager;
         this.updatesManager = updatesManager;
         this.jacksonManager = jacksonManager;
     }
@@ -71,8 +71,8 @@ public final class IndexAssetCommand extends Command {
         String inputAssetDirName = IOHelper.verifyFileName(args[0]);
         String indexFileName = IOHelper.verifyFileName(args[1]);
         String outputAssetDirName = IOHelper.verifyFileName(args[2]);
-        Path inputAssetDir = directories.updatesDir.resolve(inputAssetDirName);
-        Path outputAssetDir = directories.updatesDir.resolve(outputAssetDirName);
+        Path inputAssetDir = directoriesManager.getUpdatesDir().resolve(inputAssetDirName);
+        Path outputAssetDir = directoriesManager.getUpdatesDir().resolve(outputAssetDirName);
         if (outputAssetDir.equals(inputAssetDir))
             throw new CommandException("Unindexed and indexed asset dirs can't be same");
 

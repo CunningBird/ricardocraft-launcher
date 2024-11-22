@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
 import java.nio.ByteBuffer;
@@ -18,12 +17,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.HexFormat;
 import java.util.Set;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.Deflater;
-import java.util.zip.Inflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -31,14 +26,8 @@ public final class IOHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(IOHelper.class);
 
-    public static final long MB32 = 1 << 25;
     public static final Charset UNICODE_CHARSET = StandardCharsets.UTF_8;
     public static final Charset ASCII_CHARSET = StandardCharsets.US_ASCII;
-    public static final int MAX_BATCH_SIZE = 128;
-    // Charset
-    public static final int SOCKET_TIMEOUT = VerifyHelper.verifyInt(
-            Integer.parseUnsignedInt(System.getProperty("launcher.socketTimeout", Integer.toString(30000))),
-            VerifyHelper.POSITIVE, "launcher.socketTimeout can't be <= 0");
     public static final int HTTP_TIMEOUT = VerifyHelper.verifyInt(
             Integer.parseUnsignedInt(System.getProperty("launcher.httpTimeout", Integer.toString(5000))),
             VerifyHelper.POSITIVE, "launcher.httpTimeout can't be <= 0");
@@ -51,10 +40,7 @@ public final class IOHelper {
     // Platform-dependent
     public static final String PLATFORM_SEPARATOR = FS.getSeparator();
     private static final Pattern PLATFORM_SEPARATOR_PATTERN = Pattern.compile(PLATFORM_SEPARATOR, Pattern.LITERAL);
-    public static final boolean POSIX = FS.supportedFileAttributeViews().contains("posix") || FS.supportedFileAttributeViews().contains("Posix");
     public static final Path JVM_DIR = Paths.get(System.getProperty("java.home"));
-    public static final Path HOME_DIR = Paths.get(System.getProperty("user.home"));
-    public static final Path WORKING_DIR = Paths.get(System.getProperty("user.dir"));
     public static final String USER_AGENT = System.getProperty("launcher.userAgentDefault", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
     // Open options - as arrays
     private static final OpenOption[] READ_OPTIONS = {StandardOpenOption.READ};
@@ -90,23 +76,6 @@ public final class IOHelper {
             out.flush();
             out.close();
         } catch (Exception ignored) {
-        }
-    }
-
-    public static Manifest getManifest(Class<?> clazz) {
-        Path path = getCodeSource(clazz);
-        try(JarFile jar = new JarFile(path.toFile())) {
-            return jar.getManifest();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public static URL convertToURL(String url) {
-        try {
-            return new URI(url).toURL();
-        } catch (MalformedURLException | URISyntaxException e) {
-            throw new IllegalArgumentException("Invalid URL", e);
         }
     }
 
@@ -157,29 +126,11 @@ public final class IOHelper {
         return ((InetSocketAddress) address).getAddress().getHostAddress();
     }
 
-    public static Path getRoot() {
-        return switch (JVMHelper.OS_TYPE) {
-            case MUSTDIE -> {
-                String drive = System.getenv("SystemDrive").concat("\\");
-                yield Paths.get(drive);
-            }
-            case LINUX, MACOSX -> Paths.get("/");
-        };
-    }
-
-    public static byte[] getResourceBytes(String name) throws IOException {
-        return read(getResourceURL(name));
-    }
-
     public static URL getResourceURL(String name) throws NoSuchFileException {
         URL url = IOHelper.class.getResource('/' + name);
         if (url == null)
             throw new NoSuchFileException(name);
         return url;
-    }
-
-    public static boolean hasExtension(Path file, String extension) {
-        return getFileName(file).endsWith('.' + extension);
     }
 
     public static boolean isDir(Path path) {
@@ -227,10 +178,6 @@ public final class IOHelper {
         return new ByteArrayOutputStream();
     }
 
-    public static char[] newCharBuffer() {
-        return new char[BUFFER_SIZE];
-    }
-
     public static URLConnection newConnection(URL url) throws IOException {
         URLConnection connection = url.openConnection();
         if (connection instanceof HttpURLConnection) {
@@ -244,45 +191,16 @@ public final class IOHelper {
         return connection;
     }
 
-    public static HttpURLConnection newConnectionPost(URL url) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) newConnection(url);
-        connection.setDoOutput(true);
-        connection.setRequestMethod("POST");
-        return connection;
-    }
-
-    public static Deflater newDeflater() {
-        Deflater deflater = new Deflater(Deflater.DEFAULT_COMPRESSION, true);
-        deflater.setStrategy(Deflater.DEFAULT_STRATEGY);
-        return deflater;
-    }
-
-    public static Inflater newInflater() {
-        return new Inflater(true);
-    }
-
     public static InputStream newInput(Path file) throws IOException {
         return Files.newInputStream(file, READ_OPTIONS);
-    }
-
-    public static InputStream newBufferedInput(Path file) throws IOException {
-        return new BufferedInputStream(Files.newInputStream(file, READ_OPTIONS));
     }
 
     public static InputStream newInput(URL url) throws IOException {
         return newConnection(url).getInputStream();
     }
 
-    public static BufferedInputStream newBufferedInput(URL url) throws IOException {
-        return new BufferedInputStream(newConnection(url).getInputStream());
-    }
-
     public static OutputStream newOutput(Path file) throws IOException {
         return newOutput(file, false);
-    }
-
-    public static OutputStream newBufferedOutput(Path file) throws IOException {
-        return newBufferedOutput(file, false);
     }
 
     public static OutputStream newOutput(Path file, boolean append) throws IOException {
@@ -290,41 +208,8 @@ public final class IOHelper {
         return Files.newOutputStream(file, append ? APPEND_OPTIONS : WRITE_OPTIONS);
     }
 
-    public static OutputStream newBufferedOutput(Path file, boolean append) throws IOException {
-        createParentDirs(file);
-        return new BufferedOutputStream(Files.newOutputStream(file, append ? APPEND_OPTIONS : WRITE_OPTIONS));
-    }
-
-    public static BufferedReader newReader(InputStream input) {
-        return newReader(input, UNICODE_CHARSET);
-    }
-
-    public static BufferedReader newReader(InputStream input, Charset charset) {
-        return new BufferedReader(new InputStreamReader(input, charset));
-    }
-
     public static BufferedReader newReader(Path file) throws IOException {
         return Files.newBufferedReader(file, UNICODE_CHARSET);
-    }
-
-    public static BufferedReader newReader(URL url) throws IOException {
-        URLConnection connection = newConnection(url);
-        String charset = connection.getContentEncoding();
-        return newReader(connection.getInputStream(), charset == null ? UNICODE_CHARSET : Charset.forName(charset));
-    }
-
-    public static Socket newSocket() throws SocketException {
-        Socket socket = new Socket();
-        setSocketFlags(socket);
-        return socket;
-    }
-
-    public static BufferedWriter newWriter(FileDescriptor fd) {
-        return newWriter(new FileOutputStream(fd));
-    }
-
-    public static BufferedWriter newWriter(OutputStream output) {
-        return new BufferedWriter(new OutputStreamWriter(output, UNICODE_CHARSET));
     }
 
     public static BufferedWriter newWriter(Path file) throws IOException {
@@ -428,23 +313,6 @@ public final class IOHelper {
         return address;
     }
 
-    public static Path resolveIncremental(Path dir, String name, String extension) {
-        Path original = dir.resolve(name + '.' + extension);
-        if (!exists(original))
-            return original;
-
-        // Incremental resolve
-        int counter = 1;
-        while (true) {
-            Path path = dir.resolve(String.format("%s (%d).%s", name, counter, extension));
-            if (exists(path)) {
-                counter++;
-                continue;
-            }
-            return path;
-        }
-    }
-
     public static Path resolveJavaBin(Path javaDir) {
         return resolveJavaBin(javaDir, false);
     }
@@ -474,36 +342,6 @@ public final class IOHelper {
         throw new RuntimeException("Java binary wasn't found");
     }
 
-    public static void setSocketFlags(Socket socket) throws SocketException {
-        // Set socket flags
-        socket.setKeepAlive(false);
-        socket.setTcpNoDelay(false);
-        socket.setReuseAddress(true);
-
-        // Set socket options
-        socket.setSoTimeout(SOCKET_TIMEOUT);
-        try {
-            socket.setTrafficClass(0b11100);
-        } catch (SocketException ignored) {
-            // Windows XP has no support for that
-        }
-        socket.setPerformancePreferences(1, 0, 2);
-    }
-
-    public static String toAbsPathString(Path path) {
-        return toAbsPath(path).toFile().getAbsolutePath();
-    }
-
-    public static Path toAbsPath(Path path) {
-        return path.normalize().toAbsolutePath();
-    }
-
-    public static byte[] toByteArray(InputStream in) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(in.available());
-        IOHelper.transfer(in, out);
-        return out.toByteArray();
-    }
-
     public static Path toPath(String path) {
         return Paths.get(CROSS_SEPARATOR_PATTERN.matcher(path).replaceAll(Matcher.quoteReplacement(PLATFORM_SEPARATOR)));
     }
@@ -517,14 +355,6 @@ public final class IOHelper {
             return url.toURI();
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(e);
-        }
-    }
-
-    public static URL toURL(Path path) {
-        try {
-            return path.toUri().toURL();
-        } catch (MalformedURLException e) {
-            throw new InternalError(e);
         }
     }
 
@@ -558,10 +388,6 @@ public final class IOHelper {
         try (InputStream input = newInput(file)) {
             transfer(input, output);
         }
-    }
-
-    public static String urlDecode(String s) {
-        return URLDecoder.decode(s, UNICODE_CHARSET);
     }
 
     public static String urlEncode(String s) {
@@ -606,11 +432,6 @@ public final class IOHelper {
         return length;
     }
 
-    public static BufferedImage verifyTexture(BufferedImage skin, boolean cloak) {
-        return VerifyHelper.verify(skin, i -> isValidTextureBounds(i.getWidth(), i.getHeight(), cloak),
-                String.format("Invalid texture bounds: %dx%d", skin.getWidth(), skin.getHeight()));
-    }
-
     public static String verifyURL(String url) {
         try {
             new URI(url);
@@ -627,29 +448,6 @@ public final class IOHelper {
     public static void write(Path file, byte[] bytes) throws IOException {
         createParentDirs(file);
         Files.write(file, bytes, WRITE_OPTIONS);
-    }
-
-    public static InputStream nonClosing(InputStream in) {
-        return new FilterInputStream(in) {
-            @Override
-            public void close() {
-                // ignore
-            }
-        };
-    }
-
-    public static OutputStream nonClosing(OutputStream out) {
-        return new FilterOutputStream(out) {
-            @Override
-            public void write(byte[] b, int offset, int len) throws IOException {
-                super.out.write(b, offset, len);
-            }
-
-            @Override
-            public void close() {
-                // ignore
-            }
-        };
     }
 
     private static class MoveFileVisitor implements FileVisitor<Path> {

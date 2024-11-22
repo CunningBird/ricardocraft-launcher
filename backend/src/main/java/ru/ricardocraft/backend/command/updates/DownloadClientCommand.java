@@ -13,10 +13,12 @@ import ru.ricardocraft.backend.base.profiles.ClientProfileBuilder;
 import ru.ricardocraft.backend.base.profiles.ClientProfileVersions;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.CommandException;
+import ru.ricardocraft.backend.dto.updates.ServerProfile;
+import ru.ricardocraft.backend.dto.updates.Version;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -28,20 +30,20 @@ public final class DownloadClientCommand extends Command {
 
     private transient final Logger logger = LogManager.getLogger(DownloadClientCommand.class);
 
-    private transient final LaunchServerDirectories directories;
+    private transient final DirectoriesManager directoriesManager;
     private transient final MirrorManager mirrorManager;
     private transient final UpdatesManager updatesManager;
     private transient final ProfileProvider profileProvider;
     private transient final JacksonManager jacksonManager;
 
     @Autowired
-    public DownloadClientCommand(LaunchServerDirectories directories,
+    public DownloadClientCommand(DirectoriesManager directoriesManager,
                                  MirrorManager mirrorManager,
                                  UpdatesManager updatesManager,
                                  ProfileProvider profileProvider,
                                  JacksonManager jacksonManager) {
         super();
-        this.directories = directories;
+        this.directoriesManager = directoriesManager;
         this.mirrorManager = mirrorManager;
         this.updatesManager = updatesManager;
         this.profileProvider = profileProvider;
@@ -64,7 +66,7 @@ public final class DownloadClientCommand extends Command {
         //Version version = Version.byName(args[0]);
         String versionName = args[0];
         String dirName = IOHelper.verifyFileName(args[1] != null ? args[1] : args[0]);
-        Path clientDir = directories.updatesDir.resolve(dirName);
+        Path clientDir = directoriesManager.getUpdatesDir().resolve(dirName);
 
         boolean isMirrorClientDownload = false;
         if (args.length > 2) {
@@ -89,7 +91,7 @@ public final class DownloadClientCommand extends Command {
                 builder.setUuid(UUID.randomUUID());
                 clientProfile = builder.createClientProfile();
                 if (clientProfile.getServers() != null) {
-                    ClientProfile.ServerProfile serverProfile = clientProfile.getDefaultServerProfile();
+                    ServerProfile serverProfile = clientProfile.getDefaultServerProfile();
                     if (serverProfile != null) {
                         serverProfile.name = dirName;
                     }
@@ -105,7 +107,7 @@ public final class DownloadClientCommand extends Command {
                 if (internalVersion.contains("-")) {
                     internalVersion = internalVersion.substring(0, versionName.indexOf('-'));
                 }
-                ClientProfile.Version version = ClientProfile.Version.of(internalVersion);
+                Version version = Version.of(internalVersion);
                 if (version.compareTo(ClientProfileVersions.MINECRAFT_1_7_10) <= 0) {
                     logger.warn("Minecraft 1.7.9 and below not supported. Use at your own risk");
                 }

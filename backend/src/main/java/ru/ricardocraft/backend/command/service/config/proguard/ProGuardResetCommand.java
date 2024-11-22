@@ -2,8 +2,8 @@ package ru.ricardocraft.backend.command.service.config.proguard;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.base.ProGuard;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.properties.config.ProguardConfig;
 
 import java.nio.file.Files;
 
@@ -11,7 +11,7 @@ import java.nio.file.Files;
 @RequiredArgsConstructor
 public class ProGuardResetCommand extends Command {
 
-    private final ProGuard proGuard;
+    private final ProguardConfig proguardConfig;
 
     @Override
     public String getArgsDescription() {
@@ -25,7 +25,7 @@ public class ProGuardResetCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        proGuard.getProguardConf().prepare(true);
-        Files.deleteIfExists(proGuard.getProguardConf().mappings);
+        proguardConfig.prepare(true);
+        Files.deleteIfExists(proguardConfig.mappings);
     }
 }

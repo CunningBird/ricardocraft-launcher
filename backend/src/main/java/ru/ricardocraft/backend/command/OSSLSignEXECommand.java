@@ -3,7 +3,7 @@ package ru.ricardocraft.backend.command;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.binary.tasks.OSSLSignTask;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,10 +11,10 @@ import java.nio.file.Paths;
 @Component
 public class OSSLSignEXECommand extends Command {
 
-    public final LaunchServerConfig config;
+    public final LaunchServerProperties config;
 
     @Autowired
-    public OSSLSignEXECommand(CommandHandler commandHandler, LaunchServerConfig config) {
+    public OSSLSignEXECommand(CommandHandler commandHandler, LaunchServerProperties config) {
         super();
         this.config = config;
 
@@ -36,6 +36,6 @@ public class OSSLSignEXECommand extends Command {
         verifyArgs(args, 2);
         Path inputPath = Paths.get(args[0]);
         Path outputPath = Paths.get(args[1]);
-        OSSLSignTask.signLaunch4j(config.sign.osslSignCodeConfig, config.sign, inputPath, outputPath);
+        OSSLSignTask.signLaunch4j(config.getOsslSignCode(), config.getSign(), inputPath, outputPath);
     }
 }

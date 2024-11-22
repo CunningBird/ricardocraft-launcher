@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,12 +25,12 @@ public class PatchAuthlibCommand extends Command {
 
     private static final Logger logger = LogManager.getLogger(PatchAuthlibCommand.class);
 
-    private transient final LaunchServerDirectories directories;
+    private transient final DirectoriesManager directoriesManager;
 
     @Autowired
-    public PatchAuthlibCommand(LaunchServerDirectories directories) {
+    public PatchAuthlibCommand(DirectoriesManager directoriesManager) {
         super();
-        this.directories = directories;
+        this.directoriesManager = directoriesManager;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class PatchAuthlibCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 2);
-        Path dir = directories.updatesDir.resolve(args[0]);
+        Path dir = directoriesManager.getUpdatesDir().resolve(args[0]);
         Path originalAuthlib;
         if (Files.isDirectory(dir)) {
             Optional<Path> authlibDir = Files.list(dir.resolve("libraries/com/mojang/authlib")).findFirst();
@@ -65,7 +65,7 @@ public class PatchAuthlibCommand extends Command {
         if (Files.notExists(launcherAuthlib)) {
             throw new FileNotFoundException(launcherAuthlib.toString());
         }
-        Path mergedFile = directories.tmpDir.resolve("merged.jar");
+        Path mergedFile = directoriesManager.getTmpDir().resolve("merged.jar");
         logger.info("Merge {} and {} into {}", launcherAuthlib, originalAuthlib, mergedFile);
         try (ZipOutputStream output = new ZipOutputStream(new FileOutputStream(mergedFile.toFile()))) {
             Set<String> files = new HashSet<>();

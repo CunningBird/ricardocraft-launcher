@@ -9,8 +9,8 @@ import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.base.profiles.ClientProfileBuilder;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,16 +23,16 @@ import java.util.stream.Stream;
 public class CloneProfileCommand extends Command {
     private final Logger logger = LogManager.getLogger(CloneProfileCommand.class);
 
-    private transient final LaunchServerDirectories directories;
+    private transient final DirectoriesManager directoriesManager;
     private transient final ProfileProvider profileProvider;
     private transient final UpdatesManager updatesManager;
 
     @Autowired
-    public CloneProfileCommand(LaunchServerDirectories directories,
+    public CloneProfileCommand(DirectoriesManager directoriesManager,
                                ProfileProvider profileProvider,
                                UpdatesManager updatesManager) {
         super();
-        this.directories = directories;
+        this.directoriesManager = directoriesManager;
         this.profileProvider = profileProvider;
         this.updatesManager = updatesManager;
     }
@@ -64,8 +64,8 @@ public class CloneProfileCommand extends Command {
             profile.getServers().getFirst().name = args[1];
         }
         logger.info("Copy {} to {}", profile.getDir(), args[1]);
-        var src = directories.updatesDir.resolve(profile.getDir());
-        var dest = directories.updatesDir.resolve(args[1]);
+        var src = directoriesManager.getUpdatesDir().resolve(profile.getDir());
+        var dest = directoriesManager.getUpdatesDir().resolve(args[1]);
         try (Stream<Path> stream = Files.walk(src)) {
             stream.forEach(source -> {
                 try {

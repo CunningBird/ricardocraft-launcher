@@ -3,8 +3,9 @@ package ru.ricardocraft.backend.manangers.mirror.modapi;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.base.utils.Version;
-import ru.ricardocraft.backend.socket.HttpSender;
+import ru.ricardocraft.backend.base.Version;
+import ru.ricardocraft.backend.socket.HttpRequester;
+import ru.ricardocraft.backend.socket.handlers.error.ModrinthErrorHandler;
 
 import java.io.IOException;
 import java.net.URI;
@@ -17,21 +18,22 @@ public class ModrinthAPI {
     private static final String BASE_URL = "https://api.modrinth.com/v2/";
     private static final String userAgent = "GravitLauncher/%s MirrorHelper/%s".formatted(Version.getVersion().getVersionString(), "1.0.0");
 
-    public final HttpSender sender;
+    public final HttpRequester requester;
 
     @Autowired
-    public ModrinthAPI(HttpSender sender) {
-        this.sender = sender;
+    public ModrinthAPI(HttpRequester requester) {
+        this.requester = requester;
     }
 
     @SuppressWarnings("unchecked")
     public List<ModVersionData> getMod(String slug) throws IOException {
-        TypeToken<List<ModVersionData>> typeToken = new TypeToken<>() {};
-        return (List<ModVersionData>) sender.send(HttpRequest.newBuilder()
+        TypeToken<List<ModVersionData>> typeToken = new TypeToken<>() {
+        };
+        return (List<ModVersionData>) requester.send(HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(BASE_URL.concat("project/%s/version".formatted(slug))))
                 .header("User-Agent", userAgent)
-                .build(), new HttpSender.ModrinthErrorHandler<>(typeToken.getClass())).getOrThrow();
+                .build(), new ModrinthErrorHandler<>(typeToken.getClass())).getOrThrow();
     }
 
     public ModVersionData getModByGameVersion(List<ModVersionData> list, String gameVersion, String loader) {

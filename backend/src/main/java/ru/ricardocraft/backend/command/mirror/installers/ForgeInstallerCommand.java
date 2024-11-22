@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.*;
 import java.net.URI;
@@ -25,13 +25,13 @@ public class ForgeInstallerCommand extends Command {
 
     private transient final Logger logger = LogManager.getLogger(ForgeInstallerCommand.class);
 
-    private transient final LaunchServerDirectories directories;
+    private transient final DirectoriesManager directoriesManager;
     private transient final JacksonManager jacksonManager;
 
     @Autowired
-    public ForgeInstallerCommand(LaunchServerDirectories directories, JacksonManager jacksonManager) {
+    public ForgeInstallerCommand(DirectoriesManager directoriesManager, JacksonManager jacksonManager) {
         super();
-        this.directories = directories;
+        this.directoriesManager = directoriesManager;
         this.jacksonManager = jacksonManager;
     }
 
@@ -48,7 +48,7 @@ public class ForgeInstallerCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 2);
-        Path dir = directories.updatesDir.resolve(args[0]);
+        Path dir = directoriesManager.getUpdatesDir().resolve(args[0]);
         if (!Files.exists(dir)) {
             throw new FileNotFoundException(dir.toString());
         }

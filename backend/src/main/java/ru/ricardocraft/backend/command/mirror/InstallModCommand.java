@@ -1,18 +1,14 @@
 package ru.ricardocraft.backend.command.mirror;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.CommandException;
-import ru.ricardocraft.backend.manangers.JacksonManager;
+import ru.ricardocraft.backend.dto.updates.Version;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.mirror.InstallClient;
-import ru.ricardocraft.backend.manangers.mirror.modapi.CurseforgeAPI;
-import ru.ricardocraft.backend.manangers.mirror.modapi.ModrinthAPI;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
@@ -25,21 +21,14 @@ public class InstallModCommand extends Command {
 
     private static final Logger logger = LogManager.getLogger(InstallModCommand.class);
 
-    private final LaunchServerDirectories directories;
-    private final ModrinthAPI modrinthAPI;
-    private final CurseforgeAPI curseforgeApi;
-    private final JacksonManager jacksonManager;
+    private final InstallClient installClient;
+    private final DirectoriesManager directoriesManager;
 
     @Autowired
-    public InstallModCommand(LaunchServerDirectories directories,
-                             CurseforgeAPI curseforgeAPI,
-                             ModrinthAPI modrinthAPI,
-                             JacksonManager jacksonManager) {
+    public InstallModCommand(InstallClient installClient, DirectoriesManager directoriesManager) {
         super();
-        this.directories = directories;
-        this.curseforgeApi = curseforgeAPI;
-        this.modrinthAPI = modrinthAPI;
-        this.jacksonManager = jacksonManager;
+        this.installClient = installClient;
+        this.directoriesManager = directoriesManager;
     }
 
     @Override
@@ -55,11 +44,11 @@ public class InstallModCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 4);
-        Path dir = directories.updatesDir.resolve(args[0]);
+        Path dir = directoriesManager.getUpdatesDir().resolve(args[0]);
         if (Files.notExists(dir)) {
             throw new FileNotFoundException(dir.toString());
         }
-        ClientProfile.Version version = parseClientVersion(args[1]);
+        Version version = parseClientVersion(args[1]);
         Path modsDir = dir.resolve("mods");
         String loaderName = args[2];
         List<String> mods = Arrays.stream(args[3].split(",")).toList();
@@ -68,11 +57,11 @@ public class InstallModCommand extends Command {
                 try {
                     try {
                         long id = Long.parseLong(modId);
-                        InstallClient.installMod(curseforgeApi, modsDir, id, version);
+                        installClient.installMod(modsDir, id, version);
                         continue;
                     } catch (NumberFormatException ignored) {
                     }
-                    InstallClient.installMod(modrinthAPI, modsDir, modId, loaderName, version);
+                    installClient.installMod(modsDir, modId, loaderName, version);
                 } catch (Throwable e) {
                     logger.warn("Mod {} not installed! Exception {}", modId, e);
                 }
@@ -81,10 +70,8 @@ public class InstallModCommand extends Command {
         }
     }
 
-    protected ClientProfile.Version parseClientVersion(String arg) throws CommandException, JsonProcessingException {
-        if(arg.isEmpty()) {
-            throw new CommandException("ClientVersion can't be empty");
-        }
-        return jacksonManager.getMapper().readValue(arg, ClientProfile.Version.class);
+    protected Version parseClientVersion(String arg) throws CommandException {
+        if (arg.isEmpty()) throw new CommandException("ClientVersion can't be empty");
+        return Version.of(arg);
     }
 }

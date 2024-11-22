@@ -2,7 +2,7 @@ package ru.ricardocraft.backend.base.events.request;
 
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.base.events.RequestEvent;
-import ru.ricardocraft.backend.base.utils.TypeSerializeInterface;
+import ru.ricardocraft.backend.base.request.TypeSerializeInterface;
 
 import java.util.List;
 import java.util.Set;

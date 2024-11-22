@@ -7,11 +7,11 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.manangers.mirror.WorkspaceTools;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.command.mirror.LwjglDownloadCommand;
+import ru.ricardocraft.backend.manangers.mirror.Mirror;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.http.HttpClient;
@@ -19,8 +19,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -29,36 +30,31 @@ public class MirrorManager {
 
     private transient final Logger logger = LogManager.getLogger(MirrorManager.class);
 
-    protected final ArrayList<Mirror> list = new ArrayList<>();
     private transient final HttpClient client = HttpClient.newBuilder().build();
+
     @Getter
-    private Mirror defaultMirror;
-    @Getter
-    private final WorkspaceTools tools;
+    private transient final Mirror defaultMirror;
+    private transient final List<Mirror> list;
 
     private transient final JacksonManager jacksonManager;
 
     @Autowired
-    public MirrorManager(LaunchServerConfig config, WorkspaceTools tools, JacksonManager jacksonManager) {
-        this.tools = tools;
+    public MirrorManager(LaunchServerProperties config, JacksonManager jacksonManager) {
+
         this.jacksonManager = jacksonManager;
 
-        Arrays.stream(config.mirrors).forEach(this::addMirror);
-    }
+        this.list = Arrays.stream(config.getMirrors())
+                .map(Mirror::new)
+                .peek(mirror -> mirror.setEnabled(true))
+                .collect(Collectors.toList());
 
-    public void addMirror(String mirror) {
-        Mirror m = new Mirror(mirror);
-        m.enabled = true;
-        if (defaultMirror == null) defaultMirror = m;
-        list.add(m);
-    }
-
-    public int size() {
-        return list.size();
+        this.defaultMirror = list.stream()
+                .findFirst()
+                .orElse(null);
     }
 
     public boolean downloadZip(Mirror mirror, Path path, String mask, Object... args) throws IOException {
-        if (!mirror.enabled) return false;
+        if (!mirror.getEnabled()) return false;
         URL url = mirror.getURL(mask, args);
         logger.debug("Try download {}", url.toString());
         try {
@@ -83,12 +79,12 @@ public class MirrorManager {
     }
 
     public JsonNode jsonRequest(Mirror mirror, JsonNode request, String method, String mask, Object... args) throws IOException {
-        if (!mirror.enabled) return null;
+        if (!mirror.getEnabled()) return null;
         URL url = mirror.getURL(mask, args);
         try {
             var response = client.send(HttpRequest.newBuilder()
-                            .method(method, request == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(jacksonManager.getMapper().writeValueAsString(request)))
-                            .uri(url.toURI())
+                    .method(method, request == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(jacksonManager.getMapper().writeValueAsString(request)))
+                    .uri(url.toURI())
                     .build(), HttpResponse.BodyHandlers.ofString());
             return jacksonManager.getMapper().readTree(response.body());
         } catch (IOException | URISyntaxException | InterruptedException e) {
@@ -122,24 +118,6 @@ public class MirrorManager {
                 logger.debug("Downloading file: '{}'", name);
                 IOHelper.transfer(input, dir.resolve(IOHelper.toPath(name)));
             }
-        }
-    }
-
-    public static class Mirror {
-        final String baseUrl;
-        boolean enabled;
-
-        Mirror(String url) {
-            baseUrl = url;
-        }
-
-        private URL formatArgs(String mask, Object... args) throws MalformedURLException {
-            Object[] data = Arrays.stream(args).map(e -> IOHelper.urlEncode(e.toString())).toArray();
-            return new URL(baseUrl.concat(mask.formatted(data)));
-        }
-
-        public URL getURL(String mask, Object... args) throws MalformedURLException {
-            return formatArgs(mask, args);
         }
     }
 }

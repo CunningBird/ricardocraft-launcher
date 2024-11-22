@@ -15,9 +15,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import ru.ricardocraft.backend.command.CommandHandler;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
+import ru.ricardocraft.backend.properties.NettyProperties;
 import ru.ricardocraft.backend.socket.handlers.NettyIpForwardHandler;
 import ru.ricardocraft.backend.socket.handlers.NettyWebAPIHandler;
 import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
@@ -32,49 +33,51 @@ public class LauncherNettyServer implements AutoCloseable {
     private final Logger logger = LogManager.getLogger(LauncherNettyServer.class);
 
     private static final String WEBSOCKET_PATH = "/api";
+
     public final ServerBootstrap serverBootstrap;
     public final EventLoopGroup bossGroup;
     public final EventLoopGroup workerGroup;
     public final WebSocketService service;
     public final CommandHandler commandHandler;
 
-    public LauncherNettyServer(LaunchServerConfig config,
-                               LaunchServerDirectories directories,
+    public LauncherNettyServer(LaunchServerProperties config,
+                               DirectoriesManager directoriesManager,
+                               NettyProperties nettyProperties,
                                WebSocketService service,
                                CommandHandler commandHandler,
                                JacksonManager jacksonManager) {
         this.service = service;
         this.commandHandler = commandHandler;
 
-        NettyObjectFactory.setUsingEpoll(config.netty.performance.usingEpoll);
-        if (config.netty.performance.usingEpoll) {
+        NettyObjectFactory.setUsingEpoll(nettyProperties.getPerformance().getUsingEpoll());
+        if (nettyProperties.getPerformance().getUsingEpoll()) {
             logger.debug("Netty: Epoll enabled");
         }
-        if (config.netty.performance.usingEpoll && !Epoll.isAvailable()) {
+        if (nettyProperties.getPerformance().getUsingEpoll() && !Epoll.isAvailable()) {
             logger.error("Epoll is not available: (netty,perfomance.usingEpoll configured wrongly)", Epoll.unavailabilityCause());
         }
 
-        bossGroup = NettyObjectFactory.newEventLoopGroup(config.netty.performance.bossThread, "LauncherNettyServer.bossGroup");
-        workerGroup = NettyObjectFactory.newEventLoopGroup(config.netty.performance.workerThread, "LauncherNettyServer.workerGroup");
+        bossGroup = NettyObjectFactory.newEventLoopGroup(nettyProperties.getPerformance().getBossThread(), "LauncherNettyServer.bossGroup");
+        workerGroup = NettyObjectFactory.newEventLoopGroup(nettyProperties.getPerformance().getWorkerThread(), "LauncherNettyServer.workerGroup");
         serverBootstrap = new ServerBootstrap();
         serverBootstrap.group(bossGroup, workerGroup)
                 .channelFactory(NettyObjectFactory.getServerSocketChannelFactory())
-                .handler(new LoggingHandler(config.netty.logLevel))
+                .handler(new LoggingHandler(nettyProperties.getLogLevel()))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(@NotNull SocketChannel ch) {
                         ChannelPipeline pipeline = ch.pipeline();
                         NettyConnectContext context = new NettyConnectContext();
                         pipeline.addLast("http-codec", new HttpServerCodec());
-                        pipeline.addLast("http-codec-compressor", new HttpObjectAggregator(config.netty.performance.maxWebSocketRequestBytes));
-                        if (config.netty.ipForwarding) // default false
+                        pipeline.addLast("http-codec-compressor", new HttpObjectAggregator(nettyProperties.getPerformance().getMaxWebSocketRequestBytes()));
+                        if (nettyProperties.getIpForwarding()) // default false
                             pipeline.addLast("forward-http", new NettyIpForwardHandler(context));
                         pipeline.addLast("websock-comp", new WebSocketServerCompressionHandler());
-                        pipeline.addLast("websock-codec", new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true, config.netty.performance.maxWebSocketRequestBytes));
-                        if (!config.netty.disableWebApiInterface) // default false
+                        pipeline.addLast("websock-codec", new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true, nettyProperties.getPerformance().getMaxWebSocketRequestBytes()));
+                        if (!nettyProperties.getDisableWebApiInterface()) // default false
                             pipeline.addLast("webapi", new NettyWebAPIHandler(context));
-                        if (config.netty.fileServerEnabled) // default true
-                            pipeline.addLast("fileserver", new FileServerHandler(directories.updatesDir, true, config.netty.showHiddenFiles));
+                        if (nettyProperties.getFileServerEnabled()) // default true
+                            pipeline.addLast("fileserver", new FileServerHandler(directoriesManager.getUpdatesDir(), true, nettyProperties.getShowHiddenFiles()));
                         pipeline.addLast("launchserver", new WebSocketFrameHandler(context, service));
                     }
                 });

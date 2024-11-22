@@ -8,7 +8,7 @@ import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.unsafe.patcher.UnsafePatcher;
 import ru.ricardocraft.backend.command.unsafe.patcher.impl.*;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -25,12 +25,12 @@ public class PatcherCommand extends Command {
 
     public static Map<String, UnsafePatcher> patchers = new HashMap<>();
 
-    private transient final LaunchServerDirectories directories;
+    private transient final DirectoriesManager directoriesManager;
 
     @Autowired
-    public PatcherCommand(LaunchServerDirectories directories) {
+    public PatcherCommand(DirectoriesManager directoriesManager) {
         super();
-        this.directories = directories;
+        this.directoriesManager = directoriesManager;
     }
 
     @Override
@@ -78,7 +78,7 @@ public class PatcherCommand extends Command {
         }
         if (!IOHelper.exists(target))
             throw new IllegalStateException("Target path not exist");
-        Path tempFile = directories.dir.resolve("build").resolve("patcher.tmp.jar");
+        Path tempFile = directoriesManager.getBuildDir().resolve("patcher.tmp.jar");
         if (IOHelper.isFile(target)) {
             patcher.processFile(target, tempFile, testMode);
         } else if (IOHelper.isDir(target)) {

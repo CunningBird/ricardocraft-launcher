@@ -209,7 +209,6 @@ public class LauncherEngine {
     }
 
     public void start(String... args) throws Throwable {
-        //Launcher.modulesManager = new ClientModuleManager(this);
         ClientPreGuiPhase event = new ClientPreGuiPhase(null);
         LauncherEngine.modulesManager.invokeEvent(event);
         runtimeProvider = event.runtimeProvider;

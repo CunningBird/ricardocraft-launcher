@@ -4,7 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.binary.EXELauncherBinary;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
+import ru.ricardocraft.backend.properties.config.JarSignerProperties;
+import ru.ricardocraft.backend.properties.config.OSSLSignCodeProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,20 +22,20 @@ public class OSSLSignTask implements LauncherBuildTask {
     private static final Logger logger = LoggerFactory.getLogger(OSSLSignTask.class);
 
     private final EXELauncherBinary launcherEXEBinary;
-    private final LaunchServerConfig.JarSignerConf signConf;
-    private final LaunchServerConfig.OSSLSignCodeConfig osslSignCodeConfig;
+    private final JarSignerProperties signConf;
+    private final OSSLSignCodeProperties osslSignCodeConfig;
 
-    public OSSLSignTask(EXELauncherBinary launcherEXEBinary, LaunchServerConfig config) {
+    public OSSLSignTask(EXELauncherBinary launcherEXEBinary, LaunchServerProperties config) {
         this.launcherEXEBinary = launcherEXEBinary;
 
-        this.signConf = config.sign;
-        this.osslSignCodeConfig = config.sign.osslSignCodeConfig;
-        if (!signConf.enabled) throw new IllegalStateException("sign.enabled must be true");
-        if (!signConf.keyStoreType.equals("PKCS12"))
+        this.signConf = config.getSign();
+        this.osslSignCodeConfig = config.getOsslSignCode();
+        if (!signConf.getEnabled()) throw new IllegalStateException("sign.enabled must be true");
+        if (!signConf.getKeyStoreType().equals("PKCS12"))
             throw new IllegalStateException("sign.keyStoreType must be PKCS12");
     }
 
-    public static void signLaunch4j(LaunchServerConfig.OSSLSignCodeConfig config, LaunchServerConfig.JarSignerConf signConf, Path inputFile, Path resultFile) throws IOException {
+    public static void signLaunch4j(OSSLSignCodeProperties config, JarSignerProperties signConf, Path inputFile, Path resultFile) throws IOException {
         File input = new File(inputFile.toUri());
         long lastSignSize = 0;
         long inputLength = input.length();
@@ -49,15 +51,15 @@ public class OSSLSignTask implements LauncherBuildTask {
             Files.deleteIfExists(resultFile);
             updateSignSize(inputFile, signSize);
             sign(config, signConf, inputFile, resultFile);
-            if (config.checkSignSize) {
+            if (config.getCheckSignSize()) {
                 output = new File(resultFile.toUri());
                 outputLength = output.length();
                 signSize = outputLength - inputLength;
                 if (lastSignSize != signSize) {
-                    throw new IllegalStateException("Sign check size failed. Saved: %d Real: %d".formatted(lastSignSize, signSize));
+                    throw new IllegalStateException("Sign multiModCheck size failed. Saved: %d Real: %d".formatted(lastSignSize, signSize));
                 }
             }
-            if (config.checkCorrectJar) {
+            if (config.getCheckCorrectJar()) {
                 try (ZipInputStream inputStream = IOHelper.newZipInput(resultFile)) {
                     inputStream.getNextEntry(); //Check
                 }
@@ -77,21 +79,21 @@ public class OSSLSignTask implements LauncherBuildTask {
         }
     }
 
-    public static void sign(LaunchServerConfig.OSSLSignCodeConfig config, LaunchServerConfig.JarSignerConf signConf, Path source, Path dest) throws IOException {
+    public static void sign(OSSLSignCodeProperties config, JarSignerProperties signConf, Path source, Path dest) throws IOException {
         ProcessBuilder builder = new ProcessBuilder();
         List<String> args = new ArrayList<>();
-        args.add(config.osslsigncodePath);
+        args.add(config.getOsslsigncodePath());
         args.add("sign");
         args.add("-pkcs12");
-        args.add(signConf.keyStore);
-        if (config.timestampServer != null) {
+        args.add(signConf.getKeyStore());
+        if (config.getTimestampServer() != null) {
             args.add("-t");
-            args.add(config.timestampServer);
+            args.add(config.getTimestampServer());
         }
-        if (config.customArgs != null) args.addAll(config.customArgs);
-        if (signConf.keyPass != null) {
+        if (config.getCustomArgs() != null) args.addAll(config.getCustomArgs());
+        if (signConf.getKeyPass() != null) {
             args.add("-pass");
-            args.add(signConf.keyPass);
+            args.add(signConf.getKeyPass());
         }
         args.add("-in");
         args.add(source.toAbsolutePath().toString());

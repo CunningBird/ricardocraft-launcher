@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.CommandException;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.BufferedReader;
 import java.nio.file.Files;
@@ -24,13 +24,13 @@ public final class UnindexAssetCommand extends Command {
 
     private transient final Logger logger = LogManager.getLogger(UnindexAssetCommand.class);
 
-    private transient final LaunchServerDirectories directories;
+    private transient final DirectoriesManager directoriesManager;
     private transient final UpdatesManager updatesManager;
 
     @Autowired
-    public UnindexAssetCommand(LaunchServerDirectories directories, UpdatesManager updatesManager) {
+    public UnindexAssetCommand(DirectoriesManager directoriesManager, UpdatesManager updatesManager) {
         super();
-        this.directories = directories;
+        this.directoriesManager = directoriesManager;
         this.updatesManager = updatesManager;
     }
 
@@ -50,8 +50,8 @@ public final class UnindexAssetCommand extends Command {
         String inputAssetDirName = IOHelper.verifyFileName(args[0]);
         String indexFileName = IOHelper.verifyFileName(args[1]);
         String outputAssetDirName = IOHelper.verifyFileName(args[2]);
-        Path inputAssetDir = directories.updatesDir.resolve(inputAssetDirName);
-        Path outputAssetDir = directories.updatesDir.resolve(outputAssetDirName);
+        Path inputAssetDir = directoriesManager.getUpdatesDir().resolve(inputAssetDirName);
+        Path outputAssetDir = directoriesManager.getUpdatesDir().resolve(outputAssetDirName);
         if (outputAssetDir.equals(inputAssetDir))
             throw new CommandException("Indexed and unindexed asset dirs can't be same");
 

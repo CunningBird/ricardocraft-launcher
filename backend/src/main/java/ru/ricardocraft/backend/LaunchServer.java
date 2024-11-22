@@ -11,7 +11,6 @@ import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
 import ru.ricardocraft.backend.base.helper.CommonHelper;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
 import ru.ricardocraft.backend.command.CommandHandler;
-import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 
 import java.io.IOException;
@@ -29,20 +28,16 @@ public final class LaunchServer implements Runnable, AutoCloseable {
 
     private final AtomicBoolean started = new AtomicBoolean(false);
 
-    private final LaunchServerProperties properties;
     private final ProfileProvider profileProvider;
     private final UpdatesProvider updatesProvider;
     private final CommandHandler commandHandler;
     private final NettyServerSocketHandler nettyServerSocketHandler;
 
     @Autowired
-    public LaunchServer(LaunchServerProperties properties,
-                        ProfileProvider profileProvider,
+    public LaunchServer(ProfileProvider profileProvider,
                         UpdatesProvider updatesProvider,
                         CommandHandler commandHandler,
                         NettyServerSocketHandler nettyServerSocketHandler) throws IOException {
-
-        this.properties = properties;
         this.profileProvider = profileProvider;
         this.updatesProvider = updatesProvider;
         this.commandHandler = commandHandler;
@@ -81,10 +76,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             }
         }).start();
 
-        if (properties.getNetty() != null) {
-            nettyServerSocketHandler.close();
-            CommonHelper.newThread("Netty Server Socket Thread", false, nettyServerSocketHandler).start();
-        }
+        nettyServerSocketHandler.close();
+        CommonHelper.newThread("Netty Server Socket Thread", false, nettyServerSocketHandler).start();
 
         logger.info("LaunchServer started");
     }

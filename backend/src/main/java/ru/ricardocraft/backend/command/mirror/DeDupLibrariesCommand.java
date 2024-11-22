@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,12 +23,12 @@ public class DeDupLibrariesCommand extends Command {
 
     private transient final Logger logger = LogManager.getLogger(DeDupLibrariesCommand.class);
 
-    private transient final LaunchServerDirectories directories;
+    private transient final DirectoriesManager directoriesManager;
 
     @Autowired
-    public DeDupLibrariesCommand(LaunchServerDirectories directories) {
+    public DeDupLibrariesCommand(DirectoriesManager directoriesManager) {
         super();
-        this.directories = directories;
+        this.directoriesManager = directoriesManager;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class DeDupLibrariesCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
-        Path dir = directories.updatesDir.resolve(args[0]).resolve("libraries");
+        Path dir = directoriesManager.getUpdatesDir().resolve(args[0]).resolve("libraries");
         if (!Files.isDirectory(dir)) {
             throw new FileNotFoundException(dir.toString());
         }

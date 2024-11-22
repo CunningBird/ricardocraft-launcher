@@ -10,9 +10,9 @@ import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportHardware
 import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.base.events.request.HardwareReportRequestEvent;
-import ru.ricardocraft.backend.dto.SimpleResponse;
-import ru.ricardocraft.backend.dto.secure.HardwareReportResponse;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.dto.socket.SimpleResponse;
+import ru.ricardocraft.backend.dto.socket.secure.HardwareReportResponse;
+import ru.ricardocraft.backend.properties.NettyProperties;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
@@ -24,15 +24,15 @@ public class HardwareReportResponseService extends AbstractResponseService {
 
     private static final Logger logger = LogManager.getLogger(HardwareReportResponseService.class);
 
-    private final LaunchServerConfig config;
+    private final NettyProperties nettyProperties;
     private final ProtectHandler protectHandler;
 
     @Autowired
     public HardwareReportResponseService(WebSocketService service,
-                                         LaunchServerConfig config,
+                                         NettyProperties nettyProperties,
                                          ProtectHandler protectHandler) {
         super(HardwareReportResponse.class, service);
-        this.config = config;
+        this.nettyProperties = nettyProperties;
         this.protectHandler = protectHandler;
     }
 
@@ -51,7 +51,8 @@ public class HardwareReportResponseService extends AbstractResponseService {
                     return;
                 }
                 if (client.trustLevel.hardwareInfo != null) {
-                    sendResult(ctx, new HardwareReportRequestEvent(advancedProtectHandler.createHardwareToken(client.username, client.trustLevel.hardwareInfo), SECONDS.toMillis(config.netty.security.hardwareTokenExpire)), response.requestUUID);
+                    sendResult(ctx, new HardwareReportRequestEvent(advancedProtectHandler.createHardwareToken(client.username, client.trustLevel.hardwareInfo),
+                            SECONDS.toMillis(nettyProperties.getSecurity().getHardwareTokenExpire())), response.requestUUID);
                     return;
                 }
                 logger.debug("HardwareInfo received");
@@ -69,7 +70,8 @@ public class HardwareReportResponseService extends AbstractResponseService {
                             throw new SecurityException("Your hardware banned");
                         }
                         client.trustLevel.hardwareInfo = hardware;
-                        sendResult(ctx, new HardwareReportRequestEvent(advancedProtectHandler.createHardwareToken(client.username, hardware), SECONDS.toMillis(config.netty.security.hardwareTokenExpire)), response.requestUUID);
+                        sendResult(ctx, new HardwareReportRequestEvent(advancedProtectHandler.createHardwareToken(client.username, hardware),
+                                SECONDS.toMillis(nettyProperties.getSecurity().getHardwareTokenExpire())), response.requestUUID);
                     } else {
                         logger.error("AuthCoreProvider not supported hardware");
                         sendError(ctx, "AuthCoreProvider not supported hardware", response.requestUUID);

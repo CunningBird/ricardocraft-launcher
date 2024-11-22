@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.dto.auth.AuthResponse;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.dto.socket.auth.AuthResponse;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 
@@ -17,10 +17,10 @@ import java.util.Locale;
 @Primary
 public class StdProtectHandler extends ProtectHandler implements ProfilesProtectHandler {
 
-    protected final LaunchServerConfig config;
+    protected final LaunchServerProperties config;
 
     @Autowired
-    public StdProtectHandler(LaunchServerConfig config) {
+    public StdProtectHandler(LaunchServerProperties config) {
         this.config = config;
     }
 
@@ -41,7 +41,7 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
 
     @Override
     public boolean canGetUpdates(String updatesDirName, Client client) {
-        return client.profile != null && (client.profile.getDir().equals(updatesDirName) || client.profile.getAssetDir().equals(updatesDirName) || config.stdProtectHandlerConfig.allowUpdates.contains(updatesDirName));
+        return client.profile != null && (client.profile.getDir().equals(updatesDirName) || client.profile.getAssetDir().equals(updatesDirName) || config.getProtectHandler().getAllowUpdates().contains(updatesDirName));
     }
 
     private boolean isWhitelisted(String property, ClientProfile profile, Client client) {
@@ -55,7 +55,7 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
                 return true;
             }
         }
-        List<String> allowedUsername = config.stdProtectHandlerConfig.profileWhitelist.get(profile.getTitle());
+        List<String> allowedUsername = config.getProtectHandler().getProfileWhitelist().get(profile.getTitle());
         return allowedUsername != null && allowedUsername.contains(client.username);
     }
 }

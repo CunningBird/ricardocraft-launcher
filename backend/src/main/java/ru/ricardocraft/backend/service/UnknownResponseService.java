@@ -3,8 +3,8 @@ package ru.ricardocraft.backend.service;
 import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.dto.SimpleResponse;
-import ru.ricardocraft.backend.dto.UnknownResponse;
+import ru.ricardocraft.backend.dto.socket.SimpleResponse;
+import ru.ricardocraft.backend.dto.socket.UnknownResponse;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.WebSocketService;
 

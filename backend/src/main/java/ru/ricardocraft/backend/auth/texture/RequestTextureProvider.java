@@ -7,7 +7,7 @@ import ru.ricardocraft.backend.base.helper.CommonHelper;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.profiles.Texture;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
-import ru.ricardocraft.backend.properties.TextureProviderProperties;
+import ru.ricardocraft.backend.properties.config.TextureProviderProperties;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

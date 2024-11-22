@@ -1,8 +1,9 @@
 package ru.ricardocraft.backend.manangers.mirror.modapi;
 
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.socket.HttpSender;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
+import ru.ricardocraft.backend.socket.HttpRequester;
+import ru.ricardocraft.backend.socket.handlers.error.CurseForgeErrorHandler;
 
 import java.io.IOException;
 import java.net.URI;
@@ -15,47 +16,47 @@ public class CurseforgeAPI {
 
     private static final String BASE_URL = "https://api.curseforge.com";
     private final String apiKey;
-    private final HttpSender sender;
+    private final HttpRequester requester;
 
-    public CurseforgeAPI(LaunchServerConfig config, HttpSender sender) {
-        this.apiKey = config.mirrorConfig.curseforgeApiKey;
-        this.sender = sender;
+    public CurseforgeAPI(LaunchServerProperties config, HttpRequester requester) {
+        this.apiKey = config.getMirror().getCurseForgeApiKey();
+        this.requester = requester;
     }
 
     public Mod fetchModById(long id) throws IOException, URISyntaxException {
-        return sender.send(HttpRequest.newBuilder()
+        return requester.send(HttpRequest.newBuilder()
                 .GET()
                 .uri(new URI(BASE_URL + "/v1/mods/" + id))
                 .header("Accept", "application/json")
                 .header("x-api-key", apiKey)
-                .build(), new HttpSender.CurseForgeErrorHandler<>(Mod.class)).getOrThrow();
+                .build(), new CurseForgeErrorHandler<>(Mod.class)).getOrThrow();
     }
 
     public String fetchModDescriptionById(long id) throws IOException, URISyntaxException {
-        return sender.send(HttpRequest.newBuilder()
+        return requester.send(HttpRequest.newBuilder()
                 .GET()
                 .uri(new URI(BASE_URL + "/v1/mods/" + id + "/description"))
                 .header("Accept", "application/json")
                 .header("x-api-key", apiKey)
-                .build(), new HttpSender.CurseForgeErrorHandler<>(String.class)).getOrThrow();
+                .build(), new CurseForgeErrorHandler<>(String.class)).getOrThrow();
     }
 
     public Artifact fetchModFileById(long modId, long fileId) throws IOException, URISyntaxException {
-        return sender.send(HttpRequest.newBuilder()
+        return requester.send(HttpRequest.newBuilder()
                 .GET()
                 .uri(new URI(BASE_URL + "/v1/mods/" + modId + "/files/" + fileId))
                 .header("Accept", "application/json")
                 .header("x-api-key", apiKey)
-                .build(), new HttpSender.CurseForgeErrorHandler<>(Artifact.class)).getOrThrow();
+                .build(), new CurseForgeErrorHandler<>(Artifact.class)).getOrThrow();
     }
 
     public String fetchModFileUrlById(long modId, long fileId) throws IOException, URISyntaxException {
-        return sender.send(HttpRequest.newBuilder()
+        return requester.send(HttpRequest.newBuilder()
                 .GET()
                 .uri(new URI(BASE_URL + "/v1/mods/" + modId + "/files/" + fileId + "/download-url"))
                 .header("Accept", "application/json")
                 .header("x-api-key", apiKey)
-                .build(), new HttpSender.CurseForgeErrorHandler<>(String.class)).getOrThrow();
+                .build(), new CurseForgeErrorHandler<>(String.class)).getOrThrow();
     }
 
     public record SortableGameVersion(String gameVersionName, String gameVersionPadded, String gameVersion,

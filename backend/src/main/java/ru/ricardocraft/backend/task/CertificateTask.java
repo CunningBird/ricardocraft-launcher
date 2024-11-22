@@ -3,11 +3,11 @@ package ru.ricardocraft.backend.task;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import ru.ricardocraft.backend.base.helper.SignHelper;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.nio.file.Paths;
 import java.security.KeyStore;
@@ -15,24 +15,22 @@ import java.time.Duration;
 import java.time.Instant;
 
 @Configuration
-@EnableScheduling
-// TODO on config.sign.checkCertificateExpired && config.sign.enabled property
-//@ConditionalOnProperty(name = "scheduler.enabled", matchIfMissing = true)
+@ConditionalOnProperty(name = "launch-server-config.sign.checkCertificateExpired")
 @RequiredArgsConstructor
 public class CertificateTask {
 
     private final Logger logger = LogManager.getLogger(CertificateTask.class);
 
-    private final LaunchServerConfig config;
+    private final LaunchServerProperties config;
 
     @Scheduled(fixedDelayString = "P1D")
     public void checkCertificateExpired() {
-        if (!config.sign.enabled) {
+        if (!config.getSign().getEnabled()) {
             return;
         }
         try {
-            KeyStore keyStore = SignHelper.getStore(Paths.get(config.sign.keyStore), config.sign.keyStorePass, config.sign.keyStoreType);
-            Instant date = SignHelper.getCertificateExpired(keyStore, config.sign.keyAlias);
+            KeyStore keyStore = SignHelper.getStore(Paths.get(config.getSign().getKeyStore()), config.getSign().getKeyStorePass(), config.getSign().getKeyStoreType());
+            Instant date = SignHelper.getCertificateExpired(keyStore, config.getSign().getKeyAlias());
             if (date == null) {
                 logger.debug("The certificate will expire at unlimited");
             } else if (date.minus(Duration.ofDays(30)).isBefore(Instant.now())) {

@@ -3,11 +3,11 @@ package ru.ricardocraft.backend.binary.tasks;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
-import ru.ricardocraft.backend.base.asm.ClassMetadataReader;
-import ru.ricardocraft.backend.base.asm.SafeClassWriter;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.binary.JARLauncherBinary;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
+import ru.ricardocraft.backend.binary.JarLauncherBinary;
+import ru.ricardocraft.backend.binary.tasks.main.ClassMetadataReader;
+import ru.ricardocraft.backend.binary.tasks.main.SafeClassWriter;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,15 +19,15 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class AdditionalFixesApplyTask implements LauncherBuildTask {
-    private final JARLauncherBinary launcherBinary;
-    private final LaunchServerConfig config;
+    private final JarLauncherBinary launcherBinary;
+    private final LaunchServerProperties properties;
 
-    public AdditionalFixesApplyTask(JARLauncherBinary launcherBinary, LaunchServerConfig config) {
+    public AdditionalFixesApplyTask(JarLauncherBinary launcherBinary, LaunchServerProperties properties) {
         this.launcherBinary = launcherBinary;
-        this.config = config;
+        this.properties = properties;
     }
 
-    public static void apply(Path inputFile, Path addFile, ZipOutputStream output, LaunchServerConfig config, Predicate<ZipEntry> excluder, boolean needFixes) throws IOException {
+    public static void apply(Path inputFile, Path addFile, ZipOutputStream output, LaunchServerProperties properties, Predicate<ZipEntry> excluder, boolean needFixes) throws IOException {
         try (ClassMetadataReader reader = new ClassMetadataReader()) {
             reader.getCp().add(new JarFile(inputFile.toFile()));
             try (ZipInputStream input = IOHelper.newZipInput(addFile)) {
@@ -42,7 +42,7 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
                     if (filename.endsWith(".class")) {
                         byte[] bytes;
                         if (needFixes) {
-                            bytes = classFix(input, reader, config.launcher.stripLineNumbers);
+                            bytes = classFix(input, reader, properties.getLauncher().getStripLineNumbers());
                             output.write(bytes);
                         } else
                             IOHelper.transfer(input, output);
@@ -72,7 +72,7 @@ public class AdditionalFixesApplyTask implements LauncherBuildTask {
     public Path process(Path inputFile) throws IOException {
         Path out = launcherBinary.nextPath("post-fixed");
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(out))) {
-            apply(inputFile, inputFile, output, config, (e) -> false, true);
+            apply(inputFile, inputFile, output, properties, (e) -> false, true);
         }
         return out;
     }

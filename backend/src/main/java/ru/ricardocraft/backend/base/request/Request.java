@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
-public abstract class Request<R extends WebSocketEvent> implements WebSocketRequest {
+public abstract class Request<R extends TypeSerializeInterface> implements TypeSerializeInterface {
 
     private static final Logger logger = LoggerFactory.getLogger(Request.class);
 

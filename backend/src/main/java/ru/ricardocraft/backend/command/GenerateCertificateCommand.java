@@ -26,9 +26,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
-import ru.ricardocraft.backend.manangers.*;
-import ru.ricardocraft.backend.properties.LaunchServerConfig;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
+import ru.ricardocraft.backend.manangers.CertificateManager;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
+import ru.ricardocraft.backend.manangers.KeyAgreementManager;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -46,28 +47,22 @@ public class GenerateCertificateCommand extends Command {
 
     private final Logger logger = LogManager.getLogger(GenerateCertificateCommand.class);
 
-    private transient final LaunchServerConfig config;
-    private transient final LaunchServerDirectories directories;
+    private transient final LaunchServerProperties config;
+    private transient final DirectoriesManager directoriesManager;
     private transient final CertificateManager certificateManager;
     private transient final KeyAgreementManager keyAgreementManager;
-    private transient final LaunchServerConfigManager launchServerConfigManager;
-    private transient final JacksonManager jacksonManager;
 
     @Autowired
     public GenerateCertificateCommand(CommandHandler commandHandler,
-                                      LaunchServerConfig config,
-                                      LaunchServerDirectories directories,
+                                      LaunchServerProperties config,
+                                      DirectoriesManager directoriesManager,
                                       CertificateManager certificateManager,
-                                      KeyAgreementManager keyAgreementManager,
-                                      LaunchServerConfigManager launchServerConfigManager,
-                                      JacksonManager jacksonManager) {
+                                      KeyAgreementManager keyAgreementManager) {
         super();
         this.config = config;
-        this.directories = directories;
+        this.directoriesManager = directoriesManager;
         this.certificateManager = certificateManager;
         this.keyAgreementManager = keyAgreementManager;
-        this.launchServerConfigManager = launchServerConfigManager;
-        this.jacksonManager = jacksonManager;
 
         commandHandler.registerCommand("generatecertificate", this);
     }
@@ -84,13 +79,8 @@ public class GenerateCertificateCommand extends Command {
 
     @Override
     public void invoke(String... args) throws Exception {
-        String projectName = config.projectName;
-        Path targetDir = keyAgreementManager.keyDirectory;
-        if (targetDir == null) {
-            targetDir = directories.dir;
-        }
-        targetDir = targetDir.resolve("certs");
-        Files.createDirectories(targetDir);
+        String projectName = config.getProjectName();
+        Path targetDir = directoriesManager.getKeyDirectoryDir().resolve("certs");
         Path rootCACrtPath = targetDir.resolve(projectName.concat("RootCA.crt"));
         Path rootCAKeyPath = targetDir.resolve(projectName.concat("RootCA.key"));
         Path codeSignCrtPath = targetDir.resolve(projectName.concat("CodeSign.crt"));
@@ -118,26 +108,14 @@ public class GenerateCertificateCommand extends Command {
             output.write(pfx.getEncoded());
         }
         logger.info("Generate sign config");
-        LaunchServerConfig.JarSignerConf conf = new LaunchServerConfig.JarSignerConf();
-        conf.enabled = true;
-        conf.keyPass = passwd;
-        conf.keyStorePass = passwd;
-        conf.keyStoreType = "PKCS12";
-        conf.signAlgo = "SHA256WITHRSA";
-        conf.keyAlias = projectName.concat("CodeSign").toLowerCase();
-        conf.keyStore = p12FilePath.toString();
-        logger.info("Configuration: {}", jacksonManager.getMapper().writeValueAsString(conf));
-        logger.info("KeyAlias may be incorrect. Usage: 'keytool -storepass {} -keystore {} -list' for check alias", passwd, conf.keyStore);
         logger.warn("Must save your store password");
-        if (!config.sign.enabled) {
+        if (!config.getSign().getEnabled()) {
             logger.info("Write config");
-            config.sign = conf;
             logger.info("Add your RootCA to truststore");
-            Path pathToRootCA = directories.dir.resolve("truststore").resolve(projectName.concat("RootCA.crt"));
+            Path pathToRootCA = directoriesManager.getTrustStoreDir().resolve(projectName.concat("RootCA.crt"));
             Files.deleteIfExists(pathToRootCA);
             Files.copy(rootCACrtPath, pathToRootCA);
             certificateManager.readTrustStore(targetDir.resolve("truststore"));
-            launchServerConfigManager.writeConfig(config);
         } else {
             Path pathToRootCA = targetDir.resolve("truststore").resolve(projectName.concat("RootCA.crt"));
             Files.deleteIfExists(pathToRootCA);

@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -29,16 +29,16 @@ public class FabricInstallerCommand extends Command {
 
     private transient final Logger logger = LogManager.getLogger(FabricInstallerCommand.class);
 
-    private transient final LaunchServerDirectories directories;
+    private transient final DirectoriesManager directoriesManager;
     private transient final UpdatesManager updatesManager;
     private transient final JacksonManager jacksonManager;
 
     @Autowired
-    public FabricInstallerCommand(LaunchServerDirectories directories,
+    public FabricInstallerCommand(DirectoriesManager directoriesManager,
                                   UpdatesManager updatesManager,
                                   JacksonManager jacksonManager) {
         super();
-        this.directories = directories;
+        this.directoriesManager = directoriesManager;
         this.updatesManager = updatesManager;
         this.jacksonManager = jacksonManager;
     }
@@ -77,7 +77,7 @@ public class FabricInstallerCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 3);
         String version = args[0];
-        Path vanillaDir = directories.updatesDir.resolve(args[1]);
+        Path vanillaDir = directoriesManager.getUpdatesDir().resolve(args[1]);
         if (!Files.exists(vanillaDir)) {
             throw new FileNotFoundException(vanillaDir.toString());
         }

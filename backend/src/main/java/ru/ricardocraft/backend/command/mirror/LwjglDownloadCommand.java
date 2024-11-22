@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.properties.LaunchServerDirectories;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 
 import java.io.*;
 import java.net.URI;
@@ -26,11 +26,12 @@ public class LwjglDownloadCommand extends Command {
 
     private transient final Logger logger = LogManager.getLogger(LwjglDownloadCommand.class);
 
-    private transient final LaunchServerDirectories directories;
+    private transient final DirectoriesManager directoriesManager;
+
     @Autowired
-    public LwjglDownloadCommand(LaunchServerDirectories directories) {
+    public LwjglDownloadCommand(DirectoriesManager directoriesManager) {
         super();
-        this.directories = directories;
+        this.directoriesManager = directoriesManager;
     }
 
     public static OSArchPair getFromLwjglNativeName(String name) {
@@ -80,7 +81,7 @@ public class LwjglDownloadCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 2);
         String version = args[0];
-        Path clientDir = directories.updatesDir.resolve(args[1]);
+        Path clientDir = directoriesManager.getUpdatesDir().resolve(args[1]);
         Path lwjglDir = clientDir.resolve("libraries").resolve("org").resolve("lwjgl");
         Path natives = clientDir.resolve("natives");
         List<String> components = List.of("lwjgl", "lwjgl-stb", "lwjgl-opengl", "lwjgl-openal", "lwjgl-glfw", "lwjgl-tinyfd", "lwjgl-jemalloc");
