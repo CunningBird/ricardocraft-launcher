@@ -77,8 +77,4 @@ public class AttachJarsTask implements LauncherBuildTask {
         if (name.startsWith("META-INF/services")) return false;
         return exclusions.stream().anyMatch(name::startsWith);
     }
-
-    public List<String> getExclusions() {
-        return exclusions;
-    }
 }

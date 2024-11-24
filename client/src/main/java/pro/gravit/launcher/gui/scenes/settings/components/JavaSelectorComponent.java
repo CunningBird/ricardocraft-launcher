@@ -1,14 +1,16 @@
 package pro.gravit.launcher.gui.scenes.settings.components;
 
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Pane;
-
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import pro.gravit.launcher.gui.base.profiles.ClientProfile;
 import pro.gravit.launcher.gui.config.RuntimeSettings;
 import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.service.JavaService;
-import pro.gravit.launcher.gui.base.profiles.ClientProfile;
 import pro.gravit.launcher.gui.utils.helper.JavaHelper;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
 

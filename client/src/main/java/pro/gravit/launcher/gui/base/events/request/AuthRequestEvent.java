@@ -1,9 +1,9 @@
 package pro.gravit.launcher.gui.base.events.request;
 
 import pro.gravit.launcher.gui.base.ClientPermissions;
-import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 import pro.gravit.launcher.gui.base.events.RequestEvent;
 import pro.gravit.launcher.gui.base.profiles.PlayerProfile;
+import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 
 import java.util.UUID;
 

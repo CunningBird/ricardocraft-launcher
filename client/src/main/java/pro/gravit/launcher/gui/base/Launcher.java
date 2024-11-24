@@ -1,6 +1,5 @@
 package pro.gravit.launcher.gui.base;
 
-import pro.gravit.launcher.gui.base.LauncherConfig;
 import pro.gravit.launcher.gui.base.profiles.ClientProfile;
 import pro.gravit.launcher.gui.core.managers.GsonManager;
 import pro.gravit.launcher.gui.core.serialize.HInput;

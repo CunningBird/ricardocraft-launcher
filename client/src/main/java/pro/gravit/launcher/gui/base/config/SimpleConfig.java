@@ -1,7 +1,5 @@
 package pro.gravit.launcher.gui.base.config;
 
-import pro.gravit.launcher.gui.base.config.JsonConfigurableInterface;
-
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Type;

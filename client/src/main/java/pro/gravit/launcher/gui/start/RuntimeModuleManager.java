@@ -4,8 +4,6 @@ import pro.gravit.launcher.gui.base.Launcher;
 import pro.gravit.launcher.gui.base.modules.LauncherModule;
 import pro.gravit.launcher.gui.base.modules.impl.SimpleModuleManager;
 import pro.gravit.launcher.gui.core.LauncherTrustManager;
-import pro.gravit.launcher.gui.start.ClientLauncherWrapper;
-import pro.gravit.launcher.gui.start.ClientWrapperModule;
 
 import java.nio.file.Path;
 import java.util.Collections;

@@ -11,8 +11,6 @@ import pro.gravit.launcher.gui.base.profiles.optional.triggers.OptionalTrigger;
 import pro.gravit.launcher.gui.base.request.WebSocketEvent;
 import pro.gravit.launcher.gui.base.request.auth.AuthRequest;
 import pro.gravit.launcher.gui.base.request.auth.GetAvailabilityAuthRequest;
-import pro.gravit.launcher.gui.base.request.websockets.ClientJSONPoint;
-import pro.gravit.launcher.gui.base.request.websockets.WebSocketRequest;
 import pro.gravit.launcher.gui.core.hasher.HashedEntry;
 import pro.gravit.launcher.gui.core.hasher.HashedEntryAdapter;
 import pro.gravit.launcher.gui.utils.ProviderMap;

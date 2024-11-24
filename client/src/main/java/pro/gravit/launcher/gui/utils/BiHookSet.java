@@ -1,7 +1,5 @@
 package pro.gravit.launcher.gui.utils;
 
-import pro.gravit.launcher.gui.utils.HookException;
-
 import java.util.HashSet;
 import java.util.Set;
 

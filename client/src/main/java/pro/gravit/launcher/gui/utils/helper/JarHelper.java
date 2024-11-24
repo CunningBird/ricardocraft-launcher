@@ -1,7 +1,5 @@
 package pro.gravit.launcher.gui.utils.helper;
 
-import pro.gravit.launcher.gui.utils.helper.IOHelper;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;

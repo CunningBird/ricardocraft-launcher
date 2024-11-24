@@ -1,11 +1,9 @@
 package pro.gravit.launcher.gui.impl;
 
 import pro.gravit.launcher.gui.JavaFXApplication;
-import pro.gravit.launcher.gui.overlays.AbstractOverlay;
 import pro.gravit.launcher.gui.overlays.ProcessingOverlay;
 import pro.gravit.launcher.gui.overlays.UploadAssetOverlay;
 import pro.gravit.launcher.gui.overlays.WelcomeOverlay;
-import pro.gravit.launcher.gui.scenes.AbstractScene;
 import pro.gravit.launcher.gui.scenes.console.ConsoleScene;
 import pro.gravit.launcher.gui.scenes.debug.DebugScene;
 import pro.gravit.launcher.gui.scenes.internal.BrowserScene;
@@ -21,8 +19,9 @@ import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GuiObjectsContainer {
     private final JavaFXApplication application;

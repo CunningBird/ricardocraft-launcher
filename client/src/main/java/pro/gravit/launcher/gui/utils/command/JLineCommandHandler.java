@@ -4,8 +4,6 @@ import org.jline.reader.*;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
-import pro.gravit.launcher.gui.utils.command.Command;
-import pro.gravit.launcher.gui.utils.command.CommandHandler;
 
 import java.io.IOException;
 import java.util.List;

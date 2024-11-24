@@ -8,7 +8,9 @@ import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.helper.PositionHelper;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class NotificationDialog extends AbstractDialog {

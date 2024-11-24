@@ -1,18 +1,20 @@
 package pro.gravit.launcher.gui.scenes.settings;
 
-import javafx.scene.control.*;
+import javafx.scene.control.ButtonBase;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
 import javafx.util.StringConverter;
 import oshi.SystemInfo;
 import pro.gravit.launcher.gui.JavaFXApplication;
+import pro.gravit.launcher.gui.base.profiles.ClientProfile;
+import pro.gravit.launcher.gui.components.ServerButton;
 import pro.gravit.launcher.gui.components.UserBlock;
 import pro.gravit.launcher.gui.config.RuntimeSettings;
 import pro.gravit.launcher.gui.helper.LookupHelper;
-import pro.gravit.launcher.gui.components.ServerButton;
 import pro.gravit.launcher.gui.scenes.interfaces.SceneSupportUserBlock;
 import pro.gravit.launcher.gui.scenes.settings.components.JavaSelectorComponent;
 import pro.gravit.launcher.gui.utils.SystemMemory;
-import pro.gravit.launcher.gui.base.profiles.ClientProfile;
 import pro.gravit.launcher.gui.utils.helper.JVMHelper;
 
 import java.text.MessageFormat;

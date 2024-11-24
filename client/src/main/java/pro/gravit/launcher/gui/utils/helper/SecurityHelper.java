@@ -1,8 +1,5 @@
 package pro.gravit.launcher.gui.utils.helper;
 
-import pro.gravit.launcher.gui.utils.helper.IOHelper;
-import pro.gravit.launcher.gui.utils.helper.VerifyHelper;
-
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;

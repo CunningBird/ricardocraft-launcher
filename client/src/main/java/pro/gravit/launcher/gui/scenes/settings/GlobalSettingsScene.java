@@ -3,14 +3,14 @@ package pro.gravit.launcher.gui.scenes.settings;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Hyperlink;
 import javafx.stage.DirectoryChooser;
-import pro.gravit.launcher.gui.base.profiles.ClientProfile;
 import pro.gravit.launcher.gui.JavaFXApplication;
+import pro.gravit.launcher.gui.base.profiles.ClientProfile;
 import pro.gravit.launcher.gui.config.RuntimeSettings;
 import pro.gravit.launcher.gui.helper.LookupHelper;
+import pro.gravit.launcher.gui.runtime.client.DirBridge;
 import pro.gravit.launcher.gui.scenes.settings.components.LanguageSelectorComponent;
 import pro.gravit.launcher.gui.scenes.settings.components.ThemeSelectorComponent;
 import pro.gravit.launcher.gui.stage.ConsoleStage;
-import pro.gravit.launcher.gui.runtime.client.DirBridge;
 import pro.gravit.launcher.gui.utils.helper.IOHelper;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
 

@@ -4,10 +4,6 @@ import pro.gravit.launcher.gui.utils.helper.HackHelper;
 import pro.gravit.launcher.gui.utils.helper.IOHelper;
 import pro.gravit.launcher.gui.utils.helper.JVMHelper;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
-import pro.gravit.launcher.gui.utils.launch.ClassLoaderControl;
-import pro.gravit.launcher.gui.utils.launch.Launch;
-import pro.gravit.launcher.gui.utils.launch.LaunchOptions;
-import pro.gravit.launcher.gui.utils.launch.ModuleHacks;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -3,7 +3,6 @@ package pro.gravit.launcher.gui.base.modules.impl;
 import pro.gravit.launcher.gui.base.modules.LauncherModulesContext;
 import pro.gravit.launcher.gui.base.modules.LauncherModulesManager;
 import pro.gravit.launcher.gui.base.modules.ModulesConfigManager;
-import pro.gravit.launcher.gui.base.modules.impl.SimpleModuleManager;
 
 import java.net.URL;
 

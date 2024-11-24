@@ -1,7 +1,5 @@
 package pro.gravit.launcher.gui.base.profiles;
 
-import pro.gravit.launcher.gui.base.profiles.ClientProfile;
-
 public class ClientProfileVersions {
     private ClientProfileVersions() {
         throw new UnsupportedOperationException();

@@ -2,14 +2,14 @@ package pro.gravit.launcher.gui.scenes.login.methods;
 
 import javafx.scene.control.TextField;
 import pro.gravit.launcher.gui.JavaFXApplication;
+import pro.gravit.launcher.gui.base.request.auth.AuthRequest;
+import pro.gravit.launcher.gui.base.request.auth.details.AuthPasswordDetails;
 import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.impl.AbstractVisualComponent;
 import pro.gravit.launcher.gui.impl.ContextHelper;
 import pro.gravit.launcher.gui.scenes.login.AuthFlow;
 import pro.gravit.launcher.gui.scenes.login.LoginAuthButtonComponent;
 import pro.gravit.launcher.gui.scenes.login.LoginScene;
-import pro.gravit.launcher.gui.base.request.auth.AuthRequest;
-import pro.gravit.launcher.gui.base.request.auth.details.AuthPasswordDetails;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;

@@ -1,7 +1,5 @@
 package pro.gravit.launcher.gui.utils.command;
 
-import pro.gravit.launcher.gui.utils.command.Command;
-
 public abstract class SubCommand extends Command {
     private String defaultArgs;
     private String defaultUsage;

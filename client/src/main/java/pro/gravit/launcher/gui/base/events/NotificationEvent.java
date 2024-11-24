@@ -1,7 +1,7 @@
 package pro.gravit.launcher.gui.base.events;
 
-import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 import pro.gravit.launcher.gui.base.request.WebSocketEvent;
+import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 
 public class NotificationEvent implements WebSocketEvent {
     @LauncherNetworkAPI

@@ -2,14 +2,14 @@ package pro.gravit.launcher.gui.scenes.debug;
 
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Label;
-import pro.gravit.launcher.gui.JavaRuntimeModule;
 import pro.gravit.launcher.gui.JavaFXApplication;
+import pro.gravit.launcher.gui.JavaRuntimeModule;
 import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.scenes.AbstractScene;
 import pro.gravit.launcher.gui.service.LaunchService;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
-import java.io.*;
+import java.io.EOFException;
 
 public class DebugScene extends AbstractScene {
     private ProcessLogOutput processLogOutput;

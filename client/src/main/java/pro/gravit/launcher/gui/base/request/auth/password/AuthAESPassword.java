@@ -1,7 +1,7 @@
 package pro.gravit.launcher.gui.base.request.auth.password;
 
-import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 import pro.gravit.launcher.gui.base.request.auth.AuthRequest;
+import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 
 public class AuthAESPassword implements AuthRequest.AuthPasswordInterface {
     @LauncherNetworkAPI

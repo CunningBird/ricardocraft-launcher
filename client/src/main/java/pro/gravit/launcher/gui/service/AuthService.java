@@ -1,8 +1,8 @@
 package pro.gravit.launcher.gui.service;
 
+import pro.gravit.launcher.gui.JavaFXApplication;
 import pro.gravit.launcher.gui.base.Launcher;
 import pro.gravit.launcher.gui.base.LauncherConfig;
-import pro.gravit.launcher.gui.JavaFXApplication;
 import pro.gravit.launcher.gui.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.gui.base.events.request.GetAvailabilityAuthRequestEvent;
 import pro.gravit.launcher.gui.base.profiles.PlayerProfile;

@@ -1,7 +1,5 @@
 package pro.gravit.launcher.gui.base.profiles.optional.actions;
 
-import pro.gravit.launcher.gui.base.profiles.optional.actions.OptionalAction;
-
 import java.util.List;
 
 public class OptionalActionClassPath extends OptionalAction {

@@ -1,12 +1,12 @@
 package pro.gravit.launcher.gui.modules.startscreen;
 
-import pro.gravit.launcher.gui.client.events.ClientExitPhase;
-import pro.gravit.launcher.gui.runtime.client.events.ClientGuiPhase;
-import pro.gravit.launcher.gui.runtime.client.events.ClientPreGuiPhase;
-import pro.gravit.launcher.gui.client.events.ClientProcessPreInvokeMainClassEvent;
 import pro.gravit.launcher.gui.base.modules.LauncherInitContext;
 import pro.gravit.launcher.gui.base.modules.LauncherModule;
 import pro.gravit.launcher.gui.base.modules.LauncherModuleInfo;
+import pro.gravit.launcher.gui.client.events.ClientExitPhase;
+import pro.gravit.launcher.gui.client.events.ClientProcessPreInvokeMainClassEvent;
+import pro.gravit.launcher.gui.runtime.client.events.ClientGuiPhase;
+import pro.gravit.launcher.gui.runtime.client.events.ClientPreGuiPhase;
 import pro.gravit.launcher.gui.utils.Version;
 import pro.gravit.launcher.gui.utils.helper.IOHelper;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;

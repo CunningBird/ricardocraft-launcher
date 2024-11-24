@@ -2,7 +2,10 @@ package pro.gravit.launcher.gui.impl;
 
 import javafx.scene.layout.Pane;
 import pro.gravit.launcher.gui.JavaFXApplication;
-import pro.gravit.launcher.gui.dialogs.*;
+import pro.gravit.launcher.gui.dialogs.AbstractDialog;
+import pro.gravit.launcher.gui.dialogs.ApplyDialog;
+import pro.gravit.launcher.gui.dialogs.InfoDialog;
+import pro.gravit.launcher.gui.dialogs.NotificationDialog;
 import pro.gravit.launcher.gui.helper.PositionHelper;
 import pro.gravit.launcher.gui.scenes.AbstractScene;
 import pro.gravit.launcher.gui.stage.DialogStage;

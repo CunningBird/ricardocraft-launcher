@@ -1,9 +1,5 @@
 package pro.gravit.launcher.gui.utils.helper;
 
-import pro.gravit.launcher.gui.utils.helper.JVMHelper;
-import pro.gravit.launcher.gui.utils.helper.LogHelper;
-import pro.gravit.launcher.gui.utils.helper.VerifyHelper;
-
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import java.awt.image.BufferedImage;

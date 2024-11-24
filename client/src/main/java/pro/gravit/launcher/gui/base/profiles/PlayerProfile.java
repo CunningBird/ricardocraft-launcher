@@ -1,6 +1,5 @@
 package pro.gravit.launcher.gui.base.profiles;
 
-import pro.gravit.launcher.gui.base.profiles.Texture;
 import pro.gravit.launcher.gui.utils.helper.IOHelper;
 
 import java.util.HashMap;

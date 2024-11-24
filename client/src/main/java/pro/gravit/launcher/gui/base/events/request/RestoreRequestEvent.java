@@ -1,7 +1,6 @@
 package pro.gravit.launcher.gui.base.events.request;
 
 import pro.gravit.launcher.gui.base.events.RequestEvent;
-import pro.gravit.launcher.gui.base.events.request.CurrentUserRequestEvent;
 
 import java.util.List;
 

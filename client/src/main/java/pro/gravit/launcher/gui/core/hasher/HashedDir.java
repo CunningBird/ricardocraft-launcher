@@ -1,9 +1,6 @@
 package pro.gravit.launcher.gui.core.hasher;
 
 import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
-import pro.gravit.launcher.gui.core.hasher.FileNameMatcher;
-import pro.gravit.launcher.gui.core.hasher.HashedEntry;
-import pro.gravit.launcher.gui.core.hasher.HashedFile;
 import pro.gravit.launcher.gui.core.serialize.HInput;
 import pro.gravit.launcher.gui.core.serialize.HOutput;
 import pro.gravit.launcher.gui.core.serialize.stream.EnumSerializer;

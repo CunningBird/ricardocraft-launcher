@@ -1,10 +1,6 @@
 package pro.gravit.launcher.gui.base.profiles.optional.triggers;
 
 import pro.gravit.launcher.gui.base.profiles.optional.OptionalFile;
-import pro.gravit.launcher.gui.base.profiles.optional.triggers.ArchTrigger;
-import pro.gravit.launcher.gui.base.profiles.optional.triggers.JavaTrigger;
-import pro.gravit.launcher.gui.base.profiles.optional.triggers.OSTrigger;
-import pro.gravit.launcher.gui.base.profiles.optional.triggers.OptionalTriggerContext;
 import pro.gravit.launcher.gui.utils.ProviderMap;
 
 public abstract class OptionalTrigger {

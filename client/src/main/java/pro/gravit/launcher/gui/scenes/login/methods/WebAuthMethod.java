@@ -7,12 +7,12 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import pro.gravit.launcher.gui.JavaFXApplication;
+import pro.gravit.launcher.gui.base.request.auth.details.AuthWebViewDetails;
+import pro.gravit.launcher.gui.base.request.auth.password.AuthCodePassword;
 import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.overlays.AbstractOverlay;
 import pro.gravit.launcher.gui.scenes.login.AuthFlow;
 import pro.gravit.launcher.gui.scenes.login.LoginScene;
-import pro.gravit.launcher.gui.base.request.auth.details.AuthWebViewDetails;
-import pro.gravit.launcher.gui.base.request.auth.password.AuthCodePassword;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;

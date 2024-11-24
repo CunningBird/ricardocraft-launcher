@@ -1,6 +1,5 @@
 package pro.gravit.launcher.gui.core;
 
-import pro.gravit.launcher.gui.core.LauncherInject;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import javax.net.ssl.TrustManagerFactory;

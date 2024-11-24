@@ -1,9 +1,6 @@
 package pro.gravit.launcher.gui.core.hasher;
 
 import com.google.gson.*;
-import pro.gravit.launcher.gui.core.hasher.HashedDir;
-import pro.gravit.launcher.gui.core.hasher.HashedEntry;
-import pro.gravit.launcher.gui.core.hasher.HashedFile;
 
 import java.lang.reflect.Type;
 

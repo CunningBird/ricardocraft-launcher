@@ -1,7 +1,5 @@
 package pro.gravit.launcher.gui.utils.helper;
 
-import pro.gravit.launcher.gui.utils.helper.LogHelper;
-
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;

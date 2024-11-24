@@ -1,7 +1,6 @@
 package pro.gravit.launcher.gui.base.request;
 
 import com.google.gson.*;
-import pro.gravit.launcher.gui.base.request.WebSocketEvent;
 
 import java.lang.reflect.Type;
 

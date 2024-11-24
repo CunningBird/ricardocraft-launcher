@@ -1,18 +1,18 @@
 package pro.gravit.launcher.gui;
 
 import javafx.stage.Stage;
-import pro.gravit.launcher.gui.client.events.ClientExitPhase;
-import pro.gravit.launcher.gui.client.events.ClientUnlockConsoleEvent;
-import pro.gravit.launcher.gui.service.OfflineService;
-import pro.gravit.launcher.gui.runtime.LauncherEngine;
-import pro.gravit.launcher.gui.runtime.client.events.ClientEngineInitPhase;
-import pro.gravit.launcher.gui.runtime.client.events.ClientPreGuiPhase;
-import pro.gravit.launcher.gui.runtime.gui.RuntimeProvider;
 import pro.gravit.launcher.gui.base.modules.LauncherInitContext;
 import pro.gravit.launcher.gui.base.modules.LauncherModule;
 import pro.gravit.launcher.gui.base.modules.LauncherModuleInfo;
 import pro.gravit.launcher.gui.base.modules.events.OfflineModeEvent;
 import pro.gravit.launcher.gui.base.request.websockets.OfflineRequestService;
+import pro.gravit.launcher.gui.client.events.ClientExitPhase;
+import pro.gravit.launcher.gui.client.events.ClientUnlockConsoleEvent;
+import pro.gravit.launcher.gui.runtime.LauncherEngine;
+import pro.gravit.launcher.gui.runtime.client.events.ClientEngineInitPhase;
+import pro.gravit.launcher.gui.runtime.client.events.ClientPreGuiPhase;
+import pro.gravit.launcher.gui.runtime.gui.RuntimeProvider;
+import pro.gravit.launcher.gui.service.OfflineService;
 import pro.gravit.launcher.gui.utils.Version;
 import pro.gravit.launcher.gui.utils.helper.JVMHelper;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;

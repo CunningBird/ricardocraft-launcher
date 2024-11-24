@@ -1,7 +1,5 @@
 package pro.gravit.launcher.gui.utils.command;
 
-import pro.gravit.launcher.gui.utils.command.Command;
-
 import java.util.Map;
 
 public interface CommandCategory {

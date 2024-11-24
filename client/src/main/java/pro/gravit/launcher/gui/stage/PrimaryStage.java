@@ -2,7 +2,6 @@ package pro.gravit.launcher.gui.stage;
 
 import javafx.application.Platform;
 import javafx.scene.image.Image;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;

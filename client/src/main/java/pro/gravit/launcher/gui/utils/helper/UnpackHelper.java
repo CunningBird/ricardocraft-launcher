@@ -1,8 +1,5 @@
 package pro.gravit.launcher.gui.utils.helper;
 
-import pro.gravit.launcher.gui.utils.helper.IOHelper;
-import pro.gravit.launcher.gui.utils.helper.SecurityHelper;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;

@@ -1,7 +1,7 @@
 package pro.gravit.launcher.gui.base.events.request;
 
-import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 import pro.gravit.launcher.gui.base.events.RequestEvent;
+import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 import pro.gravit.launcher.gui.core.hasher.HashedDir;
 
 public class UpdateRequestEvent extends RequestEvent {

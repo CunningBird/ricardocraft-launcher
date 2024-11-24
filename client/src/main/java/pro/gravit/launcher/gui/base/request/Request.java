@@ -1,9 +1,5 @@
 package pro.gravit.launcher.gui.base.request;
 
-import pro.gravit.launcher.gui.base.request.RequestException;
-import pro.gravit.launcher.gui.base.request.RequestService;
-import pro.gravit.launcher.gui.base.request.WebSocketEvent;
-import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 import pro.gravit.launcher.gui.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.gui.base.events.request.CurrentUserRequestEvent;
 import pro.gravit.launcher.gui.base.events.request.RefreshTokenRequestEvent;
@@ -12,6 +8,7 @@ import pro.gravit.launcher.gui.base.request.auth.RefreshTokenRequest;
 import pro.gravit.launcher.gui.base.request.auth.RestoreRequest;
 import pro.gravit.launcher.gui.base.request.websockets.StdWebSocketService;
 import pro.gravit.launcher.gui.base.request.websockets.WebSocketRequest;
+import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.util.*;

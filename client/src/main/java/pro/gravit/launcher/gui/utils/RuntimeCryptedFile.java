@@ -1,7 +1,7 @@
 package pro.gravit.launcher.gui.utils;
 
-import pro.gravit.utils.enfs.dir.FileEntry;
 import pro.gravit.launcher.gui.utils.helper.SecurityHelper;
+import pro.gravit.utils.enfs.dir.FileEntry;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;

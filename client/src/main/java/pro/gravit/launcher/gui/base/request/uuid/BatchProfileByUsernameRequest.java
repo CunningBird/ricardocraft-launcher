@@ -1,9 +1,9 @@
 package pro.gravit.launcher.gui.base.request.uuid;
 
-import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 import pro.gravit.launcher.gui.base.events.request.BatchProfileByUsernameRequestEvent;
 import pro.gravit.launcher.gui.base.request.Request;
 import pro.gravit.launcher.gui.base.request.websockets.WebSocketRequest;
+import pro.gravit.launcher.gui.core.LauncherNetworkAPI;
 import pro.gravit.launcher.gui.utils.helper.IOHelper;
 
 import java.io.IOException;

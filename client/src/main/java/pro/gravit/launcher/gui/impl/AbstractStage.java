@@ -16,7 +16,6 @@ import pro.gravit.launcher.gui.utils.JavaFxUtils;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;

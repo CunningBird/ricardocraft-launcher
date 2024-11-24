@@ -1,7 +1,6 @@
 package pro.gravit.launcher.gui.base.profiles.optional;
 
 import pro.gravit.launcher.gui.base.profiles.ClientProfile;
-import pro.gravit.launcher.gui.base.profiles.optional.OptionalFile;
 import pro.gravit.launcher.gui.base.profiles.optional.actions.OptionalAction;
 
 import java.util.*;

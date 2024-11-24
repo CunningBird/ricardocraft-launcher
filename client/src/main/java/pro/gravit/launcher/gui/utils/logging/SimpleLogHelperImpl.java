@@ -4,7 +4,6 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import pro.gravit.launcher.gui.utils.helper.FormatHelper;
 import pro.gravit.launcher.gui.utils.helper.IOHelper;
-import pro.gravit.launcher.gui.utils.logging.LogHelperAppender;
 
 import java.io.IOException;
 import java.io.OutputStream;

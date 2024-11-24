@@ -1,6 +1,5 @@
 package pro.gravit.launcher.gui.utils.command;
 
-import pro.gravit.launcher.gui.utils.command.CommandHandler;
 import pro.gravit.launcher.gui.utils.helper.IOHelper;
 import pro.gravit.launcher.gui.utils.helper.JVMHelper;
 

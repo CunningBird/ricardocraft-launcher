@@ -1,8 +1,6 @@
 package pro.gravit.launcher.gui.base.modules.impl;
 
 import pro.gravit.launcher.gui.base.modules.*;
-import pro.gravit.launcher.gui.base.modules.impl.SimpleModuleContext;
-import pro.gravit.launcher.gui.base.modules.impl.SimpleModulesConfigManager;
 import pro.gravit.launcher.gui.core.LauncherTrustManager;
 import pro.gravit.launcher.gui.utils.Version;
 import pro.gravit.launcher.gui.utils.helper.IOHelper;

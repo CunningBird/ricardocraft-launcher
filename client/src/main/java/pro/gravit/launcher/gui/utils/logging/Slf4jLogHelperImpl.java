@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.gravit.launcher.gui.utils.helper.FormatHelper;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
-import pro.gravit.launcher.gui.utils.logging.LogHelperAppender;
 
 import java.util.function.Supplier;
 

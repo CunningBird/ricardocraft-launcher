@@ -1,14 +1,17 @@
 package pro.gravit.launcher.gui.service;
 
 import pro.gravit.launcher.gui.JavaFXApplication;
-import pro.gravit.launcher.gui.runtime.client.DirBridge;
 import pro.gravit.launcher.gui.base.profiles.ClientProfile;
+import pro.gravit.launcher.gui.runtime.client.DirBridge;
 import pro.gravit.launcher.gui.utils.helper.JVMHelper;
 import pro.gravit.launcher.gui.utils.helper.JavaHelper;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

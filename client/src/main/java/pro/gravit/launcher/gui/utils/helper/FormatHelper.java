@@ -2,7 +2,6 @@ package pro.gravit.launcher.gui.utils.helper;
 
 import org.fusesource.jansi.Ansi;
 import pro.gravit.launcher.gui.utils.Version;
-import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 /*
  * Nashorn when initializing LogHelper tries to initialize all methods available in it.

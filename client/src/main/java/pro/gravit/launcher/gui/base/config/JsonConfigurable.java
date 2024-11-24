@@ -1,7 +1,5 @@
 package pro.gravit.launcher.gui.base.config;
 
-import pro.gravit.launcher.gui.base.config.JsonConfigurableInterface;
-
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 

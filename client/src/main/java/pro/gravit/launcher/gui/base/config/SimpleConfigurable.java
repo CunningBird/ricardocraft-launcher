@@ -1,7 +1,5 @@
 package pro.gravit.launcher.gui.base.config;
 
-import pro.gravit.launcher.gui.base.config.JsonConfigurable;
-
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.file.Path;

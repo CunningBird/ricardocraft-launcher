@@ -5,7 +5,6 @@ import pro.gravit.launcher.gui.base.request.Request;
 import pro.gravit.launcher.gui.base.request.RequestException;
 import pro.gravit.launcher.gui.base.request.RequestService;
 import pro.gravit.launcher.gui.base.request.WebSocketEvent;
-import pro.gravit.launcher.gui.base.request.websockets.WebSocketRequest;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.util.HashSet;

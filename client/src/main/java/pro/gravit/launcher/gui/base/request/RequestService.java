@@ -1,9 +1,5 @@
 package pro.gravit.launcher.gui.base.request;
 
-import pro.gravit.launcher.gui.base.request.Request;
-import pro.gravit.launcher.gui.base.request.RequestException;
-import pro.gravit.launcher.gui.base.request.WebSocketEvent;
-
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;

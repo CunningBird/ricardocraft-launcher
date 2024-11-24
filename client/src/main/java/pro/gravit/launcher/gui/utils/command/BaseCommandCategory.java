@@ -1,7 +1,5 @@
 package pro.gravit.launcher.gui.utils.command;
 
-import pro.gravit.launcher.gui.utils.command.Command;
-import pro.gravit.launcher.gui.utils.command.CommandCategory;
 import pro.gravit.launcher.gui.utils.helper.VerifyHelper;
 
 import java.util.Map;

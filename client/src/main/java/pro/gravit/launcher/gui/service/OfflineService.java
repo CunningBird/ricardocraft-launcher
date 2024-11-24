@@ -1,8 +1,7 @@
 package pro.gravit.launcher.gui.service;
 
-import pro.gravit.launcher.gui.base.ClientPermissions;
 import pro.gravit.launcher.gui.JavaFXApplication;
-import pro.gravit.launcher.gui.runtime.client.DirBridge;
+import pro.gravit.launcher.gui.base.ClientPermissions;
 import pro.gravit.launcher.gui.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.gui.base.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.gui.base.profiles.ClientProfile;
@@ -12,6 +11,7 @@ import pro.gravit.launcher.gui.base.request.auth.AuthRequest;
 import pro.gravit.launcher.gui.base.request.auth.password.AuthOAuthPassword;
 import pro.gravit.launcher.gui.base.request.update.ProfilesRequest;
 import pro.gravit.launcher.gui.base.request.websockets.OfflineRequestService;
+import pro.gravit.launcher.gui.runtime.client.DirBridge;
 import pro.gravit.launcher.gui.utils.helper.SecurityHelper;
 
 import java.nio.charset.StandardCharsets;

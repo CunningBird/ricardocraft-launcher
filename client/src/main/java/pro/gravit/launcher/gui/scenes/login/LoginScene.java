@@ -1,18 +1,14 @@
 package pro.gravit.launcher.gui.scenes.login;
 
 import javafx.application.Platform;
-import javafx.scene.control.*;
+import javafx.scene.control.ButtonBase;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
-import pro.gravit.launcher.gui.client.events.ClientExitPhase;
-import pro.gravit.launcher.gui.StdJavaRuntimeProvider;
 import pro.gravit.launcher.gui.JavaFXApplication;
-import pro.gravit.launcher.gui.helper.LookupHelper;
-import pro.gravit.launcher.gui.impl.AbstractVisualComponent;
-import pro.gravit.launcher.gui.scenes.AbstractScene;
-import pro.gravit.launcher.gui.runtime.LauncherEngine;
-import pro.gravit.launcher.gui.runtime.utils.LauncherUpdater;
+import pro.gravit.launcher.gui.StdJavaRuntimeProvider;
 import pro.gravit.launcher.gui.base.events.request.AuthRequestEvent;
 import pro.gravit.launcher.gui.base.events.request.GetAvailabilityAuthRequestEvent;
 import pro.gravit.launcher.gui.base.profiles.Texture;
@@ -21,13 +17,20 @@ import pro.gravit.launcher.gui.base.request.WebSocketEvent;
 import pro.gravit.launcher.gui.base.request.auth.AuthRequest;
 import pro.gravit.launcher.gui.base.request.auth.GetAvailabilityAuthRequest;
 import pro.gravit.launcher.gui.base.request.auth.details.AuthPasswordDetails;
-import pro.gravit.launcher.gui.base.request.auth.password.*;
+import pro.gravit.launcher.gui.base.request.auth.password.Auth2FAPassword;
+import pro.gravit.launcher.gui.base.request.auth.password.AuthMultiPassword;
 import pro.gravit.launcher.gui.base.request.update.LauncherRequest;
 import pro.gravit.launcher.gui.base.request.update.ProfilesRequest;
+import pro.gravit.launcher.gui.client.events.ClientExitPhase;
+import pro.gravit.launcher.gui.helper.LookupHelper;
+import pro.gravit.launcher.gui.impl.AbstractVisualComponent;
+import pro.gravit.launcher.gui.runtime.LauncherEngine;
+import pro.gravit.launcher.gui.runtime.utils.LauncherUpdater;
+import pro.gravit.launcher.gui.scenes.AbstractScene;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
 import java.net.URI;
-import java.util.*;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class LoginScene extends AbstractScene {

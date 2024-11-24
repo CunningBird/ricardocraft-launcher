@@ -1,6 +1,5 @@
 package pro.gravit.launcher.gui.base.profiles.optional.actions;
 
-import pro.gravit.launcher.gui.base.profiles.optional.actions.OptionalAction;
 import pro.gravit.launcher.gui.core.hasher.HashedDir;
 import pro.gravit.launcher.gui.utils.helper.LogHelper;
 
