@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.ricardocraft.backend.base.LaunchOptions;
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
-import ru.ricardocraft.backend.base.core.hasher.FileNameMatcher;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.VerifyHelper;
 import ru.ricardocraft.backend.base.profiles.optional.OptionalDepend;

@@ -10,8 +10,6 @@ import ru.ricardocraft.backend.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.backend.auth.password.AuthCodePassword;
 import ru.ricardocraft.backend.auth.password.AuthPassword;
 import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
-import ru.ricardocraft.backend.base.helper.CommonHelper;
-import ru.ricardocraft.backend.base.helper.QueryHelper;
 import ru.ricardocraft.backend.base.request.RequestException;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
@@ -92,8 +90,8 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
         }
         AuthCodePassword codePassword = (AuthCodePassword) password;
         var uri = URI.create(codePassword.uri);
-        var queries = QueryHelper.splitUriQuery(uri);
-        var code = CommonHelper.multimapFirstOrNullValue("code", queries);
+        var queries = splitUriQuery(uri);
+        var code = multimapFirstOrNullValue("code", queries);
         try {
             var token = sendMicrosoftOAuthTokenRequest(code);
             if (token == null) {

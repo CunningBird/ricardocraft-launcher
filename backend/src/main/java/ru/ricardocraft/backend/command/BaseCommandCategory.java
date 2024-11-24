@@ -11,7 +11,7 @@ public class BaseCommandCategory implements CommandCategory {
 
     @Override
     public void registerCommand(String name, Command command) {
-        VerifyHelper.verifyIDName(name);
+        verifyIDName(name);
         VerifyHelper.putIfAbsent(commands, name.toLowerCase(), Objects.requireNonNull(command, "command"),
                 String.format("Command has been already registered: '%s'", name.toLowerCase()));
     }
@@ -24,5 +24,17 @@ public class BaseCommandCategory implements CommandCategory {
     @Override
     public Map<String, Command> commandsMap() {
         return commands;
+    }
+
+    private void verifyIDName(String name) {
+        VerifyHelper.verify(name, this::isValidIDName, String.format("Invalid name: '%s'", name));
+    }
+
+    private boolean isValidIDName(String name) {
+        return !name.isEmpty() && name.length() <= 255 && name.chars().allMatch(this::isValidIDNameChar);
+    }
+
+    private boolean isValidIDNameChar(int ch) {
+        return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9' || ch == '-' || ch == '_';
     }
 }

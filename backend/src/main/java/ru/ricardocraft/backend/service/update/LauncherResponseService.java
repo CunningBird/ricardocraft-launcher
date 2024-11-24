@@ -58,32 +58,34 @@ public class LauncherResponseService extends AbstractResponseService {
     public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         LauncherResponse response = (LauncherResponse) rawResponse;
 
-        byte[] bytes;
-        if (response.hash != null)
-            bytes = Base64.getDecoder().decode(response.hash);
-        else
-            bytes = response.digest;
+//        byte[] bytes;
+//        if (response.hash != null)
+//            bytes = Base64.getDecoder().decode(response.hash);
+//        else
+//            bytes = response.digest;
         if (response.launcher_type == 1) {
-            byte[] hash = launcherBinary.getDigest();
-            if (hash == null)
-                service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherURL()));
-            if (Arrays.equals(bytes, hash) && checkSecure(response.secureHash, response.secureSalt)) {
-                client.checkSign = true;
-                sendResult(ctx, new LauncherRequestEvent(false, nettyProperties.getLauncherURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000), response.requestUUID);
-            } else {
-                sendResultAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherURL(), null, 0), response.requestUUID);
-            }
+            sendResult(ctx, new LauncherRequestEvent(false, nettyProperties.getLauncherURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000), response.requestUUID);
+//            byte[] hash = launcherBinary.getDigest();
+//            if (hash == null)
+//                service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherURL()));
+//            if (Arrays.equals(bytes, hash) && checkSecure(response.secureHash, response.secureSalt)) {
+//                client.checkSign = true;
+//                sendResult(ctx, new LauncherRequestEvent(false, nettyProperties.getLauncherURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000), response.requestUUID);
+//            } else {
+//                sendResultAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherURL(), null, 0), response.requestUUID);
+//            }
         } else if (response.launcher_type == 2) //EXE
         {
-            byte[] hash = exeLauncherBinary.getDigest();
-            if (hash == null)
-                sendResultAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherEXEURL()), response.requestUUID);
-            if (Arrays.equals(bytes, hash) && checkSecure(response.secureHash, response.secureSalt)) {
-                client.checkSign = true;
-                sendResult(ctx, new LauncherRequestEvent(false, nettyProperties.getLauncherEXEURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000), response.requestUUID);
-            } else {
-                sendResultAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherEXEURL(), null, 0), response.requestUUID);
-            }
+            sendResult(ctx, new LauncherRequestEvent(false, nettyProperties.getLauncherEXEURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000), response.requestUUID);
+//            byte[] hash = exeLauncherBinary.getDigest();
+//            if (hash == null)
+//                sendResultAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherEXEURL()), response.requestUUID);
+//            if (Arrays.equals(bytes, hash) && checkSecure(response.secureHash, response.secureSalt)) {
+//                client.checkSign = true;
+//                sendResult(ctx, new LauncherRequestEvent(false, nettyProperties.getLauncherEXEURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000), response.requestUUID);
+//            } else {
+//                sendResultAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherEXEURL(), null, 0), response.requestUUID);
+//            }
         } else sendError(ctx, "Request launcher type error", response.requestUUID);
     }
 

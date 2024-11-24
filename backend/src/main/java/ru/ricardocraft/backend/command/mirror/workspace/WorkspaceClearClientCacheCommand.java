@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.MirrorManager;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Files;

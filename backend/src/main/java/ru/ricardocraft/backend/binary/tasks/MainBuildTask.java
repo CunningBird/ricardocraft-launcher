@@ -68,6 +68,25 @@ public class MainBuildTask implements LauncherBuildTask {
         reader = new ClassMetadataReader();
         InjectClassAcceptor injectClassAcceptor = new InjectClassAcceptor(properties);
         transformers.add(injectClassAcceptor);
+
+        String launcherSalt = SecurityHelper.randomStringToken();
+        byte[] launcherSecureHash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256, config.getRuntime().getClientCheckSecret().concat(".").concat(launcherSalt));
+
+        properties.clear();
+        properties.put("launcher.address", nettyProperties.getAddress());
+        properties.put("launcher.projectName", config.getProjectName());
+        properties.put("runtimeconfig.secretKeyClient", SecurityHelper.randomStringAESKey());
+        properties.put("launcher.port", 32148 + SecurityHelper.newRandom().nextInt(512));
+        properties.put("launchercore.env", config.getEnv());
+        properties.put("launcher.memory", config.getLauncher().getMemoryLimit());
+        properties.put("launcher.customJvmOptions", config.getLauncher().getCustomJvmOptions());
+        properties.put("runtimeconfig.runtimeEncryptKey", config.getRuntime().getRuntimeEncryptKey());
+        properties.put("launcher.certificatePinning", config.getLauncher().getCertificatePinning());
+        properties.put("runtimeconfig.passwordEncryptKey", config.getRuntime().getPasswordEncryptKey());
+        properties.put("runtimeconfig.secureCheckHash", Base64.getEncoder().encodeToString(launcherSecureHash));
+        properties.put("runtimeconfig.secureCheckSalt", launcherSalt);
+        properties.put("runtimeconfig.unlockSecret", config.getRuntime().getUnlockSecret());
+        properties.put("runtimeconfig.buildNumber", config.getRuntime().getBuildNumber());
     }
 
     @Override
@@ -80,7 +99,7 @@ public class MainBuildTask implements LauncherBuildTask {
         Path outputJar = launcherBinary.nextPath(this);
         try (ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputJar))) {
             BuildContext context = new BuildContext(output, reader.getCp(), this, directoriesManager.getRuntimeDir());
-            initProps();
+
             properties.put("launcher.legacymodules", context.legacyClientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             properties.put("launcher.modules", context.clientModules.stream().map(e -> Type.getObjectType(e.replace('.', '/'))).collect(Collectors.toList()));
             postInitProps();
@@ -127,27 +146,6 @@ public class MainBuildTask implements LauncherBuildTask {
             }
         }
         properties.put("launchercore.certificates", certificates);
-    }
-
-    protected void initProps() {
-        properties.clear();
-        properties.put("launcher.address", nettyProperties.getAddress());
-        properties.put("launcher.projectName", config.getProjectName());
-        properties.put("runtimeconfig.secretKeyClient", SecurityHelper.randomStringAESKey());
-        properties.put("launcher.port", 32148 + SecurityHelper.newRandom().nextInt(512));
-        properties.put("launchercore.env", config.getEnv());
-        properties.put("launcher.memory", config.getLauncher().getMemoryLimit());
-        properties.put("launcher.customJvmOptions", config.getLauncher().getCustomJvmOptions());
-        properties.put("runtimeconfig.runtimeEncryptKey", config.getRuntime().getRuntimeEncryptKey());
-        properties.put("launcher.certificatePinning", config.getLauncher().getCertificatePinning());
-        properties.put("runtimeconfig.passwordEncryptKey", config.getRuntime().getPasswordEncryptKey());
-        String launcherSalt = SecurityHelper.randomStringToken();
-        byte[] launcherSecureHash = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256,
-                config.getRuntime().getClientCheckSecret().concat(".").concat(launcherSalt));
-        properties.put("runtimeconfig.secureCheckHash", Base64.getEncoder().encodeToString(launcherSecureHash));
-        properties.put("runtimeconfig.secureCheckSalt", launcherSalt);
-        properties.put("runtimeconfig.unlockSecret", config.getRuntime().getUnlockSecret());
-        properties.put("runtimeconfig.buildNumber", config.getRuntime().getBuildNumber());
     }
 
     public byte[] transformClass(byte[] bytes, String classname, BuildContext context) {

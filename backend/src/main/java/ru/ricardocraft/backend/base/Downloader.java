@@ -8,7 +8,6 @@ import ru.ricardocraft.backend.base.core.LauncherInject;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,7 +22,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
@@ -40,7 +38,6 @@ public class Downloader {
     private static boolean isCertificatePinning;
     @LauncherInject("launcher.noHttp2")
     private static boolean isNoHttp2;
-    private static volatile SSLSocketFactory sslSocketFactory;
     private static volatile SSLContext sslContext;
     protected final HttpClient client;
     protected final ExecutorService executor;
@@ -77,13 +74,6 @@ public class Downloader {
                  KeyManagementException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static SSLSocketFactory makeSSLSocketFactory() throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, KeyManagementException {
-        if (sslSocketFactory != null) return sslSocketFactory;
-        SSLContext sslContext = makeSSLContext();
-        sslSocketFactory = sslContext.getSocketFactory();
-        return sslSocketFactory;
     }
 
     public static SSLContext makeSSLContext() throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, KeyManagementException {
@@ -155,16 +145,6 @@ public class Downloader {
                     }
                     return CompletableFuture.completedFuture(null);
         });
-    }
-
-    public CompletableFuture<Void> downloadFile(String url, Path path, DownloadCallback callback, ExecutorService executor) throws Exception {
-        return downloadFiles(new ArrayList<>(List.of(new SizedFile(url, path.getFileName().toString()))), null,
-                path.getParent(), callback, executor, 1);
-    }
-
-    public CompletableFuture<Void> downloadFile(String url, Path path, long size, DownloadCallback callback, ExecutorService executor) throws Exception {
-        return downloadFiles(new ArrayList<>(List.of(new SizedFile(url, path.getFileName().toString(), size))), null,
-                path.getParent(), callback, executor, 1);
     }
 
     public CompletableFuture<Void> downloadFiles(List<SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
@@ -266,13 +246,6 @@ public class Downloader {
             this.completableFuture = completableFuture;
         }
 
-        public boolean isCompleted() {
-            return completableFuture.isDone() | completableFuture.isCompletedExceptionally();
-        }
-
-        public void cancel() {
-            bodyHandler.cancel();
-        }
     }
 
     public static class ProgressTrackingBodyHandler<T> implements HttpResponse.BodyHandler<T> {
@@ -293,13 +266,6 @@ public class Downloader {
                 subscriber.cancel();
             }
             return subscriber;
-        }
-
-        public void cancel() {
-            isCanceled = true;
-            if (subscriber != null) {
-                subscriber.cancel();
-            }
         }
 
         private class ProgressTrackingBodySubscriber implements HttpResponse.BodySubscriber<T> {
@@ -358,22 +324,11 @@ public class Downloader {
         public final String urlPath, filePath;
         public final long size;
 
-        public SizedFile(String path, long size) {
-            this.urlPath = path;
-            this.filePath = path;
-            this.size = size;
-        }
-
         public SizedFile(String urlPath, String filePath, long size) {
             this.urlPath = urlPath;
             this.filePath = filePath;
             this.size = size;
         }
 
-        public SizedFile(String urlPath, String filePath) {
-            this.urlPath = urlPath;
-            this.filePath = filePath;
-            this.size = -1;
-        }
     }
 }

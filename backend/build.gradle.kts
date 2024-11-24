@@ -69,8 +69,6 @@ dependencies {
     implementation("software.amazon.awssdk:s3")
     implementation("software.amazon.awssdk:netty-nio-client")
 
-    implementation("pro.gravit.utils.enfs:enfs:2.0.1-SNAPSHOT")
-
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
