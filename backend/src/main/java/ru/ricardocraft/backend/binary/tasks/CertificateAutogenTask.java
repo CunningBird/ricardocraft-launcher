@@ -11,20 +11,27 @@ import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaCertStore;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
+import org.bouncycastle.cms.SignerInfoGenerator;
+import org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder;
 import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.DigestCalculatorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-import ru.ricardocraft.backend.base.helper.SignHelper;
+import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
+import org.bouncycastle.util.Store;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Path;
+import java.security.PrivateKey;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.LocalDate;
@@ -32,6 +39,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class CertificateAutogenTask implements LauncherBuildTask {
 
@@ -80,10 +88,26 @@ public class CertificateAutogenTask implements LauncherBuildTask {
                     .getCertificate(bcCertificate);
             ArrayList<Certificate> chain = new ArrayList<>();
             chain.add(certificate);
-            signedDataGenerator = SignHelper.createSignedDataGenerator(keyAgreementManager.ecdsaPrivateKey, certificate, chain, "SHA256WITHECDSA");
+            signedDataGenerator = createSignedDataGenerator(keyAgreementManager.ecdsaPrivateKey, certificate, chain, "SHA256WITHECDSA");
         } catch (OperatorCreationException | CMSException | CertificateException e) {
             logger.error("Certificate generate failed", e);
         }
         return inputFile;
+    }
+
+    private CMSSignedDataGenerator createSignedDataGenerator(PrivateKey privateKey,
+                                                                   Certificate cert,
+                                                                   List<Certificate> certChain,
+                                                                   String signAlgo) throws OperatorCreationException,
+            CertificateEncodingException, CMSException {
+        @SuppressWarnings("rawtypes")
+        Store certStore = new JcaCertStore(certChain);
+        ContentSigner signer = new JcaContentSignerBuilder(signAlgo).setProvider("BC").build(privateKey);
+        CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
+        DigestCalculatorProvider dcp = new JcaDigestCalculatorProviderBuilder().setProvider("BC").build();
+        SignerInfoGenerator sig = new JcaSignerInfoGeneratorBuilder(dcp).build(signer, (X509Certificate) cert);
+        generator.addSignerInfoGenerator(sig);
+        generator.addCertificates(certStore);
+        return generator;
     }
 }

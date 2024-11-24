@@ -3,7 +3,6 @@ package ru.ricardocraft.backend.auth.texture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.base.helper.CommonHelper;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.profiles.Texture;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
@@ -46,7 +45,7 @@ public final class RequestTextureProvider extends TextureProvider {
     }
 
     public String getTextureURL(String url, UUID uuid, String username, String client) {
-        return CommonHelper.replace(url, "username", IOHelper.urlEncode(username),
+        return replace(url, "username", IOHelper.urlEncode(username),
                 "uuid", IOHelper.urlEncode(uuid.toString()), "hash", IOHelper.urlEncode(toHash(uuid)),
                 "client", IOHelper.urlEncode(client == null ? "unknown" : client));
     }
@@ -75,5 +74,11 @@ public final class RequestTextureProvider extends TextureProvider {
 
     private String toHash(UUID uuid) {
         return UUID_PATTERN.matcher(uuid.toString()).replaceAll("");
+    }
+
+    private String replace(String source, String... params) {
+        for (int i = 0; i < params.length; i += 2)
+            source = source.replace('%' + params[i] + '%', params[i + 1]);
+        return source;
     }
 }

@@ -3,7 +3,6 @@ package ru.ricardocraft.backend.binary;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
-import ru.ricardocraft.backend.base.helper.CommonHelper;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.binary.tasks.LauncherBuildTask;
@@ -12,10 +11,7 @@ import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 
 public abstract class LauncherBinary {
@@ -131,6 +127,6 @@ public abstract class LauncherBinary {
     }
 
     public Path nextLowerPath(LauncherBuildTask task) {
-        return nextPath(CommonHelper.low(task.getName()));
+        return nextPath(task.getName().toLowerCase(Locale.US));
     }
 }

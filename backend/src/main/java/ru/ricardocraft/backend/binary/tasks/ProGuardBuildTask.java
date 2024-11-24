@@ -87,13 +87,13 @@ public class ProGuardBuildTask implements LauncherBuildTask {
                 Process process = new ProcessBuilder()
                         .command(args)
                         .inheritIO()
-                        .directory(proguardConf.proguard.toFile())
+                        .directory(directoriesManager.getProguard().toFile())
                         .start();
 
                 try {
                     process.waitFor();
                 } catch (InterruptedException ignored) {
-
+                    System.out.println("Flex");
                 }
                 if (process.exitValue() != 0) {
                     throw new RuntimeException("ProGuard process return %d".formatted(process.exitValue()));
@@ -101,8 +101,9 @@ public class ProGuardBuildTask implements LauncherBuildTask {
             } catch (Exception e) {
                 logger.error(e);
             }
-        } else
+        } else {
             IOHelper.copy(inputFile, outputJar);
+        }
         return outputJar;
     }
 
@@ -142,8 +143,8 @@ public class ProGuardBuildTask implements LauncherBuildTask {
     public void buildConfig(List<String> confStrs, Path inputJar, Path outputJar, Path[] jfxPath) {
         proguardConf.prepare(false);
         if (properties.getProguard().getMappings())
-            confStrs.add("-printmapping '" + proguardConf.mappings.toFile().getName() + "'");
-        confStrs.add("-obfuscationdictionary '" + proguardConf.words.toFile().getName() + "'");
+            confStrs.add("-printmapping '" + directoriesManager.getProguardMappingsFile().toFile().getName() + "'");
+        confStrs.add("-obfuscationdictionary '" + directoriesManager.getProguardWordsFile().toFile().getName() + "'");
         confStrs.add("-injar '" + inputJar.toAbsolutePath() + "'");
         confStrs.add("-outjar '" + outputJar.toAbsolutePath() + "'");
         Collections.addAll(confStrs, JAVA9_OPTS);
@@ -159,7 +160,7 @@ public class ProGuardBuildTask implements LauncherBuildTask {
         jarLauncherInfo.getAddonLibs().stream()
                 .map(e -> "-libraryjars '" + e.toAbsolutePath() + "'")
                 .forEach(confStrs::add);
-        confStrs.add("-classobfuscationdictionary '" + proguardConf.words.toFile().getName() + "'");
-        confStrs.add("@".concat(proguardConf.config.toFile().getName()));
+        confStrs.add("-classobfuscationdictionary '" + directoriesManager.getProguardWordsFile().toFile().getName() + "'");
+        confStrs.add("@".concat(directoriesManager.getProguardConfigFile().toFile().getName()));
     }
 }

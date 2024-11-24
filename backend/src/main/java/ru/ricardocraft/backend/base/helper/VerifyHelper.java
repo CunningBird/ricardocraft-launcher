@@ -19,18 +19,6 @@ public final class VerifyHelper {
     private VerifyHelper() {
     }
 
-    public static <K, V> V getMapValue(Map<K, V> map, K key, String error) {
-        return verify(map.get(key), Objects::nonNull, error);
-    }
-
-    public static boolean isValidIDName(String name) {
-        return !name.isEmpty() && name.length() <= 255 && name.chars().allMatch(VerifyHelper::isValidIDNameChar);
-    }
-
-    public static boolean isValidIDNameChar(int ch) {
-        return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9' || ch == '-' || ch == '_';
-    }
-
     public static <K, V> void putIfAbsent(Map<K, V> map, K key, V value, String error) {
         verify(map.putIfAbsent(key, value), Objects::isNull, error);
     }
@@ -41,19 +29,9 @@ public final class VerifyHelper {
         throw new IllegalArgumentException(error);
     }
 
-    public static void verifyIDName(String name) {
-        verify(name, VerifyHelper::isValidIDName, String.format("Invalid name: '%s'", name));
-    }
-
     public static int verifyInt(int i, IntPredicate predicate, String error) {
         if (predicate.test(i))
             return i;
-        throw new IllegalArgumentException(error);
-    }
-
-    public static long verifyLong(long l, LongPredicate predicate, String error) {
-        if (predicate.test(l))
-            return l;
         throw new IllegalArgumentException(error);
     }
 }

@@ -18,7 +18,6 @@ public class LaunchServerProperties {
     private TextureProviderProperties textureProvider;
     private AuthLimiterProperties authLimiter;
     private ProguardProperties proguard;
-    private NettyProperties netty;
     private LauncherProperties launcher;
     private OpenIDProperties openid;
     private MicrosoftAuthCoreProviderProperties microsoftAuthCoreProvider;

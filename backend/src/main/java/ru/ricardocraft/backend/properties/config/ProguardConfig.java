@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.helper.UnpackHelper;
@@ -14,7 +15,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.SecureRandom;
 
 @Component
@@ -24,24 +24,18 @@ public class ProguardConfig {
 
     public final char[] chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKlL5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ".toCharArray();
 
-    public final Path proguard;
-    public final Path config;
-    public final Path mappings;
-    public final Path words;
-
     private transient final LaunchServerProperties launchServerConfig;
+    private transient final DirectoriesManager directoriesManager;
+
     @Autowired
     public ProguardConfig(LaunchServerProperties launchServerConfig, DirectoriesManager directoriesManager) {
-        this.proguard = directoriesManager.getProguard();
-        config = proguard.resolve("proguard.config");
-        mappings = proguard.resolve("mappings.pro");
-        words = proguard.resolve("random.pro");
         this.launchServerConfig = launchServerConfig;
+        this.directoriesManager = directoriesManager;
     }
 
     public void prepare(boolean force) {
         try {
-            IOHelper.createParentDirs(config);
+            IOHelper.createParentDirs(directoriesManager.getProguardConfigFile());
             genWords(force);
             genConfig(force);
         } catch (IOException e) {
@@ -50,17 +44,17 @@ public class ProguardConfig {
     }
 
     private void genConfig(boolean force) throws IOException {
-        if (IOHelper.exists(config) && !force) return;
-        Files.deleteIfExists(config);
-        UnpackHelper.unpack(IOHelper.getResourceURL("pro/gravit/launchserver/defaults/proguard.cfg"), config);
+        if (IOHelper.exists(directoriesManager.getProguardConfigFile()) && !force) return;
+        Files.deleteIfExists(directoriesManager.getProguardConfigFile());
+        UnpackHelper.unpack(ResourceUtils.getFile("classpath:defaults/proguard.cfg").toURL(), directoriesManager.getProguardConfigFile());
     }
 
     public void genWords(boolean force) throws IOException {
-        if (IOHelper.exists(words) && !force) return;
-        Files.deleteIfExists(words);
+        if (IOHelper.exists(directoriesManager.getProguardWordsFile()) && !force) return;
+        Files.deleteIfExists(directoriesManager.getProguardWordsFile());
         SecureRandom rand = SecurityHelper.newRandom();
         rand.setSeed(SecureRandom.getSeed(32));
-        try (PrintWriter out = new PrintWriter(new OutputStreamWriter(IOHelper.newOutput(words), IOHelper.UNICODE_CHARSET))) {
+        try (PrintWriter out = new PrintWriter(new OutputStreamWriter(IOHelper.newOutput(directoriesManager.getProguardWordsFile()), IOHelper.UNICODE_CHARSET))) {
             String projectName = launchServerConfig.getProjectName().replaceAll("\\W", "");
             String lowName = projectName.toLowerCase();
             String upName = projectName.toUpperCase();

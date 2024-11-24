@@ -10,8 +10,10 @@ import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /*
 All-In-One provider
@@ -61,5 +63,29 @@ public abstract class AuthCoreProvider {
         public OAuthAccessTokenExpired(String message, Throwable cause) {
             super(message, cause);
         }
+    }
+
+    protected <K, V> V multimapFirstOrNullValue(K key, Map<K, List<V>> params) {
+        List<V> list = params.getOrDefault(key, Collections.emptyList());
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.getFirst();
+    }
+
+    protected Map<String, List<String>> splitUriQuery(URI uri) {
+        var query = uri.getRawQuery();
+        if (query == null) {
+            return Collections.emptyMap();
+        }
+        Map<String, List<String>> params = new HashMap<>();
+        String[] split = query.split("&");
+        for (String qParams : split) {
+            String[] splitParams = qParams.split("=");
+            List<String> strings = params.computeIfAbsent(URLDecoder.decode(splitParams[0], StandardCharsets.UTF_8),
+                    k -> new ArrayList<>(1));
+            strings.add(URLDecoder.decode(splitParams[1], StandardCharsets.UTF_8));
+        }
+        return params;
     }
 }

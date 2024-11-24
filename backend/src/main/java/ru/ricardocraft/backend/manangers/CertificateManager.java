@@ -8,9 +8,9 @@ import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.base.helper.JVMHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +24,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -73,7 +74,7 @@ public class CertificateManager {
         if (!IOHelper.isDir(dir)) {
             Files.createDirectories(dir);
             try {
-                URL inBuildCert = IOHelper.getResourceURL("pro/gravit/launchserver/defaults/BuildCertificate.crt");
+                URL inBuildCert = ResourceUtils.getFile("classpath:defaults/BuildCertificate.crt").toURL();
                 try (OutputStream outputStream = IOHelper.newOutput(dir.resolve("BuildCertificate.crt"));
                      InputStream inputStream = IOHelper.newInput(inBuildCert)) {
                     IOHelper.transfer(inputStream, outputStream);
@@ -107,7 +108,13 @@ public class CertificateManager {
     }
 
     public LauncherTrustManager.CheckClassResult checkClass(Class<?> clazz) {
-        X509Certificate[] certificates = JVMHelper.getCertificates(clazz);
+        X509Certificate[] certificates = getCertificates(clazz);
         return trustManager.checkCertificates(certificates, trustManager::stdCertificateChecker);
+    }
+
+    private X509Certificate[] getCertificates(Class<?> clazz) {
+        Object[] signers = clazz.getSigners();
+        if (signers == null) return null;
+        return Arrays.stream(signers).filter((c) -> c instanceof X509Certificate).map((c) -> (X509Certificate) c).toArray(X509Certificate[]::new);
     }
 }

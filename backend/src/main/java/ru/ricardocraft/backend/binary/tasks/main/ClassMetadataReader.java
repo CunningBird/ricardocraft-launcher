@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
+import org.springframework.util.ResourceUtils;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 
 import java.io.Closeable;
@@ -34,14 +35,6 @@ public class ClassMetadataReader implements Closeable {
         acceptVisitor(getClassData(className), visitor);
     }
 
-    public void acceptVisitor(byte[] classData, ClassVisitor visitor, int flags) {
-        new ClassReader(classData).accept(visitor, flags);
-    }
-
-    public void acceptVisitor(String className, ClassVisitor visitor, int flags) throws IOException {
-        acceptVisitor(getClassData(className), visitor, flags);
-    }
-
     public byte[] getClassData(String className) throws IOException {
         for (JarFile f : cp) {
             if (f.getEntry(className + ".class") != null) {
@@ -52,7 +45,7 @@ public class ClassMetadataReader implements Closeable {
                 return bytes;
             }
         }
-        return IOHelper.read(IOHelper.getResourceURL(className + ".class"));
+        return IOHelper.read(ResourceUtils.getFile("classpath:" + className + ".class").toURL());
     }
 
     public String getSuperClass(String type) {

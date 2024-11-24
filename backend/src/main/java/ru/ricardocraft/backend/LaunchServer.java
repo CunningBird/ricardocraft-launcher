@@ -1,6 +1,5 @@
 package ru.ricardocraft.backend;
 
-import jakarta.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -8,14 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
-import ru.ricardocraft.backend.base.helper.CommonHelper;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
 import ru.ricardocraft.backend.command.CommandHandler;
 import ru.ricardocraft.backend.socket.handlers.NettyServerSocketHandler;
 
 import java.io.IOException;
 import java.security.Security;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static ru.ricardocraft.backend.base.helper.JVMHelper.LOADER;
 
 /**
  * The main LaunchServer class. Contains links to all necessary objects
@@ -42,11 +43,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         this.updatesProvider = updatesProvider;
         this.commandHandler = commandHandler;
         this.nettyServerSocketHandler = nettyServerSocketHandler;
-    }
 
-    @PostConstruct
-    public void init() {
-        JVMHelper.verifySystemProperties(LaunchServer.class, false);
+        verifySystemProperties(LaunchServer.class, false);
         Security.addProvider(new BouncyCastleProvider());
     }
 
@@ -56,16 +54,16 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             throw new IllegalStateException("LaunchServer has been already started");
 
         // Add shutdown hook, then start LaunchServer
-        JVMHelper.RUNTIME.addShutdownHook(CommonHelper.newThread(null, false, () -> {
+        JVMHelper.RUNTIME.addShutdownHook(newThread(null, false, () -> {
             try {
                 close();
             } catch (Exception e) {
                 logger.error("LaunchServer close error", e);
             }
         }));
-        CommonHelper.newThread("Command Thread", true, commandHandler).start();
+        newThread("Command Thread", true, commandHandler).start();
         // Sync updates dir
-        CommonHelper.newThread("Profiles and updates sync", true, () -> {
+        newThread("Profiles and updates sync", true, () -> {
             try {
                 // Sync profiles dir
                 profileProvider.syncProfilesDir();
@@ -77,7 +75,7 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         }).start();
 
         nettyServerSocketHandler.close();
-        CommonHelper.newThread("Netty Server Socket Thread", false, nettyServerSocketHandler).start();
+        newThread("Netty Server Socket Thread", false, nettyServerSocketHandler).start();
 
         logger.info("LaunchServer started");
     }
@@ -86,5 +84,23 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         logger.info("Close server socket");
         nettyServerSocketHandler.close();
         logger.info("LaunchServer stopped");
+    }
+
+    private Thread newThread(String name, boolean daemon, Runnable runnable) {
+        Thread thread = new Thread(runnable);
+        thread.setDaemon(daemon);
+        if (name != null) thread.setName(name);
+        return thread;
+    }
+
+    private void verifySystemProperties(Class<?> mainClass, boolean requireSystem) {
+        Locale.setDefault(Locale.US);
+        // Verify class loader
+        logger.debug("Verifying class loader");
+        if (requireSystem && !mainClass.getClassLoader().equals(LOADER))
+            throw new SecurityException("ClassLoader should be system");
+
+        // Verify system and java architecture
+        logger.debug("Verifying JVM architecture");
     }
 }

@@ -3,7 +3,6 @@ package ru.ricardocraft.backend.base.core.hasher;
 import java.util.Collection;
 
 public final class FileNameMatcher {
-    private static final String[] NO_ENTRIES = new String[0];
     // Instance
     private final String[] update;
     private final String[] verify;
@@ -39,14 +38,5 @@ public final class FileNameMatcher {
 
     public boolean shouldUpdate(Collection<String> path) {
         return (anyMatch(update, path) || anyMatch(verify, path)) && !anyMatch(exclusions, path);
-    }
-
-
-    public boolean shouldVerify(Collection<String> path) {
-        return anyMatch(verify, path) && !anyMatch(exclusions, path);
-    }
-
-    public FileNameMatcher verifyOnly() {
-        return new FileNameMatcher(NO_ENTRIES, verify, exclusions);
     }
 }

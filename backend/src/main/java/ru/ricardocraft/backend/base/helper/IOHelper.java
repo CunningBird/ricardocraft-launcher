@@ -64,21 +64,6 @@ public final class IOHelper {
         }
     }
 
-    public static void close(InputStream in) {
-        try {
-            in.close();
-        } catch (Exception ignored) {
-        }
-    }
-
-    public static void close(OutputStream out) {
-        try {
-            out.flush();
-            out.close();
-        } catch (Exception ignored) {
-        }
-    }
-
     public static void copy(Path source, Path target) throws IOException {
         createParentDirs(target);
         Files.copy(source, target, COPY_OPTIONS);
@@ -92,10 +77,6 @@ public final class IOHelper {
 
     public static String decode(byte[] bytes) {
         return new String(bytes, UNICODE_CHARSET);
-    }
-
-    public static String decodeASCII(byte[] bytes) {
-        return new String(bytes, ASCII_CHARSET);
     }
 
     public static void deleteDir(Path dir, boolean self) throws IOException {
@@ -128,8 +109,7 @@ public final class IOHelper {
 
     public static URL getResourceURL(String name) throws NoSuchFileException {
         URL url = IOHelper.class.getResource('/' + name);
-        if (url == null)
-            throw new NoSuchFileException(name);
+        if (url == null) throw new NoSuchFileException(name);
         return url;
     }
 

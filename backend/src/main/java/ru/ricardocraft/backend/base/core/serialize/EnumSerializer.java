@@ -5,6 +5,7 @@ import ru.ricardocraft.backend.base.helper.VerifyHelper;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class EnumSerializer<E extends Enum<?> & EnumSerializer.Itf> {
     private final Map<Integer, E> map = new HashMap<>(16);
@@ -21,7 +22,11 @@ public final class EnumSerializer<E extends Enum<?> & EnumSerializer.Itf> {
 
     public E read(HInput input) throws IOException {
         int n = input.readVarInt();
-        return VerifyHelper.getMapValue(map, n, "Unknown enum number: " + n);
+        return getMapValue(map, n, "Unknown enum number: " + n);
+    }
+
+    private <K, V> V getMapValue(Map<K, V> map, K key, String error) {
+        return VerifyHelper.verify(map.get(key), Objects::nonNull, error);
     }
 
 

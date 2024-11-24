@@ -2,11 +2,18 @@ package ru.ricardocraft.backend.binary.tasks;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bouncycastle.cert.jcajce.JcaCertStore;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
+import org.bouncycastle.cms.SignerInfoGenerator;
+import org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.DigestCalculatorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
+import org.bouncycastle.util.Store;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.base.helper.SignHelper;
 import ru.ricardocraft.backend.binary.JarLauncherBinary;
 import ru.ricardocraft.backend.binary.tasks.sign.SignerJar;
 import ru.ricardocraft.backend.properties.config.JarSignerProperties;
@@ -14,11 +21,13 @@ import ru.ricardocraft.backend.properties.config.JarSignerProperties;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -38,7 +47,7 @@ public class SignJarTask implements LauncherBuildTask {
 
     public static CMSSignedDataGenerator gen(JarSignerProperties config, KeyStore c) {
         try {
-            return SignHelper.createSignedDataGenerator(c,
+            return createSignedDataGenerator(c,
                     config.getKeyAlias(), config.getSignAlgo(), config.getKeyPass());
         } catch (CertificateEncodingException | UnrecoverableKeyException | KeyStoreException
                  | OperatorCreationException | NoSuchAlgorithmException | CMSException e) {
@@ -65,7 +74,7 @@ public class SignJarTask implements LauncherBuildTask {
     }
 
     private void stdSign(JarSignerProperties config, Path inputFile, Path signedFile) throws IOException {
-        KeyStore c = SignHelper.getStore(new File(config.getKeyStore()).toPath(), config.getKeyStorePass(), config.getKeyStoreType());
+        KeyStore c = SignerJar.getStore(new File(config.getKeyStore()).toPath(), config.getKeyStorePass(), config.getKeyStoreType());
         try (SignerJar output = new SignerJar(new ZipOutputStream(IOHelper.newOutput(signedFile)), () -> SignJarTask.gen(config, c),
                 config.getMetaInfSfName(), config.getMetaInfKeyName());
              ZipInputStream input = new ZipInputStream(IOHelper.newInput(inputFile))) {
@@ -102,5 +111,28 @@ public class SignJarTask implements LauncherBuildTask {
                 e = input.getNextEntry();
             }
         }
+    }
+
+    /**
+     * Creates the beast that can actually sign the data (for JKS, for other make it).
+     */
+    private static CMSSignedDataGenerator createSignedDataGenerator(KeyStore keyStore,
+                                                                   String keyAlias,
+                                                                   String signAlgo,
+                                                                   String keyPassword) throws KeyStoreException,
+            OperatorCreationException, CertificateEncodingException, UnrecoverableKeyException,
+            NoSuchAlgorithmException, CMSException {
+        List<Certificate> certChain = new ArrayList<>(Arrays.asList(keyStore.getCertificateChain(keyAlias)));
+        @SuppressWarnings("rawtypes")
+        Store certStore = new JcaCertStore(certChain);
+        Certificate cert = keyStore.getCertificate(keyAlias);
+        PrivateKey privateKey = (PrivateKey) keyStore.getKey(keyAlias, keyPassword != null ? keyPassword.toCharArray() : null);
+        ContentSigner signer = new JcaContentSignerBuilder(signAlgo).setProvider("BC").build(privateKey);
+        CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
+        DigestCalculatorProvider dcp = new JcaDigestCalculatorProviderBuilder().setProvider("BC").build();
+        SignerInfoGenerator sig = new JcaSignerInfoGeneratorBuilder(dcp).build(signer, (X509Certificate) cert);
+        generator.addSignerInfoGenerator(sig);
+        generator.addCertificates(certStore);
+        return generator;
     }
 }

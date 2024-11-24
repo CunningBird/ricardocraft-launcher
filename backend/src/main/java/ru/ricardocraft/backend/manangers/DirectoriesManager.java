@@ -35,6 +35,9 @@ public class DirectoriesManager {
     private final Path trustStoreDir;
 
     private final Path proguard;
+    private final Path proguardConfigFile;
+    private final Path proguardMappingsFile;
+    private final Path proguardWordsFile;
 
     private final Path mirrorHelperDir;
     private final Path mirrorHelperWorkspaceDir;
@@ -60,6 +63,9 @@ public class DirectoriesManager {
         this.trustStoreDir = getDirectory(properties.getRoot(), "truststore");
 
         this.proguard = getDirectory(properties.getRoot(), "proguard");
+        this.proguardConfigFile = proguard.resolve("proguard.config");
+        this.proguardMappingsFile = proguard.resolve("mappings.pro");
+        this.proguardWordsFile = proguard.resolve("random.pro");
 
         // Updates dir
         this.updatesDir = getDirectory(properties.getRoot(), "updates");

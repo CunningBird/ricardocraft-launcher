@@ -5,12 +5,14 @@ import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.cms.CMSTypedData;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.base.helper.SignHelper;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Path;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.LinkedHashMap;
@@ -40,8 +42,10 @@ import java.util.zip.ZipOutputStream;
  */
 public class SignerJar implements AutoCloseable {
 
+    private static final OutputStream NULL = OutputStream.nullOutputStream();
+    private static final String hashFunctionName = "SHA-256";
     private static final String MANIFEST_FN = "META-INF/MANIFEST.MF";
-    private static final String DIGEST_HASH = SignHelper.hashFunctionName + "-Digest";
+    private static final String DIGEST_HASH = hashFunctionName + "-Digest";
     private final String SIG_FN;
     private final String SIG_KEY_FN;
     private final ZipOutputStream zos;
@@ -109,7 +113,7 @@ public class SignerJar implements AutoCloseable {
      */
     public void addFileContents(ZipEntry entry, InputStream contents) throws IOException {
         zos.putNextEntry(entry);
-        SignHelper.HashingOutputStream out = new SignHelper.HashingNonClosingOutputStream(zos, SignHelper.hasher());
+        HashingOutputStream out = new HashingNonClosingOutputStream(zos, hasher());
         IOHelper.transfer(contents, out);
         zos.closeEntry();
         fileDigests.put(entry.getName(), Base64.getEncoder().encodeToString(out.digest()));
@@ -171,7 +175,7 @@ public class SignerJar implements AutoCloseable {
         manifest.write(o);
         byte[] ob = o.toByteArray();
         ob = Arrays.copyOfRange(ob, emptyLen, ob.length);
-        return Base64.getEncoder().encodeToString(SignHelper.hasher().digest(ob));
+        return Base64.getEncoder().encodeToString(hasher().digest(ob));
     }
 
     /**
@@ -180,7 +184,7 @@ public class SignerJar implements AutoCloseable {
     private String hashMainSection(Attributes attributes) throws IOException {
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().putAll(attributes);
-        SignHelper.HashingOutputStream o = new SignHelper.HashingNonClosingOutputStream(SignHelper.NULL, SignHelper.hasher());
+        HashingOutputStream o = new HashingNonClosingOutputStream(NULL, hasher());
         manifest.write(o);
         return Base64.getEncoder().encodeToString(o.digest());
     }
@@ -220,7 +224,7 @@ public class SignerJar implements AutoCloseable {
             sectionDigests.put(entry.getKey(), hashEntrySection(entry.getKey(), attributes));
         }
 
-        SignHelper.HashingOutputStream out = new SignHelper.HashingNonClosingOutputStream(zos, SignHelper.hasher());
+        HashingOutputStream out = new HashingNonClosingOutputStream(zos, hasher());
         man.write(out);
         zos.closeEntry();
 
@@ -274,5 +278,23 @@ public class SignerJar implements AutoCloseable {
             throw new RuntimeException("Signing failed.", e);
         }
         zos.closeEntry();
+    }
+
+    public static MessageDigest hasher() {
+        try {
+            return MessageDigest.getInstance(hashFunctionName);
+        } catch (NoSuchAlgorithmException e) {
+            return null;
+        }
+    }
+
+    public static KeyStore getStore(Path file, String storepass, String algo) throws IOException {
+        try {
+            KeyStore st = KeyStore.getInstance(algo);
+            st.load(IOHelper.newInput(file), storepass != null ? storepass.toCharArray() : null);
+            return st;
+        } catch (NoSuchAlgorithmException | CertificateException | KeyStoreException e) {
+            throw new IOException(e);
+        }
     }
 }

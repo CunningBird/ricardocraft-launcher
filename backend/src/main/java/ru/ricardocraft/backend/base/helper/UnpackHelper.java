@@ -4,11 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 public final class UnpackHelper {
     public static void unpack(URL resource, Path target) throws IOException {
@@ -28,24 +25,6 @@ public final class UnpackHelper {
                     SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA256, target));
         } catch (IOException e) {
             return false;
-        }
-    }
-
-    public static void unpackZipNoCheck(String resource, Path target) throws IOException {
-        try {
-            if (Files.isDirectory(target))
-                return;
-            Files.deleteIfExists(target);
-            Files.createDirectory(target);
-            try (ZipInputStream input = IOHelper.newZipInput(IOHelper.getResourceURL(resource))) {
-                for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
-                    if (entry.isDirectory())
-                        continue; // Skip dirs
-                    // Unpack file
-                    IOHelper.transfer(input, target.resolve(IOHelper.toPath(entry.getName())));
-                }
-            }
-        } catch (NoSuchFileException ignored) {
         }
     }
 }
