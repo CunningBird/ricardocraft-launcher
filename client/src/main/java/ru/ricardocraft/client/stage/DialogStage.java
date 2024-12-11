@@ -6,18 +6,18 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.StageStyle;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.config.DesignConstants;
 import ru.ricardocraft.client.dialogs.AbstractDialog;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.impl.AbstractStage;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.io.IOException;
 
 public class DialogStage extends AbstractStage {
     public DialogStage(JavaFXApplication application, String title, AbstractDialog dialog) throws Exception {
-        super(application, application.newStage());
+        super(application.gui, application.newStage());
         stage.setTitle(title);
         stage.initStyle(StageStyle.TRANSPARENT);
         stage.setResizable(false);

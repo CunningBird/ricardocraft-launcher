@@ -1,7 +1,6 @@
 package ru.ricardocraft.client.utils.command;
 
 import org.jline.reader.Candidate;
-import ru.ricardocraft.client.utils.helper.VerifyHelper;
 
 import java.util.*;
 
@@ -19,22 +18,6 @@ public abstract class Command {
         this.childCommands = childCommands;
     }
 
-    protected static String parseUsername(String username) throws CommandException {
-        try {
-            return VerifyHelper.verifyUsername(username);
-        } catch (IllegalArgumentException e) {
-            throw new CommandException(e.getMessage());
-        }
-    }
-
-
-    protected static UUID parseUUID(String s) throws CommandException {
-        try {
-            return UUID.fromString(s);
-        } catch (IllegalArgumentException ignored) {
-            throw new CommandException(String.format("Invalid UUID: '%s'", s));
-        }
-    }
 
     public abstract String getArgsDescription(); // "<required> [optional]"
 

@@ -3,9 +3,9 @@ package ru.ricardocraft.client.dialogs;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.helper.PositionHelper;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.util.HashMap;

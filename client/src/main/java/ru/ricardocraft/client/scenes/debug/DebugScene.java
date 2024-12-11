@@ -2,11 +2,11 @@ package ru.ricardocraft.client.scenes.debug;
 
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Label;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.modules.JavaRuntimeModule;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.service.LaunchService;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.io.EOFException;

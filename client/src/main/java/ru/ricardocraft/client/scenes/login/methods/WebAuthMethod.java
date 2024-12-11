@@ -6,13 +6,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.request.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.client.base.request.auth.password.AuthCodePassword;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.overlays.AbstractOverlay;
 import ru.ricardocraft.client.scenes.login.AuthFlow;
 import ru.ricardocraft.client.scenes.login.LoginScene;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;
@@ -131,10 +131,6 @@ public class WebAuthMethod extends AbstractAuthMethod<AuthWebViewDetails> {
                     }
                 });
             }
-        }
-
-        public WebView getWebView() {
-            return webView;
         }
 
         @Override

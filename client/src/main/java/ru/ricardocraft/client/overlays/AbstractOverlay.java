@@ -5,9 +5,9 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.util.Duration;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.impl.AbstractStage;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;
-import ru.ricardocraft.client.JavaFXApplication;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;

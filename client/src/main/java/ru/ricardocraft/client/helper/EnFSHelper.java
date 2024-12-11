@@ -1,13 +1,12 @@
 package ru.ricardocraft.client.helper;
 
+import ru.ricardocraft.client.base.Launcher;
+import ru.ricardocraft.client.base.LauncherConfig;
 import ru.ricardocraft.client.helper.enfs.EnFS;
 import ru.ricardocraft.client.helper.enfs.dir.CachedFile;
 import ru.ricardocraft.client.helper.enfs.dir.FileEntry;
 import ru.ricardocraft.client.helper.enfs.dir.RealFile;
 import ru.ricardocraft.client.helper.enfs.dir.URLFile;
-import ru.ricardocraft.client.base.Launcher;
-import ru.ricardocraft.client.base.LauncherConfig;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.RuntimeCryptedFile;
 import ru.ricardocraft.client.utils.helper.IOHelper;
 import ru.ricardocraft.client.utils.helper.LogHelper;
@@ -37,7 +36,7 @@ public class EnFSHelper {
 
     public static void initEnFS() throws IOException {
         enfs.newDirectory(Paths.get(BASE_DIRECTORY));
-        if (LogHelper.isDevEnabled() || JavaFXApplication.getInstance().isDebugMode()) {
+        if (LogHelper.isDevEnabled()) {
             EnFS.DEBUG_OUTPUT = new LauncherEnFsDebugOutput();
         }
     }

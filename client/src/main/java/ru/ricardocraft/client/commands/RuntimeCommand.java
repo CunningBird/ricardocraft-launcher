@@ -1,7 +1,7 @@
 package ru.ricardocraft.client.commands;
 
-import ru.ricardocraft.client.commands.runtime.*;
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.commands.runtime.*;
 import ru.ricardocraft.client.utils.command.Command;
 
 public class RuntimeCommand extends Command {

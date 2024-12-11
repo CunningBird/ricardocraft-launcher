@@ -1,6 +1,7 @@
 package ru.ricardocraft.client.impl;
 
 import javafx.scene.layout.Pane;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.dialogs.AbstractDialog;
 import ru.ricardocraft.client.dialogs.ApplyDialog;
 import ru.ricardocraft.client.dialogs.InfoDialog;
@@ -8,7 +9,6 @@ import ru.ricardocraft.client.dialogs.NotificationDialog;
 import ru.ricardocraft.client.helper.PositionHelper;
 import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.stage.DialogStage;
-import ru.ricardocraft.client.JavaFXApplication;
 
 import java.util.concurrent.atomic.AtomicReference;
 

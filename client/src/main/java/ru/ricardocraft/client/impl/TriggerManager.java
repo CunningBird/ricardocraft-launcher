@@ -1,28 +1,34 @@
 package ru.ricardocraft.client.impl;
 
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.base.profiles.optional.OptionalFile;
 import ru.ricardocraft.client.base.profiles.optional.OptionalView;
 import ru.ricardocraft.client.base.profiles.optional.triggers.OptionalTrigger;
 import ru.ricardocraft.client.base.profiles.optional.triggers.OptionalTriggerContext;
 import ru.ricardocraft.client.config.RuntimeSettings;
-import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.service.AuthService;
+import ru.ricardocraft.client.service.JavaService;
 import ru.ricardocraft.client.utils.helper.JavaHelper;
 
 import java.util.Locale;
 
 public class TriggerManager {
     private final JavaFXApplication application;
+    private final AuthService authService;
+    private final JavaService javaService;
 
-    public TriggerManager(JavaFXApplication application) {
+    public TriggerManager(JavaFXApplication application, AuthService authService, JavaService javaService) {
         this.application = application;
+        this.authService = authService;
+        this.javaService = javaService;
     }
 
     public void process(ClientProfile profile, OptionalView view) {
         TriggerManagerContext context = new TriggerManagerContext(profile);
         for (OptionalFile optional : view.all) {
             if (optional.limited) {
-                if (!application.authService.checkPermission("launcher.runtime.optionals.%s.%s.show"
+                if (!authService.checkPermission("launcher.runtime.optionals.%s.%s.show"
                                                           .formatted(profile.getUUID(),
                                                                      optional.name.toLowerCase(Locale.ROOT)))) {
                     view.disable(optional, null);
@@ -66,13 +72,13 @@ public class TriggerManager {
 
         @Override
         public String getUsername() {
-            return application.authService.getUsername();
+            return authService.getUsername();
         }
 
         @Override
         public JavaHelper.JavaVersion getJavaVersion() {
             RuntimeSettings.ProfileSettings profileSettings = application.getProfileSettings(profile);
-            for (JavaHelper.JavaVersion version : application.javaService.javaVersions) {
+            for (JavaHelper.JavaVersion version : javaService.javaVersions) {
                 if (profileSettings.javaPath != null && profileSettings.javaPath.equals(version.jvmDir.toString())) {
                     return version;
                 }

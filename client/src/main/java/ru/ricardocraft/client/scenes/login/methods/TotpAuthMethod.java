@@ -1,6 +1,7 @@
 package ru.ricardocraft.client.scenes.login.methods;
 
 import javafx.scene.control.TextField;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.request.auth.details.AuthTotpDetails;
 import ru.ricardocraft.client.base.request.auth.password.AuthTOTPPassword;
 import ru.ricardocraft.client.helper.LookupHelper;
@@ -8,7 +9,6 @@ import ru.ricardocraft.client.impl.AbstractVisualComponent;
 import ru.ricardocraft.client.impl.ContextHelper;
 import ru.ricardocraft.client.scenes.login.AuthFlow;
 import ru.ricardocraft.client.scenes.login.LoginScene;
-import ru.ricardocraft.client.JavaFXApplication;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -121,10 +121,6 @@ public class TotpAuthMethod extends AbstractAuthMethod<AuthTotpDetails> {
             AuthTOTPPassword totpPassword = new AuthTOTPPassword();
             totpPassword.totp = getCode();
             future.complete(new AuthFlow.LoginAndPasswordResult(null, totpPassword));
-        }
-
-        public void requestFocus() {
-            totpField.requestFocus();
         }
 
         public String getCode() {

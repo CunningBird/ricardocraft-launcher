@@ -11,7 +11,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.JavaFxUtils;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
@@ -22,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class AbstractStage {
-    protected final JavaFXApplication application;
+    protected final GuiObjectsContainer guiObjectsContainer;
     protected final Stage stage;
     protected final Scene scene;
     protected final StackPane stackPane;
@@ -35,8 +34,8 @@ public abstract class AbstractStage {
     protected final AtomicInteger scenePosition = new AtomicInteger(0);
     protected List<String> sceneFlow = new LinkedList<>();
 
-    protected AbstractStage(JavaFXApplication application, Stage stage) {
-        this.application = application;
+    protected AbstractStage(GuiObjectsContainer guiObjectsContainer, Stage stage) {
+        this.guiObjectsContainer = guiObjectsContainer;
         this.stage = stage;
         this.stackPane = new StackPane();
         this.scene = new Scene(stackPane);
@@ -125,7 +124,7 @@ public abstract class AbstractStage {
         AbstractVisualComponent component;
         do {
             String name = sceneFlow.get(sceneFlow.size() - 2);
-            component = application.gui.getByName(name);
+            component = guiObjectsContainer.getByName(name);
             if(component == null) {
                 return null;
             }

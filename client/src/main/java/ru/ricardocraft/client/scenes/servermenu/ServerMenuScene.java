@@ -6,6 +6,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.components.ServerButton;
 import ru.ricardocraft.client.components.UserBlock;
@@ -13,7 +14,6 @@ import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.runtime.client.ServerPinger;
 import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.scenes.interfaces.SceneSupportUserBlock;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.CommonHelper;
 
 import java.io.IOException;

@@ -1,6 +1,7 @@
 package ru.ricardocraft.client.scenes.login.methods;
 
 import javafx.scene.control.TextField;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.request.auth.AuthRequest;
 import ru.ricardocraft.client.base.request.auth.details.AuthPasswordDetails;
 import ru.ricardocraft.client.helper.LookupHelper;
@@ -9,7 +10,6 @@ import ru.ricardocraft.client.impl.ContextHelper;
 import ru.ricardocraft.client.scenes.login.AuthFlow;
 import ru.ricardocraft.client.scenes.login.LoginAuthButtonComponent;
 import ru.ricardocraft.client.scenes.login.LoginScene;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;

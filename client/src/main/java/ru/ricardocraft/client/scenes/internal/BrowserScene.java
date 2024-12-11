@@ -4,9 +4,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebView;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.scenes.AbstractScene;
-import ru.ricardocraft.client.JavaFXApplication;
 
 public class BrowserScene extends AbstractScene {
     private TextField address;

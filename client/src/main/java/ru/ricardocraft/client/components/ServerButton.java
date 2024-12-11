@@ -7,10 +7,10 @@ import javafx.scene.control.Labeled;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.JavaFxUtils;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 

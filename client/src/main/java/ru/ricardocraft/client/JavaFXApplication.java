@@ -4,6 +4,8 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import ru.ricardocraft.client.base.Launcher;
 import ru.ricardocraft.client.base.LauncherConfig;
 import ru.ricardocraft.client.base.modules.JavaRuntimeModule;
@@ -26,7 +28,6 @@ import ru.ricardocraft.client.commands.VersionCommand;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.config.StdSettingsManager;
-import ru.ricardocraft.client.core.LauncherInject;
 import ru.ricardocraft.client.core.LauncherTrustManager;
 import ru.ricardocraft.client.helper.EnFSHelper;
 import ru.ricardocraft.client.impl.*;
@@ -49,12 +50,10 @@ import ru.ricardocraft.client.utils.command.CommandCategory;
 import ru.ricardocraft.client.utils.command.CommandHandler;
 import ru.ricardocraft.client.utils.helper.*;
 
-import javax.swing.*;
 import java.io.*;
 import java.lang.invoke.MethodHandles;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -67,41 +66,30 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.util.*;
+import java.util.List;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 public class JavaFXApplication extends Application {
 
-    private static long startTime;
-
+    private static Path enfsDirectory;
+    private static MethodHandles.Lookup hackLookup;
+    private static final AtomicReference<JavaFXApplication> INSTANCE = new AtomicReference<>();
+    private static final Path runtimeDirectory = IOHelper.WORKING_DIR.resolve("runtime");
     public static RuntimeModuleManager modulesManager = new RuntimeModuleManager();
     public static ECPublicKey publicKey;
     public static ECPrivateKey privateKey;
-
-    private static final AtomicBoolean started = new AtomicBoolean(false);
-    public static final AtomicBoolean IS_DEBUG = new AtomicBoolean(false);
-
-    private static MethodHandles.Lookup hackLookup;
     public static ModuleLayer layer;
     public static boolean disablePackageDelegateSupport;
-
-    public static final String MAGIC_ARG = "-Djdk.attach.allowAttachSelf";
     public static final String WAIT_PROCESS_PROPERTY = "launcher.waitProcess";
-    public static final String NO_JAVA_CHECK_PROPERTY = "launcher.noJavaCheck";
-    public static boolean noJavaCheck = Boolean.getBoolean(NO_JAVA_CHECK_PROPERTY);
     public static boolean waitProcess = Boolean.getBoolean(WAIT_PROCESS_PROPERTY);
-    @LauncherInject("launcher.memory")
-    public static int launcherMemoryLimit;
-    @LauncherInject("launcher.customJvmOptions")
-    public static List<String> customJvmOptions;
-
     public static volatile Path updatePath;
-    private static final AtomicReference<JavaFXApplication> INSTANCE = new AtomicReference<>();
-    private static Path runtimeDirectory = null;
+
     public final LauncherConfig config = Launcher.getConfig();
     public final ExecutorService workers = Executors.newWorkStealingPool(4);
     public RuntimeSettings runtimeSettings;
@@ -119,28 +107,46 @@ public class JavaFXApplication extends Application {
     public PingService pingService;
     public OfflineService offlineService;
     public TriggerManager triggerManager;
+    private CommandCategory runtimeCategory;
     private SettingsManager settingsManager;
     private PrimaryStage mainStage;
-    private boolean debugMode;
     private ResourceBundle resources;
-    private static Path enfsDirectory;
 
     public JavaFXApplication() {
         INSTANCE.set(this);
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    public static ECPublicKey getClientPublicKey() {
+        return publicKey;
+    }
+
+    public static byte[] sign(byte[] bytes) {
+        return SecurityHelper.sign(bytes, privateKey);
     }
 
     @Override
     public void init() throws Exception {
         LogHelper.printVersion("Launcher");
         LogHelper.printLicense("Launcher");
-//        JVMHelper.checkStackTrace(JavaFXApplication.class);
+    }
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        ApplicationContext context = new AnnotationConfigApplicationContext("ru.ricardocraft.client");
+
+//        JVMHelper.checkStackTrace(JavaFXApplication.class); // TODO enable this
+
         JVMHelper.verifySystemProperties(Launcher.class, true);
+        checkClass(JavaFXApplication.class.getClassLoader().getClass());
         EnvHelper.checkDangerousParams();
-        LauncherConfig config = Launcher.getConfig();
+        // TODO enable this
+//        if (JVMHelper.RUNTIME_MXBEAN.getInputArguments().stream().filter(e -> e != null && !e.isEmpty()).anyMatch(e -> e.contains("javaagent")))
+//            throw new SecurityException("JavaAgent found");
 
-//        IS_DEBUG.set(true);
-
-        LauncherConfig.initModules(modulesManager);
         LogHelper.info("Launcher for project %s", config.projectName);
         if (config.environment.equals(LauncherConfig.LauncherEnvironment.PROD)) {
             if (System.getProperty(LogHelper.DEBUG_PROPERTY) != null) {
@@ -155,68 +161,17 @@ public class JavaFXApplication extends Application {
             LogHelper.info("If need stacktrace output use -Dlauncher.stacktrace=true");
             if (LogHelper.isDebugEnabled()) waitProcess = true;
         }
-
         LogHelper.info("Restart Launcher with JavaAgent...");
 
-        ClientLauncherWrapperContext context = new ClientLauncherWrapperContext();
-        context.processBuilder = new ProcessBuilder();
-        if (waitProcess) context.processBuilder.inheritIO();
-
-        context.javaVersion = null;
-        try {
-            if (!noJavaCheck) {
-                List<JavaHelper.JavaVersion> javaVersions = JavaHelper.findJava();
-                for (JavaHelper.JavaVersion version : javaVersions) {
-                    LogHelper.debug("Found Java %d b%d in %s javafx %s", version.version, version.build, version.jvmDir.toString(), version.enabledJavaFX ? "supported" : "not supported");
-                    if (context.javaVersion == null) {
-                        context.javaVersion = version;
-                        continue;
-                    }
-                    if (version.enabledJavaFX && !context.javaVersion.enabledJavaFX) {
-                        context.javaVersion = version;
-                        continue;
-                    }
-                    if (version.enabledJavaFX == context.javaVersion.enabledJavaFX) {
-                        if (context.javaVersion.version < version.version) {
-                            context.javaVersion = version;
-                        } else if (context.javaVersion.version == version.version && context.javaVersion.build < version.build) {
-                            context.javaVersion = version;
-                        }
-                    }
-                }
-            }
-        } catch (Throwable e) {
-            LogHelper.error(e);
-        }
-        if (context.javaVersion == null) {
-            context.javaVersion = JavaHelper.JavaVersion.getCurrentJavaVersion();
-        }
-
-        context.executePath = IOHelper.resolveJavaBin(context.javaVersion.jvmDir);
-        context.jvmProperties.put(LogHelper.DEBUG_PROPERTY, Boolean.toString(LogHelper.isDebugEnabled()));
-        context.jvmProperties.put(LogHelper.STACKTRACE_PROPERTY, Boolean.toString(LogHelper.isStacktraceEnabled()));
-        context.jvmProperties.put(LogHelper.DEV_PROPERTY, Boolean.toString(LogHelper.isDevEnabled()));
 
         String classpath = System.getProperty("java.class.path");
         String[] classpathEntries = classpath.split(File.pathSeparator);
         List<Path> classpathList = Stream.of(classpathEntries).map(Path::of).toList();
 
-        EnvHelper.addEnv(context.processBuilder);
-        modulesManager.callWrapper(context);
-        // ---------
-
-        // Args
-        List<String> args = new ArrayList<>(16);
-        args.add(context.executePath.toAbsolutePath().toString());
-        args.add(MAGIC_ARG);
-        args.add("-XX:+DisableAttachMechanism");
-        context.jvmProperties.forEach((key, value) -> args.add(String.format("-D%s=%s", key, value)));
-        if (launcherMemoryLimit != 0) args.add(String.format("-Xmx%dM", launcherMemoryLimit));
-        if (customJvmOptions != null) args.addAll(customJvmOptions);
-        args.add("-cp");
-        args.add(classpath);
-        args.add("ru.ricardocraft.client.LauncherEngineWrapper");
-        LogHelper.debug("Commandline: " + args);
+        // Options
+        LaunchOptions options = context.getBean(LaunchOptions.class);
+        options.disablePackageDelegateSupport = true;
+        options.moduleConf = new LaunchOptions.ModuleConf();
 
         // Modules
         List<String> jvmModules = List.of(
@@ -227,14 +182,8 @@ public class JavaFXApplication extends Application {
                 "javafx.media",
                 "javafx.web"
         );
-
-        // Options
-        LaunchOptions options = new LaunchOptions();
-        options.disablePackageDelegateSupport = true;
-        options.moduleConf = new LaunchOptions.ModuleConf();
-        var libDirectory = Path.of(System.getProperty("java.home")).resolve("lib");
         for (var moduleName : jvmModules) {
-            var path = libDirectory.resolve(moduleName.concat(".jar"));
+            var path = Path.of(System.getProperty("java.home")).resolve("lib").resolve(moduleName.concat(".jar"));
             if (Files.exists(path)) {
                 options.moduleConf.modules.add(moduleName);
                 options.moduleConf.modulePath.add(path.toAbsolutePath().toString());
@@ -242,31 +191,22 @@ public class JavaFXApplication extends Application {
         }
 
         init(classpathList, options);
-        String[] startArguments = args.toArray(new String[0]);
 
-//        JVMHelper.checkStackTrace(JavaFXApplication.class);
-        JVMHelper.verifySystemProperties(Launcher.class, false);
-        checkClass(JavaFXApplication.class.getClassLoader().getClass());
-        EnvHelper.checkDangerousParams();
-        verifyNoAgent();
-        if (contains(startArguments, "--log-output") && Launcher.getConfig().environment != LauncherConfig.LauncherEnvironment.PROD) {
-            LogHelper.addOutput(Paths.get("Launcher.log"));
-        }
-        LogHelper.printVersion("Launcher");
-        LogHelper.printLicense("Launcher");
-        modulesManager.loadModule(new RuntimeLauncherCoreModule());
         LauncherConfig.initModules(modulesManager);
+        modulesManager.loadModule(new RuntimeLauncherCoreModule());
         modulesManager.initModules(null);
         // Start Launcher
-        initGson(modulesManager);
+        AuthRequest.registerProviders();
+        GetAvailabilityAuthRequest.registerProviders();
+        OptionalAction.registerProviders();
+        OptionalTrigger.registerProviders();
+        Launcher.gsonManager = new RuntimeGsonManager(modulesManager);
+        Launcher.gsonManager.initGson();
         ConsoleManager.initConsole();
         modulesManager.invokeEvent(new PreConfigPhase());
 
-        startTime = System.currentTimeMillis();
-
-        preGuiPhase();
         if (!Request.isAvailable()) {
-            String address = Launcher.getConfig().address;
+            String address = config.address;
             LogHelper.debug("Start async connection to %s", address);
             RequestService service;
             try {
@@ -276,7 +216,11 @@ public class JavaFXApplication extends Application {
                     LogHelper.error(e);
                 }
                 LogHelper.warning("Launcher in offline mode");
-                service = initOffline();
+                OfflineRequestService offlineService = new OfflineRequestService();
+                ClientLauncherMethods.applyBasicOfflineProcessors(offlineService);
+                OfflineModeEvent event = new OfflineModeEvent(offlineService);
+                modulesManager.invokeEvent(event);
+                service = event.service;
             }
             Request.setRequestService(service);
             if (service instanceof StdWebSocketService) {
@@ -294,16 +238,20 @@ public class JavaFXApplication extends Application {
         }
         Request.startAutoRefresh();
         Request.getRequestService().registerEventHandler(new BasicLauncherEventHandler());
-        Objects.requireNonNull(args, "args");
-        if (started.getAndSet(true)) throw new IllegalStateException("Launcher has been already started");
+
         readKeys();
-        registerCommandsApp();
+
+        ConsoleManager.handler.registerCommand("getpublickey", new GetPublicKeyCommand());
+        ConsoleManager.handler.registerCommand("signdata", new SignDataCommand());
+        ConsoleManager.handler.registerCommand("modules", new ModulesCommand());
+
         LogHelper.debug("Dir: %s", DirBridge.dir);
         LogHelper.debug("Start JavaFX Application");
 
 
-        guiModuleConfig = new GuiModuleConfig();
-        settingsManager = new StdSettingsManager();
+        guiModuleConfig = context.getBean(GuiModuleConfig.class);
+        settingsManager = context.getBean(StdSettingsManager.class);
+
         UserSettings.providers.register(JavaRuntimeModule.RUNTIME_NAME, RuntimeSettings.class);
         settingsManager.loadConfig();
         NewLauncherSettings settings = settingsManager.getConfig();
@@ -317,30 +265,25 @@ public class JavaFXApplication extends Application {
                 : runtimeSettings.updatesDir;
         service = Request.getRequestService();
         service.registerEventHandler(new GuiEventHandler(this));
-        authService = new AuthService(this);
-        launchService = new LaunchService(this);
-        profilesService = new ProfilesService(this);
-        messageManager = new MessageManager(this);
-        securityService = new RuntimeSecurityService(this);
-        skinManager = new SkinManager(this);
-        triggerManager = new TriggerManager(this);
-        javaService = new JavaService(this);
-        offlineService = new OfflineService(this);
-        pingService = new PingService();
-        registerCommands();
-    }
 
-    @Override
-    public void start(Stage stage) {
-        // If debugging
-        try {
-            runtimeDirectory = IOHelper.WORKING_DIR.resolve("runtime");
-            if (JavaFXApplication.IS_DEBUG.get()) {
-                debugMode = true;
-            }
-        } catch (Throwable e) {
-            LogHelper.error(e);
+        authService = context.getBean(AuthService.class);
+        launchService = new LaunchService(this);
+        messageManager = new MessageManager(this);
+
+        securityService = new RuntimeSecurityService(service, messageManager);
+        skinManager = context.getBean(SkinManager.class);
+        javaService = new JavaService(guiModuleConfig);
+        triggerManager = new TriggerManager(this, authService, javaService);
+        offlineService = new OfflineService(runtimeSettings, guiModuleConfig);
+        profilesService = new ProfilesService(triggerManager);
+        pingService = context.getBean(PingService.class);
+
+        runtimeCategory = context.getBean(BaseCommandCategory.class);
+        runtimeCategory.registerCommand("version", new VersionCommand());
+        if (ConsoleManager.isConsoleUnlock) {
+            registerPrivateCommands();
         }
+        ConsoleManager.handler.registerCategory(new CommandHandler.Category(runtimeCategory, "runtime"));
 
         try {
             EnFSHelper.initEnFS();
@@ -353,7 +296,6 @@ public class JavaFXApplication extends Application {
             }
         }
 
-        // System loading
         if (runtimeSettings.locale == null) runtimeSettings.locale = RuntimeSettings.DEFAULT_LOCALE;
 
         try {
@@ -370,33 +312,26 @@ public class JavaFXApplication extends Application {
         DialogService.setNotificationImpl(dialogService);
 
         if (offlineService.isOfflineMode()) {
-            if (!offlineService.isAvailableOfflineMode() && !debugMode) {
+            if (!offlineService.isAvailableOfflineMode()) {
                 messageManager.showDialog(getTranslation("runtime.offline.dialog.header"),
                         getTranslation("runtime.offline.dialog.text"),
                         Platform::exit, Platform::exit, false);
                 return;
             }
         }
-        try {
-            mainStage = new PrimaryStage(this, stage, "%s Launcher".formatted(config.projectName));
-            // Overlay loading
-            gui = new GuiObjectsContainer(this);
-            gui.init();
-            //
-            mainStage.setScene(gui.loginScene, true);
-            gui.background.init();
-            mainStage.pushBackground(gui.background);
-            mainStage.show();
-            if (offlineService.isOfflineMode()) {
-                messageManager.createNotification(getTranslation("runtime.offline.notification.header"),
-                        getTranslation("runtime.offline.notification.text"));
-            }
 
-            AuthRequest.registerProviders();
-        } catch (Throwable e) {
-            LogHelper.error(e);
-            JavaRuntimeModule.errorHandleAlert(e);
-            Platform.exit();
+        gui = new GuiObjectsContainer(this);
+
+        mainStage = new PrimaryStage(gui, stage, "%s Launcher".formatted(config.projectName));
+        gui.init();
+        mainStage.setScene(gui.loginScene, true);
+        gui.background.init();
+        mainStage.pushBackground(gui.background);
+        mainStage.show();
+
+        if (offlineService.isOfflineMode()) {
+            messageManager.createNotification(getTranslation("runtime.offline.notification.header"),
+                    getTranslation("runtime.offline.notification.text"));
         }
     }
 
@@ -423,26 +358,7 @@ public class JavaFXApplication extends Application {
             LauncherUpdater.restart();
         }
 
-        long endTime = System.currentTimeMillis();
-        LogHelper.debug("Launcher started in %dms", endTime - startTime);
-
         exitLauncher(0);
-    }
-
-    public static JavaFXApplication getInstance() {
-        return INSTANCE.get();
-    }
-
-    public static URL getResourceURL(String name) throws IOException {
-        if (enfsDirectory != null) {
-            return getResourceEnFs(name);
-        } else if (runtimeDirectory != null) {
-            Path target = runtimeDirectory.resolve(name);
-            if (!Files.exists(target)) throw new FileNotFoundException("File runtime/%s not found".formatted(name));
-            return target.toUri().toURL();
-        } else {
-            return Launcher.getResourceURL(name);
-        }
     }
 
     public AbstractScene getCurrentScene() {
@@ -475,10 +391,6 @@ public class JavaFXApplication extends Application {
 
     public boolean isThemeSupport() {
         return enfsDirectory != null;
-    }
-
-    public boolean isDebugMode() {
-        return debugMode;
     }
 
     public URL tryResource(String name) {
@@ -555,20 +467,20 @@ public class JavaFXApplication extends Application {
         return IOHelper.newInput(getResourceURL(name));
     }
 
-    private CommandCategory runtimeCategory;
-
-    private void registerCommands() {
-        runtimeCategory = new BaseCommandCategory();
-        runtimeCategory.registerCommand("version", new VersionCommand());
-        if (ConsoleManager.isConsoleUnlock) {
-            registerPrivateCommands();
-        }
-        ConsoleManager.handler.registerCategory(new CommandHandler.Category(runtimeCategory, "runtime"));
+    public static JavaFXApplication getInstance() {
+        return INSTANCE.get();
     }
 
-    private static URL getResourceEnFs(String name) throws IOException {
-        return EnFSHelper.getURL(enfsDirectory.resolve(name).toString().replaceAll("\\\\", "/"));
-        //return EnFS.main.getURL(enfsDirectory.resolve(name));
+    public static URL getResourceURL(String name) throws IOException {
+        if (enfsDirectory != null) {
+            return EnFSHelper.getURL(enfsDirectory.resolve(name).toString().replaceAll("\\\\", "/"));
+        } else if (runtimeDirectory != null) {
+            Path target = runtimeDirectory.resolve(name);
+            if (!Files.exists(target)) throw new FileNotFoundException("File runtime/%s not found".formatted(name));
+            return target.toUri().toURL();
+        } else {
+            return Launcher.getResourceURL(name);
+        }
     }
 
     private static void init(List<Path> files, LaunchOptions options) {
@@ -666,21 +578,6 @@ public class JavaFXApplication extends Application {
         }
     }
 
-    private static void initGson(RuntimeModuleManager modulesManager) {
-        AuthRequest.registerProviders();
-        GetAvailabilityAuthRequest.registerProviders();
-        OptionalAction.registerProviders();
-        OptionalTrigger.registerProviders();
-        Launcher.gsonManager = new RuntimeGsonManager(modulesManager);
-        Launcher.gsonManager.initGson();
-    }
-
-    private static void registerCommandsApp() {
-        ConsoleManager.handler.registerCommand("getpublickey", new GetPublicKeyCommand());
-        ConsoleManager.handler.registerCommand("signdata", new SignDataCommand());
-        ConsoleManager.handler.registerCommand("modules", new ModulesCommand());
-    }
-
     private static void readKeys() throws IOException, InvalidKeySpecException {
         if (privateKey != null || publicKey != null) return;
         Path dir = DirBridge.dir;
@@ -703,61 +600,11 @@ public class JavaFXApplication extends Application {
         }
     }
 
-    private static RequestService initOffline() {
-        OfflineRequestService service = new OfflineRequestService();
-        ClientLauncherMethods.applyBasicOfflineProcessors(service);
-        OfflineModeEvent event = new OfflineModeEvent(service);
-        modulesManager.invokeEvent(event);
-        return event.service;
-    }
-
-    private static void preGuiPhase() {
-        try {
-            Class.forName("javafx.application.Application");
-        } catch (ClassNotFoundException e) {
-            noJavaFxAlert();
-            exitLauncher(0);
-        }
-        try {
-            Method m = JavaFXApplication.class.getMethod(new String(Base64.getDecoder().decode("c3RhcnQ=")), Stage.class); // Fix proguard remapping
-            if (m.getDeclaringClass() != JavaFXApplication.class)
-                throw new RuntimeException("Method startApplication not override");
-        } catch (Throwable exception) {
-            LogHelper.error(exception);
-            noInitMethodAlert();
-            exitLauncher(0);
-        }
-    }
-
-    private static void noJavaFxAlert() {
-        String message = """
-                Библиотеки JavaFX не найдены. У вас %s(x%d) ОС %s(x%d). Java %s. Установите Java с поддержкой JavaFX
-                Если вы не можете решить проблему самостоятельно обратитесь к администрации своего проекта
-                """.formatted(JVMHelper.RUNTIME_MXBEAN.getVmName(), JVMHelper.JVM_BITS, JVMHelper.OS_TYPE.name,
-                JVMHelper.OS_BITS, JVMHelper.RUNTIME_MXBEAN.getSpecVersion());
-        JOptionPane.showMessageDialog(null, message, "GravitLauncher", JOptionPane.ERROR_MESSAGE);
-    }
-
-    private static void noInitMethodAlert() {
-        String message = """
-                JavaFX приложение собрано некорректно. Обратитесь к администратору проекта с скриншотом этого окна
-                Описание:
-                При сборке отсутствовали библиотеки JavaFX. Пожалуйста установите Java с поддержкой JavaFX на стороне лаунчсервера и повторите сборку лаунчера
-                """;
-        JOptionPane.showMessageDialog(null, message, "GravitLauncher", JOptionPane.ERROR_MESSAGE);
-    }
-
-    private static void verifyNoAgent() {
-        // TODO enable this
-//        if (JVMHelper.RUNTIME_MXBEAN.getInputArguments().stream().filter(e -> e != null && !e.isEmpty()).anyMatch(e -> e.contains("javaagent")))
-//            throw new SecurityException("JavaAgent found");
-    }
-
     private static void checkClass(Class<?> clazz) throws SecurityException {
         // TODO enable this
         LauncherTrustManager trustManager = Launcher.getConfig().trustManager;
         if (trustManager == null) return;
-        X509Certificate[] certificates = getCertificates(clazz);
+        X509Certificate[] certificates = JVMHelper.getCertificates(clazz);
         if (certificates == null) {
             // TODO enable this
 //            throw new SecurityException(String.format("Class %s not signed", clazz.getName()));
@@ -767,18 +614,6 @@ public class JavaFXApplication extends Application {
         } catch (Exception e) {
             throw new SecurityException(e);
         }
-    }
-
-    private static X509Certificate[] getCertificates(Class<?> clazz) {
-        return JVMHelper.getCertificates(clazz);
-    }
-
-    public static ECPublicKey getClientPublicKey() {
-        return publicKey;
-    }
-
-    public static byte[] sign(byte[] bytes) {
-        return SecurityHelper.sign(bytes, privateKey);
     }
 
     public static void exitLauncher(int code) {
@@ -800,14 +635,5 @@ public class JavaFXApplication extends Application {
         {
             NativeJVMHalt.haltA(code);
         }
-    }
-
-    public static boolean contains(String[] array, String value) {
-        for (String s : array) {
-            if (s.equals(value)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

@@ -3,9 +3,9 @@ package ru.ricardocraft.client.overlays;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.config.DesignConstants;
 import ru.ricardocraft.client.helper.LookupHelper;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.JavaFxUtils;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 

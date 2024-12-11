@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.layout.Pane;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.Launcher;
 import ru.ricardocraft.client.base.LauncherConfig;
 import ru.ricardocraft.client.base.request.Request;
@@ -15,7 +16,6 @@ import ru.ricardocraft.client.impl.AbstractStage;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;
 import ru.ricardocraft.client.impl.ContextHelper;
 import ru.ricardocraft.client.overlays.AbstractOverlay;
-import ru.ricardocraft.client.JavaFXApplication;
 
 import java.util.function.Consumer;
 

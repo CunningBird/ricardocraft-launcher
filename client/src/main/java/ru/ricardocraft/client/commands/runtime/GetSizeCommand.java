@@ -1,8 +1,8 @@
 package ru.ricardocraft.client.commands.runtime;
 
 import javafx.scene.layout.Pane;
-import ru.ricardocraft.client.impl.AbstractStage;
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.impl.AbstractStage;
 import ru.ricardocraft.client.utils.command.Command;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 

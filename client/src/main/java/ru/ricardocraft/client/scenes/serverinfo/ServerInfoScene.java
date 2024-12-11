@@ -6,17 +6,16 @@ import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.components.ServerButton;
 import ru.ricardocraft.client.components.UserBlock;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.scenes.interfaces.SceneSupportUserBlock;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 public class ServerInfoScene extends AbstractScene implements SceneSupportUserBlock {
-    private ServerButton serverButton;
     private UserBlock userBlock;
 
     public ServerInfoScene(JavaFXApplication application) {
@@ -64,7 +63,7 @@ public class ServerInfoScene extends AbstractScene implements SceneSupportUserBl
         });
         Pane serverButtonContainer = LookupHelper.lookup(layout, "#serverButton");
         serverButtonContainer.getChildren().clear();
-        serverButton = ServerButton.createServerButton(application, profile);
+        ServerButton serverButton = ServerButton.createServerButton(application, profile);
         serverButton.addTo(serverButtonContainer);
         serverButton.enableSaveButton(application.getTranslation("runtime.scenes.serverinfo.serverButton.game"),
                                       (e) -> runClient());

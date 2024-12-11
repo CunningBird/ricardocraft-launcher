@@ -2,10 +2,10 @@ package ru.ricardocraft.client.dialogs;
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.Pane;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;
 import ru.ricardocraft.client.impl.ContextHelper;
-import ru.ricardocraft.client.JavaFXApplication;
 
 import java.util.ArrayList;
 import java.util.List;

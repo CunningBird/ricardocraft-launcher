@@ -5,11 +5,8 @@ import ru.ricardocraft.client.utils.logging.LogHelperAppender;
 import ru.ricardocraft.client.utils.logging.SimpleLogHelperImpl;
 import ru.ricardocraft.client.utils.logging.Slf4jLogHelperImpl;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
@@ -48,20 +45,8 @@ public final class LogHelper {
         impl.addOutput(output);
     }
 
-    public static void addExcCallback(Consumer<Throwable> output) {
-        EXCEPTIONS_CALLBACKS.add(Objects.requireNonNull(output, "output"));
-    }
-
     public static void addOutput(Output output, OutputTypes type) {
         addOutput(new OutputEnity(Objects.requireNonNull(output, "output"), type));
-    }
-
-    public static void addOutput(Path file) throws IOException {
-        addOutput(IOHelper.newWriter(file, true));
-    }
-
-    public static void addOutput(Writer writer) {
-        addOutput(new SimpleLogHelperImpl.WriterOutput(writer), OutputTypes.PLAIN);
     }
 
     public static void debug(String message) {
@@ -147,34 +132,12 @@ public final class LogHelper {
         impl.printLicense(product);
     }
 
-    public static boolean removeOutput(OutputEnity output) {
-        return impl.removeOutput(output);
-    }
-
-    public static void subDebug(String message) {
-        if (isDebugEnabled()) {
-            log(Level.DEBUG, message, true);
-        }
-    }
-
-    public static void subDebug(String format, Object... args) {
-        subDebug(String.format(format, args));
-    }
-
     public static void subInfo(String message) {
         log(Level.INFO, message, true);
     }
 
     public static void subInfo(String format, Object... args) {
         subInfo(String.format(format, args));
-    }
-
-    public static void subWarning(String message) {
-        log(Level.WARNING, message, true);
-    }
-
-    public static void subWarning(String format, Object... args) {
-        subWarning(String.format(format, args));
     }
 
     public static String toString(Throwable exc) {

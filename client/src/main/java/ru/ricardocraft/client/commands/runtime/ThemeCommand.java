@@ -1,7 +1,7 @@
 package ru.ricardocraft.client.commands.runtime;
 
-import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.utils.command.Command;
 
 public class ThemeCommand extends Command {

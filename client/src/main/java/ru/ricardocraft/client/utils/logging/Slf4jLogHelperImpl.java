@@ -96,11 +96,6 @@ public class Slf4jLogHelperImpl implements LogHelperAppender {
     }
 
     @Override
-    public boolean removeOutput(LogHelper.OutputEnity output) {
-        return false;
-    }
-
-    @Override
     public void printVersion(String product) {
         if (JANSI) {
             logger.info(FormatHelper.ansiFormatVersion(product));

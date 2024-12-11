@@ -1,16 +1,31 @@
 package ru.ricardocraft.client.base.modules;
 
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.base.ClientPermissions;
+import ru.ricardocraft.client.base.events.request.AuthRequestEvent;
+import ru.ricardocraft.client.base.events.request.ProfilesRequestEvent;
 import ru.ricardocraft.client.base.modules.events.OfflineModeEvent;
+import ru.ricardocraft.client.base.profiles.ClientProfile;
+import ru.ricardocraft.client.base.profiles.PlayerProfile;
+import ru.ricardocraft.client.base.request.auth.AuthRequest;
+import ru.ricardocraft.client.base.request.auth.password.AuthOAuthPassword;
+import ru.ricardocraft.client.base.request.update.ProfilesRequest;
 import ru.ricardocraft.client.base.request.websockets.OfflineRequestService;
 import ru.ricardocraft.client.client.events.ClientExitPhase;
 import ru.ricardocraft.client.client.events.ClientUnlockConsoleEvent;
-import ru.ricardocraft.client.service.OfflineService;
+import ru.ricardocraft.client.runtime.client.DirBridge;
 import ru.ricardocraft.client.utils.Version;
 import ru.ricardocraft.client.utils.helper.JVMHelper;
 import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.utils.helper.SecurityHelper;
 
 import javax.swing.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class JavaRuntimeModule extends LauncherModule {
 
@@ -35,19 +50,6 @@ public class JavaRuntimeModule extends LauncherModule {
                 Запуск лаунчера невозможен из-за ошибки расшифровки рантайма.
                 Администраторам: установите библиотеку EnFS для исправления этой проблемы
                 """;
-        JOptionPane.showMessageDialog(null, message, "GravitLauncher", JOptionPane.ERROR_MESSAGE);
-    }
-
-    public static void errorHandleAlert(Throwable e) {
-        String message = """
-                Произошла серьезная ошибка при инициализации интерфейса лаунчера.
-                Для пользователей:
-                Обратитесь к администрации своего проекта с скриншотом этого окна
-                Java %d (x%d) Ошибка %s
-                Описание: %s
-                Более подробную информацию можно получить из лога
-                """.formatted(JVMHelper.JVM_VERSION, JVMHelper.JVM_BITS, e.getClass().getName(),
-                e.getMessage() == null ? "null" : e.getMessage());
         JOptionPane.showMessageDialog(null, message, "GravitLauncher", JOptionPane.ERROR_MESSAGE);
     }
 
@@ -79,7 +81,37 @@ public class JavaRuntimeModule extends LauncherModule {
     }
 
     private void offlineMode(OfflineModeEvent event) {
-        OfflineService.applyRuntimeProcessors((OfflineRequestService) event.service);
+        OfflineRequestService service = (OfflineRequestService) event.service;
+        service.registerRequestProcessor(
+                AuthRequest.class, (r) -> {
+                    var permissions = new ClientPermissions();
+                    String login = r.login;
+                    if (login == null && r.password instanceof AuthOAuthPassword oAuthPassword) {
+                        login = oAuthPassword.accessToken;
+                    }
+                    if (login == null) {
+                        login = "Player";
+                    }
+                    return new AuthRequestEvent(
+                            permissions,
+                            new PlayerProfile(
+                                    UUID.nameUUIDFromBytes(login.getBytes(StandardCharsets.UTF_8)), login,
+                                    new HashMap<>(), new HashMap<>()), SecurityHelper.randomStringToken(), "", null,
+                            new AuthRequestEvent.OAuthRequestEvent(
+                                    login, null, 0));
+                });
+        service.registerRequestProcessor(
+                ProfilesRequest.class, (r) -> {
+                    JavaFXApplication application = JavaFXApplication.getInstance();
+                    List<ClientProfile> profileList =
+                            application.runtimeSettings.profiles.stream()
+                                    .filter(profile -> Files.exists(
+                                            DirBridge.dirUpdates.resolve(profile.getDir()))
+                                            && Files.exists(DirBridge.dirUpdates.resolve(
+                                            profile.getAssetDir())))
+                                    .collect(Collectors.toList());
+                    return new ProfilesRequestEvent(profileList);
+                });
     }
 
     private void exitPhase(ClientExitPhase exitPhase) {

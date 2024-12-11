@@ -6,6 +6,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
 import javafx.util.StringConverter;
 import oshi.SystemInfo;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.components.ServerButton;
 import ru.ricardocraft.client.components.UserBlock;
@@ -13,7 +14,6 @@ import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.scenes.interfaces.SceneSupportUserBlock;
 import ru.ricardocraft.client.scenes.settings.components.JavaSelectorComponent;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.SystemMemory;
 import ru.ricardocraft.client.utils.helper.JVMHelper;
 

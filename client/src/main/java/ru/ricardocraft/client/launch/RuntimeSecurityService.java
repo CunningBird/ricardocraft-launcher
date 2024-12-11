@@ -1,9 +1,11 @@
 package ru.ricardocraft.client.launch;
 
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.base.request.RequestService;
 import ru.ricardocraft.client.base.request.secure.GetSecureLevelInfoRequest;
 import ru.ricardocraft.client.base.request.secure.HardwareReportRequest;
 import ru.ricardocraft.client.base.request.secure.VerifySecureLevelKeyRequest;
+import ru.ricardocraft.client.impl.MessageManager;
 import ru.ricardocraft.client.runtime.utils.HWIDProvider;
 import ru.ricardocraft.client.utils.helper.CommonHelper;
 import ru.ricardocraft.client.utils.helper.LogHelper;
@@ -12,15 +14,17 @@ import ru.ricardocraft.client.utils.helper.SecurityHelper;
 import java.io.IOException;
 
 public class RuntimeSecurityService {
-    private final JavaFXApplication application;
+    private final RequestService requestService;
+    private final MessageManager messageManager;
     private final Boolean[] waitObject = new Boolean[]{null};
 
-    public RuntimeSecurityService(JavaFXApplication application) {
-        this.application = application;
+    public RuntimeSecurityService(RequestService requestService, MessageManager messageManager) {
+        this.requestService = requestService;
+        this.messageManager = messageManager;
     }
 
     public void startRequest() throws IOException {
-        application.service.request(new GetSecureLevelInfoRequest()).thenAccept((event) -> {
+        requestService.request(new GetSecureLevelInfoRequest()).thenAccept((event) -> {
             if (!event.enabled || event.verifySecureKey == null) {
                 LogHelper.info("Advanced security level disabled");
                 notifyWaitObject(false);
@@ -28,19 +32,19 @@ public class RuntimeSecurityService {
             }
             byte[] signature = sign(event.verifySecureKey);
             try {
-                application.service.request(
-                                   new VerifySecureLevelKeyRequest(JavaFXApplication.publicKey.getEncoded(), signature))
-                                   .thenAccept((event1) -> {
-                                       if (!event1.needHardwareInfo) {
-                                           simpleGetHardwareToken();
-                                       } else {
-                                           doCollectHardwareInfo(!event1.onlyStatisticInfo);
-                                       }
-                                   }).exceptionally((e) -> {
-                               application.messageManager.createNotification("Hardware Checker", e.getCause().getMessage());
-                               notifyWaitObject(false);
-                               return null;
-                           });
+                requestService.request(
+                                new VerifySecureLevelKeyRequest(JavaFXApplication.publicKey.getEncoded(), signature))
+                        .thenAccept((event1) -> {
+                            if (!event1.needHardwareInfo) {
+                                simpleGetHardwareToken();
+                            } else {
+                                doCollectHardwareInfo(!event1.onlyStatisticInfo);
+                            }
+                        }).exceptionally((e) -> {
+                            messageManager.createNotification("Hardware Checker", e.getCause().getMessage());
+                            notifyWaitObject(false);
+                            return null;
+                        });
             } catch (IOException e) {
                 LogHelper.error("VerifySecureLevel failed: %s", e.getMessage());
                 notifyWaitObject(false);
@@ -54,16 +58,16 @@ public class RuntimeSecurityService {
 
     private void simpleGetHardwareToken() {
         try {
-            application.service.request(new HardwareReportRequest()).thenAccept((response) -> {
+            requestService.request(new HardwareReportRequest()).thenAccept((response) -> {
                 LogHelper.info("Advanced security level success completed");
                 notifyWaitObject(true);
             }).exceptionally((e) -> {
-                application.messageManager.createNotification("Hardware Checker", e.getCause().getMessage());
+                messageManager.createNotification("Hardware Checker", e.getCause().getMessage());
                 notifyWaitObject(false);
                 return null;
             });
         } catch (IOException e) {
-            application.messageManager.createNotification("Hardware Checker", e.getCause().getMessage());
+            messageManager.createNotification("Hardware Checker", e.getCause().getMessage());
             notifyWaitObject(false);
         }
     }
@@ -75,11 +79,11 @@ public class RuntimeSecurityService {
                 HardwareReportRequest.HardwareInfo info = provider.getHardwareInfo(needSerial);
                 HardwareReportRequest reportRequest = new HardwareReportRequest();
                 reportRequest.hardware = info;
-                application.service.request(reportRequest).thenAccept((event) -> {
+                requestService.request(reportRequest).thenAccept((event) -> {
                     LogHelper.info("Advanced security level success completed");
                     notifyWaitObject(true);
                 }).exceptionally((exc) -> {
-                    application.messageManager.createNotification("Hardware Checker", exc.getCause().getMessage());
+                    messageManager.createNotification("Hardware Checker", exc.getCause().getMessage());
                     return null;
                 });
             } catch (Throwable e) {

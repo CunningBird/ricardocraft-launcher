@@ -7,7 +7,10 @@ import ru.ricardocraft.client.base.profiles.optional.actions.OptionalAction;
 import ru.ricardocraft.client.base.request.Request;
 import ru.ricardocraft.client.core.hasher.HashedDir;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class ClientParams {
     public long timestamp;

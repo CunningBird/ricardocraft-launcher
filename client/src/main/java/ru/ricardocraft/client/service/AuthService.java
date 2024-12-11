@@ -1,5 +1,6 @@
 package ru.ricardocraft.client.service;
 
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.base.Launcher;
 import ru.ricardocraft.client.base.LauncherConfig;
 import ru.ricardocraft.client.base.events.request.AuthRequestEvent;
@@ -9,17 +10,20 @@ import ru.ricardocraft.client.base.request.Request;
 import ru.ricardocraft.client.base.request.auth.AuthRequest;
 import ru.ricardocraft.client.base.request.auth.password.AuthAESPassword;
 import ru.ricardocraft.client.base.request.auth.password.AuthPlainPassword;
-import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.utils.helper.SecurityHelper;
 
+@Component
 public class AuthService {
     private final LauncherConfig config = Launcher.getConfig();
-    private final JavaFXApplication application;
+
+    private final GuiModuleConfig guiModuleConfig;
+
     private AuthRequestEvent rawAuthResult;
     private GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability;
 
-    public AuthService(JavaFXApplication application) {
-        this.application = application;
+    public AuthService(GuiModuleConfig guiModuleConfig) {
+        this.guiModuleConfig = guiModuleConfig;
     }
 
     public AuthRequest.AuthPasswordInterface makePassword(String plainPassword) {
@@ -84,8 +88,7 @@ public class AuthService {
     }
 
     public boolean checkDebugPermission(String name) {
-        return application.isDebugMode() || (!application.guiModuleConfig.disableDebugPermissions &&
-                checkPermission("launcher.debug."+name));
+        return (!guiModuleConfig.disableDebugPermissions && checkPermission("launcher.debug." + name));
     }
 
     public PlayerProfile getPlayerProfile() {

@@ -3,9 +3,9 @@ package ru.ricardocraft.client.scenes.settings.components;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
 import javafx.util.StringConverter;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.helper.LookupHelper;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.util.Objects;

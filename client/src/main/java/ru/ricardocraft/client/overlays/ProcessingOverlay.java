@@ -3,12 +3,12 @@ package ru.ricardocraft.client.overlays;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Labeled;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.request.Request;
 import ru.ricardocraft.client.base.request.WebSocketEvent;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.impl.AbstractStage;
 import ru.ricardocraft.client.impl.ContextHelper;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.io.IOException;

@@ -4,10 +4,10 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.runtime.managers.ConsoleManager;
 import ru.ricardocraft.client.scenes.AbstractScene;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 public class ConsoleScene extends AbstractScene {

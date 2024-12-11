@@ -20,9 +20,6 @@ import java.util.regex.Pattern;
 
 public final class Launcher {
 
-    // Authlib constants
-
-
     // Used to determine from clientside is launched from launcher
     public static final AtomicBoolean LAUNCHED = new AtomicBoolean(false);
     public static final String RUNTIME_DIR = "runtime";

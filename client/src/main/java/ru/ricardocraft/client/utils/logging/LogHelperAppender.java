@@ -23,8 +23,6 @@ public interface LogHelperAppender {
 
     void addOutput(LogHelper.OutputEnity output);
 
-    boolean removeOutput(LogHelper.OutputEnity output);
-
     void printVersion(String product);
 
     void printLicense(String product);

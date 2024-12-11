@@ -8,9 +8,9 @@ import javafx.scene.Parent;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.request.RequestException;
 import ru.ricardocraft.client.helper.LookupHelper;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;

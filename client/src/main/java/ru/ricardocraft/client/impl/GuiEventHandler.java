@@ -1,6 +1,7 @@
 package ru.ricardocraft.client.impl;
 
 import javafx.application.Platform;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.events.RequestEvent;
 import ru.ricardocraft.client.base.events.request.AuthRequestEvent;
 import ru.ricardocraft.client.base.events.request.ProfilesRequestEvent;
@@ -14,7 +15,6 @@ import ru.ricardocraft.client.scenes.options.OptionsScene;
 import ru.ricardocraft.client.scenes.serverinfo.ServerInfoScene;
 import ru.ricardocraft.client.scenes.servermenu.ServerMenuScene;
 import ru.ricardocraft.client.scenes.settings.SettingsScene;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.util.UUID;

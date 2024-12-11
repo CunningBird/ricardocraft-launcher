@@ -3,6 +3,7 @@ package ru.ricardocraft.client.scenes.settings;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Hyperlink;
 import javafx.stage.DirectoryChooser;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.helper.LookupHelper;
@@ -10,7 +11,6 @@ import ru.ricardocraft.client.runtime.client.DirBridge;
 import ru.ricardocraft.client.scenes.settings.components.LanguageSelectorComponent;
 import ru.ricardocraft.client.scenes.settings.components.ThemeSelectorComponent;
 import ru.ricardocraft.client.stage.ConsoleStage;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.IOHelper;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 

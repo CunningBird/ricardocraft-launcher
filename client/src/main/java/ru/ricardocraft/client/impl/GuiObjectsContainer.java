@@ -1,5 +1,6 @@
 package ru.ricardocraft.client.impl;
 
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.overlays.ProcessingOverlay;
 import ru.ricardocraft.client.overlays.UploadAssetOverlay;
 import ru.ricardocraft.client.overlays.WelcomeOverlay;
@@ -14,7 +15,6 @@ import ru.ricardocraft.client.scenes.settings.GlobalSettingsScene;
 import ru.ricardocraft.client.scenes.settings.SettingsScene;
 import ru.ricardocraft.client.scenes.update.UpdateScene;
 import ru.ricardocraft.client.stage.ConsoleStage;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.lang.invoke.MethodHandles;

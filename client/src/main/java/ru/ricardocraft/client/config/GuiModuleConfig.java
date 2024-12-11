@@ -1,11 +1,14 @@
 package ru.ricardocraft.client.config;
 
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.core.LauncherInject;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class GuiModuleConfig {
+
     @LauncherInject(value = "modules.javaruntime.createaccounturl")
     public String createAccountURL;
     @LauncherInject(value = "modules.javaruntime.forgotpassurl")

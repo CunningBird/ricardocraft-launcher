@@ -6,9 +6,9 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.scenes.AbstractScene;
-import ru.ricardocraft.client.JavaFXApplication;
 
 import java.util.function.Consumer;
 

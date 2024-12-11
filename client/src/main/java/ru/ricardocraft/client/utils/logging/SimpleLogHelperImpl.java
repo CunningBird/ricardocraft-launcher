@@ -135,34 +135,6 @@ public class SimpleLogHelperImpl implements LogHelperAppender {
         OUTPUTS.add(output);
     }
 
-    @Override
-    public boolean removeOutput(OutputEnity output) {
-        return OUTPUTS.remove(output);
-    }
-
-    public void rawLog(Supplier<String> plainStr, Supplier<String> jansiStr) {
-        String jansiString = null, plainString = null;
-        for (OutputEnity output : OUTPUTS) {
-            if (output.type == OutputTypes.JANSI && JANSI) {
-                if (jansiString != null) {
-                    output.output.println(jansiString);
-                    continue;
-                }
-
-                jansiString = jansiStr.get();
-                output.output.println(jansiString);
-            } else {
-                if (plainString != null) {
-                    output.output.println(plainString);
-                    continue;
-                }
-
-                plainString = plainStr.get();
-                output.output.println(plainString);
-            }
-        }
-    }
-
     public void addOutput(Output output, OutputTypes type) {
         addOutput(new OutputEnity(Objects.requireNonNull(output, "output"), type));
     }

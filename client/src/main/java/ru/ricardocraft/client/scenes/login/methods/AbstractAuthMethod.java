@@ -26,12 +26,5 @@ public abstract class AbstractAuthMethod<T extends GetAvailabilityAuthRequestEve
         public UserAuthCanceledException() {
         }
 
-        public UserAuthCanceledException(String message) {
-            super(message);
-        }
-
-        public UserAuthCanceledException(String message, Throwable cause) {
-            super(message, cause);
-        }
     }
 }

@@ -85,11 +85,7 @@ public class LoginScene extends AbstractScene {
 
     @Override
     protected void doPostInit() {
-        if (!application.isDebugMode()) {
-            launcherRequest();
-        } else {
-            getAvailabilityAuth();
-        }
+        launcherRequest();
     }
 
     private void launcherRequest() {

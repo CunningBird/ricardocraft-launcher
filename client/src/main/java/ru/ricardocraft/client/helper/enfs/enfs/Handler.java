@@ -1,7 +1,7 @@
 package ru.ricardocraft.client.helper.enfs.enfs;
 
-import ru.ricardocraft.client.helper.enfs.EnFS;
 import ru.ricardocraft.client.helper.EnFSHelper;
+import ru.ricardocraft.client.helper.enfs.EnFS;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

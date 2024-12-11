@@ -1,10 +1,10 @@
 package ru.ricardocraft.client.commands.runtime;
 
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.impl.ContextHelper;
 import ru.ricardocraft.client.overlays.AbstractOverlay;
 import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.stage.PrimaryStage;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.command.Command;
 
 public class WarpCommand extends Command {

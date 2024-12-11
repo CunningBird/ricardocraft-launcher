@@ -1,8 +1,8 @@
 package ru.ricardocraft.client.service;
 
 import ru.ricardocraft.client.base.profiles.ClientProfile;
+import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.runtime.client.DirBridge;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.JVMHelper;
 import ru.ricardocraft.client.utils.helper.JavaHelper;
 import ru.ricardocraft.client.utils.helper.LogHelper;
@@ -19,18 +19,18 @@ public class JavaService {
     private static final Pattern JAVA_VERSION_PATTERN = Pattern.compile(
             "Java (?<version>.+) b(?<build>.+) (?<os>.+) (?<arch>.+) javafx (?<javafx>.+)");
     public volatile List<JavaHelper.JavaVersion> javaVersions;
-    private final JavaFXApplication application;
+    private final GuiModuleConfig guiModuleConfig;
 
-    public JavaService(JavaFXApplication application) {
-        this.application = application;
+    public JavaService(GuiModuleConfig guiModuleConfig) {
+        this.guiModuleConfig = guiModuleConfig;
         update();
     }
 
     public void update() {
         List<JavaHelper.JavaVersion> versions = new LinkedList<>();
         {
-            if (application.guiModuleConfig.javaList != null) {
-                for (Map.Entry<String, String> entry : application.guiModuleConfig.javaList.entrySet()) {
+            if (guiModuleConfig.javaList != null) {
+                for (Map.Entry<String, String> entry : guiModuleConfig.javaList.entrySet()) {
                     String javaDir = entry.getKey();
                     String javaVersionString = entry.getValue();
                     Matcher matcher = JAVA_VERSION_PATTERN.matcher(javaVersionString);
@@ -58,7 +58,7 @@ public class JavaService {
                 }
             }
         }
-        if (!application.guiModuleConfig.forceDownloadJava || versions.isEmpty()) {
+        if (!guiModuleConfig.forceDownloadJava || versions.isEmpty()) {
             versions.addAll(JavaHelper.findJava());
         }
         javaVersions = Collections.unmodifiableList(versions);

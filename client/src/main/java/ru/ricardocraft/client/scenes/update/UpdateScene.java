@@ -2,12 +2,12 @@ package ru.ricardocraft.client.scenes.update;
 
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.profiles.optional.OptionalView;
 import ru.ricardocraft.client.core.hasher.FileNameMatcher;
 import ru.ricardocraft.client.core.hasher.HashedDir;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.scenes.AbstractScene;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.nio.file.Path;

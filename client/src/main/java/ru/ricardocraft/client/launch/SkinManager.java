@@ -3,7 +3,7 @@ package ru.ricardocraft.client.launch;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
-import ru.ricardocraft.client.JavaFXApplication;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.base.Downloader;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 public class SkinManager {
     private static final HttpClient client = Downloader.newHttpClientBuilder().build();
     private static class SkinEntry {
@@ -93,12 +94,7 @@ public class SkinManager {
         }
     }
 
-    private final JavaFXApplication application;
     private final Map<String, SkinEntry> map = new ConcurrentHashMap<>();
-
-    public SkinManager(JavaFXApplication application) {
-        this.application = application;
-    }
 
     public void addSkin(String username, URI url) {
         map.put(username, new SkinEntry(url));

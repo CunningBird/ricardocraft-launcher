@@ -7,8 +7,8 @@ import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.base.profiles.optional.OptionalFile;
 import ru.ricardocraft.client.base.profiles.optional.OptionalView;
 import ru.ricardocraft.client.core.LauncherNetworkAPI;
+import ru.ricardocraft.client.impl.TriggerManager;
 import ru.ricardocraft.client.runtime.client.DirBridge;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.IOHelper;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
@@ -21,13 +21,13 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class ProfilesService {
-    private final JavaFXApplication application;
+    private final TriggerManager triggerManager;
     private List<ClientProfile> profiles;
     private ClientProfile profile;
     private Map<ClientProfile, OptionalView> optionalViewMap;
 
-    public ProfilesService(JavaFXApplication application) {
-        this.application = application;
+    public ProfilesService(TriggerManager triggerManager) {
+        this.triggerManager = triggerManager;
     }
 
     public OptionalView getOptionalView() {
@@ -53,8 +53,7 @@ public class ProfilesService {
             this.optionalViewMap.put(profile, newView);
         }
         for (ClientProfile profile : profiles) {
-            application.triggerManager
-                    .process(profile, getOptionalView(profile));
+            triggerManager.process(profile, getOptionalView(profile));
         }
     }
 

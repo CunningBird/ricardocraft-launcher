@@ -25,12 +25,4 @@ public final class RuntimeModuleManager extends SimpleModuleManager {
     protected ModulesClassLoader createClassLoader() {
         return null;
     }
-
-    public void callWrapper(ClientLauncherWrapperContext context) {
-        for (LauncherModule module : modules) {
-            if (module instanceof ClientWrapperModule) {
-                ((ClientWrapperModule) module).wrapperPhase(context);
-            }
-        }
-    }
 }

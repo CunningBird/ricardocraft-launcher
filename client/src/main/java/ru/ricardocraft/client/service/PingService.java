@@ -1,18 +1,18 @@
 package ru.ricardocraft.client.service;
 
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.runtime.client.ServerPinger;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 public class PingService {
     private final Map<String, CompletableFuture<PingServerReport>> reports = new ConcurrentHashMap<>();
 
     public CompletableFuture<PingServerReport> getPingReport(String serverName) {
-        CompletableFuture<PingServerReport> report = reports.computeIfAbsent(serverName,
-                                                                             k -> new CompletableFuture<>());
-        return report;
+        return reports.computeIfAbsent(serverName, k -> new CompletableFuture<>());
     }
 
     public void addReport(String name, ServerPinger.Result result) {

@@ -2,8 +2,8 @@ package ru.ricardocraft.client.dialogs;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.helper.LookupHelper;
 
 public class InfoDialog extends AbstractDialog {
     private String header;

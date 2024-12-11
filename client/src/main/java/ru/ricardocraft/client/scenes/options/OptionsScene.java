@@ -2,6 +2,7 @@ package ru.ricardocraft.client.scenes.options;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.base.profiles.optional.OptionalView;
 import ru.ricardocraft.client.components.ServerButton;
@@ -9,7 +10,6 @@ import ru.ricardocraft.client.components.UserBlock;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.scenes.interfaces.SceneSupportUserBlock;
-import ru.ricardocraft.client.JavaFXApplication;
 
 public class OptionsScene extends AbstractScene implements SceneSupportUserBlock {
     private OptionsTab optionsTab;

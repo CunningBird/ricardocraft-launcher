@@ -1,5 +1,6 @@
 package ru.ricardocraft.client.service;
 
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.Launcher;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.base.profiles.ClientProfileBuilder;
@@ -12,7 +13,6 @@ import ru.ricardocraft.client.impl.AbstractStage;
 import ru.ricardocraft.client.impl.ContextHelper;
 import ru.ricardocraft.client.runtime.client.ClientLauncherProcess;
 import ru.ricardocraft.client.runtime.client.DirBridge;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.*;
 
 import java.io.EOFException;

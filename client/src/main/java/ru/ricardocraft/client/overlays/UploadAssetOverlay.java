@@ -3,6 +3,7 @@ package ru.ricardocraft.client.overlays;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.stage.FileChooser;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.Launcher;
 import ru.ricardocraft.client.base.events.request.AssetUploadInfoRequestEvent;
 import ru.ricardocraft.client.base.profiles.Texture;
@@ -12,7 +13,6 @@ import ru.ricardocraft.client.base.request.cabinet.GetAssetUploadUrl;
 import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.scenes.interfaces.SceneSupportUserBlock;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 import ru.ricardocraft.client.utils.helper.SecurityHelper;
 

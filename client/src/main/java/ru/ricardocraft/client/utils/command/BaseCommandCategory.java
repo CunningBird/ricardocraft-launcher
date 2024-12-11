@@ -1,11 +1,13 @@
 package ru.ricardocraft.client.utils.command;
 
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.utils.helper.VerifyHelper;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 public class BaseCommandCategory implements CommandCategory {
     private final Map<String, Command> commands = new ConcurrentHashMap<>(32);
 
