@@ -1,14 +1,19 @@
-package ru.ricardocraft.client.utils.command.basic;
+package ru.ricardocraft.client.commands.basic;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.utils.command.Command;
 import ru.ricardocraft.client.utils.command.CommandHandler;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
+@Component
 public final class ClearCommand extends Command {
     private final CommandHandler handler;
 
+    @Autowired
     public ClearCommand(CommandHandler handler) {
         this.handler = handler;
+        handler.registerCommand("clear", this);
     }
 
     @Override

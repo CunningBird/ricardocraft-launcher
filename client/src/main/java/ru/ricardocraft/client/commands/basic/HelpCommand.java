@@ -1,6 +1,9 @@
-package ru.ricardocraft.client.utils.command.basic;
+package ru.ricardocraft.client.commands.basic;
 
 import org.fusesource.jansi.Ansi;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import ru.ricardocraft.client.utils.command.Category;
 import ru.ricardocraft.client.utils.command.Command;
 import ru.ricardocraft.client.utils.command.CommandException;
 import ru.ricardocraft.client.utils.command.CommandHandler;
@@ -10,11 +13,14 @@ import java.util.Arrays;
 import java.util.Map.Entry;
 import java.util.function.Supplier;
 
+@Component
 public final class HelpCommand extends Command {
     private final CommandHandler handler;
 
+    @Autowired
     public HelpCommand(CommandHandler handler) {
         this.handler = handler;
+        handler.registerCommand("help", this);
     }
 
     public static void printCommand(String name, Command command) {
@@ -83,7 +89,7 @@ public final class HelpCommand extends Command {
     }
 
     private void printCommands() {
-        for (CommandHandler.Category category : handler.getCategories()) {
+        for (Category category : handler.getCategories()) {
             printCategory(category.name, category.description);
             for (Entry<String, Command> entry : category.category.commandsMap().entrySet())
                 printCommand(entry.getKey(), entry.getValue());

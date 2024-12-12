@@ -28,27 +28,4 @@ public class LauncherModuleInfo {
         providers = new String[0];
     }
 
-    public LauncherModuleInfo(String name, Version version, String[] dependencies) {
-        this.name = name;
-        this.version = version;
-        this.priority = 0;
-        this.dependencies = dependencies;
-        providers = new String[0];
-    }
-
-    public LauncherModuleInfo(String name, Version version, int priority, String[] dependencies) {
-        this.name = name;
-        this.version = version;
-        this.priority = priority;
-        this.dependencies = dependencies;
-        providers = new String[0];
-    }
-
-    public LauncherModuleInfo(String name, Version version, int priority, String[] dependencies, String[] providers) {
-        this.name = name;
-        this.version = version;
-        this.priority = priority;
-        this.dependencies = dependencies;
-        this.providers = providers;
-    }
 }

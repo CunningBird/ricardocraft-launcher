@@ -115,10 +115,6 @@ public class Downloader {
         tasks.clear();
     }
 
-    public boolean isCanceled() {
-        return executor.isTerminated();
-    }
-
     public CompletableFuture<Void> getFuture() {
         return future;
     }

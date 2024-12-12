@@ -1,26 +1,40 @@
 package ru.ricardocraft.client.launch;
 
-import ru.ricardocraft.client.JavaFXApplication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.base.request.RequestService;
 import ru.ricardocraft.client.base.request.secure.GetSecureLevelInfoRequest;
 import ru.ricardocraft.client.base.request.secure.HardwareReportRequest;
 import ru.ricardocraft.client.base.request.secure.VerifySecureLevelKeyRequest;
-import ru.ricardocraft.client.impl.MessageManager;
 import ru.ricardocraft.client.runtime.utils.HWIDProvider;
+import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.utils.helper.CommonHelper;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 import ru.ricardocraft.client.utils.helper.SecurityHelper;
 
 import java.io.IOException;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 
+@Component
 public class RuntimeSecurityService {
+
+    private final ECPublicKey publicKey;
+    private final ECPrivateKey privateKey;
+
     private final RequestService requestService;
-    private final MessageManager messageManager;
+    private final LaunchService launchService;
     private final Boolean[] waitObject = new Boolean[]{null};
 
-    public RuntimeSecurityService(RequestService requestService, MessageManager messageManager) {
+    @Autowired
+    public RuntimeSecurityService(ECPublicKey publicKey,
+                                  ECPrivateKey privateKey,
+                                  RequestService requestService,
+                                  LaunchService launchService) {
+        this.publicKey = publicKey;
+        this.privateKey = privateKey;
         this.requestService = requestService;
-        this.messageManager = messageManager;
+        this.launchService = launchService;
     }
 
     public void startRequest() throws IOException {
@@ -33,7 +47,7 @@ public class RuntimeSecurityService {
             byte[] signature = sign(event.verifySecureKey);
             try {
                 requestService.request(
-                                new VerifySecureLevelKeyRequest(JavaFXApplication.publicKey.getEncoded(), signature))
+                                new VerifySecureLevelKeyRequest(publicKey.getEncoded(), signature))
                         .thenAccept((event1) -> {
                             if (!event1.needHardwareInfo) {
                                 simpleGetHardwareToken();
@@ -41,7 +55,7 @@ public class RuntimeSecurityService {
                                 doCollectHardwareInfo(!event1.onlyStatisticInfo);
                             }
                         }).exceptionally((e) -> {
-                            messageManager.createNotification("Hardware Checker", e.getCause().getMessage());
+                            launchService.createNotification("Hardware Checker", e.getCause().getMessage());
                             notifyWaitObject(false);
                             return null;
                         });
@@ -62,12 +76,12 @@ public class RuntimeSecurityService {
                 LogHelper.info("Advanced security level success completed");
                 notifyWaitObject(true);
             }).exceptionally((e) -> {
-                messageManager.createNotification("Hardware Checker", e.getCause().getMessage());
+                launchService.createNotification("Hardware Checker", e.getCause().getMessage());
                 notifyWaitObject(false);
                 return null;
             });
         } catch (IOException e) {
-            messageManager.createNotification("Hardware Checker", e.getCause().getMessage());
+            launchService.createNotification("Hardware Checker", e.getCause().getMessage());
             notifyWaitObject(false);
         }
     }
@@ -83,7 +97,7 @@ public class RuntimeSecurityService {
                     LogHelper.info("Advanced security level success completed");
                     notifyWaitObject(true);
                 }).exceptionally((exc) -> {
-                    messageManager.createNotification("Hardware Checker", exc.getCause().getMessage());
+                    launchService.createNotification("Hardware Checker", exc.getCause().getMessage());
                     return null;
                 });
             } catch (Throwable e) {
@@ -100,14 +114,7 @@ public class RuntimeSecurityService {
         }
     }
 
-    public boolean getSecurityState() throws InterruptedException {
-        synchronized (waitObject) {
-            if (waitObject[0] == null) waitObject.wait(3000);
-            return waitObject[0];
-        }
-    }
-
     public byte[] sign(byte[] data) {
-        return SecurityHelper.sign(data, JavaFXApplication.privateKey);
+        return SecurityHelper.sign(data, privateKey);
     }
 }

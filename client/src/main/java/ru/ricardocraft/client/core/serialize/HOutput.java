@@ -5,7 +5,6 @@ import ru.ricardocraft.client.utils.helper.IOHelper;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.math.BigInteger;
 import java.util.Objects;
 
 public final class HOutput implements AutoCloseable, Flushable {
@@ -30,11 +29,6 @@ public final class HOutput implements AutoCloseable, Flushable {
 
     public void writeASCII(String s, int maxBytes) throws IOException {
         writeByteArray(IOHelper.encodeASCII(s), maxBytes);
-    }
-
-
-    public void writeBigInteger(BigInteger bi, int max) throws IOException {
-        writeByteArray(bi.toByteArray(), max);
     }
 
 

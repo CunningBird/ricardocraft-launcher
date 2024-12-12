@@ -10,10 +10,18 @@ import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.components.ServerButton;
 import ru.ricardocraft.client.components.UserBlock;
+import ru.ricardocraft.client.config.GuiModuleConfig;
+import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
+import ru.ricardocraft.client.launch.SkinManager;
 import ru.ricardocraft.client.runtime.client.ServerPinger;
+import ru.ricardocraft.client.runtime.managers.SettingsManager;
 import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.scenes.interfaces.SceneSupportUserBlock;
+import ru.ricardocraft.client.service.AuthService;
+import ru.ricardocraft.client.service.LaunchService;
+import ru.ricardocraft.client.service.PingService;
+import ru.ricardocraft.client.service.ProfilesService;
 import ru.ricardocraft.client.utils.helper.CommonHelper;
 
 import java.io.IOException;
@@ -23,13 +31,32 @@ public class ServerMenuScene extends AbstractScene implements SceneSupportUserBl
     private List<ClientProfile> lastProfiles;
     private UserBlock userBlock;
 
-    public ServerMenuScene(JavaFXApplication application) {
-        super("scenes/servermenu/servermenu.fxml", application);
+    private final GuiModuleConfig guiModuleConfig;
+    private final SettingsManager settingsManager;
+    private final ProfilesService profilesService;
+    private final PingService pingService;
+    private final SkinManager skinManager;
+
+    public ServerMenuScene(JavaFXApplication application,
+                           LauncherConfig config,
+                           GuiModuleConfig guiModuleConfig,
+                           SettingsManager settingsManager,
+                           AuthService authService,
+                           SkinManager skinManager,
+                           LaunchService launchService,
+                           ProfilesService profilesService,
+                           PingService pingService) {
+        super("scenes/servermenu/servermenu.fxml", application, config, guiModuleConfig, authService, launchService);
+        this.guiModuleConfig = guiModuleConfig;
+        this.settingsManager = settingsManager;
+        this.profilesService = profilesService;
+        this.pingService = pingService;
+        this.skinManager = skinManager;
     }
 
     @Override
     public void doInit() {
-        this.userBlock = new UserBlock(layout, new SceneAccessor());
+        this.userBlock = new UserBlock(layout, authService, skinManager, launchService, new SceneAccessor());
         LookupHelper.<ButtonBase>lookup(header, "#controls", "#settings").setOnAction((e) -> {
             try {
                 switchScene(application.gui.globalSettingsScene);
@@ -54,16 +81,22 @@ public class ServerMenuScene extends AbstractScene implements SceneSupportUserBl
 
     @Override
     public void reset() {
-        if (lastProfiles == application.profilesService.getProfiles()) return;
-        lastProfiles = application.profilesService.getProfiles();
+        if (lastProfiles == profilesService.getProfiles()) return;
+        lastProfiles = profilesService.getProfiles();
         Map<ClientProfile, ServerButtonCache> serverButtonCacheMap = new LinkedHashMap<>();
-        
+
         List<ClientProfile> profiles = new ArrayList<>(lastProfiles);
         profiles.sort(Comparator.comparingInt(ClientProfile::getSortIndex).thenComparing(ClientProfile::getTitle));
         int position = 0;
         for (ClientProfile profile : profiles) {
             ServerButtonCache cache = new ServerButtonCache();
-            cache.serverButton = ServerButton.createServerButton(application, profile);
+            cache.serverButton = ServerButton.createServerButton(
+                    application,
+                    guiModuleConfig,
+                    launchService,
+                    pingService,
+                    profile
+            );
             cache.position = position;
             serverButtonCacheMap.put(profile, cache);
             position++;
@@ -72,7 +105,7 @@ public class ServerMenuScene extends AbstractScene implements SceneSupportUserBl
         HBox serverList = (HBox) scrollPane.getContent();
         serverList.setSpacing(20);
         serverList.getChildren().clear();
-        application.pingService.clear();
+        pingService.clear();
         serverButtonCacheMap.forEach((profile, serverButtonCache) -> {
             EventHandler<? super MouseEvent> handle = (event) -> {
                 if (!event.getButton().equals(MouseButton.PRIMARY)) return;
@@ -95,7 +128,7 @@ public class ServerMenuScene extends AbstractScene implements SceneSupportUserBl
                         ServerPinger pinger = new ServerPinger(serverProfile, profile.getVersion());
                         ServerPinger.Result result = pinger.ping();
                         contextHelper.runInFxThread(
-                                () -> application.pingService.addReport(serverProfile.name, result));
+                                () -> pingService.addReport(serverProfile.name, result));
                     } catch (IOException ignored) {
                     }
                 }
@@ -115,7 +148,7 @@ public class ServerMenuScene extends AbstractScene implements SceneSupportUserBl
     }
 
     private void changeServer(ClientProfile profile) {
-        application.profilesService.setProfile(profile);
-        application.runtimeSettings.lastProfile = profile.getUUID();
+        profilesService.setProfile(profile);
+        settingsManager.getRuntimeSettings().lastProfile = profile.getUUID();
     }
 }

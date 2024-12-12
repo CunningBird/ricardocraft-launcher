@@ -13,25 +13,40 @@ import ru.ricardocraft.client.base.events.request.GetAvailabilityAuthRequestEven
 import ru.ricardocraft.client.base.profiles.Texture;
 import ru.ricardocraft.client.base.request.Request;
 import ru.ricardocraft.client.base.request.WebSocketEvent;
-import ru.ricardocraft.client.base.request.auth.AuthRequest;
 import ru.ricardocraft.client.base.request.auth.GetAvailabilityAuthRequest;
-import ru.ricardocraft.client.base.request.auth.details.AuthPasswordDetails;
-import ru.ricardocraft.client.base.request.auth.password.Auth2FAPassword;
-import ru.ricardocraft.client.base.request.auth.password.AuthMultiPassword;
 import ru.ricardocraft.client.base.request.update.LauncherRequest;
 import ru.ricardocraft.client.base.request.update.ProfilesRequest;
-import ru.ricardocraft.client.client.events.ClientExitPhase;
+import ru.ricardocraft.client.config.GuiModuleConfig;
+import ru.ricardocraft.client.config.LauncherConfig;
+import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;
+import ru.ricardocraft.client.launch.RuntimeSecurityService;
+import ru.ricardocraft.client.launch.SkinManager;
+import ru.ricardocraft.client.runtime.managers.SettingsManager;
 import ru.ricardocraft.client.runtime.utils.LauncherUpdater;
 import ru.ricardocraft.client.scenes.AbstractScene;
+import ru.ricardocraft.client.service.AuthService;
+import ru.ricardocraft.client.service.LaunchService;
+import ru.ricardocraft.client.service.ProfilesService;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class LoginScene extends AbstractScene {
+
+    public static volatile Path updatePath;
+
+    private final RuntimeSettings runtimeSettings;
+    private final LauncherConfig config;
+    private final GuiModuleConfig guiModuleConfig;
+    private final SkinManager skinManager;
+    private final RuntimeSecurityService securityService;
+    private final ProfilesService profilesService;
+
     private List<GetAvailabilityAuthRequestEvent.AuthAvailability> auth; //TODO: FIX? Field is assigned but never accessed.
     private CheckBox savePasswordCheckBox;
     private CheckBox autoenter;
@@ -42,10 +57,24 @@ public class LoginScene extends AbstractScene {
     private GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability;
     private final AuthFlow authFlow;
 
-    public LoginScene(JavaFXApplication application) {
-        super("scenes/login/login.fxml", application);
+    public LoginScene(JavaFXApplication application,
+                      LauncherConfig config,
+                      GuiModuleConfig guiModuleConfig,
+                      SettingsManager settingsManager,
+                      AuthService authService,
+                      SkinManager skinManager,
+                      LaunchService launchService,
+                      RuntimeSecurityService securityService,
+                      ProfilesService profilesService) {
+        super("scenes/login/login.fxml", application, config, guiModuleConfig, authService, launchService);
+        this.config = config;
+        this.guiModuleConfig = guiModuleConfig;
+        this.skinManager = skinManager;
+        this.securityService = securityService;
+        this.profilesService = profilesService;
         LoginSceneAccessor accessor = new LoginSceneAccessor();
-        this.authFlow = new AuthFlow(accessor, this::onSuccessLogin);
+        this.runtimeSettings = settingsManager.getRuntimeSettings();
+        this.authFlow = new AuthFlow(accessor, this::onSuccessLogin, runtimeSettings, guiModuleConfig, authService, launchService);
     }
 
     @Override
@@ -60,21 +89,21 @@ public class LoginScene extends AbstractScene {
         authButton = new LoginAuthButtonComponent(LookupHelper.lookup(layout, "#authButton"), application,
                 (e) -> contextHelper.runCallback(authFlow::loginWithGui));
         savePasswordCheckBox = LookupHelper.lookup(layout, "#savePassword");
-        if (application.runtimeSettings.password != null || application.runtimeSettings.oauthAccessToken != null) {
+        if (runtimeSettings.password != null || runtimeSettings.oauthAccessToken != null) {
             LookupHelper.<CheckBox>lookup(layout, "#savePassword").setSelected(true);
         }
         autoenter = LookupHelper.lookup(layout, "#autoenter");
-        autoenter.setSelected(application.runtimeSettings.autoAuth);
-        autoenter.setOnAction((event) -> application.runtimeSettings.autoAuth = autoenter.isSelected());
+        autoenter.setSelected(runtimeSettings.autoAuth);
+        autoenter.setOnAction((event) -> runtimeSettings.autoAuth = autoenter.isSelected());
         content = LookupHelper.lookup(layout, "#content");
-        if (application.guiModuleConfig.createAccountURL != null) {
+        if (guiModuleConfig.createAccountURL != null) {
             LookupHelper.<Text>lookup(header, "#createAccount")
-                    .setOnMouseClicked((e) -> application.openURL(application.guiModuleConfig.createAccountURL));
+                    .setOnMouseClicked((e) -> application.openURL(guiModuleConfig.createAccountURL));
         }
 
-        if (application.guiModuleConfig.forgotPassURL != null) {
+        if (guiModuleConfig.forgotPassURL != null) {
             LookupHelper.<Text>lookup(header, "#forgotPass")
-                    .setOnMouseClicked((e) -> application.openURL(application.guiModuleConfig.forgotPassURL));
+                    .setOnMouseClicked((e) -> application.openURL(guiModuleConfig.forgotPassURL));
         }
         authList = LookupHelper.lookup(layout, "#authList");
         authList.setConverter(new AuthAvailabilityStringConverter());
@@ -89,14 +118,14 @@ public class LoginScene extends AbstractScene {
     }
 
     private void launcherRequest() {
-        LauncherRequest launcherRequest = new LauncherRequest();
-        processRequest(application.getTranslation("runtime.overlay.processing.text.launcher"), launcherRequest,
+        LauncherRequest launcherRequest = new LauncherRequest(config);
+        processRequest(launchService.getTranslation("runtime.overlay.processing.text.launcher"), launcherRequest,
                 (result) -> {
                     if (result.needUpdate) {
                         try {
                             LogHelper.debug("Start update processing");
                             disable();
-                            JavaFXApplication.updatePath = LauncherUpdater.prepareUpdate(new URI(result.url).toURL());
+                            updatePath = LauncherUpdater.prepareUpdate(new URI(result.url).toURL());
                             LogHelper.debug("Exit with Platform.exit");
                             Platform.exit();
                             return;
@@ -104,7 +133,7 @@ public class LoginScene extends AbstractScene {
                             contextHelper.runInFxThread(() -> errorHandle(e));
                             try {
                                 Thread.sleep(1500);
-                                JavaFXApplication.modulesManager.invokeEvent(new ClientExitPhase(0));
+                                application.saveSettings();
                                 Platform.exit();
                             } catch (Throwable ex) {
                                 JavaFXApplication.exitLauncher(0);
@@ -119,7 +148,7 @@ public class LoginScene extends AbstractScene {
     private void getAvailabilityAuth() {
         GetAvailabilityAuthRequest getAvailabilityAuthRequest = new GetAvailabilityAuthRequest();
         processing(getAvailabilityAuthRequest,
-                application.getTranslation("runtime.overlay.processing.text.authAvailability"),
+                launchService.getTranslation("runtime.overlay.processing.text.authAvailability"),
                 (auth) -> contextHelper.runInFxThread(() -> {
                     this.auth = auth.list;
                     authList.setVisible(auth.list.size() != 1);
@@ -128,11 +157,11 @@ public class LoginScene extends AbstractScene {
                         if (!authAvailability.visible) {
                             continue;
                         }
-                        if (application.runtimeSettings.lastAuth == null) {
+                        if (runtimeSettings.lastAuth == null) {
                             if (authAvailability.name.equals("std") || this.authAvailability == null) {
                                 changeAuthAvailability(authAvailability);
                             }
-                        } else if (authAvailability.name.equals(application.runtimeSettings.lastAuth.name))
+                        } else if (authAvailability.name.equals(runtimeSettings.lastAuth.name))
                             changeAuthAvailability(authAvailability);
                         if (authAvailability.visible) {
                             addAuthAvailability(authAvailability);
@@ -146,7 +175,7 @@ public class LoginScene extends AbstractScene {
     }
 
     private void runAutoAuth() {
-        if (application.guiModuleConfig.autoAuth || application.runtimeSettings.autoAuth) {
+        if (guiModuleConfig.autoAuth || runtimeSettings.autoAuth) {
             contextHelper.runInFxThread(authFlow::loginWithGui);
         }
     }
@@ -154,7 +183,7 @@ public class LoginScene extends AbstractScene {
     public void changeAuthAvailability(GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
         boolean isChanged = this.authAvailability != authAvailability; //TODO: FIX
         this.authAvailability = authAvailability;
-        this.application.authService.setAuthAvailability(authAvailability);
+        this.authService.setAuthAvailability(authAvailability);
         this.authList.selectionModelProperty().get().select(authAvailability);
         authFlow.init(authAvailability);
         LogHelper.info("Selected auth: %s", authAvailability.name);
@@ -187,30 +216,21 @@ public class LoginScene extends AbstractScene {
         return "login";
     }
 
-    private boolean checkSavePasswordAvailable(AuthRequest.AuthPasswordInterface password) {
-        if (password instanceof Auth2FAPassword) return false;
-        if (password instanceof AuthMultiPassword) return false;
-        return authAvailability != null
-                && authAvailability.details != null
-                && !authAvailability.details.isEmpty()
-                && authAvailability.details.get(0) instanceof AuthPasswordDetails;
-    }
-
     public void onSuccessLogin(AuthFlow.SuccessAuth successAuth) {
         AuthRequestEvent result = successAuth.requestEvent();
-        application.authService.setAuthResult(authAvailability.name, result);
+        authService.setAuthResult(authAvailability.name, result);
         boolean savePassword = savePasswordCheckBox.isSelected();
         if (savePassword) {
-            application.runtimeSettings.login = successAuth.recentLogin();
+            runtimeSettings.login = successAuth.recentLogin();
             if (result.oauth == null) {
                 LogHelper.warning("Password not saved");
             } else {
-                application.runtimeSettings.oauthAccessToken = result.oauth.accessToken;
-                application.runtimeSettings.oauthRefreshToken = result.oauth.refreshToken;
-                application.runtimeSettings.oauthExpire = Request.getTokenExpiredTime();
-                application.runtimeSettings.password = null;
+                runtimeSettings.oauthAccessToken = result.oauth.accessToken;
+                runtimeSettings.oauthRefreshToken = result.oauth.refreshToken;
+                runtimeSettings.oauthExpire = Request.getTokenExpiredTime();
+                runtimeSettings.password = null;
             }
-            application.runtimeSettings.lastAuth = authAvailability;
+            runtimeSettings.lastAuth = authAvailability;
         }
         if (result.playerProfile != null
                 && result.playerProfile.assets != null) {
@@ -218,10 +238,10 @@ public class LoginScene extends AbstractScene {
                 Texture skin = result.playerProfile.assets.get("SKIN");
                 Texture avatar = result.playerProfile.assets.get("AVATAR");
                 if (skin != null || avatar != null) {
-                    application.skinManager.addSkinWithAvatar(result.playerProfile.username,
+                    skinManager.addSkinWithAvatar(result.playerProfile.username,
                             skin != null ? new URI(skin.url) : null,
                             avatar != null ? new URI(avatar.url) : null);
-                    application.skinManager.getSkin(result.playerProfile.username); //Cache skin
+                    skinManager.getSkin(result.playerProfile.username); //Cache skin
                 }
             } catch (Exception e) {
                 LogHelper.error(e);
@@ -238,15 +258,15 @@ public class LoginScene extends AbstractScene {
     }
 
     public void onGetProfiles() {
-        processing(new ProfilesRequest(), application.getTranslation("runtime.overlay.processing.text.profiles"),
+        processing(new ProfilesRequest(), launchService.getTranslation("runtime.overlay.processing.text.profiles"),
                 (profiles) -> {
-                    application.profilesService.setProfilesResult(profiles);
-                    application.runtimeSettings.profiles = profiles.profiles;
+                    profilesService.setProfilesResult(profiles);
+                    runtimeSettings.profiles = profiles.profiles;
                     contextHelper.runInFxThread(() -> {
-                        application.securityService.startRequest();
+                        securityService.startRequest();
                         if (application.gui.optionsScene != null) {
                             try {
-                                application.profilesService.loadAll();
+                                profilesService.loadAll();
                             } catch (Throwable ex) {
                                 errorHandle(ex);
                             }
@@ -260,14 +280,10 @@ public class LoginScene extends AbstractScene {
     }
 
     public void clearPassword() {
-        application.runtimeSettings.password = null;
-        application.runtimeSettings.login = null;
-        application.runtimeSettings.oauthAccessToken = null;
-        application.runtimeSettings.oauthRefreshToken = null;
-    }
-
-    public AuthFlow getAuthFlow() {
-        return authFlow;
+        runtimeSettings.password = null;
+        runtimeSettings.login = null;
+        runtimeSettings.oauthAccessToken = null;
+        runtimeSettings.oauthRefreshToken = null;
     }
 
     private static class AuthAvailabilityStringConverter extends StringConverter<GetAvailabilityAuthRequestEvent.AuthAvailability> {

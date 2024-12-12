@@ -7,8 +7,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.config.GuiModuleConfig;
+import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.scenes.AbstractScene;
+import ru.ricardocraft.client.service.AuthService;
+import ru.ricardocraft.client.service.LaunchService;
 
 import java.util.function.Consumer;
 
@@ -16,8 +20,13 @@ public abstract class BaseSettingsScene extends AbstractScene {
     protected Pane componentList;
     protected Pane settingsList;
 
-    public BaseSettingsScene(String fxmlPath, JavaFXApplication application) {
-        super(fxmlPath, application);
+    public BaseSettingsScene(String fxmlPath,
+                             JavaFXApplication application,
+                             LauncherConfig config,
+                             GuiModuleConfig guiModuleConfig,
+                             AuthService authService,
+                             LaunchService launchService) {
+        super(fxmlPath, application, config, guiModuleConfig, authService, launchService);
     }
 
     @Override
@@ -29,7 +38,7 @@ public abstract class BaseSettingsScene extends AbstractScene {
     @Override
     public void reset() {
         settingsList.getChildren().clear();
-        Label settingsListHeader = new Label(application.getTranslation("runtime.scenes.settings.header.options"));
+        Label settingsListHeader = new Label(launchService.getTranslation("runtime.scenes.settings.header.options"));
         settingsListHeader.getStyleClass().add("settings-header");
         settingsList.getChildren().add(settingsListHeader);
     }
@@ -37,15 +46,15 @@ public abstract class BaseSettingsScene extends AbstractScene {
     public void add(String languageName, boolean value, Consumer<Boolean> onChanged, boolean disabled) {
         String nameKey = "runtime.scenes.settings.properties.%s.name".formatted(languageName.toLowerCase());
         String descriptionKey;
-        if(disabled) {
+        if (disabled) {
             descriptionKey = "runtime.scenes.settings.properties.%s.disabled".formatted(
                     languageName.toLowerCase());
         } else {
             descriptionKey = "runtime.scenes.settings.properties.%s.description".formatted(
                     languageName.toLowerCase());
         }
-        add(application.getTranslation(nameKey, languageName), application.getTranslation(descriptionKey, languageName),
-            value, onChanged, disabled);
+        add(launchService.getTranslation(nameKey, languageName), launchService.getTranslation(descriptionKey, languageName),
+                value, onChanged, disabled);
     }
 
     public void add(String name, String description, boolean value, Consumer<Boolean> onChanged, boolean disabled) {

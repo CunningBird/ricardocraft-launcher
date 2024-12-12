@@ -5,10 +5,13 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Labeled;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.request.Request;
+import ru.ricardocraft.client.base.request.RequestService;
 import ru.ricardocraft.client.base.request.WebSocketEvent;
+import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
-import ru.ricardocraft.client.impl.AbstractStage;
 import ru.ricardocraft.client.impl.ContextHelper;
+import ru.ricardocraft.client.service.LaunchService;
+import ru.ricardocraft.client.stage.AbstractStage;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.io.IOException;
@@ -17,8 +20,14 @@ import java.util.function.Consumer;
 public class ProcessingOverlay extends AbstractOverlay {
     private Labeled description;
 
-    public ProcessingOverlay(JavaFXApplication application) {
-        super("overlay/processing/processing.fxml", application);
+    private final RequestService service;
+
+    public ProcessingOverlay(JavaFXApplication application,
+                             GuiModuleConfig guiModuleConfig,
+                             RequestService service,
+                             LaunchService launchService) {
+        super("overlay/processing/processing.fxml", application, guiModuleConfig, launchService);
+        this.service = service;
     }
 
     @Override
@@ -47,17 +56,17 @@ public class ProcessingOverlay extends AbstractOverlay {
     }
 
     public final <T extends WebSocketEvent> void processRequest(AbstractStage stage, String message, Request<T> request,
-            Consumer<T> onSuccess, EventHandler<ActionEvent> onError) {
+                                                                Consumer<T> onSuccess, EventHandler<ActionEvent> onError) {
         processRequest(stage, message, request, onSuccess, null, onError);
     }
 
     public final <T extends WebSocketEvent> void processRequest(AbstractStage stage, String message, Request<T> request,
-            Consumer<T> onSuccess, Consumer<Throwable> onException, EventHandler<ActionEvent> onError) {
+                                                                Consumer<T> onSuccess, Consumer<Throwable> onException, EventHandler<ActionEvent> onError) {
         try {
             show(stage, (e) -> {
                 try {
                     description.setText(message);
-                    application.service.request(request).thenAccept((result) -> {
+                    service.request(request).thenAccept((result) -> {
                         LogHelper.dev("RequestFuture complete normally");
                         onSuccess.accept(result);
                         hide(0, null);

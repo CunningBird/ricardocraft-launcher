@@ -34,8 +34,6 @@ public class SkinManager {
         final URI avatarUrl;
         SoftReference<Optional<BufferedImage>> imageRef = new SoftReference<>(null);
         SoftReference<Optional<BufferedImage>> avatarRef = new SoftReference<>(null);
-        SoftReference<Optional<Image>> fxImageRef = new SoftReference<>(null);
-        SoftReference<Optional<Image>> fxAvatarRef = new SoftReference<>(null);
 
         private SkinEntry(URI url) {
             this.url = url;
@@ -56,17 +54,6 @@ public class SkinManager {
             return result.orElse(null);
         }
 
-        synchronized Image getFullFxImage() {
-            Optional<Image> result = fxImageRef.get();
-            if (result == null) { // It is normal
-                BufferedImage image = getFullImage();
-                if (image == null) return null;
-                result = Optional.ofNullable(convertToFxImage(image));
-                fxImageRef = new SoftReference<>(result);
-            }
-            return result.orElse(null);
-        }
-
         synchronized BufferedImage getHeadImage() {
             Optional<BufferedImage> result = avatarRef.get();
             if (result == null) { // It is normal
@@ -82,23 +69,9 @@ public class SkinManager {
             return result.orElse(null);
         }
 
-        synchronized Image getHeadFxImage() {
-            Optional<Image> result = fxAvatarRef.get();
-            if (result == null) { // It is normal
-                BufferedImage image = getHeadImage();
-                if (image == null) return null;
-                result = Optional.ofNullable(convertToFxImage(image));
-                fxAvatarRef = new SoftReference<>(result);
-            }
-            return result.orElse(null);
-        }
     }
 
     private final Map<String, SkinEntry> map = new ConcurrentHashMap<>();
-
-    public void addSkin(String username, URI url) {
-        map.put(username, new SkinEntry(url));
-    }
 
     public void addOrReplaceSkin(String username, URI url) {
         SkinEntry entry = map.get(username);
@@ -123,33 +96,6 @@ public class SkinManager {
         SkinEntry entry = map.get(username);
         if (entry == null) return null;
         return entry.getHeadImage();
-    }
-
-    public Image getFxSkin(String username) {
-        SkinEntry entry = map.get(username);
-        if (entry == null) return null;
-        return entry.getFullFxImage();
-    }
-
-    public Image getFxSkinHead(String username) {
-        SkinEntry entry = map.get(username);
-        if (entry == null) return null;
-        return entry.getHeadFxImage();
-    }
-
-    public BufferedImage getScaledSkin(String username, int width, int height) {
-        BufferedImage image = getSkin(username);
-        return scaleImage(image, width, height);
-    }
-
-    public BufferedImage getScaledSkinHead(String username, int width, int height) {
-        BufferedImage image = getSkinHead(username);
-        return scaleImage(image, width, height);
-    }
-
-    public Image getScaledFxSkin(String username, int width, int height) {
-        BufferedImage image = getSkin(username);
-        return convertToFxImage(scaleImage(image, width, height));
     }
 
     public static BufferedImage sumBufferedImage(BufferedImage img1, BufferedImage img2) {

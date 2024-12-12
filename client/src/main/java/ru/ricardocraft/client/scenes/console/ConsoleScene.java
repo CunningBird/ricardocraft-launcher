@@ -5,9 +5,13 @@ import javafx.scene.control.ButtonBase;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.config.GuiModuleConfig;
+import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
-import ru.ricardocraft.client.runtime.managers.ConsoleManager;
 import ru.ricardocraft.client.scenes.AbstractScene;
+import ru.ricardocraft.client.service.AuthService;
+import ru.ricardocraft.client.service.LaunchService;
+import ru.ricardocraft.client.utils.command.CommandHandler;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 public class ConsoleScene extends AbstractScene {
@@ -16,8 +20,16 @@ public class ConsoleScene extends AbstractScene {
     private TextField commandLine;
     private TextArea output;
 
-    public ConsoleScene(JavaFXApplication application) {
-        super("scenes/console/console.fxml", application);
+    private final CommandHandler commandHandler;
+
+    public ConsoleScene(JavaFXApplication application,
+                        LauncherConfig config,
+                        GuiModuleConfig guiModuleConfig,
+                        AuthService authService,
+                        LaunchService launchService,
+                        CommandHandler commandHandler) {
+        super("scenes/console/console.fxml", application, config, guiModuleConfig, authService, launchService);
+        this.commandHandler = commandHandler;
     }
 
     @Override
@@ -45,7 +57,7 @@ public class ConsoleScene extends AbstractScene {
         String command = commandLine.getText();
         commandLine.clear();
         try {
-            ConsoleManager.handler.evalNative(command, false);
+            commandHandler.evalNative(command, false);
             commandLine.getStyleClass().removeAll("InputError");
         } catch (Exception ex) {
             LogHelper.error(ex);

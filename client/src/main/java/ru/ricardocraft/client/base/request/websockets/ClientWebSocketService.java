@@ -17,7 +17,6 @@ import ru.ricardocraft.client.utils.ProviderMap;
 import ru.ricardocraft.client.utils.UniversalJsonAdapter;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
-import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -33,7 +32,7 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
     public OnCloseCallback onCloseCallback;
     public ReconnectCallback reconnectCallback;
 
-    public ClientWebSocketService(String address) throws SSLException {
+    public ClientWebSocketService(String address) {
         super(createURL(address));
         this.gson = Launcher.gsonManager.gson;
         this.onConnect = true;
@@ -70,13 +69,6 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
     void onDisconnect(int statusCode, String reason) {
         LogHelper.info("WebSocket disconnected: %d: %s", statusCode, reason);
         if (onCloseCallback != null) onCloseCallback.onClose(statusCode, reason, !isClosed);
-    }
-
-    @Override
-    void onOpen() {
-        synchronized (waitObject) {
-            waitObject.notifyAll();
-        }
     }
 
     public void registerRequests() {
@@ -118,12 +110,6 @@ public abstract class ClientWebSocketService extends ClientJSONPoint {
     }
 
     public void waitIfNotConnected() {
-    }
-
-    public void sendObject(Object obj) throws IOException {
-        waitIfNotConnected();
-        if (webSocket == null || webSocket.isInputClosed()) reconnectCallback.onReconnect();
-        send(gson.toJson(obj, WebSocketRequest.class));
     }
 
     public void sendObject(Object obj, Type type) throws IOException {

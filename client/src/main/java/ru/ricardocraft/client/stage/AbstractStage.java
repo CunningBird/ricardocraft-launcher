@@ -1,4 +1,4 @@
-package ru.ricardocraft.client.impl;
+package ru.ricardocraft.client.stage;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -11,6 +11,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import ru.ricardocraft.client.impl.AbstractVisualComponent;
+import ru.ricardocraft.client.impl.GuiObjectsContainer;
 import ru.ricardocraft.client.utils.JavaFxUtils;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
@@ -22,7 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class AbstractStage {
     protected final GuiObjectsContainer guiObjectsContainer;
-    protected final Stage stage;
+    public final Stage stage;
     protected final Scene scene;
     protected final StackPane stackPane;
     protected AbstractVisualComponent visualComponent;
@@ -117,21 +120,20 @@ public abstract class AbstractStage {
         this.visualComponent = visualComponent;
     }
 
-    public AbstractVisualComponent back() throws Exception {
+    public void back() throws Exception {
         if(sceneFlow.size() <= 1) {
-            return null;
+            return;
         }
         AbstractVisualComponent component;
         do {
             String name = sceneFlow.get(sceneFlow.size() - 2);
             component = guiObjectsContainer.getByName(name);
             if(component == null) {
-                return null;
+                return;
             }
             sceneFlow.remove(sceneFlow.get(sceneFlow.size() - 1));
         } while(component.isDisableReturnBack());
         setScene(component, false);
-        return component;
     }
 
     public void push(Node node) {
@@ -160,7 +162,7 @@ public abstract class AbstractStage {
         }
     }
 
-    protected void pushNotification(Node node) {
+    public void pushNotification(Node node) {
         if (notifications == null) {
             notifications = new AnchorPane();
             notificationsVBox = new VBox();
@@ -177,7 +179,7 @@ public abstract class AbstractStage {
         notificationsVBox.getChildren().add(node);
     }
 
-    protected void pullNotification(Node node) {
+    public void pullNotification(Node node) {
         if (notifications != null) {
             notificationsVBox.getChildren().remove(node);
         }
@@ -222,4 +224,12 @@ public abstract class AbstractStage {
         layout.setEffect(null);
         disablePane.setVisible(false);
     }
+
+    public static Stage newStage() {
+        Stage ret = new Stage();
+        ret.initStyle(StageStyle.TRANSPARENT);
+        ret.setResizable(false);
+        return ret;
+    }
+
 }

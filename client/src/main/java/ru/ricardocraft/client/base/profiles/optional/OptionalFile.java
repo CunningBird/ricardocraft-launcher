@@ -58,11 +58,4 @@ public class OptionalFile {
         return name;
     }
 
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public boolean isMark() {
-        return mark;
-    }
 }

@@ -1,5 +1,7 @@
 package ru.ricardocraft.client.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.base.profiles.optional.OptionalFile;
@@ -13,13 +15,14 @@ import ru.ricardocraft.client.utils.helper.JavaHelper;
 
 import java.util.Locale;
 
+@Component
 public class TriggerManager {
-    private final JavaFXApplication application;
+    private final JavaFXApplication application = JavaFXApplication.getInstance();
     private final AuthService authService;
     private final JavaService javaService;
 
-    public TriggerManager(JavaFXApplication application, AuthService authService, JavaService javaService) {
-        this.application = application;
+    @Autowired
+    public TriggerManager(AuthService authService, JavaService javaService) {
         this.authService = authService;
         this.javaService = javaService;
     }
@@ -29,8 +32,8 @@ public class TriggerManager {
         for (OptionalFile optional : view.all) {
             if (optional.limited) {
                 if (!authService.checkPermission("launcher.runtime.optionals.%s.%s.show"
-                                                          .formatted(profile.getUUID(),
-                                                                     optional.name.toLowerCase(Locale.ROOT)))) {
+                        .formatted(profile.getUUID(),
+                                optional.name.toLowerCase(Locale.ROOT)))) {
                     view.disable(optional, null);
                     optional.visible = false;
                 } else {
@@ -68,11 +71,6 @@ public class TriggerManager {
         @Override
         public ClientProfile getProfile() {
             return profile;
-        }
-
-        @Override
-        public String getUsername() {
-            return authService.getUsername();
         }
 
         @Override

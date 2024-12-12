@@ -10,33 +10,47 @@ import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.request.RequestException;
+import ru.ricardocraft.client.config.GuiModuleConfig;
+import ru.ricardocraft.client.helper.EnFSHelper;
 import ru.ricardocraft.client.helper.LookupHelper;
+import ru.ricardocraft.client.service.LaunchService;
+import ru.ricardocraft.client.stage.AbstractStage;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 
 public abstract class AbstractVisualComponent {
+
     protected final JavaFXApplication application;
+
+    protected final LaunchService launchService;
+
+    private final String sysFxmlPath;
     protected final ContextHelper contextHelper;
     protected final FXExecutorService fxExecutor;
-    protected AbstractStage currentStage;
+    public AbstractStage currentStage;
     protected Pane layout;
-    private final String sysFxmlPath;
     private Parent sysFxmlRoot;
     private CompletableFuture<Node> sysFxmlFuture;
     boolean isInit;
     boolean isPostInit;
-    protected boolean isResetOnShow = false;
+    public boolean isResetOnShow = false;
 
-    protected AbstractVisualComponent(String fxmlPath, JavaFXApplication application) {
+    protected AbstractVisualComponent(String fxmlPath,
+                                      JavaFXApplication application,
+                                      GuiModuleConfig guiModuleConfig,
+                                      LaunchService launchService) {
         this.application = application;
+        this.launchService = launchService;
         this.sysFxmlPath = fxmlPath;
         this.contextHelper = new ContextHelper(this);
         this.fxExecutor = new FXExecutorService(contextHelper);
-        if (application.guiModuleConfig.lazy) {
-            this.sysFxmlFuture = application.fxmlFactory.getAsync(sysFxmlPath);
+        if (guiModuleConfig.lazy) {
+            this.sysFxmlFuture = launchService.fxmlFactory.getAsync(sysFxmlPath);
         }
     }
 
@@ -77,11 +91,11 @@ public abstract class AbstractVisualComponent {
 
     public abstract String getName();
 
-    protected synchronized Parent getFxmlRoot() {
+    public synchronized Parent getFxmlRoot() {
         try {
             if (sysFxmlRoot == null) {
                 if (sysFxmlFuture == null) {
-                    this.sysFxmlFuture = application.fxmlFactory.getAsync(sysFxmlPath);
+                    this.sysFxmlFuture = launchService.fxmlFactory.getAsync(sysFxmlPath);
                 }
                 sysFxmlRoot = (Parent) sysFxmlFuture.get();
             }
@@ -115,6 +129,14 @@ public abstract class AbstractVisualComponent {
         }
     }
 
+    public static URL tryResource(String name) {
+        try {
+            return EnFSHelper.getResourceURL(name);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     protected abstract void doInit();
 
     protected abstract void doPostInit();
@@ -139,13 +161,13 @@ public abstract class AbstractVisualComponent {
         if (message == null) {
             message = "%s: %s".formatted(e.getClass().getName(), e.getMessage());
         } else {
-            message = application.getTranslation("runtime.request.".concat(message), message);
+            message = launchService.getTranslation("runtime.request.".concat(message), message);
         }
         LogHelper.error(e);
-        application.messageManager.createNotification("Error", message);
+        launchService.createNotification("Error", message);
     }
 
-    protected Parent getFxmlRootPrivate() {
+    public Parent getFxmlRootPrivate() {
         return getFxmlRoot();
     }
 

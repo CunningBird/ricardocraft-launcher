@@ -4,25 +4,35 @@ import javafx.scene.control.TextField;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.request.auth.AuthRequest;
 import ru.ricardocraft.client.base.request.auth.details.AuthPasswordDetails;
+import ru.ricardocraft.client.config.GuiModuleConfig;
+import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;
 import ru.ricardocraft.client.impl.ContextHelper;
 import ru.ricardocraft.client.scenes.login.AuthFlow;
 import ru.ricardocraft.client.scenes.login.LoginAuthButtonComponent;
 import ru.ricardocraft.client.scenes.login.LoginScene;
+import ru.ricardocraft.client.service.AuthService;
+import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;
 
 public class LoginAndPasswordAuthMethod extends AbstractAuthMethod<AuthPasswordDetails> {
     private final LoginAndPasswordOverlay overlay;
-    private final JavaFXApplication application;
+    private final RuntimeSettings runtimeSettings;
+    private final LaunchService launchService;
     private final LoginScene.LoginSceneAccessor accessor;
 
-    public LoginAndPasswordAuthMethod(LoginScene.LoginSceneAccessor accessor) {
+    public LoginAndPasswordAuthMethod(LoginScene.LoginSceneAccessor accessor,
+                                      RuntimeSettings runtimeSettings,
+                                      GuiModuleConfig guiModuleConfig,
+                                      AuthService authService,
+                                      LaunchService launchService) {
         this.accessor = accessor;
-        this.application = accessor.getApplication();
-        this.overlay = new LoginAndPasswordOverlay(application);
+        this.runtimeSettings = runtimeSettings;
+        this.launchService = launchService;
+        this.overlay = new LoginAndPasswordOverlay(accessor.getApplication(), guiModuleConfig, authService, launchService);
     }
 
     @Override
@@ -57,9 +67,9 @@ public class LoginAndPasswordAuthMethod extends AbstractAuthMethod<AuthPasswordD
         overlay.future = new CompletableFuture<>();
         String login = overlay.login.getText();
         AuthRequest.AuthPasswordInterface password;
-        if (overlay.password.getText().isEmpty() && overlay.password.getPromptText().equals(application.getTranslation(
+        if (overlay.password.getText().isEmpty() && overlay.password.getPromptText().equals(launchService.getTranslation(
                 "runtime.scenes.login.password.saved"))) {
-            password = application.runtimeSettings.password;
+            password = runtimeSettings.password;
             return CompletableFuture.completedFuture(new AuthFlow.LoginAndPasswordResult(login, password));
         }
         return overlay.future;
@@ -91,8 +101,14 @@ public class LoginAndPasswordAuthMethod extends AbstractAuthMethod<AuthPasswordD
         private TextField password;
         private CompletableFuture<AuthFlow.LoginAndPasswordResult> future;
 
-        public LoginAndPasswordOverlay(JavaFXApplication application) {
-            super("scenes/login/methods/loginpassword.fxml", application);
+        private final AuthService authService;
+
+        public LoginAndPasswordOverlay(JavaFXApplication application,
+                                       GuiModuleConfig guiModuleConfig,
+                                       AuthService authService,
+                                       LaunchService launchService) {
+            super("scenes/login/methods/loginpassword.fxml", application, guiModuleConfig, launchService);
+            this.authService = authService;
         }
 
         @Override
@@ -103,7 +119,7 @@ public class LoginAndPasswordAuthMethod extends AbstractAuthMethod<AuthPasswordD
         public AuthFlow.LoginAndPasswordResult getResult() {
             String rawLogin = login.getText();
             String rawPassword = password.getText();
-            return new AuthFlow.LoginAndPasswordResult(rawLogin, application.authService.makePassword(rawPassword));
+            return new AuthFlow.LoginAndPasswordResult(rawLogin, authService.makePassword(rawPassword));
         }
 
         @Override
@@ -112,18 +128,18 @@ public class LoginAndPasswordAuthMethod extends AbstractAuthMethod<AuthPasswordD
             password = LookupHelper.lookup(layout, "#password");
 
             login.textProperty().addListener(l -> accessor.getAuthButton().setState(login.getText().isEmpty()
-                                                                                            ? LoginAuthButtonComponent.AuthButtonState.UNACTIVE
-                                                                                            : LoginAuthButtonComponent.AuthButtonState.ACTIVE));
+                    ? LoginAuthButtonComponent.AuthButtonState.UNACTIVE
+                    : LoginAuthButtonComponent.AuthButtonState.ACTIVE));
 
-            if (application.runtimeSettings.login != null) {
-                login.setText(application.runtimeSettings.login);
+            if (runtimeSettings.login != null) {
+                login.setText(runtimeSettings.login);
                 accessor.getAuthButton().setState(LoginAuthButtonComponent.AuthButtonState.ACTIVE);
             } else {
                 accessor.getAuthButton().setState(LoginAuthButtonComponent.AuthButtonState.UNACTIVE);
             }
-            if (application.runtimeSettings.password != null) {
+            if (runtimeSettings.password != null) {
                 password.getStyleClass().add("hasSaved");
-                password.setPromptText(application.getTranslation("runtime.scenes.login.password.saved"));
+                password.setPromptText(launchService.getTranslation("runtime.scenes.login.password.saved"));
             }
         }
 
@@ -137,7 +153,7 @@ public class LoginAndPasswordAuthMethod extends AbstractAuthMethod<AuthPasswordD
         public void reset() {
             if (password == null) return;
             password.getStyleClass().removeAll("hasSaved");
-            password.setPromptText(application.getTranslation("runtime.scenes.login.password"));
+            password.setPromptText(launchService.getTranslation("runtime.scenes.login.password"));
             password.setText("");
             login.setText("");
         }

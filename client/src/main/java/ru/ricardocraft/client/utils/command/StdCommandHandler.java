@@ -1,17 +1,21 @@
 package ru.ricardocraft.client.utils.command;
 
+import org.springframework.stereotype.Component;
+import ru.ricardocraft.client.utils.helper.CommonHelper;
 import ru.ricardocraft.client.utils.helper.IOHelper;
 import ru.ricardocraft.client.utils.helper.JVMHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 
+@Component
 public class StdCommandHandler extends CommandHandler {
-    private final BufferedReader reader;
 
-    public StdCommandHandler(boolean readCommands) {
-        super();
-        reader = readCommands ? IOHelper.newReader(System.in) : null;
+    private final BufferedReader reader = IOHelper.newReader(System.in);
+
+    public StdCommandHandler() {
+        Thread thread = CommonHelper.newThread("Launcher Console", true, this);
+        thread.start();
     }
 
     @Override
@@ -35,6 +39,6 @@ public class StdCommandHandler extends CommandHandler {
 
     @Override
     public String readLine() throws IOException {
-        return reader == null ? null : reader.readLine();
+        return reader.readLine();
     }
 }

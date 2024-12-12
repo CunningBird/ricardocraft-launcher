@@ -5,6 +5,7 @@ import ru.ricardocraft.client.base.events.request.LauncherRequestEvent;
 import ru.ricardocraft.client.base.request.Request;
 import ru.ricardocraft.client.base.request.RequestService;
 import ru.ricardocraft.client.base.request.websockets.WebSocketRequest;
+import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.utils.helper.IOHelper;
 import ru.ricardocraft.client.utils.helper.LogHelper;
@@ -26,15 +27,15 @@ public final class LauncherRequest extends Request<LauncherRequestEvent> impleme
     public int launcher_type = EXE_BINARY ? 2 : 1;
 
 
-    public LauncherRequest() {
+    public LauncherRequest(LauncherConfig config) {
         Path launcherPath = IOHelper.getCodeSource(LauncherRequest.class);
         try {
             digest = SecurityHelper.digest(SecurityHelper.DigestAlgorithm.SHA512, launcherPath);
         } catch (IOException e) {
             LogHelper.error(e);
         }
-        secureHash = Launcher.getConfig().secureCheckHash;
-        secureSalt = Launcher.getConfig().secureCheckSalt;
+        secureHash = config.secureCheckHash;
+        secureSalt = config.secureCheckSalt;
     }
 
     @Override

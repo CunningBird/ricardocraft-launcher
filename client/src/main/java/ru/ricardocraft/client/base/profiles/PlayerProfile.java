@@ -1,7 +1,5 @@
 package ru.ricardocraft.client.base.profiles;
 
-import ru.ricardocraft.client.utils.helper.IOHelper;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -39,14 +37,6 @@ public final class PlayerProfile {
         this.username = username;
         this.assets = assets;
         this.properties = properties;
-    }
-
-    public static PlayerProfile newOfflineProfile(String username) {
-        return new PlayerProfile(offlineUUID(username), username, new HashMap<>(), new HashMap<>());
-    }
-
-    public static UUID offlineUUID(String username) {
-        return UUID.nameUUIDFromBytes(IOHelper.encodeASCII("OfflinePlayer:" + username));
     }
 
 }

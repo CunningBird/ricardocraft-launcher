@@ -1,5 +1,7 @@
 package ru.ricardocraft.client.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.runtime.client.DirBridge;
@@ -15,12 +17,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 public class JavaService {
     private static final Pattern JAVA_VERSION_PATTERN = Pattern.compile(
             "Java (?<version>.+) b(?<build>.+) (?<os>.+) (?<arch>.+) javafx (?<javafx>.+)");
     public volatile List<JavaHelper.JavaVersion> javaVersions;
     private final GuiModuleConfig guiModuleConfig;
 
+    @Autowired
     public JavaService(GuiModuleConfig guiModuleConfig) {
         this.guiModuleConfig = guiModuleConfig;
         update();

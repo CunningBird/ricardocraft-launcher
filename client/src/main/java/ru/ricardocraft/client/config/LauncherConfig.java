@@ -1,5 +1,6 @@
-package ru.ricardocraft.client.base;
+package ru.ricardocraft.client.config;
 
+import ru.ricardocraft.client.base.Launcher;
 import ru.ricardocraft.client.base.modules.LauncherModule;
 import ru.ricardocraft.client.base.modules.LauncherModulesManager;
 import ru.ricardocraft.client.core.LauncherInject;

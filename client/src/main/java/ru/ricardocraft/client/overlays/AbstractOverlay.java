@@ -6,8 +6,10 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.util.Duration;
 import ru.ricardocraft.client.JavaFXApplication;
-import ru.ricardocraft.client.impl.AbstractStage;
+import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;
+import ru.ricardocraft.client.service.LaunchService;
+import ru.ricardocraft.client.stage.AbstractStage;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -16,8 +18,11 @@ public abstract class AbstractOverlay extends AbstractVisualComponent {
     private final AtomicInteger useCounter = new AtomicInteger(0);
     private final AtomicReference<FadeTransition> fadeTransition = new AtomicReference<>();
 
-    protected AbstractOverlay(String fxmlPath, JavaFXApplication application) {
-        super(fxmlPath, application);
+    protected AbstractOverlay(String fxmlPath,
+                              JavaFXApplication application,
+                              GuiModuleConfig guiModuleConfig,
+                              LaunchService launchService) {
+        super(fxmlPath, application, guiModuleConfig, launchService);
     }
 
     public final void init() throws Exception {

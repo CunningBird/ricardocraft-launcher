@@ -2,7 +2,7 @@ package ru.ricardocraft.client.impl;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.helper.EnFSHelper;
 import ru.ricardocraft.client.utils.helper.IOHelper;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
@@ -34,9 +34,9 @@ public class FXMLFactory {
 
     public <T extends Node> T get(String url) throws IOException {
         long startTime = System.currentTimeMillis();
-        FXMLLoader loader = newLoaderInstance(JavaFXApplication.getResourceURL(url));
+        FXMLLoader loader = newLoaderInstance(EnFSHelper.getResourceURL(url));
         long loaderInstanceTime = System.currentTimeMillis();
-        try (InputStream inputStream = IOHelper.newInput(JavaFXApplication.getResourceURL(url))) {
+        try (InputStream inputStream = IOHelper.newInput(EnFSHelper.getResourceURL(url))) {
             T result = loader.load(inputStream);
             long endTime = System.currentTimeMillis();
             LogHelper.debug("Fxml load %s time: c: %d | l: %d | total: %d", url, loaderInstanceTime - startTime,

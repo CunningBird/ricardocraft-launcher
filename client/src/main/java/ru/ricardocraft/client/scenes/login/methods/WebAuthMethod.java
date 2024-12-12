@@ -9,10 +9,12 @@ import javafx.scene.web.WebView;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.request.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.client.base.request.auth.password.AuthCodePassword;
+import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.overlays.AbstractOverlay;
 import ru.ricardocraft.client.scenes.login.AuthFlow;
 import ru.ricardocraft.client.scenes.login.LoginScene;
+import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;
@@ -20,13 +22,15 @@ import java.util.function.Consumer;
 
 public class WebAuthMethod extends AbstractAuthMethod<AuthWebViewDetails> {
     WebAuthOverlay overlay;
-    private final JavaFXApplication application;
     private final LoginScene.LoginSceneAccessor accessor;
 
-    public WebAuthMethod(LoginScene.LoginSceneAccessor accessor) {
-        this.application = accessor.getApplication();
+    public WebAuthMethod(LoginScene.LoginSceneAccessor accessor, GuiModuleConfig guiModuleConfig, LaunchService launchService) {
+        JavaFXApplication application = accessor.getApplication();
+        WebAuthOverlay component = new WebAuthOverlay(application, guiModuleConfig, launchService);
+        application.gui.addComponent(component.getName(), component);
+
         this.accessor = accessor;
-        this.overlay = application.gui.registerComponent(WebAuthOverlay.class);
+        this.overlay = component;
         this.overlay.accessor = accessor;
     }
 
@@ -87,8 +91,8 @@ public class WebAuthMethod extends AbstractAuthMethod<AuthWebViewDetails> {
         private LoginScene.LoginSceneAccessor accessor;
         private CompletableFuture<AuthFlow.LoginAndPasswordResult> future;
 
-        public WebAuthOverlay(JavaFXApplication application) {
-            super("overlay/webauth/webauth.fxml", application);
+        public WebAuthOverlay(JavaFXApplication application, GuiModuleConfig guiModuleConfig, LaunchService launchService) {
+            super("overlay/webauth/webauth.fxml", application, guiModuleConfig, launchService);
         }
 
         @Override

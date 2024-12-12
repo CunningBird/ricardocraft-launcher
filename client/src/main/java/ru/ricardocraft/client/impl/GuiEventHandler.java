@@ -15,15 +15,21 @@ import ru.ricardocraft.client.scenes.options.OptionsScene;
 import ru.ricardocraft.client.scenes.serverinfo.ServerInfoScene;
 import ru.ricardocraft.client.scenes.servermenu.ServerMenuScene;
 import ru.ricardocraft.client.scenes.settings.SettingsScene;
+import ru.ricardocraft.client.service.AuthService;
+import ru.ricardocraft.client.service.ProfilesService;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.util.UUID;
 
 public class GuiEventHandler implements RequestService.EventHandler {
-    private final JavaFXApplication application;
 
-    public GuiEventHandler(JavaFXApplication application) {
-        this.application = application;
+    private final JavaFXApplication application = JavaFXApplication.getInstance();
+    private final ProfilesService profilesService;
+    private final AuthService authService;
+
+    public GuiEventHandler(ProfilesService profilesService, AuthService authService) {
+        this.profilesService = profilesService;
+        this.authService = authService;
     }
 
     @Override
@@ -36,7 +42,7 @@ public class GuiEventHandler implements RequestService.EventHandler {
             if (event instanceof AuthRequestEvent authRequestEvent) {
                 boolean isNextScene = application.getCurrentScene() instanceof LoginScene; //TODO: FIX
                 LogHelper.dev("Receive auth event. Send next scene %s", isNextScene ? "true" : "false");
-                application.authService.setAuthResult(null, authRequestEvent);
+                authService.setAuthResult(null, authRequestEvent);
                 if (isNextScene) {
                     Platform.runLater(() -> {
                         try {
@@ -51,12 +57,12 @@ public class GuiEventHandler implements RequestService.EventHandler {
                 }
             }
             if (event instanceof ProfilesRequestEvent profilesRequestEvent) {
-                application.profilesService.setProfilesResult(profilesRequestEvent);
-                if (application.profilesService.getProfile() != null) {
-                    UUID profileUUID = application.profilesService.getProfile().getUUID();
-                    for (ClientProfile profile : application.profilesService.getProfiles()) {
+                profilesService.setProfilesResult(profilesRequestEvent);
+                if (profilesService.getProfile() != null) {
+                    UUID profileUUID = profilesService.getProfile().getUUID();
+                    for (ClientProfile profile : profilesService.getProfiles()) {
                         if (profile.getUUID().equals(profileUUID)) {
-                            application.profilesService.setProfile(profile);
+                            profilesService.setProfile(profile);
                             break;
                         }
                     }

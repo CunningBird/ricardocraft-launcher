@@ -1,6 +1,8 @@
 package ru.ricardocraft.client.service;
 
 import com.google.gson.reflect.TypeToken;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.base.Launcher;
 import ru.ricardocraft.client.base.events.request.ProfilesRequestEvent;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
@@ -20,12 +22,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+@Component
 public class ProfilesService {
     private final TriggerManager triggerManager;
     private List<ClientProfile> profiles;
     private ClientProfile profile;
     private Map<ClientProfile, OptionalView> optionalViewMap;
 
+    @Autowired
     public ProfilesService(TriggerManager triggerManager) {
         this.triggerManager = triggerManager;
     }

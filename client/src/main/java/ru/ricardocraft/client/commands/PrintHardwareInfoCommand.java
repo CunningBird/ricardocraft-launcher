@@ -1,10 +1,20 @@
-package ru.ricardocraft.client.runtime.console.test;
+package ru.ricardocraft.client.commands;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.runtime.utils.HWIDProvider;
 import ru.ricardocraft.client.utils.command.Command;
+import ru.ricardocraft.client.utils.command.CommandHandler;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
+@Component
 public class PrintHardwareInfoCommand extends Command {
+
+    @Autowired
+    public PrintHardwareInfoCommand(CommandHandler commandHandler) {
+        commandHandler.registerCommand("printhardware", this);
+    }
+
     @Override
     public String getArgsDescription() {
         return "[]";

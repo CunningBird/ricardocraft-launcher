@@ -7,34 +7,63 @@ import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.base.profiles.optional.OptionalView;
 import ru.ricardocraft.client.components.ServerButton;
 import ru.ricardocraft.client.components.UserBlock;
+import ru.ricardocraft.client.config.GuiModuleConfig;
+import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
+import ru.ricardocraft.client.launch.SkinManager;
 import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.scenes.interfaces.SceneSupportUserBlock;
+import ru.ricardocraft.client.service.AuthService;
+import ru.ricardocraft.client.service.LaunchService;
+import ru.ricardocraft.client.service.PingService;
+import ru.ricardocraft.client.service.ProfilesService;
 
 public class OptionsScene extends AbstractScene implements SceneSupportUserBlock {
     private OptionsTab optionsTab;
     private UserBlock userBlock;
 
-    public OptionsScene(JavaFXApplication application) {
-        super("scenes/options/options.fxml", application);
+    private final GuiModuleConfig guiModuleConfig;
+    private final ProfilesService profilesService;
+    private final PingService pingService;
+    private final SkinManager skinManager;
+
+    public OptionsScene(JavaFXApplication application,
+                        LauncherConfig config,
+                        GuiModuleConfig guiModuleConfig,
+                        AuthService authService,
+                        SkinManager skinManager,
+                        LaunchService launchService,
+                        ProfilesService profilesService,
+                        PingService pingService) {
+        super("scenes/options/options.fxml", application, config, guiModuleConfig, authService, launchService);
+        this.guiModuleConfig = guiModuleConfig;
+        this.profilesService = profilesService;
+        this.pingService = pingService;
+        this.skinManager = skinManager;
     }
 
     @Override
     protected void doInit() {
-        this.userBlock = new UserBlock(layout, new SceneAccessor());
-        optionsTab = new OptionsTab(application, LookupHelper.lookup(layout, "#tabPane"));
+        this.userBlock = new UserBlock(layout, authService, skinManager, launchService, new SceneAccessor());
+        optionsTab = new OptionsTab(launchService, LookupHelper.lookup(layout, "#tabPane"));
     }
 
     @Override
     public void reset() {
         Pane serverButtonContainer = LookupHelper.lookup(layout, "#serverButton");
         serverButtonContainer.getChildren().clear();
-        ClientProfile profile = application.profilesService.getProfile();
-        ServerButton serverButton = ServerButton.createServerButton(application, profile);
+        ClientProfile profile = profilesService.getProfile();
+        ServerButton serverButton = ServerButton.createServerButton(
+                application,
+                guiModuleConfig,
+                launchService,
+                pingService,
+                profile
+        );
         serverButton.addTo(serverButtonContainer);
         serverButton.enableSaveButton(null, (e) -> {
             try {
-                application.profilesService.setOptionalView(profile, optionsTab.getOptionalView());
+                profilesService.setOptionalView(profile, optionsTab.getOptionalView());
                 switchScene(application.gui.serverInfoScene);
             } catch (Exception exception) {
                 errorHandle(exception);
@@ -42,8 +71,8 @@ public class OptionsScene extends AbstractScene implements SceneSupportUserBlock
         });
         serverButton.enableResetButton(null, (e) -> {
             optionsTab.clear();
-            application.profilesService.setOptionalView(profile, new OptionalView(profile));
-            optionsTab.addProfileOptionals(application.profilesService.getOptionalView());
+            profilesService.setOptionalView(profile, new OptionalView(profile));
+            optionsTab.addProfileOptionals(profilesService.getOptionalView());
         });
         optionsTab.clear();
         LookupHelper.<Button>lookupIfPossible(layout, "#back").ifPresent(x -> x.setOnAction((e) -> {
@@ -53,7 +82,7 @@ public class OptionsScene extends AbstractScene implements SceneSupportUserBlock
                 errorHandle(exception);
             }
         }));
-        optionsTab.addProfileOptionals(application.profilesService.getOptionalView());
+        optionsTab.addProfileOptionals(profilesService.getOptionalView());
         userBlock.reset();
     }
 

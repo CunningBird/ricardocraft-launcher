@@ -1,12 +1,25 @@
-package ru.ricardocraft.client.runtime.console;
+package ru.ricardocraft.client.commands;
 
-import ru.ricardocraft.client.JavaFXApplication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.utils.command.Command;
+import ru.ricardocraft.client.utils.command.CommandHandler;
 import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.utils.helper.SecurityHelper;
 
+import java.security.interfaces.ECPrivateKey;
 import java.util.Base64;
 
+@Component
 public class SignDataCommand extends Command {
+
+    private final ECPrivateKey privateKey;
+
+    @Autowired
+    public SignDataCommand(ECPrivateKey privateKey, CommandHandler commandHandler) {
+        this.privateKey = privateKey;
+        commandHandler.registerCommand("signdata", this);
+    }
 
     @Override
     public String getArgsDescription() {
@@ -22,7 +35,7 @@ public class SignDataCommand extends Command {
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 1);
         byte[] data = Base64.getDecoder().decode(args[0]);
-        byte[] signature = JavaFXApplication.sign(data);
+        byte[] signature = SecurityHelper.sign(data, privateKey);
         String base64 = Base64.getEncoder().encodeToString(signature);
         LogHelper.info("Signature: %s", base64);
     }

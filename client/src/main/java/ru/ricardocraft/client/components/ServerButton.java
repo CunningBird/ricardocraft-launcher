@@ -9,8 +9,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
+import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;
+import ru.ricardocraft.client.service.LaunchService;
+import ru.ricardocraft.client.service.PingService;
 import ru.ricardocraft.client.utils.JavaFxUtils;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
@@ -27,19 +30,30 @@ public class ServerButton extends AbstractVisualComponent {
     private Button resetButton;
     private Region serverLogo;
 
-    protected ServerButton(JavaFXApplication application, ClientProfile profile) {
-        super(getServerButtonFxml(application, profile), application);
+    private final PingService pingService;
+
+    protected ServerButton(JavaFXApplication application,
+                           GuiModuleConfig guiModuleConfig,
+                           LaunchService launchService,
+                           PingService pingService,
+                           ClientProfile profile) {
+        super(getServerButtonFxml(application, profile), application, guiModuleConfig, launchService);
         this.profile = profile;
+        this.pingService = pingService;
     }
 
-    public static ServerButton createServerButton(JavaFXApplication application, ClientProfile profile) {
-        return new ServerButton(application, profile);
+    public static ServerButton createServerButton(JavaFXApplication application,
+                                                  GuiModuleConfig guiModuleConfig,
+                                                  LaunchService launchService,
+                                                  PingService pingService,
+                                                  ClientProfile profile) {
+        return new ServerButton(application, guiModuleConfig, launchService, pingService, profile);
     }
 
     private static String getServerButtonFxml(JavaFXApplication application, ClientProfile profile) {
         String customFxml = String.format(SERVER_BUTTON_CUSTOM_FXML, profile.getUUID().toString());
-        URL fxml = application.tryResource(customFxml);
-        if(fxml != null) {
+        URL fxml = tryResource(customFxml);
+        if (fxml != null) {
             return customFxml;
         }
         return SERVER_BUTTON_FXML;
@@ -55,14 +69,14 @@ public class ServerButton extends AbstractVisualComponent {
         LookupHelper.<Labeled>lookup(layout, "#nameServer").setText(profile.getTitle());
         LookupHelper.<Labeled>lookup(layout, "#genreServer").setText(profile.getVersion().toString());
         this.serverLogo = LookupHelper.lookup(layout, "#serverLogo");
-        URL logo = application.tryResource(String.format(SERVER_BUTTON_CUSTOM_IMAGE, profile.getUUID().toString()));
-        if(logo == null) {
-            logo = application.tryResource(SERVER_BUTTON_DEFAULT_IMAGE);
+        URL logo = tryResource(String.format(SERVER_BUTTON_CUSTOM_IMAGE, profile.getUUID().toString()));
+        if (logo == null) {
+            logo = tryResource(SERVER_BUTTON_DEFAULT_IMAGE);
         }
-        if(logo != null) {
+        if (logo != null) {
             this.serverLogo.setBackground(new Background(new BackgroundImage(new Image(logo.toString()),
-                                                                             BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
-                                                                             BackgroundPosition.CENTER, new BackgroundSize(0.0, 0.0, true, true, false, true))));
+                    BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+                    BackgroundPosition.CENTER, new BackgroundSize(0.0, 0.0, true, true, false, true))));
             JavaFxUtils.setRadius(this.serverLogo, 20.0);
         }
         AtomicLong currentOnline = new AtomicLong(0);
@@ -75,7 +89,7 @@ public class ServerButton extends AbstractVisualComponent {
             }
         });
         for (ClientProfile.ServerProfile serverProfile : profile.getServers()) {
-            application.pingService.getPingReport(serverProfile.name).thenAccept((report) -> {
+            pingService.getPingReport(serverProfile.name).thenAccept((report) -> {
                 if (report != null) {
                     currentOnline.addAndGet(report.playersOnline);
                     maxOnline.addAndGet(report.maxPlayers);

@@ -7,11 +7,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public abstract class CommandHandler implements Runnable {
+
     private final List<Category> categories = new ArrayList<>();
-    private final CommandCategory baseCategory = new BaseCommandCategory();
+    private final BaseCommandCategory baseCategory = new BaseCommandCategory();
 
     public void eval(String line, boolean bell) {
         LogHelper.info("Command '%s'", line);
@@ -82,17 +82,8 @@ public abstract class CommandHandler implements Runnable {
         categories.add(category);
     }
 
-    public void unregisterCategory(Category category) {
-        categories.remove(category);
-    }
-
-    public Category findCategory(String name) {
-        for (Category category : categories) if (category.name.equals(name)) return category;
-        return null;
-    }
-
-    public Command unregisterCommand(String name) {
-        return baseCategory.unregisterCommand(name);
+    public void unregisterCommand(String name) {
+        baseCategory.unregisterCommand(name);
     }
 
     @Override
@@ -104,23 +95,7 @@ public abstract class CommandHandler implements Runnable {
         }
     }
 
-    /**
-     * Walk all categories
-     * Categories are sorted in the order they are added.
-     * The base category is walked last
-     *
-     * @param callback your callback
-     */
-    public void walk(CommandWalk callback) {
-        for (Category category : getCategories()) {
-            for (Map.Entry<String, Command> entry : category.category.commandsMap().entrySet())
-                callback.walk(category, entry.getKey(), entry.getValue());
-        }
-        for (Map.Entry<String, Command> entry : getBaseCategory().commandsMap().entrySet())
-            callback.walk(null, entry.getKey(), entry.getValue());
-    }
-
-    public CommandCategory getBaseCategory() {
+    public BaseCommandCategory getBaseCategory() {
         return baseCategory;
     }
 
@@ -139,26 +114,4 @@ public abstract class CommandHandler implements Runnable {
      * @throws IOException Internal Error
      */
     public abstract void clear() throws IOException;
-
-    @FunctionalInterface
-    public interface CommandWalk {
-        void walk(Category category, String name, Command command);
-    }
-
-    public static class Category {
-        public final CommandCategory category;
-        public final String name;
-        public String description;
-
-        public Category(CommandCategory category, String name) {
-            this.category = category;
-            this.name = name;
-        }
-
-        public Category(CommandCategory category, String name, String description) {
-            this.category = category;
-            this.name = name;
-            this.description = description;
-        }
-    }
 }

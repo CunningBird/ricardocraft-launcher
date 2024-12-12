@@ -6,9 +6,6 @@ import ru.ricardocraft.client.base.request.Request;
 public class GetAssetUploadUrl extends Request<GetAssetUploadUrlRequestEvent> {
     public String name;
 
-    public GetAssetUploadUrl() {
-    }
-
     public GetAssetUploadUrl(String name) {
         this.name = name;
     }

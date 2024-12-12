@@ -3,12 +3,15 @@ package ru.ricardocraft.client.scenes.login.methods;
 import javafx.scene.control.TextField;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.request.auth.details.AuthLoginOnlyDetails;
+import ru.ricardocraft.client.config.GuiModuleConfig;
+import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;
 import ru.ricardocraft.client.impl.ContextHelper;
 import ru.ricardocraft.client.scenes.login.AuthFlow;
 import ru.ricardocraft.client.scenes.login.LoginAuthButtonComponent;
 import ru.ricardocraft.client.scenes.login.LoginScene;
+import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;
@@ -16,12 +19,17 @@ import java.util.concurrent.CompletableFuture;
 public class LoginOnlyAuthMethod extends AbstractAuthMethod<AuthLoginOnlyDetails> {
     private final LoginOnlyOverlay overlay;
     private final JavaFXApplication application;
+    private final RuntimeSettings runtimeSettings;
     private final LoginScene.LoginSceneAccessor accessor;
 
-    public LoginOnlyAuthMethod(LoginScene.LoginSceneAccessor accessor) {
+    public LoginOnlyAuthMethod(LoginScene.LoginSceneAccessor accessor,
+                               RuntimeSettings runtimeSettings,
+                               GuiModuleConfig guiModuleConfig,
+                               LaunchService launchService) {
         this.accessor = accessor;
         this.application = accessor.getApplication();
-        this.overlay = new LoginOnlyOverlay(application);
+        this.runtimeSettings = runtimeSettings;
+        this.overlay = new LoginOnlyOverlay(application, guiModuleConfig, launchService);
     }
 
     @Override
@@ -85,8 +93,10 @@ public class LoginOnlyAuthMethod extends AbstractAuthMethod<AuthLoginOnlyDetails
         private TextField login;
         private CompletableFuture<AuthFlow.LoginAndPasswordResult> future;
 
-        public LoginOnlyOverlay(JavaFXApplication application) {
-            super("scenes/login/methods/loginonly.fxml", application);
+        public LoginOnlyOverlay(JavaFXApplication application,
+                                GuiModuleConfig guiModuleConfig,
+                                LaunchService launchService) {
+            super("scenes/login/methods/loginonly.fxml", application, guiModuleConfig, launchService);
         }
 
         @Override
@@ -105,8 +115,8 @@ public class LoginOnlyAuthMethod extends AbstractAuthMethod<AuthLoginOnlyDetails
             login.textProperty().addListener(l -> accessor.getAuthButton().setState(login.getText().isEmpty()
                                                                                             ? LoginAuthButtonComponent.AuthButtonState.UNACTIVE
                                                                                             : LoginAuthButtonComponent.AuthButtonState.ACTIVE));
-            if (application.runtimeSettings.login != null) {
-                login.setText(application.runtimeSettings.login);
+            if (runtimeSettings.login != null) {
+                login.setText(runtimeSettings.login);
                 accessor.getAuthButton().setState(LoginAuthButtonComponent.AuthButtonState.ACTIVE);
             } else {
                 accessor.getAuthButton().setState(LoginAuthButtonComponent.AuthButtonState.UNACTIVE);

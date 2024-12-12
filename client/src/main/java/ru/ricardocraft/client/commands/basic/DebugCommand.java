@@ -1,9 +1,10 @@
-package ru.ricardocraft.client.utils.command.basic;
+package ru.ricardocraft.client.commands.basic;
 
 import ru.ricardocraft.client.utils.command.Command;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 public class DebugCommand extends Command {
+
     @Override
     public String getArgsDescription() {
         return "[true/false] [true/false]";

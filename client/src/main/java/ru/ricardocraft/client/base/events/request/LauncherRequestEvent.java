@@ -27,23 +27,6 @@ public class LauncherRequestEvent extends RequestEvent implements ExtendedTokenR
         this.url = url;
     }
 
-    public LauncherRequestEvent(boolean b, byte[] digest) {
-        this.needUpdate = b;
-        this.digest = digest;
-    }
-
-    public LauncherRequestEvent(boolean needUpdate, String url, String launcherExtendedToken, long expire) {
-        this.url = url;
-        this.needUpdate = needUpdate;
-        this.launcherExtendedToken = launcherExtendedToken;
-        this.launcherExtendedTokenExpire = expire;
-    }
-
-    public LauncherRequestEvent(byte[] binary, byte[] digest) { //Legacy support constructor
-        this.binary = binary;
-        this.digest = digest;
-    }
-
     @Override
     public String getType() {
         return "launcher";

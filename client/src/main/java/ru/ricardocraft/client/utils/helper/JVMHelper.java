@@ -16,11 +16,7 @@ public final class JVMHelper {
             ManagementFactory.getOperatingSystemMXBean();
     public static final OS OS_TYPE = OS.byName(OPERATING_SYSTEM_MXBEAN.getName());
     public static final int OS_BITS = getCorrectOSArch();
-    // System properties
-    public static final String OS_VERSION = OPERATING_SYSTEM_MXBEAN.getVersion();
     public static final ARCH ARCH_TYPE = getArch(System.getProperty("os.arch"));
-    public static final String NATIVE_EXTENSION = getNativeExtension(OS_TYPE);
-    public static final String NATIVE_PREFIX = getNativePrefix(OS_TYPE);
     public static final int JVM_BITS = Integer.parseInt(System.getProperty("sun.arch.data.model"));
     // Public static fields
     public static final Runtime RUNTIME = Runtime.getRuntime();
@@ -54,21 +50,6 @@ public final class JVMHelper {
 
     public static int getBuild() {
         return Runtime.version().update();
-    }
-
-    public static String getNativeExtension(OS OS_TYPE) {
-        return switch (OS_TYPE) {
-            case WINDOWS -> ".dll";
-            case LINUX -> ".so";
-            case MACOSX -> ".dylib";
-        };
-    }
-
-    public static String getNativePrefix(OS OS_TYPE) {
-        return switch (OS_TYPE) {
-            case LINUX, MACOSX -> "lib";
-            default -> "";
-        };
     }
 
     public static void fullGC() {

@@ -18,9 +18,6 @@ public class ProfilesRequestEvent extends RequestEvent {
         this.profiles = profiles;
     }
 
-    public ProfilesRequestEvent() {
-    }
-
     @Override
     public String getType() {
         return "profiles";
