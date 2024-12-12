@@ -4,8 +4,10 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.helper.PositionHelper;
+import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.util.HashMap;
@@ -54,8 +56,12 @@ public class NotificationDialog extends AbstractDialog {
     private NotificationSlot positionSlot;
     private double positionOffset;
 
-    public NotificationDialog(JavaFXApplication application, String header, String text) {
-        super("components/notification.fxml", application);
+    public NotificationDialog(JavaFXApplication application,
+                              String header,
+                              String text,
+                              GuiModuleConfig guiModuleConfig,
+                              LaunchService launchService) {
+        super("components/notification.fxml", application, guiModuleConfig, launchService);
         this.header = header;
         this.text = text;
     }
@@ -125,14 +131,14 @@ public class NotificationDialog extends AbstractDialog {
             return super.getOutSceneCoords(bounds);
         }
         return PositionHelper.calculate(positionInfo, layout.getPrefWidth(), layout.getPrefHeight(), 0,
-                                        30 + positionOffset, bounds.getMaxX(), bounds.getMaxY());
+                30 + positionOffset, bounds.getMaxX(), bounds.getMaxY());
     }
 
     @Override
     public LookupHelper.Point2D getSceneCoords(Pane root) {
         if (positionInfo == null) return super.getSceneCoords(root);
         return PositionHelper.calculate(positionInfo, layout.getPrefWidth(), layout.getPrefHeight(), 0,
-                                        30 + positionOffset, root.getPrefWidth(), root.getPrefHeight());
+                30 + positionOffset, root.getPrefWidth(), root.getPrefHeight());
     }
 
     @Override

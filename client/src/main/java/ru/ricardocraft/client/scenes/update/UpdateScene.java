@@ -2,18 +2,28 @@ package ru.ricardocraft.client.scenes.update;
 
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.profiles.optional.OptionalView;
+import ru.ricardocraft.client.base.request.RequestService;
+import ru.ricardocraft.client.config.GuiModuleConfig;
+import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.core.hasher.FileNameMatcher;
 import ru.ricardocraft.client.core.hasher.HashedDir;
 import ru.ricardocraft.client.helper.LookupHelper;
+import ru.ricardocraft.client.runtime.managers.SettingsManager;
 import ru.ricardocraft.client.scenes.AbstractScene;
+import ru.ricardocraft.client.service.AuthService;
+import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.nio.file.Path;
 import java.util.concurrent.CompletionException;
 import java.util.function.Consumer;
 
+@Component
+@Scope("prototype")
 public class UpdateScene extends AbstractScene {
     private ProgressBar progressBar;
     private Label speed;
@@ -24,11 +34,21 @@ public class UpdateScene extends AbstractScene {
     private Label speederr;
     private Pane speedon;
 
+    private final GuiModuleConfig guiModuleConfig;
+    private final RequestService service;
+
     private VisualDownloader downloader;
     private volatile DownloadStatus downloadStatus = DownloadStatus.COMPLETE;
 
-    public UpdateScene(JavaFXApplication application) {
-        super("scenes/update/update.fxml", application);
+    public UpdateScene(LauncherConfig config,
+                       GuiModuleConfig guiModuleConfig,
+                       RequestService service,
+                       AuthService authService,
+                       LaunchService launchService,
+                       SettingsManager settingsManager) {
+        super("scenes/update/update.fxml", JavaFXApplication.getInstance(), config, guiModuleConfig, authService, launchService, settingsManager);
+        this.guiModuleConfig = guiModuleConfig;
+        this.service = service;
     }
 
     @Override
@@ -41,12 +61,12 @@ public class UpdateScene extends AbstractScene {
         cancel = LookupHelper.lookup(layout, "#cancel");
         volume = LookupHelper.lookup(layout, "#volume");
         logOutput = LookupHelper.lookup(layout, "#outputUpdate");
-        downloader = new VisualDownloader(application, progressBar, speed, volume, this::errorHandle,
-                                          (log) -> contextHelper.runInFxThread(() -> addLog(log)), this::onUpdateStatus);
+        downloader = new VisualDownloader(service, guiModuleConfig, launchService, progressBar, speed, volume, this::errorHandle,
+                (log) -> contextHelper.runInFxThread(() -> addLog(log)), this::onUpdateStatus);
         LookupHelper.<ButtonBase>lookup(layout, "#cancel").setOnAction((e) -> {
             if (downloadStatus == DownloadStatus.DOWNLOAD && downloader.isDownload()) {
                 downloader.cancel();
-            } else if(downloadStatus == DownloadStatus.ERROR || downloadStatus == DownloadStatus.COMPLETE) {
+            } else if (downloadStatus == DownloadStatus.ERROR || downloadStatus == DownloadStatus.COMPLETE) {
                 try {
                     switchToBackScene();
                 } catch (Exception exception) {
@@ -62,12 +82,12 @@ public class UpdateScene extends AbstractScene {
     }
 
     public void sendUpdateAssetRequest(String dirName, Path dir, FileNameMatcher matcher, boolean digest,
-            String assetIndex, boolean test, Consumer<HashedDir> onSuccess) {
+                                       String assetIndex, boolean test, Consumer<HashedDir> onSuccess) {
         downloader.sendUpdateAssetRequest(dirName, dir, matcher, digest, assetIndex, test, onSuccess);
     }
 
     public void sendUpdateRequest(String dirName, Path dir, FileNameMatcher matcher, boolean digest, OptionalView view,
-            boolean optionalsEnabled, boolean test, Consumer<HashedDir> onSuccess) {
+                                  boolean optionalsEnabled, boolean test, Consumer<HashedDir> onSuccess) {
         downloader.sendUpdateRequest(dirName, dir, matcher, digest, view, optionalsEnabled, test, onSuccess);
     }
 
@@ -89,7 +109,7 @@ public class UpdateScene extends AbstractScene {
 
     @Override
     public void errorHandle(Throwable e) {
-        if(e instanceof CompletionException) {
+        if (e instanceof CompletionException) {
             e = e.getCause();
         }
         addLog("Exception %s: %s".formatted(e.getClass(), e.getMessage() == null ? "" : e.getMessage()));

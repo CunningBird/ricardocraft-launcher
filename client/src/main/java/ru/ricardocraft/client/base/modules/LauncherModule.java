@@ -199,8 +199,5 @@ public abstract class LauncherModule {
             return cancel;
         }
 
-        public void cancel() {
-            this.cancel = true;
-        }
     }
 }

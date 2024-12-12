@@ -3,17 +3,19 @@ package ru.ricardocraft.client.scenes.update;
 import javafx.beans.property.DoubleProperty;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.Downloader;
 import ru.ricardocraft.client.base.profiles.optional.OptionalView;
 import ru.ricardocraft.client.base.profiles.optional.actions.OptionalAction;
 import ru.ricardocraft.client.base.profiles.optional.actions.OptionalActionFile;
+import ru.ricardocraft.client.base.request.RequestService;
 import ru.ricardocraft.client.base.request.update.UpdateRequest;
+import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.core.hasher.FileNameMatcher;
 import ru.ricardocraft.client.core.hasher.HashedDir;
 import ru.ricardocraft.client.core.hasher.HashedEntry;
 import ru.ricardocraft.client.core.hasher.HashedFile;
 import ru.ricardocraft.client.impl.ContextHelper;
+import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.utils.AssetIndexHelper;
 import ru.ricardocraft.client.utils.helper.IOHelper;
 import ru.ricardocraft.client.utils.helper.LogHelper;
@@ -22,7 +24,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
@@ -30,7 +31,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 public class VisualDownloader {
-    private final JavaFXApplication application;
+
+    private final GuiModuleConfig guiModuleConfig;
+    private final LaunchService launchService;
+
     private final AtomicLong totalDownloaded = new AtomicLong(0);
     private final AtomicLong lastUpdateTime = new AtomicLong(0);
     private final AtomicLong lastDownloaded = new AtomicLong(0);
@@ -48,20 +52,32 @@ public class VisualDownloader {
 
     private final ExecutorService executor;
 
-    public VisualDownloader(JavaFXApplication application, ProgressBar progressBar, Label speed, Label volume,
-                            Consumer<Throwable> errorHandle, Consumer<String> addLog, Consumer<UpdateScene.DownloadStatus> updateStatus) {
-        this.application = application;
+    private final RequestService service;
+
+    public VisualDownloader(RequestService requestService,
+                            GuiModuleConfig guiModuleConfig,
+                            LaunchService launchService,
+                            ProgressBar progressBar,
+                            Label speed,
+                            Label volume,
+                            Consumer<Throwable> errorHandle,
+                            Consumer<String> addLog,
+                            Consumer<UpdateScene.DownloadStatus> updateStatus) {
+        this.guiModuleConfig = guiModuleConfig;
+        this.launchService = launchService;
+
         this.progressBar = progressBar;
         this.speed = speed;
         this.volume = volume;
         this.errorHandle = errorHandle;
         this.addLog = addLog;
-        this.executor = new ForkJoinPool(application.guiModuleConfig.downloadThreads, (pool) -> {
+        this.executor = new ForkJoinPool(guiModuleConfig.downloadThreads, (pool) -> {
             ForkJoinWorkerThread thread = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
             thread.setDaemon(true);
             return thread;
         }, null, true);
         this.updateStatus = updateStatus;
+        this.service = requestService;
     }
 
     public void sendUpdateAssetRequest(String dirName,
@@ -74,7 +90,7 @@ public class VisualDownloader {
         if (test) {
             addLog.accept("Hashing %s".formatted(dirName));
             updateStatus.accept(UpdateScene.DownloadStatus.HASHING);
-            application.workers.submit(() -> {
+            launchService.workers.submit(() -> {
                 try {
                     HashedDir hashedDir = new HashedDir(dir, matcher, false /* TODO */, digest);
                     updateStatus.accept(UpdateScene.DownloadStatus.COMPLETE);
@@ -89,7 +105,7 @@ public class VisualDownloader {
         UpdateRequest request = new UpdateRequest(dirName);
         try {
             updateStatus.accept(UpdateScene.DownloadStatus.REQUEST);
-            application.service.request(request).thenAccept(event -> {
+            service.request(request).thenAccept(event -> {
                 LogHelper.dev("Start updating %s", dirName);
                 try {
                     downloadAsset(dirName, dir, matcher, digest, assetIndex, onSuccess, event.hdir, event.url);
@@ -114,7 +130,7 @@ public class VisualDownloader {
         if (test) {
             addLog.accept("Hashing %s".formatted(dirName));
             updateStatus.accept(UpdateScene.DownloadStatus.HASHING);
-            application.workers.submit(() -> {
+            launchService.workers.submit(() -> {
                 try {
                     HashedDir hashedDir = new HashedDir(dir, matcher, false /* TODO */, digest);
                     updateStatus.accept(UpdateScene.DownloadStatus.COMPLETE);
@@ -129,7 +145,7 @@ public class VisualDownloader {
         UpdateRequest request = new UpdateRequest(dirName);
         try {
             updateStatus.accept(UpdateScene.DownloadStatus.REQUEST);
-            application.service.request(request).thenAccept(event -> {
+            service.request(request).thenAccept(event -> {
                 LogHelper.dev("Start updating %s", dirName);
                 try {
                     download(dirName, dir, matcher, digest, view, optionalsEnabled, onSuccess, event.hdir, event.url);
@@ -277,7 +293,7 @@ public class VisualDownloader {
                     public void onComplete(Path path) {
 
                     }
-                }, executor, application.guiModuleConfig.downloadThreads);
+                }, executor, guiModuleConfig.downloadThreads);
                 updateStatus.accept(UpdateScene.DownloadStatus.DOWNLOAD);
                 downloader.getFuture().thenAccept((e) -> onSuccess.run()).exceptionally((e) -> {
                     updateStatus.accept(UpdateScene.DownloadStatus.ERROR);
@@ -401,15 +417,8 @@ public class VisualDownloader {
         return downloader != null && !downloader.getFuture().isDone();
     }
 
-    public CompletableFuture<Void> getFuture() {
-        return downloader.getFuture();
-    }
-
     public void cancel() {
         downloader.cancel();
     }
 
-    public boolean isCanceled() {
-        return downloader.isCanceled();
-    }
 }

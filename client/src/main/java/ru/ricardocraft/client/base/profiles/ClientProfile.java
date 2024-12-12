@@ -6,7 +6,7 @@ import ru.ricardocraft.client.base.profiles.optional.OptionalFile;
 import ru.ricardocraft.client.base.profiles.optional.triggers.OptionalTrigger;
 import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.core.hasher.FileNameMatcher;
-import ru.ricardocraft.client.launch.LaunchOptions;
+import ru.ricardocraft.client.launch.ModuleConf;
 import ru.ricardocraft.client.utils.helper.IOHelper;
 import ru.ricardocraft.client.utils.helper.VerifyHelper;
 
@@ -79,9 +79,38 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private String mainModule;
     @LauncherNetworkAPI
-    private LaunchOptions.ModuleConf moduleConf;
+    private ModuleConf moduleConf;
 
-    public ClientProfile(String title, UUID uuid, Version version, String info, String dir, int sortIndex, String assetIndex, String assetDir, List<String> update, List<String> updateExclusions, List<String> updateVerify, Set<OptionalFile> updateOptional, List<String> jvmArgs, List<String> classPath, List<String> altClassPath, List<String> clientArgs, List<String> compatClasses, List<String> loadNatives, Map<String, String> properties, List<ServerProfile> servers, ClassLoaderConfig classLoaderConfig, List<CompatibilityFlags> flags, int recommendJavaVersion, int minJavaVersion, int maxJavaVersion, ProfileDefaultSettings settings, boolean limited, String mainClass, String mainModule, LaunchOptions.ModuleConf moduleConf) {
+    public ClientProfile(String title,
+                         UUID uuid,
+                         Version version,
+                         String info,
+                         String dir,
+                         int sortIndex,
+                         String assetIndex,
+                         String assetDir,
+                         List<String> update,
+                         List<String> updateExclusions,
+                         List<String> updateVerify,
+                         Set<OptionalFile> updateOptional,
+                         List<String> jvmArgs,
+                         List<String> classPath,
+                         List<String> altClassPath,
+                         List<String> clientArgs,
+                         List<String> compatClasses,
+                         List<String> loadNatives,
+                         Map<String, String> properties,
+                         List<ServerProfile> servers,
+                         ClassLoaderConfig classLoaderConfig,
+                         List<CompatibilityFlags> flags,
+                         int recommendJavaVersion,
+                         int minJavaVersion,
+                         int maxJavaVersion,
+                         ProfileDefaultSettings settings,
+                         boolean limited,
+                         String mainClass,
+                         String mainModule,
+                         ModuleConf moduleConf) {
         this.title = title;
         this.uuid = uuid;
         this.version = version;
@@ -187,7 +216,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return mainModule;
     }
 
-    public LaunchOptions.ModuleConf getModuleConf() {
+    public ModuleConf getModuleConf() {
         return moduleConf;
     }
 

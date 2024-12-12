@@ -16,10 +16,8 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
 public final class IOHelper {
-    public static final long MB32 = 1 << 25;
     public static final Charset UNICODE_CHARSET = StandardCharsets.UTF_8;
     public static final Charset ASCII_CHARSET = StandardCharsets.US_ASCII;
-    public static final int MAX_BATCH_SIZE = 128;
     // Charset
     public static final int SOCKET_TIMEOUT = VerifyHelper.verifyInt(
             Integer.parseUnsignedInt(System.getProperty("launcher.socketTimeout", Integer.toString(30000))),
@@ -247,10 +245,6 @@ public final class IOHelper {
         return new ZipInputStream(input, UNICODE_CHARSET);
     }
 
-    public static ZipInputStream newZipInput(URL url) throws IOException {
-        return newZipInput(newInput(url));
-    }
-
     public static byte[] read(InputStream input) throws IOException {
         try (ByteArrayOutputStream output = newByteArrayOutput()) {
             transfer(input, output);
@@ -382,14 +376,11 @@ public final class IOHelper {
         }
     }
 
-    public static long transfer(InputStream input, OutputStream output) throws IOException {
-        long transferred = 0;
+    public static void transfer(InputStream input, OutputStream output) throws IOException {
         byte[] buffer = newBuffer();
         for (int length = input.read(buffer); length >= 0; length = input.read(buffer)) {
             output.write(buffer, 0, length);
-            transferred += length;
         }
-        return transferred;
     }
 
     public static void transfer(InputStream input, Path file) throws IOException {

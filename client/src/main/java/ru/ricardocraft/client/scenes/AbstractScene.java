@@ -6,30 +6,41 @@ import javafx.scene.Node;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.layout.Pane;
 import ru.ricardocraft.client.JavaFXApplication;
-import ru.ricardocraft.client.base.Launcher;
-import ru.ricardocraft.client.base.LauncherConfig;
 import ru.ricardocraft.client.base.request.Request;
 import ru.ricardocraft.client.base.request.WebSocketEvent;
 import ru.ricardocraft.client.base.request.auth.ExitRequest;
+import ru.ricardocraft.client.config.GuiModuleConfig;
+import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
-import ru.ricardocraft.client.impl.AbstractStage;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;
 import ru.ricardocraft.client.impl.ContextHelper;
 import ru.ricardocraft.client.overlays.AbstractOverlay;
+import ru.ricardocraft.client.overlays.ProcessingOverlay;
+import ru.ricardocraft.client.runtime.managers.SettingsManager;
+import ru.ricardocraft.client.scenes.login.LoginScene;
+import ru.ricardocraft.client.service.AuthService;
+import ru.ricardocraft.client.service.LaunchService;
 
 import java.util.function.Consumer;
 
 public abstract class AbstractScene extends AbstractVisualComponent {
-    protected final LauncherConfig launcherConfig;
     protected Pane header;
 
-    protected AbstractScene(String fxmlPath, JavaFXApplication application) {
-        super(fxmlPath, application);
-        this.launcherConfig = Launcher.getConfig();
-    }
+    protected final LauncherConfig launcherConfig;
+    protected final AuthService authService;
+    protected final SettingsManager settingsManager;
 
-    protected AbstractStage getCurrentStage() {
-        return currentStage;
+    protected AbstractScene(String fxmlPath,
+                            JavaFXApplication application,
+                            LauncherConfig config,
+                            GuiModuleConfig guiModuleConfig,
+                            AuthService authService,
+                            LaunchService launchService,
+                            SettingsManager settingsManager) {
+        super(fxmlPath, application, guiModuleConfig, launchService);
+        this.launcherConfig = config;
+        this.authService = authService;
+        this.settingsManager = settingsManager;
     }
 
     public void init() throws Exception {
@@ -60,40 +71,43 @@ public abstract class AbstractScene extends AbstractVisualComponent {
     }
 
     protected final <T extends WebSocketEvent> void processRequest(String message, Request<T> request,
-            Consumer<T> onSuccess, EventHandler<ActionEvent> onError) {
-        application.gui.processingOverlay.processRequest(currentStage, message, request, onSuccess, onError);
+                                                                   Consumer<T> onSuccess, EventHandler<ActionEvent> onError) {
+        ((ProcessingOverlay) application.gui.getByName("processing")).processRequest(currentStage, message, request, onSuccess, onError);
     }
 
     protected final <T extends WebSocketEvent> void processRequest(String message, Request<T> request,
-            Consumer<T> onSuccess, Consumer<Throwable> onException, EventHandler<ActionEvent> onError) {
-        application.gui.processingOverlay.processRequest(currentStage, message, request, onSuccess, onException, onError);
+                                                                   Consumer<T> onSuccess, Consumer<Throwable> onException, EventHandler<ActionEvent> onError) {
+        ((ProcessingOverlay) application.gui.getByName("processing")).processRequest(currentStage, message, request, onSuccess, onException, onError);
     }
 
     protected void sceneBaseInit() {
         initBasicControls(header);
         LookupHelper.<ButtonBase>lookupIfPossible(header, "#controls", "#deauth").ifPresent(b -> b.setOnAction(
-                (e) -> application.messageManager.showApplyDialog(
-                        application.getTranslation("runtime.scenes.settings.exitDialog.header"),
-                        application.getTranslation("runtime.scenes.settings.exitDialog.description"),
-                        this::userExit, () -> {}, true)));
+                (e) -> launchService.showApplyDialog(
+                        launchService.getTranslation("runtime.scenes.settings.exitDialog.header"),
+                        launchService.getTranslation("runtime.scenes.settings.exitDialog.description"),
+                        this::userExit, () -> {
+                        }, true)));
     }
 
     protected void userExit() {
-        processRequest(application.getTranslation("runtime.scenes.settings.exitDialog.processing"), new ExitRequest(),
-                       (event) -> {
-                           // Exit to main menu
-                           ContextHelper.runInFxThreadStatic(() -> {
-                               application.gui.loginScene.clearPassword();
-                               application.gui.loginScene.reset();
-                               try {
-                                   application.saveSettings();
-                                   application.authService.exit();
-                                   switchScene(application.gui.loginScene);
-                               } catch (Exception ex) {
-                                   errorHandle(ex);
-                               }
-                           });
-                       }, (event) -> {});
+        processRequest(launchService.getTranslation("runtime.scenes.settings.exitDialog.processing"), new ExitRequest(),
+                (event) -> {
+                    // Exit to main menu
+                    ContextHelper.runInFxThreadStatic(() -> {
+                        LoginScene loginScene = (LoginScene) application.gui.getByName("login");
+                        loginScene.clearPassword();
+                        loginScene.reset();
+                        try {
+                            settingsManager.saveSettings();
+                            authService.exit();
+                            switchScene(loginScene);
+                        } catch (Exception ex) {
+                            errorHandle(ex);
+                        }
+                    });
+                }, (event) -> {
+                });
     }
 
     protected void switchToBackScene() throws Exception {
@@ -120,10 +134,6 @@ public abstract class AbstractScene extends AbstractVisualComponent {
         return header;
     }
 
-    public static void runLater(double delay, EventHandler<ActionEvent> callback) {
-        fade(null, delay, 0.0, 1.0, callback);
-    }
-
     public class SceneAccessor {
         public SceneAccessor() {
         }
@@ -145,13 +155,8 @@ public abstract class AbstractScene extends AbstractVisualComponent {
             contextHelper.runInFxThread(runnable);
         }
 
-        public <T extends WebSocketEvent> void processRequest(String message, Request<T> request,
-                Consumer<T> onSuccess, EventHandler<ActionEvent> onError) {
-            AbstractScene.this.processRequest(message, request, onSuccess, onError);
-        }
-
         public final <T extends WebSocketEvent> void processRequest(String message, Request<T> request,
-                Consumer<T> onSuccess, Consumer<Throwable> onException, EventHandler<ActionEvent> onError) {
+                                                                    Consumer<T> onSuccess, Consumer<Throwable> onException, EventHandler<ActionEvent> onError) {
             AbstractScene.this.processRequest(message, request, onSuccess, onException, onError);
         }
     }

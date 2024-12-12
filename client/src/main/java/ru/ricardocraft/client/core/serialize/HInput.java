@@ -6,9 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.util.Objects;
-import java.util.UUID;
 
 public final class HInput implements AutoCloseable {
 
@@ -30,16 +28,6 @@ public final class HInput implements AutoCloseable {
     }
 
 
-    public String readASCII(int maxBytes) throws IOException {
-        return IOHelper.decodeASCII(readByteArray(maxBytes));
-    }
-
-
-    public BigInteger readBigInteger(int maxBytes) throws IOException {
-        return new BigInteger(readByteArray(maxBytes));
-    }
-
-
     public boolean readBoolean() throws IOException {
         int b = readUnsignedByte();
         return switch (b) {
@@ -57,20 +45,10 @@ public final class HInput implements AutoCloseable {
     }
 
 
-    public int readInt() throws IOException {
-        return (readUnsignedByte() << 24) + (readUnsignedByte() << 16) + (readUnsignedByte() << 8) + readUnsignedByte();
-    }
-
-
     public int readLength(int max) throws IOException {
         if (max < 0)
             return -max;
         return IOHelper.verifyLength(readVarInt(), max);
-    }
-
-
-    public long readLong() throws IOException {
-        return (long) readInt() << 32 | readInt() & 0xFFFFFFFFL;
     }
 
 
@@ -94,11 +72,6 @@ public final class HInput implements AutoCloseable {
 
     public int readUnsignedShort() throws IOException {
         return Short.toUnsignedInt(readShort());
-    }
-
-
-    public UUID readUUID() throws IOException {
-        return new UUID(readLong(), readLong());
     }
 
 

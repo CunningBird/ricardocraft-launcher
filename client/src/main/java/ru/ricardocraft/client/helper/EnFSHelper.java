@@ -1,12 +1,16 @@
 package ru.ricardocraft.client.helper;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.base.Launcher;
-import ru.ricardocraft.client.base.LauncherConfig;
+import ru.ricardocraft.client.config.LauncherConfig;
+import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.helper.enfs.EnFS;
 import ru.ricardocraft.client.helper.enfs.dir.CachedFile;
 import ru.ricardocraft.client.helper.enfs.dir.FileEntry;
 import ru.ricardocraft.client.helper.enfs.dir.RealFile;
 import ru.ricardocraft.client.helper.enfs.dir.URLFile;
+import ru.ricardocraft.client.runtime.managers.SettingsManager;
 import ru.ricardocraft.client.utils.RuntimeCryptedFile;
 import ru.ricardocraft.client.utils.helper.IOHelper;
 import ru.ricardocraft.client.utils.helper.LogHelper;
@@ -24,21 +28,53 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
+@Component
 public class EnFSHelper {
 
     private static final Set<String> themesCached = new HashSet<>(1);
     private static final String BASE_DIRECTORY = "tgui";
     private static final EnFS enfs = new EnFS();
 
-    public static EnFS getEnFS() {
-        return enfs;
-    }
+    public static final Path runtimeDirectory = IOHelper.WORKING_DIR.resolve("runtime");
 
-    public static void initEnFS() throws IOException {
+    public static Path enfsDirectory;
+
+    @Autowired
+    public EnFSHelper(LauncherConfig config, SettingsManager settingsManager) throws IOException {
         enfs.newDirectory(Paths.get(BASE_DIRECTORY));
         if (LogHelper.isDevEnabled()) {
             EnFS.DEBUG_OUTPUT = new LauncherEnFsDebugOutput();
         }
+        initializeEnfsDirectory(config, settingsManager.getRuntimeSettings());
+    }
+
+    public static void initializeEnfsDirectory(LauncherConfig config, RuntimeSettings runtimeSettings) throws IOException {
+        String themeDir = runtimeSettings.theme == null ? RuntimeSettings.LAUNCHER_THEME.COMMON.name : runtimeSettings.theme.name;
+        EnFSHelper.enfsDirectory = EnFSHelper.initEnFSDirectory(config, themeDir, runtimeDirectory);
+    }
+
+    public static URL getResourceURL(String name) throws IOException {
+        if (EnFSHelper.enfsDirectory != null) {
+            return EnFSHelper.getURL(EnFSHelper.enfsDirectory.resolve(name).toString().replaceAll("\\\\", "/"));
+        } else {
+            Path target = EnFSHelper.runtimeDirectory.resolve(name);
+            if (!Files.exists(target)) throw new FileNotFoundException("File runtime/%s not found".formatted(name));
+            return target.toUri().toURL();
+        }
+    }
+
+    public static boolean isThemeSupport() {
+        return enfsDirectory != null;
+    }
+
+    public static void resetDirectory(LauncherConfig config, RuntimeSettings runtimeSettings) throws IOException {
+        if (EnFSHelper.enfsDirectory != null) {
+            initializeEnfsDirectory(config, runtimeSettings);
+        }
+    }
+
+    public static EnFS getEnFS() {
+        return enfs;
     }
 
     private static class LauncherEnFsDebugOutput implements EnFS.DebugOutput {

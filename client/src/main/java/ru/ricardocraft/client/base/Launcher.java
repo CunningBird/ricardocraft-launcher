@@ -1,11 +1,11 @@
 package ru.ricardocraft.client.base;
 
 import ru.ricardocraft.client.base.profiles.ClientProfile;
+import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.core.managers.GsonManager;
 import ru.ricardocraft.client.core.serialize.HInput;
 import ru.ricardocraft.client.launch.DebugLauncherTrustManager;
 import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.JVMHelper;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.io.IOException;
@@ -13,21 +13,15 @@ import java.net.URL;
 import java.nio.file.NoSuchFileException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
 
 public final class Launcher {
 
-    // Used to determine from clientside is launched from launcher
-    public static final AtomicBoolean LAUNCHED = new AtomicBoolean(false);
     public static final String RUNTIME_DIR = "runtime";
 
     // Constants
     public static final String CONFIG_FILE = "config.bin";
     private static final AtomicReference<LauncherConfig> CONFIG = new AtomicReference<>();
-    private static final Pattern UUID_PATTERN = Pattern.compile("-", Pattern.LITERAL);
     public static ClientProfile profile;
     public static GsonManager gsonManager;
 
@@ -69,10 +63,6 @@ public final class Launcher {
     }
 
 
-    public static String toHash(UUID uuid) {
-        return UUID_PATTERN.matcher(uuid.toString()).replaceAll("");
-    }
-
     public static void applyLauncherEnv(LauncherConfig.LauncherEnvironment env) {
         switch (env) {
             case DEV:
@@ -94,7 +84,4 @@ public final class Launcher {
         }
     }
 
-    public static String makeSpecialGuardDirName(JVMHelper.ARCH arch, JVMHelper.OS os) {
-        return String.format("%s-%s", arch.name, os.name);
-    }
 }

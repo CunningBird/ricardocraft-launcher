@@ -4,7 +4,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
-import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.helper.EnFSHelper;
+import ru.ricardocraft.client.launch.SkinManager;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,13 +17,12 @@ public class JavaFxUtils {
 
     }
 
-    public static boolean putAvatarToImageView(JavaFXApplication application, String username, ImageView imageView) {
+    public static void putAvatarToImageView(SkinManager skinManager, String username, ImageView imageView) {
         int width = (int) imageView.getFitWidth();
         int height = (int) imageView.getFitHeight();
-        Image head = application.skinManager.getScaledFxSkinHead(username, width, height);
-        if (head == null) return false;
+        Image head = skinManager.getScaledFxSkinHead(username, width, height);
+        if (head == null) return;
         imageView.setImage(head);
-        return true;
     }
 
     public static void setRadius(Region node, double radius) {
@@ -52,9 +52,9 @@ public class JavaFxUtils {
     public static URL getStyleUrl(String url) throws IOException {
         URL globalCss;
         try {
-            globalCss = JavaFXApplication.getResourceURL(url+".bss");
+            globalCss = EnFSHelper.getResourceURL(url + ".bss");
         } catch (FileNotFoundException | NoSuchFileException e) {
-            globalCss = JavaFXApplication.getResourceURL(url+".css");
+            globalCss = EnFSHelper.getResourceURL(url + ".css");
         }
         return globalCss;
     }

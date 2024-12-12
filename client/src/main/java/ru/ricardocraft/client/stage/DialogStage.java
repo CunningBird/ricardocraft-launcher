@@ -9,15 +9,15 @@ import javafx.stage.StageStyle;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.config.DesignConstants;
 import ru.ricardocraft.client.dialogs.AbstractDialog;
+import ru.ricardocraft.client.helper.EnFSHelper;
 import ru.ricardocraft.client.helper.LookupHelper;
-import ru.ricardocraft.client.impl.AbstractStage;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.io.IOException;
 
 public class DialogStage extends AbstractStage {
     public DialogStage(JavaFXApplication application, String title, AbstractDialog dialog) throws Exception {
-        super(application.gui, application.newStage());
+        super(application.gui, newStage());
         stage.setTitle(title);
         stage.initStyle(StageStyle.TRANSPARENT);
         stage.setResizable(false);
@@ -25,7 +25,7 @@ public class DialogStage extends AbstractStage {
         scene.setFill(Color.TRANSPARENT);
         // Icons
         try {
-            Image icon = new Image(JavaFXApplication.getResourceURL("favicon.png").toString());
+            Image icon = new Image(EnFSHelper.getResourceURL("favicon.png").toString());
             stage.getIcons().add(icon);
         } catch (IOException e) {
             LogHelper.error(e);

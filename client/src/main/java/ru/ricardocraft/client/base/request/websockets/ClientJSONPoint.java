@@ -107,8 +107,6 @@ public abstract class ClientJSONPoint implements WebSocket.Listener {
 
     abstract void onDisconnect(int statusCode, String reason);
 
-    abstract void onOpen();
-
     public void close() throws InterruptedException {
         webSocket.abort();
     }

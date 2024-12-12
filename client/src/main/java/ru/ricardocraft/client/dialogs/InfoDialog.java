@@ -3,7 +3,9 @@ package ru.ricardocraft.client.dialogs;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
+import ru.ricardocraft.client.service.LaunchService;
 
 public class InfoDialog extends AbstractDialog {
     private String header;
@@ -15,8 +17,14 @@ public class InfoDialog extends AbstractDialog {
     private Label textHeader;
     private Label textDescription;
 
-    public InfoDialog(JavaFXApplication application, String header, String text, Runnable onAccept, Runnable onClose) {
-        super("dialogs/info/dialog.fxml", application);
+    public InfoDialog(JavaFXApplication application,
+                      String header,
+                      String text,
+                      Runnable onAccept,
+                      Runnable onClose,
+                      GuiModuleConfig guiModuleConfig,
+                      LaunchService launchService) {
+        super("dialogs/info/dialog.fxml", application, guiModuleConfig, launchService);
         this.header = header;
         this.text = text;
         this.onAccept = onAccept;

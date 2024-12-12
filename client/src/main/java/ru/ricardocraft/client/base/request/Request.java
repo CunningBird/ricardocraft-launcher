@@ -1,7 +1,6 @@
 package ru.ricardocraft.client.base.request;
 
 import ru.ricardocraft.client.base.events.request.AuthRequestEvent;
-import ru.ricardocraft.client.base.events.request.CurrentUserRequestEvent;
 import ru.ricardocraft.client.base.events.request.RefreshTokenRequestEvent;
 import ru.ricardocraft.client.base.events.request.RestoreRequestEvent;
 import ru.ricardocraft.client.base.request.auth.RefreshTokenRequest;
@@ -108,24 +107,11 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         }
     }
 
-    public static void clearExtendedTokens() {
-        if (extendedTokens != null) {
-            extendedTokens.clear();
-        }
-    }
-
     public static void addExtendedToken(String name, ExtendedToken token) {
         if (extendedTokens == null) {
             extendedTokens = new ConcurrentHashMap<>();
         }
         extendedTokens.put(name, token);
-    }
-
-    public static void addAllExtendedToken(Map<String, ExtendedToken> map) {
-        if (extendedTokens == null) {
-            extendedTokens = new ConcurrentHashMap<>();
-        }
-        extendedTokens.putAll(map);
     }
 
     public static void setOAuth(String authId, AuthRequestEvent.OAuthRequestEvent event, long tokenExpiredTime) {
@@ -148,18 +134,14 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         return oauth == null ? null : oauth.accessToken;
     }
 
-    public static String getRefreshToken() {
-        return oauth == null ? null : oauth.refreshToken;
-    }
-
     public static void reconnect() throws Exception {
 
         getRequestService().open();
         restore();
     }
 
-    public static RequestRestoreReport restore() throws Exception {
-        return restore(false, false, false);
+    public static void restore() throws Exception {
+        restore(false, false, false);
     }
 
     private synchronized static Map<String, String> getExpiredExtendedTokens() {
@@ -178,8 +160,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
         return makeNewTokens(set);
     }
 
-    public static synchronized RequestRestoreReport restore(boolean needUserInfo, boolean refreshOnly, boolean noRefresh) throws Exception {
-        boolean refreshed = false;
+    public static synchronized void restore(boolean needUserInfo, boolean refreshOnly, boolean noRefresh) throws Exception {
         RestoreRequest request;
         if (oauth != null) {
             if(isTokenExpired() || oauth.accessToken == null) {
@@ -189,7 +170,6 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
                     RefreshTokenRequest refreshRequest = new RefreshTokenRequest(authId, oauth.refreshToken);
                     RefreshTokenRequestEvent event = refreshRequest.request();
                     setOAuth(authId, event.oauth);
-                    refreshed = true;
                 }
             }
         }
@@ -199,10 +179,9 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
             request = new RestoreRequest(authId, null, refreshOnly ? getExpiredExtendedTokens() : getStringExtendedTokens(), false);
         }
         if(refreshOnly && (request.extended == null || request.extended.isEmpty())) {
-            return new RequestRestoreReport(refreshed, null, null);
+            return;
         }
         RestoreRequestEvent event = request.request();
-        List<String> invalidTokens = null;
         if (event.invalidTokens != null && !event.invalidTokens.isEmpty()) {
             Map<String, String> tokens = makeNewTokens(event.invalidTokens);
             if (!tokens.isEmpty()) {
@@ -212,9 +191,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
                     LogHelper.warning("Tokens %s not restored", String.join(",", event.invalidTokens));
                 }
             }
-            invalidTokens = event.invalidTokens;
         }
-        return new RequestRestoreReport(refreshed, invalidTokens, event.userInfo);
     }
 
     private synchronized static Map<String, String> makeNewTokens(Collection<String> keys) {
@@ -229,26 +206,6 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
             }
         }
         return tokens;
-    }
-
-    public static void requestError(String message) throws RequestException {
-        throw new RequestException(message);
-    }
-
-    public void addExtendedTokenCallback(ExtendedTokenCallback cb) {
-        extendedTokenCallbacks.add(cb);
-    }
-
-    public void removeExtendedTokenCallback(ExtendedTokenCallback cb) {
-        extendedTokenCallbacks.remove(cb);
-    }
-
-    public void addOAuthChangeHandler(BiConsumer<String, AuthRequestEvent.OAuthRequestEvent> eventHandler) {
-        oauthChangeHandlers.add(eventHandler);
-    }
-
-    public void removeOAuthChangeHandler(BiConsumer<String, AuthRequestEvent.OAuthRequestEvent> eventHandler) {
-        oauthChangeHandlers.remove(eventHandler);
     }
 
     public R request() throws Exception {
@@ -279,18 +236,6 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
 
     public interface ExtendedTokenCallback {
         ExtendedToken tryGetNewToken(String name);
-    }
-
-    public static class RequestRestoreReport {
-        public final boolean refreshed;
-        public final List<String> invalidExtendedTokens;
-        public final CurrentUserRequestEvent.UserInfo userInfo;
-
-        public RequestRestoreReport(boolean refreshed, List<String> invalidExtendedTokens, CurrentUserRequestEvent.UserInfo userInfo) {
-            this.refreshed = refreshed;
-            this.invalidExtendedTokens = invalidExtendedTokens;
-            this.userInfo = userInfo;
-        }
     }
 
     public static class ExtendedToken {

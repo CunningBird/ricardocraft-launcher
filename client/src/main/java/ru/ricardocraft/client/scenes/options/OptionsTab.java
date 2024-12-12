@@ -5,9 +5,9 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.profiles.optional.OptionalFile;
 import ru.ricardocraft.client.base.profiles.optional.OptionalView;
+import ru.ricardocraft.client.service.LaunchService;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,14 +17,14 @@ import java.util.function.Consumer;
 
 public class OptionsTab {
     private final TabPane tabPane;
-    private final JavaFXApplication application;
+    private final LaunchService launchService;
     private final Map<String, Tab> tabs = new HashMap<>();
     private OptionalView optionalView;
     private final Map<OptionalFile, Consumer<Boolean>> watchers = new HashMap<>();
 
-    public OptionsTab(JavaFXApplication application, TabPane tabPane) {
+    public OptionsTab(LaunchService launchService, TabPane tabPane) {
         this.tabPane = tabPane;
-        this.application = application;
+        this.launchService = launchService;
     }
 
     void callWatcher(OptionalFile file, Boolean value) {
@@ -111,9 +111,7 @@ public class OptionsTab {
         if (tabs.containsKey(tab)) {
             components = (VBox) ((ScrollPane) tabs.get(tab).getContent()).getContent();
         } else {
-            components = addTab(tab, application
-                                                 .getTranslation(String.format("runtime.scenes.options.tabs.%s", tab),
-                                                                 tab));
+            components = addTab(tab, launchService.getTranslation(String.format("runtime.scenes.options.tabs.%s", tab), tab));
         }
         components.getChildren().add(vBox);
         if (needSelect) {

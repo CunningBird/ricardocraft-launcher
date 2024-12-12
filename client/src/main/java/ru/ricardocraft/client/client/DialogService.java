@@ -1,12 +1,17 @@
 package ru.ricardocraft.client.client;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.base.events.NotificationEvent;
+import ru.ricardocraft.client.service.RuntimeDialogService;
 
+@Component
 public class DialogService {
     private static DialogServiceNotificationImplementation notificationImpl;
 
-    private DialogService() {
-        throw new UnsupportedOperationException();
+    @Autowired
+    private DialogService(RuntimeDialogService dialogService) {
+        DialogService.setNotificationImpl(dialogService);
     }
 
     public static void setNotificationImpl(DialogServiceNotificationImplementation impl) {

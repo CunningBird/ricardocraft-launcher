@@ -1,33 +1,25 @@
 package ru.ricardocraft.client.scenes.login.methods;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.web.WebView;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.request.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.client.base.request.auth.password.AuthCodePassword;
-import ru.ricardocraft.client.helper.LookupHelper;
-import ru.ricardocraft.client.overlays.AbstractOverlay;
 import ru.ricardocraft.client.scenes.login.AuthFlow;
 import ru.ricardocraft.client.scenes.login.LoginScene;
+import ru.ricardocraft.client.scenes.login.WebAuthOverlay;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 public class WebAuthMethod extends AbstractAuthMethod<AuthWebViewDetails> {
-    WebAuthOverlay overlay;
-    private final JavaFXApplication application;
+
+    private final WebAuthOverlay overlay;
     private final LoginScene.LoginSceneAccessor accessor;
 
     public WebAuthMethod(LoginScene.LoginSceneAccessor accessor) {
-        this.application = accessor.getApplication();
+        JavaFXApplication application = accessor.getApplication();
+
         this.accessor = accessor;
-        this.overlay = application.gui.registerComponent(WebAuthOverlay.class);
-        this.overlay.accessor = accessor;
+        this.overlay = (WebAuthOverlay) application.gui.getByName("webView");
     }
 
     @Override
@@ -80,62 +72,5 @@ public class WebAuthMethod extends AbstractAuthMethod<AuthWebViewDetails> {
     @Override
     public boolean isOverlay() {
         return true;
-    }
-
-    public static class WebAuthOverlay extends AbstractOverlay {
-        private WebView webView;
-        private LoginScene.LoginSceneAccessor accessor;
-        private CompletableFuture<AuthFlow.LoginAndPasswordResult> future;
-
-        public WebAuthOverlay(JavaFXApplication application) {
-            super("overlay/webauth/webauth.fxml", application);
-        }
-
-        @Override
-        public String getName() {
-            return "webView";
-        }
-
-        public void hide(EventHandler<ActionEvent> onFinished) {
-            hide(10, onFinished);
-        }
-
-        @Override
-        protected void doInit() {
-            ScrollPane webViewPane = LookupHelper.lookup(layout, "#webview");
-            webView = new WebView();
-            webViewPane.setContent(new VBox(webView));
-            LookupHelper.<Button>lookup(layout, "#exit").setOnAction((e) -> {
-                if (future != null) {
-                    future.completeExceptionally(new UserAuthCanceledException());
-                }
-                hide(null);
-            });
-        }
-
-        public void follow(String url, String redirectUrl, Consumer<String> redirectCallback) {
-            LogHelper.dev("Load url %s", url);
-            webView.getEngine().setJavaScriptEnabled(true);
-            webView.getEngine().load(url);
-            if (redirectCallback != null) {
-                webView.getEngine().locationProperty().addListener((obs, oldLocation, newLocation) -> {
-                    if (newLocation != null) {
-                        LogHelper.dev("Location: %s", newLocation);
-                        if (redirectUrl != null) {
-                            if (newLocation.startsWith(redirectUrl)) {
-                                redirectCallback.accept(newLocation);
-                            }
-                        } else {
-                            redirectCallback.accept(newLocation);
-                        }
-                    }
-                });
-            }
-        }
-
-        @Override
-        public void reset() {
-
-        }
     }
 }

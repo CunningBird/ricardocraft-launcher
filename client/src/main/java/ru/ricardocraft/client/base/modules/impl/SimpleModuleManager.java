@@ -5,8 +5,6 @@ import ru.ricardocraft.client.core.LauncherTrustManager;
 import ru.ricardocraft.client.utils.helper.JVMHelper;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -21,7 +19,6 @@ public class SimpleModuleManager implements LauncherModulesManager {
     protected final ModulesConfigManager modulesConfigManager;
     protected final Path modulesDir;
     protected final LauncherTrustManager trustManager;
-    protected final ModulesClassLoader classLoader = createClassLoader();
     protected LauncherInitContext initContext;
 
     @Override
@@ -60,10 +57,6 @@ public class SimpleModuleManager implements LauncherModulesManager {
             module.callEvent(event);
             if (event.isCancel()) return;
         }
-    }
-
-    public void addUrlToClassLoader(URL url) {
-        classLoader.addURL(url);
     }
 
     public SimpleModuleManager(Path modulesDir, Path configDir, LauncherTrustManager trustManager) {
@@ -127,19 +120,4 @@ public class SimpleModuleManager implements LauncherModulesManager {
         return JVMHelper.getCertificates(clazz);
     }
 
-    protected static class ModulesClassLoader extends URLClassLoader {
-
-        public ModulesClassLoader(URL[] urls, ClassLoader parent) {
-            super("MODULES", urls, parent);
-        }
-
-        @Override
-        public void addURL(URL url) {
-            super.addURL(url);
-        }
-    }
-
-    protected ModulesClassLoader createClassLoader() {
-        return new ModulesClassLoader(new URL[]{}, SimpleModuleManager.class.getClassLoader());
-    }
 }

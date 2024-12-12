@@ -172,15 +172,6 @@ public class JavaHelper {
             }
         }
 
-        public JavaVersion(Path jvmDir, int version, int build, JVMHelper.ARCH arch, List<String> modules, boolean enabledJavaFX) {
-            this.jvmDir = jvmDir;
-            this.version = version;
-            this.build = build;
-            this.arch = arch;
-            this.modules = modules;
-            this.enabledJavaFX = enabledJavaFX;
-        }
-
         public static JavaVersion getCurrentJavaVersion() {
             return new JavaVersion(Paths.get(System.getProperty("java.home")), JVMHelper.getVersion(), JVMHelper.JVM_BUILD, JVMHelper.ARCH_TYPE, isCurrentJavaSupportJavaFX());
         }

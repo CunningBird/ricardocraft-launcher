@@ -11,16 +11,6 @@ public class SecurityReportRequestEvent extends RequestEvent {
         this.otherAction = null;
     }
 
-    public SecurityReportRequestEvent(String otherAction) {
-        this.action = ReportAction.OTHER;
-        this.otherAction = otherAction;
-    }
-
-    public SecurityReportRequestEvent() {
-        this.action = ReportAction.NONE;
-        this.otherAction = null;
-    }
-
     @Override
     public String getType() {
         return "securityReport";

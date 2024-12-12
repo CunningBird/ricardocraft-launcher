@@ -9,10 +9,6 @@ public final class CommandException extends Exception {
     }
 
 
-    public CommandException(Throwable exc) {
-        super(exc);
-    }
-
     @Override
     public String toString() {
         return getMessage();

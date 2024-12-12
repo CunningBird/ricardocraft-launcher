@@ -1,8 +1,8 @@
 package ru.ricardocraft.client.runtime.utils;
 
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.request.update.LauncherRequest;
 import ru.ricardocraft.client.core.LauncherInject;
+import ru.ricardocraft.client.scenes.login.LoginScene;
 import ru.ricardocraft.client.utils.helper.IOHelper;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 import ru.ricardocraft.client.utils.helper.SecurityHelper;
@@ -10,6 +10,7 @@ import ru.ricardocraft.client.utils.helper.SecurityHelper;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -72,6 +73,24 @@ public class LauncherUpdater {
         } catch (IOException e) {
             LogHelper.error(e);
         }
-        JavaFXApplication.forceExit(0);
+        System.exit(0);
+    }
+
+    public static void launcherBeforeExit() {
+        if (LoginScene.updatePath != null) {
+            Path target = IOHelper.getCodeSource(LauncherUpdater.class);
+            try {
+                try (InputStream input = IOHelper.newInput(LoginScene.updatePath)) {
+                    try (OutputStream output = IOHelper.newOutput(target)) {
+                        IOHelper.transfer(input, output);
+                    }
+                }
+                Files.deleteIfExists(LoginScene.updatePath);
+            } catch (IOException e) {
+                LogHelper.error(e);
+                System.exit(-109);
+            }
+            LauncherUpdater.restart();
+        }
     }
 }

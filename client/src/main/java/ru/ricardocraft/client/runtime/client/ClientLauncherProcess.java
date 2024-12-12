@@ -2,7 +2,6 @@ package ru.ricardocraft.client.runtime.client;
 
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.Launcher;
-import ru.ricardocraft.client.base.LauncherConfig;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.base.profiles.PlayerProfile;
 import ru.ricardocraft.client.base.profiles.optional.OptionalView;
@@ -11,8 +10,10 @@ import ru.ricardocraft.client.base.profiles.optional.actions.OptionalActionClass
 import ru.ricardocraft.client.base.profiles.optional.actions.OptionalActionJvmArgs;
 import ru.ricardocraft.client.base.request.Request;
 import ru.ricardocraft.client.client.ClientParams;
+import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.core.hasher.HashedDir;
 import ru.ricardocraft.client.core.serialize.HOutput;
+import ru.ricardocraft.client.launch.RuntimeModuleManager;
 import ru.ricardocraft.client.runtime.client.events.ClientProcessBuilderCreateEvent;
 import ru.ricardocraft.client.runtime.client.events.ClientProcessBuilderLaunchedEvent;
 import ru.ricardocraft.client.runtime.client.events.ClientProcessBuilderParamsWrittedEvent;
@@ -44,6 +45,7 @@ public class ClientLauncherProcess {
     public final Map<String, String> systemEnv = new HashMap<>();
     public final String mainClass;
     private final transient Boolean[] waitWriteParams = new Boolean[]{false};
+    private final RuntimeModuleManager modulesManager;
     public Path executeFile;
     public Path workDir;
     public JavaHelper.JavaVersion javaVersion;
@@ -51,9 +53,19 @@ public class ClientLauncherProcess {
     public boolean isStarted;
     private transient Process process;
 
-    public ClientLauncherProcess(Path clientDir, Path assetDir, JavaHelper.JavaVersion javaVersion, Path resourcePackDir,
-                                 ClientProfile profile, PlayerProfile playerProfile, OptionalView view, String accessToken,
-                                 HashedDir clientHDir, HashedDir assetHDir, HashedDir jvmHDir) {
+    public ClientLauncherProcess(RuntimeModuleManager modulesManager,
+                                 Path clientDir,
+                                 Path assetDir,
+                                 JavaHelper.JavaVersion javaVersion,
+                                 Path resourcePackDir,
+                                 ClientProfile profile,
+                                 PlayerProfile playerProfile,
+                                 OptionalView view,
+                                 String accessToken,
+                                 HashedDir clientHDir,
+                                 HashedDir assetHDir,
+                                 HashedDir jvmHDir) {
+        this.modulesManager = modulesManager;
         this.javaVersion = javaVersion;
         this.workDir = clientDir.toAbsolutePath();
         this.executeFile = IOHelper.resolveJavaBin(this.javaVersion.jvmDir);
@@ -63,7 +75,7 @@ public class ClientLauncherProcess {
         this.params.assetDir = assetDir.toAbsolutePath().toString();
         this.params.timestamp = System.currentTimeMillis();
         Path nativesPath;
-        if(profile.hasFlag(ClientProfile.CompatibilityFlags.LEGACY_NATIVES_DIR)) {
+        if (profile.hasFlag(ClientProfile.CompatibilityFlags.LEGACY_NATIVES_DIR)) {
             nativesPath = workDir.resolve("natives");
         } else {
             nativesPath = workDir.resolve("natives").resolve(JVMHelper.OS_TYPE.name).resolve(javaVersion.arch.name);
@@ -112,12 +124,12 @@ public class ClientLauncherProcess {
             this.params.oauthExpiredTime = Request.getTokenExpiredTime();
             this.params.extendedTokens = Request.getExtendedTokens();
         }
-        JavaFXApplication.modulesManager.invokeEvent(new ClientProcessBuilderCreateEvent(this));
+        modulesManager.invokeEvent(new ClientProcessBuilderCreateEvent(this));
     }
 
     public void start(boolean pipeOutput) throws IOException, InterruptedException {
         if (isStarted) throw new IllegalStateException("Process already started");
-        JavaFXApplication.modulesManager.invokeEvent(new ClientProcessBuilderPreLaunchEvent(this));
+        modulesManager.invokeEvent(new ClientProcessBuilderPreLaunchEvent(this));
         List<String> processArgs = new LinkedList<>(pre);
         processArgs.add(executeFile.toString());
         processArgs.addAll(jvmArgs);
@@ -129,32 +141,32 @@ public class ClientLauncherProcess {
         if (params.profile.getClassLoaderConfig() == ClientProfile.ClassLoaderConfig.SYSTEM_ARGS) {
             Set<Path> ignorePath = new HashSet<>();
             var moduleConf = params.profile.getModuleConf();
-            if(moduleConf != null) {
-                if(moduleConf.modulePath != null && !moduleConf.modulePath.isEmpty()) {
+            if (moduleConf != null) {
+                if (moduleConf.modulePath != null && !moduleConf.modulePath.isEmpty()) {
                     processArgs.add("-p");
-                    for(var e : moduleConf.modulePath) {
+                    for (var e : moduleConf.modulePath) {
                         ignorePath.add(Path.of(e));
                     }
                     processArgs.add(String.join(File.pathSeparator, moduleConf.modulePath));
                 }
-                if(moduleConf.modules != null && !moduleConf.modules.isEmpty()) {
+                if (moduleConf.modules != null && !moduleConf.modules.isEmpty()) {
                     processArgs.add("--add-modules");
                     processArgs.add(String.join(",", moduleConf.modules));
                 }
-                if(moduleConf.exports != null && !moduleConf.exports.isEmpty()) {
-                    for(var e : moduleConf.exports.entrySet()) {
+                if (moduleConf.exports != null && !moduleConf.exports.isEmpty()) {
+                    for (var e : moduleConf.exports.entrySet()) {
                         processArgs.add("--add-exports");
                         processArgs.add(String.format("%s=%s", e.getKey(), e.getValue()));
                     }
                 }
-                if(moduleConf.opens != null && !moduleConf.opens.isEmpty()) {
-                    for(var e : moduleConf.opens.entrySet()) {
+                if (moduleConf.opens != null && !moduleConf.opens.isEmpty()) {
+                    for (var e : moduleConf.opens.entrySet()) {
                         processArgs.add("--add-opens");
                         processArgs.add(String.format("%s=%s", e.getKey(), e.getValue()));
                     }
                 }
-                if(moduleConf.reads != null && !moduleConf.reads.isEmpty()) {
-                    for(var e : moduleConf.reads.entrySet()) {
+                if (moduleConf.reads != null && !moduleConf.reads.isEmpty()) {
+                    for (var e : moduleConf.reads.entrySet()) {
                         processArgs.add("--add-reads");
                         processArgs.add(String.format("%s=%s", e.getKey(), e.getValue()));
                     }
@@ -186,11 +198,11 @@ public class ClientLauncherProcess {
             LogHelper.debug("Commandline: %s", Arrays.toString(processArgs.toArray()));
         ProcessBuilder processBuilder = new ProcessBuilder(processArgs);
         EnvHelper.addEnv(processBuilder);
-        if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX){
+        if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
             var env = processBuilder.environment();
             // https://github.com/Admicos/minecraft-wayland/issues/55
             env.put("__GL_THREADED_OPTIMIZATIONS", "0");
-            if(params.lwjglGlfwWayland && !params.profile.hasFlag(ClientProfile.CompatibilityFlags.WAYLAND_USE_CUSTOM_GLFW)) {
+            if (params.lwjglGlfwWayland && !params.profile.hasFlag(ClientProfile.CompatibilityFlags.WAYLAND_USE_CUSTOM_GLFW)) {
                 env.remove("DISPLAY"); // No X11
             }
         }
@@ -203,7 +215,7 @@ public class ClientLauncherProcess {
             processBuilder.redirectOutput(ProcessBuilder.Redirect.PIPE);
         }
         process = processBuilder.start();
-        JavaFXApplication.modulesManager.invokeEvent(new ClientProcessBuilderLaunchedEvent(this));
+        modulesManager.invokeEvent(new ClientProcessBuilderLaunchedEvent(this));
         isStarted = true;
     }
 
@@ -252,7 +264,7 @@ public class ClientLauncherProcess {
                 throw new IOException(e);
             }
         }
-        JavaFXApplication.modulesManager.invokeEvent(new ClientProcessBuilderParamsWrittedEvent(this));
+        modulesManager.invokeEvent(new ClientProcessBuilderParamsWrittedEvent(this));
     }
 
     public Process getProcess() {

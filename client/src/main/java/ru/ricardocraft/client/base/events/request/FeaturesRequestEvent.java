@@ -10,10 +10,6 @@ public class FeaturesRequestEvent extends RequestEvent {
     public FeaturesRequestEvent() {
     }
 
-    public FeaturesRequestEvent(Map<String, String> features) {
-        this.features = features;
-    }
-
     @Override
     public String getType() {
         return "features";

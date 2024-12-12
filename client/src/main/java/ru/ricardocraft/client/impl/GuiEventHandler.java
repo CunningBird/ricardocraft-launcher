@@ -8,6 +8,7 @@ import ru.ricardocraft.client.base.events.request.ProfilesRequestEvent;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.base.request.RequestService;
 import ru.ricardocraft.client.base.request.WebSocketEvent;
+import ru.ricardocraft.client.runtime.managers.SettingsManager;
 import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.scenes.login.AuthFlow;
 import ru.ricardocraft.client.scenes.login.LoginScene;
@@ -15,15 +16,21 @@ import ru.ricardocraft.client.scenes.options.OptionsScene;
 import ru.ricardocraft.client.scenes.serverinfo.ServerInfoScene;
 import ru.ricardocraft.client.scenes.servermenu.ServerMenuScene;
 import ru.ricardocraft.client.scenes.settings.SettingsScene;
+import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 import java.util.UUID;
 
 public class GuiEventHandler implements RequestService.EventHandler {
-    private final JavaFXApplication application;
 
-    public GuiEventHandler(JavaFXApplication application) {
-        this.application = application;
+    private final JavaFXApplication application = JavaFXApplication.getInstance();
+
+    private final SettingsManager settingsManager;
+    private final AuthService authService;
+
+    public GuiEventHandler(AuthService authService, SettingsManager settingsManager) {
+        this.authService = authService;
+        this.settingsManager = settingsManager;
     }
 
     @Override
@@ -36,7 +43,7 @@ public class GuiEventHandler implements RequestService.EventHandler {
             if (event instanceof AuthRequestEvent authRequestEvent) {
                 boolean isNextScene = application.getCurrentScene() instanceof LoginScene; //TODO: FIX
                 LogHelper.dev("Receive auth event. Send next scene %s", isNextScene ? "true" : "false");
-                application.authService.setAuthResult(null, authRequestEvent);
+                authService.setAuthResult(null, authRequestEvent);
                 if (isNextScene) {
                     Platform.runLater(() -> {
                         try {
@@ -51,12 +58,12 @@ public class GuiEventHandler implements RequestService.EventHandler {
                 }
             }
             if (event instanceof ProfilesRequestEvent profilesRequestEvent) {
-                application.profilesService.setProfilesResult(profilesRequestEvent);
-                if (application.profilesService.getProfile() != null) {
-                    UUID profileUUID = application.profilesService.getProfile().getUUID();
-                    for (ClientProfile profile : application.profilesService.getProfiles()) {
+                settingsManager.setProfilesResult(profilesRequestEvent);
+                if (settingsManager.getProfile() != null) {
+                    UUID profileUUID = settingsManager.getProfile().getUUID();
+                    for (ClientProfile profile : settingsManager.getProfiles()) {
                         if (profile.getUUID().equals(profileUUID)) {
-                            application.profilesService.setProfile(profile);
+                            settingsManager.setProfile(profile);
                             break;
                         }
                     }

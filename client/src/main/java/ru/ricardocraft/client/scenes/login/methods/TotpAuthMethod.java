@@ -4,23 +4,23 @@ import javafx.scene.control.TextField;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.request.auth.details.AuthTotpDetails;
 import ru.ricardocraft.client.base.request.auth.password.AuthTOTPPassword;
+import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;
 import ru.ricardocraft.client.impl.ContextHelper;
 import ru.ricardocraft.client.scenes.login.AuthFlow;
 import ru.ricardocraft.client.scenes.login.LoginScene;
+import ru.ricardocraft.client.service.LaunchService;
 
 import java.util.concurrent.CompletableFuture;
 
 public class TotpAuthMethod extends AbstractAuthMethod<AuthTotpDetails> {
     private final TotpOverlay overlay;
-    private final JavaFXApplication application;
     private final LoginScene.LoginSceneAccessor accessor;
 
-    public TotpAuthMethod(LoginScene.LoginSceneAccessor accessor) {
+    public TotpAuthMethod(LoginScene.LoginSceneAccessor accessor, GuiModuleConfig guiModuleConfig, LaunchService launchService) {
         this.accessor = accessor;
-        this.application = accessor.getApplication();
-        this.overlay = new TotpOverlay(application);
+        this.overlay = new TotpOverlay(accessor.getApplication(), guiModuleConfig, launchService);
         this.overlay.accessor = accessor;
     }
 
@@ -88,8 +88,10 @@ public class TotpAuthMethod extends AbstractAuthMethod<AuthTotpDetails> {
         private LoginScene.LoginSceneAccessor accessor;
         private int maxLength;
 
-        public TotpOverlay(JavaFXApplication application) {
-            super("scenes/login/methods/totp.fxml", application);
+        public TotpOverlay(JavaFXApplication application,
+                           GuiModuleConfig guiModuleConfig,
+                           LaunchService launchService) {
+            super("scenes/login/methods/totp.fxml", application, guiModuleConfig, launchService);
         }
 
         @Override
@@ -101,12 +103,12 @@ public class TotpAuthMethod extends AbstractAuthMethod<AuthTotpDetails> {
         protected void doInit() {
             totpField = LookupHelper.lookup(layout, "#totp");
             totpField.textProperty().addListener((obj, oldValue, value) -> {
-                if(value != null && value.length() == maxLength) {
+                if (value != null && value.length() == maxLength) {
                     complete();
                 }
             });
             totpField.setOnAction((e) -> {
-                if(totpField.getText() != null && !totpField.getText().isEmpty()) {
+                if (totpField.getText() != null && !totpField.getText().isEmpty()) {
                     complete();
                 }
             });
@@ -129,7 +131,7 @@ public class TotpAuthMethod extends AbstractAuthMethod<AuthTotpDetails> {
 
         @Override
         public void reset() {
-            if(totpField == null) return;
+            if (totpField == null) return;
             totpField.setText("");
         }
 

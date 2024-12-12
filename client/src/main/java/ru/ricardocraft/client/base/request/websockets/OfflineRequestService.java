@@ -58,10 +58,6 @@ public class OfflineRequestService implements RequestService {
         processors.put(requestClazz, function);
     }
 
-    public <T extends WebSocketEvent> void unregisterRequestProcessor(Class<Request<T>> requestClazz) {
-        processors.remove(requestClazz);
-    }
-
     public interface RequestProcessor<T extends WebSocketEvent, V extends WebSocketRequest> {
         T process(V request) throws RequestException;
     }

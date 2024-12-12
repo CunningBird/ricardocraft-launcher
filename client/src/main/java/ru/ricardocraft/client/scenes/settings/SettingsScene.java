@@ -5,20 +5,32 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
 import javafx.util.StringConverter;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import oshi.SystemInfo;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
 import ru.ricardocraft.client.components.ServerButton;
 import ru.ricardocraft.client.components.UserBlock;
+import ru.ricardocraft.client.config.GuiModuleConfig;
+import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.helper.LookupHelper;
+import ru.ricardocraft.client.launch.SkinManager;
+import ru.ricardocraft.client.runtime.managers.SettingsManager;
 import ru.ricardocraft.client.scenes.interfaces.SceneSupportUserBlock;
 import ru.ricardocraft.client.scenes.settings.components.JavaSelectorComponent;
+import ru.ricardocraft.client.service.AuthService;
+import ru.ricardocraft.client.service.JavaService;
+import ru.ricardocraft.client.service.LaunchService;
+import ru.ricardocraft.client.service.PingService;
 import ru.ricardocraft.client.utils.SystemMemory;
 import ru.ricardocraft.client.utils.helper.JVMHelper;
 
 import java.text.MessageFormat;
 
+@Component
+@Scope("prototype")
 public class SettingsScene extends BaseSettingsScene implements SceneSupportUserBlock {
 
     private final static long MAX_JAVA_MEMORY_X64 = 32 * 1024;
@@ -29,14 +41,32 @@ public class SettingsScene extends BaseSettingsScene implements SceneSupportUser
     private JavaSelectorComponent javaSelector;
     private UserBlock userBlock;
 
-    public SettingsScene(JavaFXApplication application) {
-        super("scenes/settings/settings.fxml", application);
+    private final GuiModuleConfig guiModuleConfig;
+    private final SettingsManager settingsManager;
+    private final JavaService javaService;
+    private final SkinManager skinManager;
+    private final PingService pingService;
+
+    public SettingsScene(LauncherConfig config,
+                         GuiModuleConfig guiModuleConfig,
+                         SettingsManager settingsManager,
+                         AuthService authService,
+                         SkinManager skinManager,
+                         LaunchService launchService,
+                         JavaService javaService,
+                         PingService pingService) {
+        super("scenes/settings/settings.fxml", JavaFXApplication.getInstance(), config, guiModuleConfig, authService, launchService, settingsManager);
+        this.guiModuleConfig = guiModuleConfig;
+        this.settingsManager = settingsManager;
+        this.javaService = javaService;
+        this.skinManager = skinManager;
+        this.pingService = pingService;
     }
 
     @Override
     protected void doInit() {
         super.doInit();
-        this.userBlock = new UserBlock(layout, new SceneAccessor());
+        this.userBlock = new UserBlock(layout, authService, skinManager, launchService, new SceneAccessor());
 
         ramSlider = LookupHelper.lookup(componentList, "#ramSlider");
         ramLabel = LookupHelper.lookup(componentList, "#ramLabel");
@@ -82,7 +112,7 @@ public class SettingsScene extends BaseSettingsScene implements SceneSupportUser
     }
 
     private long getJavaMaxMemory() {
-        if (application.javaService.isArchAvailable(JVMHelper.ARCH.X86_64) || application.javaService.isArchAvailable(
+        if (javaService.isArchAvailable(JVMHelper.ARCH.X86_64) || javaService.isArchAvailable(
                 JVMHelper.ARCH.ARM64)) {
             return MAX_JAVA_MEMORY_X64;
         }
@@ -92,9 +122,9 @@ public class SettingsScene extends BaseSettingsScene implements SceneSupportUser
     @Override
     public void reset() {
         super.reset();
-        profileSettings = new RuntimeSettings.ProfileSettingsView(application.getProfileSettings());
-        javaSelector = new JavaSelectorComponent(application.javaService, componentList, profileSettings,
-                                                 application.profilesService.getProfile());
+        profileSettings = new RuntimeSettings.ProfileSettingsView(settingsManager.getProfileSettings());
+        javaSelector = new JavaSelectorComponent(javaService, componentList, profileSettings,
+                settingsManager.getProfile());
         ramSlider.setValue(profileSettings.ram);
         ramSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             profileSettings.ram = newValue.intValue();
@@ -103,29 +133,37 @@ public class SettingsScene extends BaseSettingsScene implements SceneSupportUser
         updateRamLabel();
         Pane serverButtonContainer = LookupHelper.lookup(layout, "#serverButton");
         serverButtonContainer.getChildren().clear();
-        ClientProfile profile = application.profilesService.getProfile();
-        ServerButton serverButton = ServerButton.createServerButton(application, profile);
+        ClientProfile profile = settingsManager.getProfile();
+        ServerButton serverButton = ServerButton.createServerButton(
+                application,
+                guiModuleConfig,
+                launchService,
+                pingService,
+                profile
+        );
         serverButton.addTo(serverButtonContainer);
         serverButton.enableSaveButton(null, (e) -> {
             try {
                 profileSettings.apply();
-                application.triggerManager.process(profile, application.profilesService.getOptionalView());
+                settingsManager.process(profile, settingsManager.getOptionalView());
                 switchToBackScene();
             } catch (Exception exception) {
                 errorHandle(exception);
             }
         });
         serverButton.enableResetButton(null, (e) -> reset());
-        add("Debug", application.runtimeSettings.globalSettings.debugAllClients || profileSettings.debug, (value) -> profileSettings.debug = value, application.runtimeSettings.globalSettings.debugAllClients);
+        add("Debug", settingsManager.getRuntimeSettings().globalSettings.debugAllClients
+                        || profileSettings.debug, (value) -> profileSettings.debug = value,
+                settingsManager.getRuntimeSettings().globalSettings.debugAllClients);
         add("AutoEnter", profileSettings.autoEnter, (value) -> profileSettings.autoEnter = value, false);
         add("Fullscreen", profileSettings.fullScreen, (value) -> profileSettings.fullScreen = value, false);
-        if(JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
+        if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
             add("WaylandSupport", profileSettings.waylandSupport, (value) -> profileSettings.waylandSupport = value, false);
         }
-        if(application.authService.checkDebugPermission("skipupdate")) {
+        if (authService.checkDebugPermission("skipupdate")) {
             add("DebugSkipUpdate", profileSettings.debugSkipUpdate, (value) -> profileSettings.debugSkipUpdate = value, false);
         }
-        if(application.authService.checkDebugPermission("skipfilemonitor")) {
+        if (authService.checkDebugPermission("skipfilemonitor")) {
             add("DebugSkipFileMonitor", profileSettings.debugSkipFileMonitor, (value) -> profileSettings.debugSkipFileMonitor = value, false);
         }
         userBlock.reset();
@@ -143,8 +181,8 @@ public class SettingsScene extends BaseSettingsScene implements SceneSupportUser
 
     public void updateRamLabel() {
         ramLabel.setText(profileSettings.ram == 0
-                                 ? application.getTranslation("runtime.scenes.settings.ramAuto")
-                                 : MessageFormat.format(application.getTranslation("runtime.scenes.settings.ram"),
-                                                        profileSettings.ram));
+                ? launchService.getTranslation("runtime.scenes.settings.ramAuto")
+                : MessageFormat.format(launchService.getTranslation("runtime.scenes.settings.ram"),
+                profileSettings.ram));
     }
 }

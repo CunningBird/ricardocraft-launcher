@@ -3,7 +3,9 @@ package ru.ricardocraft.client.dialogs;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
+import ru.ricardocraft.client.service.LaunchService;
 
 public class ApplyDialog extends AbstractDialog {
     private String header;
@@ -16,9 +18,15 @@ public class ApplyDialog extends AbstractDialog {
     private Label textHeader;
     private Label textDescription;
 
-    public ApplyDialog(JavaFXApplication application, String header, String text, Runnable onAccept, Runnable onDeny,
-            Runnable onClose) {
-        super("dialogs/apply/dialog.fxml", application);
+    public ApplyDialog(JavaFXApplication application,
+                       String header,
+                       String text,
+                       Runnable onAccept,
+                       Runnable onDeny,
+                       Runnable onClose,
+                       GuiModuleConfig guiModuleConfig,
+                       LaunchService launchService) {
+        super("dialogs/apply/dialog.fxml", application, guiModuleConfig, launchService);
         this.header = header;
         this.text = text;
         this.onAccept = onAccept;

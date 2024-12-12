@@ -1,5 +1,8 @@
 package ru.ricardocraft.client.service;
 
+import javafx.scene.layout.Pane;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.base.Launcher;
 import ru.ricardocraft.client.base.profiles.ClientProfile;
@@ -7,35 +10,175 @@ import ru.ricardocraft.client.base.profiles.ClientProfileBuilder;
 import ru.ricardocraft.client.base.profiles.ClientProfileVersions;
 import ru.ricardocraft.client.base.profiles.optional.OptionalView;
 import ru.ricardocraft.client.base.request.auth.SetProfileRequest;
+import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.core.hasher.HashedDir;
-import ru.ricardocraft.client.impl.AbstractStage;
+import ru.ricardocraft.client.dialogs.AbstractDialog;
+import ru.ricardocraft.client.dialogs.ApplyDialog;
+import ru.ricardocraft.client.dialogs.InfoDialog;
+import ru.ricardocraft.client.dialogs.NotificationDialog;
+import ru.ricardocraft.client.helper.EnFSHelper;
+import ru.ricardocraft.client.helper.PositionHelper;
 import ru.ricardocraft.client.impl.ContextHelper;
+import ru.ricardocraft.client.impl.FXMLFactory;
+import ru.ricardocraft.client.launch.RuntimeModuleManager;
+import ru.ricardocraft.client.overlays.ProcessingOverlay;
 import ru.ricardocraft.client.runtime.client.ClientLauncherProcess;
 import ru.ricardocraft.client.runtime.client.DirBridge;
+import ru.ricardocraft.client.runtime.managers.SettingsManager;
+import ru.ricardocraft.client.scenes.AbstractScene;
+import ru.ricardocraft.client.scenes.update.UpdateScene;
+import ru.ricardocraft.client.stage.AbstractStage;
+import ru.ricardocraft.client.stage.DialogStage;
 import ru.ricardocraft.client.utils.helper.*;
 
 import java.io.EOFException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+@Component
 public class LaunchService {
-    private final JavaFXApplication application;
 
-    public LaunchService(JavaFXApplication application) {
-        this.application = application;
+    private final JavaFXApplication application = JavaFXApplication.getInstance();
+
+    private final SettingsManager settingsManager;
+    private final GuiModuleConfig guiModuleConfig;
+    private final RuntimeModuleManager modulesManager;
+    private final OfflineService offlineService;
+    private final AuthService authService;
+    private final JavaService javaService;
+
+    public FXMLFactory fxmlFactory;
+    private ResourceBundle resources;
+
+    public final ExecutorService workers = Executors.newWorkStealingPool(4);
+
+    @Autowired
+    public LaunchService(SettingsManager settingsManager,
+                         GuiModuleConfig guiModuleConfig,
+                         RuntimeModuleManager modulesManager,
+                         OfflineService offlineService,
+                         AuthService authService,
+                         JavaService javaService) throws IOException {
+        this.settingsManager = settingsManager;
+        this.modulesManager = modulesManager;
+        this.guiModuleConfig = guiModuleConfig;
+        this.offlineService = offlineService;
+        this.authService = authService;
+        this.javaService = javaService;
+        updateLocaleResources(settingsManager.getRuntimeSettings().locale.name);
     }
 
-    public boolean isTestUpdate(ClientProfile profile, RuntimeSettings.ProfileSettings settings) {
-        return application.offlineService.isOfflineMode() || (application.authService.checkDebugPermission("skipupdate") && settings.debugSkipUpdate);
+    public void createNotification(String head, String message) {
+        NotificationDialog dialog = new NotificationDialog(application, head, message, guiModuleConfig, this);
+        if (application.getCurrentScene() != null) {
+            AbstractStage stage = application.getMainStage();
+            if (stage == null)
+                throw new NullPointerException("Try show launcher notification in application.getMainStage() == null");
+            ContextHelper.runInFxThreadStatic(() -> {
+                dialog.init();
+                stage.pushNotification(dialog.getFxmlRootPrivate());
+                dialog.setOnClose(() -> stage.pullNotification(dialog.getFxmlRootPrivate()));
+            });
+        } else {
+            AtomicReference<DialogStage> stage = new AtomicReference<>(null);
+            ContextHelper.runInFxThreadStatic(() -> {
+                NotificationDialog.NotificationSlot slot = new NotificationDialog.NotificationSlot(
+                        (scrollTo) -> stage.get().stage.setY(stage.get().stage.getY() + scrollTo),
+                        ((Pane) dialog.getFxmlRootPrivate()).getPrefHeight() + 20);
+                dialog.setPosition(PositionHelper.PositionInfo.BOTTOM_RIGHT, slot);
+                dialog.setOnClose(() -> {
+                    stage.get().close();
+                    stage.get().stage.setScene(null);
+                });
+                stage.set(new DialogStage(application, head, dialog));
+                stage.get().show();
+            });
+        }
+    }
+
+    public void showDialog(String header, String text, Runnable onApplyCallback, Runnable onCloseCallback, boolean isLauncher) {
+        InfoDialog dialog = new InfoDialog(application, header, text, onApplyCallback, onCloseCallback, guiModuleConfig, this);
+        showAbstractDialog(dialog, header, isLauncher);
+    }
+
+    public void showApplyDialog(String header, String text, Runnable onApplyCallback, Runnable onDenyCallback, boolean isLauncher) {
+        ApplyDialog dialog = new ApplyDialog(application, header, text, onApplyCallback, onDenyCallback, onDenyCallback, guiModuleConfig, this);
+        showAbstractDialog(dialog, header, isLauncher);
+    }
+
+    public void showAbstractDialog(AbstractDialog dialog, String header, boolean isLauncher) {
+        if (isLauncher) {
+            AbstractScene scene = application.getCurrentScene();
+            if (scene == null)
+                throw new NullPointerException("Try show launcher dialog in application.getCurrentScene() == null");
+            ContextHelper.runInFxThreadStatic(() -> initDialogInScene(scene, dialog));
+        } else {
+            AtomicReference<DialogStage> stage = new AtomicReference<>(null);
+            ContextHelper.runInFxThreadStatic(() -> {
+                stage.set(new DialogStage(application, header, dialog));
+                stage.get().show();
+            });
+            dialog.setOnClose(() -> {
+                stage.get().close();
+                stage.get().stage.setScene(null);
+            });
+        }
+    }
+
+    public void initDialogInScene(AbstractScene scene, AbstractDialog dialog) {
+        Pane dialogRoot = (Pane) dialog.getFxmlRootPrivate();
+        if (!dialog.isInit()) {
+            try {
+                dialog.currentStage = scene.currentStage;
+                dialog.init();
+            } catch (Exception e) {
+                scene.errorHandle(e);
+            }
+        }
+        dialog.setOnClose(() -> {
+            scene.currentStage.pull(dialogRoot);
+            scene.currentStage.enable();
+        });
+        scene.disable();
+        scene.currentStage.push(dialogRoot);
+    }
+
+    public void updateLocaleResources(String locale) throws IOException {
+        try (InputStream input = IOHelper.newInput(EnFSHelper.getResourceURL("runtime_%s.properties".formatted(locale)))) {
+            resources = new PropertyResourceBundle(input);
+        }
+        fxmlFactory = new FXMLFactory(resources, workers);
+    }
+
+    public final String getTranslation(String name) {
+        return getTranslation(name, "'%s'".formatted(name));
+    }
+
+    public final String getTranslation(String key, String defaultValue) {
+        try {
+            return resources.getString(key);
+        } catch (Throwable e) {
+            return defaultValue;
+        }
+    }
+
+    public boolean isTestUpdate(RuntimeSettings.ProfileSettings settings) {
+        return offlineService.isOfflineMode() || (authService.checkDebugPermission("skipupdate") && settings.debugSkipUpdate);
     }
 
     private void downloadClients(CompletableFuture<ClientInstance> future,
@@ -45,19 +188,20 @@ public class LaunchService {
                                  HashedDir jvmHDir) {
         Path target = DirBridge.dirUpdates.resolve(profile.getAssetDir());
         LogHelper.info("Start update to %s", target.toString());
-        boolean testUpdate = isTestUpdate(profile, settings);
+        boolean testUpdate = isTestUpdate(settings);
+
         Consumer<HashedDir> next = (assetHDir) -> {
             Path targetClient = DirBridge.dirUpdates.resolve(profile.getDir());
             LogHelper.info("Start update to %s", targetClient.toString());
-            application.gui.updateScene.sendUpdateRequest(profile.getDir(), targetClient,
+            ((UpdateScene) application.gui.getByName("update")).sendUpdateRequest(profile.getDir(), targetClient,
                     profile.getClientUpdateMatcher(), true,
-                    application.profilesService.getOptionalView(), true, testUpdate,
+                    settingsManager.getOptionalView(), true, testUpdate,
                     (clientHDir) -> {
                         LogHelper.info("Success update");
                         try {
                             ClientInstance instance = doLaunchClient(target, assetHDir, targetClient,
                                     clientHDir, profile,
-                                    application.profilesService.getOptionalView(),
+                                    settingsManager.getOptionalView(),
                                     javaVersion, jvmHDir);
                             future.complete(instance);
                         } catch (Throwable e) {
@@ -65,26 +209,33 @@ public class LaunchService {
                         }
                     });
         };
+        UpdateScene updateScene = (UpdateScene) application.gui.getByName("update");
         if (profile.getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_6_4) <= 0) {
-            application.gui.updateScene.sendUpdateRequest(profile.getAssetDir(), target,
+            updateScene.sendUpdateRequest(profile.getAssetDir(), target,
                     profile.getAssetUpdateMatcher(), true, null, false, testUpdate, next);
         } else {
-            application.gui.updateScene.sendUpdateAssetRequest(profile.getAssetDir(), target,
+            updateScene.sendUpdateAssetRequest(profile.getAssetDir(), target,
                     profile.getAssetUpdateMatcher(), true,
                     profile.getAssetIndex(), testUpdate, next);
         }
     }
 
-    private ClientInstance doLaunchClient(Path assetDir, HashedDir assetHDir, Path clientDir, HashedDir clientHDir,
-                                          ClientProfile profile, OptionalView view, JavaHelper.JavaVersion javaVersion, HashedDir jvmHDir) {
-        RuntimeSettings.ProfileSettings profileSettings = application.getProfileSettings();
+    private ClientInstance doLaunchClient(Path assetDir,
+                                          HashedDir assetHDir,
+                                          Path clientDir,
+                                          HashedDir clientHDir,
+                                          ClientProfile profile,
+                                          OptionalView view,
+                                          JavaHelper.JavaVersion javaVersion,
+                                          HashedDir jvmHDir) {
+        RuntimeSettings.ProfileSettings profileSettings = settingsManager.getProfileSettings();
         if (javaVersion == null) {
-            javaVersion = application.javaService.getRecommendJavaVersion(profile);
+            javaVersion = javaService.getRecommendJavaVersion(profile);
         }
         if (javaVersion == null) {
             javaVersion = JavaHelper.JavaVersion.getCurrentJavaVersion();
         }
-        if (application.authService.checkDebugPermission("skipfilemonitor") && profileSettings.debugSkipFileMonitor) {
+        if (authService.checkDebugPermission("skipfilemonitor") && profileSettings.debugSkipFileMonitor) {
             var builder = new ClientProfileBuilder(profile);
             builder.setUpdate(new ArrayList<>());
             builder.setUpdateVerify(new ArrayList<>());
@@ -92,11 +243,11 @@ public class LaunchService {
             profile = builder.createClientProfile();
         }
         ClientLauncherProcess clientLauncherProcess =
-                new ClientLauncherProcess(clientDir, assetDir, javaVersion, clientDir.resolve("resourcepacks"), profile,
-                        application.authService.getPlayerProfile(), view,
-                        application.authService.getAccessToken(), clientHDir, assetHDir, jvmHDir);
+                new ClientLauncherProcess(modulesManager, clientDir, assetDir, javaVersion, clientDir.resolve("resourcepacks"), profile,
+                        authService.getPlayerProfile(), view,
+                        authService.getAccessToken(), clientHDir, assetHDir, jvmHDir);
         clientLauncherProcess.params.ram = profileSettings.ram;
-        clientLauncherProcess.params.offlineMode = application.offlineService.isOfflineMode();
+        clientLauncherProcess.params.offlineMode = offlineService.isOfflineMode();
         if (clientLauncherProcess.params.ram > 0) {
             clientLauncherProcess.jvmArgs.add("-Xms" + clientLauncherProcess.params.ram + 'M');
             clientLauncherProcess.jvmArgs.add("-Xmx" + clientLauncherProcess.params.ram + 'M');
@@ -106,7 +257,7 @@ public class LaunchService {
         if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX) {
             clientLauncherProcess.params.lwjglGlfwWayland = profileSettings.waylandSupport;
         }
-        return new ClientInstance(clientLauncherProcess, profile, profileSettings);
+        return new ClientInstance(clientLauncherProcess, profileSettings);
     }
 
     private String getJavaDirName(Path javaPath) {
@@ -121,16 +272,16 @@ public class LaunchService {
     private void showJavaAlert(ClientProfile profile) {
         if ((JVMHelper.ARCH_TYPE == JVMHelper.ARCH.ARM32 || JVMHelper.ARCH_TYPE == JVMHelper.ARCH.ARM64)
                 && profile.getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_12_2) <= 0) {
-            application.messageManager.showDialog(
-                    application.getTranslation("runtime.scenes.serverinfo.javaalert.lwjgl2.header"),
-                    application.getTranslation("runtime.scenes.serverinfo.javaalert.lwjgl2.description")
+            showDialog(
+                    getTranslation("runtime.scenes.serverinfo.javaalert.lwjgl2.header"),
+                    getTranslation("runtime.scenes.serverinfo.javaalert.lwjgl2.description")
                             .formatted(profile.getRecommendJavaVersion()), () -> {
                     }, () -> {
                     }, true);
         } else {
-            application.messageManager.showDialog(
-                    application.getTranslation("runtime.scenes.serverinfo.javaalert.header"),
-                    application.getTranslation("runtime.scenes.serverinfo.javaalert.description")
+            showDialog(
+                    getTranslation("runtime.scenes.serverinfo.javaalert.header"),
+                    getTranslation("runtime.scenes.serverinfo.javaalert.description")
                             .formatted(profile.getRecommendJavaVersion()), () -> {
                     }, () -> {
                     }, true);
@@ -138,25 +289,24 @@ public class LaunchService {
     }
 
     public CompletableFuture<ClientInstance> launchClient() {
-        return launchClient(application.getMainStage());
-    }
+        AbstractStage stage = application.getMainStage();
 
-    private CompletableFuture<ClientInstance> launchClient(AbstractStage stage) {
-        ClientProfile profile = application.profilesService.getProfile();
+        ClientProfile profile = settingsManager.getProfile();
         if (profile == null) throw new NullPointerException("profilesService.getProfile() is null");
         CompletableFuture<ClientInstance> future = new CompletableFuture<>();
-        application.gui.processingOverlay.processRequest(stage, application.getTranslation("runtime.overlay.processing.text.setprofile"),
+        ((ProcessingOverlay) application.gui.getByName("processing")).processRequest(stage, getTranslation("runtime.overlay.processing.text.setprofile"),
                 new SetProfileRequest(profile), (result) -> ContextHelper.runInFxThreadStatic(() -> {
-                    RuntimeSettings.ProfileSettings profileSettings = application.getProfileSettings();
+                    UpdateScene updateScene = (UpdateScene) application.gui.getByName("update");
+                    RuntimeSettings.ProfileSettings profileSettings = settingsManager.getProfileSettings();
                     JavaHelper.JavaVersion javaVersion = null;
-                    for (JavaHelper.JavaVersion v : application.javaService.javaVersions) {
+                    for (JavaHelper.JavaVersion v : javaService.javaVersions) {
                         if (v.jvmDir.toAbsolutePath().toString().equals(profileSettings.javaPath)) {
                             javaVersion = v;
                         }
                     }
                     if (javaVersion == null
                             && profileSettings.javaPath != null
-                            && !application.guiModuleConfig.forceDownloadJava) {
+                            && !guiModuleConfig.forceDownloadJava) {
                         try {
                             javaVersion = JavaHelper.JavaVersion.getByPath(Paths.get(profileSettings.javaPath));
                         } catch (Throwable e) {
@@ -166,8 +316,8 @@ public class LaunchService {
                             LogHelper.warning("Incorrect java path %s", profileSettings.javaPath);
                         }
                     }
-                    if (javaVersion == null || application.javaService.isIncompatibleJava(javaVersion, profile)) {
-                        javaVersion = application.javaService.getRecommendJavaVersion(profile);
+                    if (javaVersion == null || javaService.isIncompatibleJava(javaVersion, profile)) {
+                        javaVersion = javaService.getRecommendJavaVersion(profile);
                     }
                     if (javaVersion == null) {
                         showJavaAlert(profile);
@@ -177,14 +327,14 @@ public class LaunchService {
                     if (jvmDirName != null) {
                         final JavaHelper.JavaVersion finalJavaVersion = javaVersion;
                         try {
-                            stage.setScene(application.gui.updateScene, true);
-                            application.gui.updateScene.reset();
+                            stage.setScene(updateScene, true);
+                            updateScene.reset();
                         } catch (Exception e) {
                             future.completeExceptionally(e);
                         }
-                        application.gui.updateScene.
+                        updateScene.
                                 sendUpdateRequest(jvmDirName, javaVersion.jvmDir, null, true,
-                                        application.profilesService.getOptionalView(), false, isTestUpdate(profile, profileSettings),
+                                        settingsManager.getOptionalView(), false, isTestUpdate(profileSettings),
                                         (jvmHDir) -> {
                                             if (JVMHelper.OS_TYPE == JVMHelper.OS.LINUX
                                                     || JVMHelper.OS_TYPE == JVMHelper.OS.MACOSX) {
@@ -202,8 +352,8 @@ public class LaunchService {
                                         });
                     } else {
                         try {
-                            stage.setScene(application.gui.updateScene, true);
-                            application.gui.updateScene.reset();
+                            stage.setScene(updateScene, true);
+                            updateScene.reset();
                         } catch (Exception e) {
                             future.completeExceptionally(e);
                         }
@@ -215,7 +365,6 @@ public class LaunchService {
 
     public static class ClientInstance {
         private final ClientLauncherProcess process;
-        private final ClientProfile clientProfile;
         private final RuntimeSettings.ProfileSettings settings;
         private final Thread writeParamsThread;
         private Thread runThread;
@@ -223,10 +372,8 @@ public class LaunchService {
         private final CompletableFuture<Integer> runFuture = new CompletableFuture<>();
         private final Set<ProcessListener> listeners = ConcurrentHashMap.newKeySet();
 
-        public ClientInstance(ClientLauncherProcess process, ClientProfile clientProfile,
-                              RuntimeSettings.ProfileSettings settings) {
+        public ClientInstance(ClientLauncherProcess process, RuntimeSettings.ProfileSettings settings) {
             this.process = process;
-            this.clientProfile = clientProfile;
             this.settings = settings;
             this.writeParamsThread = CommonHelper.newThread("Client Params Writer Thread", true, () -> {
                 try {
@@ -283,14 +430,6 @@ public class LaunchService {
                 runThread.start();
             }
             return runFuture;
-        }
-
-        public ClientLauncherProcess getProcess() {
-            return process;
-        }
-
-        public ClientProfile getClientProfile() {
-            return clientProfile;
         }
 
         public RuntimeSettings.ProfileSettings getSettings() {
