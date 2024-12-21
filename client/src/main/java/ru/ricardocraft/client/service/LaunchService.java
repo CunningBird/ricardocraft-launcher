@@ -405,6 +405,7 @@ public class LaunchService {
                         handleListeners(buf, 0, length);
                     }
                 } catch (EOFException ignored) {
+                    System.out.println("Flex");
                 }
                 if (proc.isAlive()) proc.waitFor();
                 if (writeParamsThread != null && writeParamsThread.isAlive()) {

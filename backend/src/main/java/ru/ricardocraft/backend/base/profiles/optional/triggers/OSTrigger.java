@@ -1,8 +1,14 @@
 package ru.ricardocraft.backend.base.profiles.optional.triggers;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
 import ru.ricardocraft.backend.base.profiles.optional.OptionalFile;
 
+@NoArgsConstructor
+@Getter
+@Setter
 public class OSTrigger extends OptionalTrigger {
     public JVMHelper.OS os;
 
