@@ -17,9 +17,9 @@ public class CurseforgeGetModFileCommand extends Command {
     private final JacksonManager jacksonManager;
 
     @Autowired
-    public CurseforgeGetModFileCommand(CurseforgeAPI api, JacksonManager gsonManager) {
+    public CurseforgeGetModFileCommand(CurseforgeAPI api, JacksonManager jacksonManager) {
         this.api = api;
-        this.jacksonManager = gsonManager;
+        this.jacksonManager = jacksonManager;
     }
 
     @Override

@@ -37,6 +37,7 @@ public class GuiObjectsContainer {
     private final LauncherConfig config;
     private final SettingsManager settingsManager;
 
+    private final ObjectFactory<WebAuthOverlay> webAuthOverlayObjectFactory;
     private final ObjectFactory<BackgroundComponent> backgroundComponentObjectFactory;
     private final ObjectFactory<LoginScene> loginSceneObjectFactory;
     private final ObjectFactory<ProcessingOverlay> processingOverlayObjectFactory;
@@ -51,11 +52,8 @@ public class GuiObjectsContainer {
     private final ObjectFactory<UpdateScene> updateSceneObjectFactory;
     private final ObjectFactory<DebugScene> debugSceneObjectFactory;
     private final ObjectFactory<BrowserScene> browserSceneObjectFactory;
-    private final ObjectFactory<WebAuthOverlay> webAuthOverlayObjectFactory;
 
     private final Map<String, AbstractVisualComponent> components = new HashMap<>();
-
-    public BackgroundComponent background;
 
     @Autowired
     public GuiObjectsContainer(LauncherConfig config,
@@ -97,50 +95,21 @@ public class GuiObjectsContainer {
     }
 
     public void init() {
-        WebAuthOverlay webAuthOverlay = webAuthOverlayObjectFactory.getObject();
-        components.put(webAuthOverlay.getName(), webAuthOverlay);
-
-        background = backgroundComponentObjectFactory.getObject();
-        components.put(background.getName(), background);
-
-        LoginScene loginScene = loginSceneObjectFactory.getObject();
-        components.put(loginScene.getName(), loginScene);
-
-        ProcessingOverlay processingOverlay = processingOverlayObjectFactory.getObject();
-        components.put(processingOverlay.getName(), processingOverlay);
-
-        WelcomeOverlay welcomeOverlay = welcomeOverlayObjectFactory.getObject();
-        components.put(welcomeOverlay.getName(), welcomeOverlay);
-
-        UploadAssetOverlay uploadAssetOverlay = uploadAssetOverlayObjectFactory.getObject();
-        components.put(uploadAssetOverlay.getName(), uploadAssetOverlay);
-
-        ServerMenuScene serverMenuScene = serverMenuSceneObjectFactory.getObject();
-        components.put(serverMenuScene.getName(), serverMenuScene);
-
-        ServerInfoScene serverInfoScene = serverInfoSceneObjectFactory.getObject();
-        components.put(serverInfoScene.getName(), serverInfoScene);
-
-        OptionsScene optionsScene = optionsSceneObjectFactory.getObject();
-        components.put(optionsScene.getName(), optionsScene);
-
-        SettingsScene settingsScene = settingsSceneObjectFactory.getObject();
-        components.put(settingsScene.getName(), settingsScene);
-
-        GlobalSettingsScene globalSettingsScene = globalSettingsSceneObjectFactory.getObject();
-        components.put(globalSettingsScene.getName(), globalSettingsScene);
-
-        ConsoleScene consoleScene = consoleSceneObjectFactory.getObject();
-        components.put(consoleScene.getName(), consoleScene);
-
-        UpdateScene updateScene = updateSceneObjectFactory.getObject();
-        components.put(updateScene.getName(), updateScene);
-
-        DebugScene debugScene = debugSceneObjectFactory.getObject();
-        components.put(debugScene.getName(), debugScene);
-
-        BrowserScene browserScene = browserSceneObjectFactory.getObject();
-        components.put(browserScene.getName(), browserScene);
+        registerComponent(webAuthOverlayObjectFactory.getObject());
+        registerComponent(backgroundComponentObjectFactory.getObject());
+        registerComponent(loginSceneObjectFactory.getObject());
+        registerComponent(processingOverlayObjectFactory.getObject());
+        registerComponent(welcomeOverlayObjectFactory.getObject());
+        registerComponent(uploadAssetOverlayObjectFactory.getObject());
+        registerComponent(serverMenuSceneObjectFactory.getObject());
+        registerComponent(serverInfoSceneObjectFactory.getObject());
+        registerComponent(optionsSceneObjectFactory.getObject());
+        registerComponent(settingsSceneObjectFactory.getObject());
+        registerComponent(globalSettingsSceneObjectFactory.getObject());
+        registerComponent(consoleSceneObjectFactory.getObject());
+        registerComponent(updateSceneObjectFactory.getObject());
+        registerComponent(debugSceneObjectFactory.getObject());
+        registerComponent(browserSceneObjectFactory.getObject());
     }
 
     public PrimaryStage createPrimaryStage(Stage stage) {
@@ -155,12 +124,13 @@ public class GuiObjectsContainer {
         String sceneName = application.getCurrentScene().getName();
         ContextHelper.runInFxThreadStatic(() -> {
             application.getMainStage().setScene(null, false);
-            application.getMainStage().pullBackground(background);
+            BackgroundComponent backgroundComponent = (BackgroundComponent) getByName("background");
+            application.getMainStage().pullBackground(backgroundComponent);
             resetDirectory(config, settingsManager.getRuntimeSettings());
             components.clear();
             application.getMainStage().resetStyles();
             init();
-            application.getMainStage().pushBackground(background);
+            application.getMainStage().pushBackground(backgroundComponent);
             for (AbstractVisualComponent s : components.values()) {
                 if (sceneName.equals(s.getName())) {
                     application.getMainStage().setScene(s, false);
@@ -173,4 +143,7 @@ public class GuiObjectsContainer {
         return components.get(name);
     }
 
+    public void registerComponent(AbstractVisualComponent component) {
+        components.put(component.getName(), component);
+    }
 }

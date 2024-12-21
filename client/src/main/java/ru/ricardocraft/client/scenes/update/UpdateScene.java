@@ -61,8 +61,17 @@ public class UpdateScene extends AbstractScene {
         cancel = LookupHelper.lookup(layout, "#cancel");
         volume = LookupHelper.lookup(layout, "#volume");
         logOutput = LookupHelper.lookup(layout, "#outputUpdate");
-        downloader = new VisualDownloader(service, guiModuleConfig, launchService, progressBar, speed, volume, this::errorHandle,
-                (log) -> contextHelper.runInFxThread(() -> addLog(log)), this::onUpdateStatus);
+        downloader = new VisualDownloader(
+                service,
+                guiModuleConfig,
+                launchService,
+                progressBar,
+                speed,
+                volume,
+                this::errorHandle,
+                (log) -> contextHelper.runInFxThread(() -> addLog(log)),
+                this::onUpdateStatus
+        );
         LookupHelper.<ButtonBase>lookup(layout, "#cancel").setOnAction((e) -> {
             if (downloadStatus == DownloadStatus.DOWNLOAD && downloader.isDownload()) {
                 downloader.cancel();

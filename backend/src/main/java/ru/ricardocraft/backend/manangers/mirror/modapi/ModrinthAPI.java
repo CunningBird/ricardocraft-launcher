@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.manangers.mirror.modapi;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Version;
@@ -27,8 +27,7 @@ public class ModrinthAPI {
 
     @SuppressWarnings("unchecked")
     public List<ModVersionData> getMod(String slug) throws IOException {
-        TypeToken<List<ModVersionData>> typeToken = new TypeToken<>() {
-        };
+        TypeReference<List<ModVersionData>> typeToken = new TypeReference<>() {};
         return (List<ModVersionData>) requester.send(HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(BASE_URL.concat("project/%s/version".formatted(slug))))
@@ -49,7 +48,10 @@ public class ModrinthAPI {
         return null;
     }
 
-    public record ModVersionData(String id, String name, List<ModVersionFileData> files, List<String> game_versions,
+    public record ModVersionData(String id,
+                                 String name,
+                                 List<ModVersionFileData> files,
+                                 List<String> game_versions,
                                  List<String> loaders) {
 
     }

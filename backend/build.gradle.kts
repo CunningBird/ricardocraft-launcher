@@ -54,8 +54,7 @@ dependencies {
     implementation("com.guardsquare:proguard-base:7.5.0")
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")
     implementation("io.jsonwebtoken:jjwt-impl:0.12.5")
-    implementation("io.jsonwebtoken:jjwt-gson:0.12.5")
-    implementation("com.google.code.gson:gson:2.11.0")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
 
     implementation("io.micrometer:micrometer-core:1.13.1")
     implementation("com.zaxxer:HikariCP:5.1.0") {

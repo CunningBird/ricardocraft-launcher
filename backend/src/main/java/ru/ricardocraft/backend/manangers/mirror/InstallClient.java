@@ -2,7 +2,6 @@ package ru.ricardocraft.backend.manangers.mirror;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.gson.JsonSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -542,7 +541,7 @@ public class InstallClient {
                 return obj;
             }
             throw new IOException("Client not found");
-        } catch (JsonSyntaxException | MalformedURLException | URISyntaxException e) {
+        } catch (JsonProcessingException | MalformedURLException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }

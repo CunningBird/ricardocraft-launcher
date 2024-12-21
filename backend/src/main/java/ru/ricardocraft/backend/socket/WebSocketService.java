@@ -87,7 +87,7 @@ public class WebSocketService {
     public void process(ChannelHandlerContext ctx, TextWebSocketFrame frame, Client client, String ip, UUID connectUUID) throws JsonProcessingException {
         String request = frame.text();
         WebSocketRequestContext context = new WebSocketRequestContext(ctx, request, client, ip, connectUUID);
-        SimpleResponse response = jacksonManager.getMapper().readValue(request, SimpleResponse.class); // gsonManager.gson.fromJson(request, SimpleResponse.class);
+        SimpleResponse response = jacksonManager.getMapper().readValue(request, SimpleResponse.class);
         context.response = response;
         if (response == null) {
             RequestEvent event = new ErrorRequestEvent("This type of request is not supported");
@@ -149,7 +149,7 @@ public class WebSocketService {
 
     public void sendObject(Channel channel, Object obj) {
         try {
-            String msg = jacksonManager.getMapper().writeValueAsString(obj); //gsonManager.gson.toJson(obj, TypeSerializeInterface.class);
+            String msg = jacksonManager.getMapper().writeValueAsString(obj);
             if (logger.isTraceEnabled()) {
                 logger.trace("Send to channel {}: {}", getIPFromChannel(channel), msg);
             }
@@ -167,7 +167,7 @@ public class WebSocketService {
 
     public void sendObjectAndClose(ChannelHandlerContext ctx, Object obj) {
         try {
-            String msg = jacksonManager.getMapper().writeValueAsString(obj); //gsonManager.gson.toJson(obj, TypeSerializeInterface.class);
+            String msg = jacksonManager.getMapper().writeValueAsString(obj);
             if (logger.isTraceEnabled()) {
                 logger.trace("Send and close {}: {}", getIPFromContext(ctx), msg);
             }
