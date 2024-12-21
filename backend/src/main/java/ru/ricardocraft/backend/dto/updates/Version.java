@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.dto.updates;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ public class Version implements Comparable<Version> {
     private String name = "original";
     private String original;
 
+    @JsonCreator
     public static Version of(String string) {
         String tmp = string.replaceAll("[^.0-9]", "."); // Replace any non-digit character to .
         String[] list = tmp.split("\\.");

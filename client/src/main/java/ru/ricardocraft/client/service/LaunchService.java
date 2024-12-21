@@ -199,10 +199,16 @@ public class LaunchService {
                     (clientHDir) -> {
                         LogHelper.info("Success update");
                         try {
-                            ClientInstance instance = doLaunchClient(target, assetHDir, targetClient,
-                                    clientHDir, profile,
+                            ClientInstance instance = doLaunchClient(
+                                    target,
+                                    assetHDir,
+                                    targetClient,
+                                    clientHDir,
+                                    profile,
                                     settingsManager.getOptionalView(),
-                                    javaVersion, jvmHDir);
+                                    javaVersion,
+                                    jvmHDir
+                            );
                             future.complete(instance);
                         } catch (Throwable e) {
                             future.completeExceptionally(e);
