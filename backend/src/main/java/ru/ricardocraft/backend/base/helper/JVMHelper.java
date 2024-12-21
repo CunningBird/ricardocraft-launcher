@@ -36,7 +36,7 @@ public final class JVMHelper {
     }
 
     public enum OS {
-        MUSTDIE("mustdie"), LINUX("linux"), MACOSX("macosx");
+        WINDOWS("windows"), LINUX("linux"), MACOSX("macosx");
 
         public final String name;
 
@@ -46,7 +46,7 @@ public final class JVMHelper {
 
         public static OS byName(String name) {
             if (name.startsWith("Windows"))
-                return MUSTDIE;
+                return WINDOWS;
             if (name.startsWith("Linux"))
                 return LINUX;
             if (name.startsWith("Mac OS X"))

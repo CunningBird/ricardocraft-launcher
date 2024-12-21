@@ -73,7 +73,6 @@ public final class JVMHelper {
     }
 
     private static int getCorrectOSArch() {
-        // As always, mustdie must die
         if (OS_TYPE == OS.WINDOWS)
             return System.getenv("ProgramFiles(x86)") == null ? 32 : 64;
 
@@ -111,7 +110,7 @@ public final class JVMHelper {
     }
 
     public enum OS {
-        WINDOWS("mustdie"), LINUX("linux"), MACOSX("macosx");
+        WINDOWS("windows"), LINUX("linux"), MACOSX("macosx");
 
         public final String name;
 

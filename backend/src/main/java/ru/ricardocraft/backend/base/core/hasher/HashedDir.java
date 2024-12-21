@@ -59,6 +59,10 @@ public final class HashedDir extends HashedEntry {
         return Collections.unmodifiableMap(map);
     }
 
+    public Map<String, HashedEntry> getMap() {
+        return map();
+    }
+
     public HashedEntry resolve(Iterable<String> path) {
         HashedEntry current = this;
         for (String pathEntry : path) {

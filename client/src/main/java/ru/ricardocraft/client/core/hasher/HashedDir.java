@@ -61,7 +61,7 @@ public final class HashedDir extends HashedEntry {
     }
 
     public FindRecursiveResult findRecursive(String path) {
-        StringTokenizer t = new StringTokenizer(path, "/");
+        StringTokenizer t = new StringTokenizer(path, "\\");
         HashedDir current = this;
         HashedEntry entry = null;
         String name = null;

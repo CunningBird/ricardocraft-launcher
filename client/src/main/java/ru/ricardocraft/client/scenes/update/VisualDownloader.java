@@ -237,7 +237,7 @@ public class VisualDownloader {
         String assetIndexPath = "indexes/".concat(assetIndex).concat(".json");
         Path localAssetIndexPath = dir.resolve(assetIndexPath);
         boolean needUpdateIndex;
-        HashedDir.FindRecursiveResult result = targetHDir.findRecursive(String.valueOf(localAssetIndexPath));
+        HashedDir.FindRecursiveResult result = targetHDir.findRecursive(String.valueOf(Path.of(assetIndexPath)));
         if (!(result.entry instanceof HashedFile)) {
             addLog.accept("ERROR: assetIndex %s not found".formatted(assetIndex));
             updateStatus.accept(UpdateScene.DownloadStatus.ERROR);
