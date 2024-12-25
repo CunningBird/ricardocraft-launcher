@@ -14,23 +14,16 @@ import ru.ricardocraft.backend.auth.protect.StdProtectHandler;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.binary.tasks.sign.SignerJar;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.properties.NettyProperties;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -127,35 +120,6 @@ public class SecurityCheckCommand extends Command {
             printCheckResult("netty.downloadUrl", "assets/clients download connection not secure", false);
         } else if (nettyProperties.getDownloadURL().startsWith("https://")) {
             printCheckResult("netty.downloadUrl", "", true);
-        }
-
-        if (!config.getSign().getEnabled()) {
-            printCheckResult("sign", "it is recommended to use a signature", null);
-        } else {
-            boolean bad = false;
-            try {
-                KeyStore keyStore = SignerJar.getStore(new File(config.getSign().getKeyStore()).toPath(), config.getSign().getKeyStorePass(), config.getSign().getKeyStoreType());
-                Certificate[] certChainPlain = keyStore.getCertificateChain(config.getSign().getKeyAlias());
-                List<X509Certificate> certChain = Arrays.stream(certChainPlain).map(e -> (X509Certificate) e).toList();
-                X509Certificate cert = certChain.getFirst();
-                cert.checkValidity();
-                if (certChain.size() == 1) {
-                    printCheckResult("sign", "certificate chain contains <2 element(recommend 2 and more)", false);
-                    bad = true;
-                }
-                if ((cert.getBasicConstraints() & 1) == 1) {
-                    printCheckResult("sign", "end certificate - CA", false);
-                    bad = true;
-                }
-                for (X509Certificate certificate : certChain) {
-                    certificate.checkValidity();
-                }
-            } catch (Throwable e) {
-                logger.error("Sign multiModCheck failed", e);
-                bad = true;
-            }
-            if (!bad)
-                printCheckResult("sign", "", true);
         }
 
         if (config.getProguard().getEnabled()) {

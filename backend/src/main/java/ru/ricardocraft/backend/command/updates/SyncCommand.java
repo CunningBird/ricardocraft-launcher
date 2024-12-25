@@ -10,13 +10,11 @@ public class SyncCommand extends Command {
 
     @Autowired
     public SyncCommand(SyncProfilesCommand syncProfilesCommand,
-                       SyncBinariesCommand syncBinariesCommand,
                        SyncUpdatesCommand syncUpdatesCommand,
                        SyncUPCommand syncUPCommand,
                        SyncUpdatesCacheCommand syncUpdatesCacheCommand) {
         super();
         this.childCommands.put("profiles", syncProfilesCommand);
-        this.childCommands.put("binaries", syncBinariesCommand);
         this.childCommands.put("updates", syncUpdatesCommand);
         this.childCommands.put("up", syncUPCommand);
         this.childCommands.put("updatescache", syncUpdatesCacheCommand);

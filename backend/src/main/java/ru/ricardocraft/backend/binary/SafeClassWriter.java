@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.binary.tasks.main;
+package ru.ricardocraft.backend.binary;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;

@@ -4,14 +4,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.ricardocraft.backend.command.BaseCommandCategory;
 import ru.ricardocraft.backend.command.CommandHandler;
-import ru.ricardocraft.backend.command.basic.BuildCommand;
 import ru.ricardocraft.backend.command.basic.GCCommand;
 import ru.ricardocraft.backend.command.basic.StopCommand;
 import ru.ricardocraft.backend.command.basic.VersionCommand;
 import ru.ricardocraft.backend.command.mirror.*;
 import ru.ricardocraft.backend.command.service.*;
-import ru.ricardocraft.backend.command.tools.SignDirCommand;
-import ru.ricardocraft.backend.command.tools.SignJarCommand;
 import ru.ricardocraft.backend.command.unsafe.CipherListCommand;
 import ru.ricardocraft.backend.command.unsafe.LoadJarCommand;
 import ru.ricardocraft.backend.command.unsafe.PatcherCommand;
@@ -23,12 +20,10 @@ public class CommandConfiguration {
 
     @Bean
     public CommandHandler.Category basicCommandCategory(CommandHandler commandHandler,
-                                                        BuildCommand buildCommand,
                                                         GCCommand gcCommand,
                                                         StopCommand stopCommand,
                                                         VersionCommand versionCommand) {
         BaseCommandCategory basic = new BaseCommandCategory();
-        basic.registerCommand("build", buildCommand);
         basic.registerCommand("gc", gcCommand);
         basic.registerCommand("stop", stopCommand);
         basic.registerCommand("version", versionCommand);
@@ -73,18 +68,6 @@ public class CommandConfiguration {
         updates.registerCommand("downloadAsset", downloadAssetCommand);
         updates.registerCommand("downloadClient", downloadClientCommand);
         CommandHandler.Category category = new CommandHandler.Category(updates, "updates", "Update and Sync Management");
-        commandHandler.registerCategory(category);
-        return category;
-    }
-
-    @Bean
-    public CommandHandler.Category toolsCommandCategory(CommandHandler commandHandler,
-                                                        SignJarCommand signJarCommand,
-                                                        SignDirCommand signDirCommand) {
-        BaseCommandCategory tools = new BaseCommandCategory();
-        tools.registerCommand("signJar", signJarCommand);
-        tools.registerCommand("signDir", signDirCommand);
-        CommandHandler.Category category = new CommandHandler.Category(tools, "tools", "Other tools");
         commandHandler.registerCategory(category);
         return category;
     }

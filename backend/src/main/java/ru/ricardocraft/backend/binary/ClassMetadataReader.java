@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.binary.tasks.main;
+package ru.ricardocraft.backend.binary;
 
 import lombok.Getter;
 import org.objectweb.asm.ClassReader;

@@ -11,8 +11,6 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.base.events.request.LauncherRequestEvent;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
-import ru.ricardocraft.backend.binary.EXELauncherBinary;
-import ru.ricardocraft.backend.binary.JarLauncherBinary;
 import ru.ricardocraft.backend.dto.socket.SimpleResponse;
 import ru.ricardocraft.backend.dto.socket.auth.AuthResponse;
 import ru.ricardocraft.backend.dto.socket.update.LauncherResponse;
@@ -35,22 +33,16 @@ public class LauncherResponseService extends AbstractResponseService {
 
     private final LaunchServerProperties config;
     private final NettyProperties nettyProperties;
-    private final JarLauncherBinary launcherBinary;
-    private final EXELauncherBinary exeLauncherBinary;
     private final KeyAgreementManager keyAgreementManager;
 
     @Autowired
     public LauncherResponseService(WebSocketService service,
                                    LaunchServerProperties config,
                                    NettyProperties nettyProperties,
-                                   JarLauncherBinary launcherBinary,
-                                   EXELauncherBinary exeLauncherBinary,
                                    KeyAgreementManager keyAgreementManager) {
         super(LauncherResponse.class, service);
         this.config = config;
         this.nettyProperties = nettyProperties;
-        this.launcherBinary = launcherBinary;
-        this.exeLauncherBinary = exeLauncherBinary;
         this.keyAgreementManager = keyAgreementManager;
     }
 
