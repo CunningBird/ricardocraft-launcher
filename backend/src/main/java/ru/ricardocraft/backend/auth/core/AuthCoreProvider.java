@@ -3,7 +3,7 @@ package ru.ricardocraft.backend.auth.core;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import ru.ricardocraft.backend.auth.details.AuthPasswordDetails;
 import ru.ricardocraft.backend.auth.password.AuthPassword;
-import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.backend.dto.events.request.auth.GetAvailabilityAuthRequestEvent;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.repository.User;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;

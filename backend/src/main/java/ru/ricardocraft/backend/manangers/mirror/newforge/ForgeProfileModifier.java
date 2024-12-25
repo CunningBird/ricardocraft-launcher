@@ -2,8 +2,8 @@ package ru.ricardocraft.backend.manangers.mirror.newforge;
 
 import ru.ricardocraft.backend.base.LaunchOptions;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.base.profiles.ClientProfileBuilder;
+import ru.ricardocraft.backend.profiles.ClientProfile;
+import ru.ricardocraft.backend.profiles.ClientProfileBuilder;
 import ru.ricardocraft.backend.dto.updates.ClassLoaderConfig;
 import ru.ricardocraft.backend.dto.updates.CompatibilityFlags;
 import ru.ricardocraft.backend.manangers.JacksonManager;

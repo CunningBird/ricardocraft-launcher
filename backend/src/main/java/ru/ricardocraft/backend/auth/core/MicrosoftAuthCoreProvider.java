@@ -9,7 +9,7 @@ import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.backend.auth.password.AuthCodePassword;
 import ru.ricardocraft.backend.auth.password.AuthPassword;
-import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.backend.dto.events.request.auth.GetAvailabilityAuthRequestEvent;
 import ru.ricardocraft.backend.base.request.RequestException;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;

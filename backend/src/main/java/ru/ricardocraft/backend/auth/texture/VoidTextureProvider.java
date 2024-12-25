@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.auth.texture;
 
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.base.profiles.Texture;
+import ru.ricardocraft.backend.profiles.Texture;
 
 import java.util.UUID;
 

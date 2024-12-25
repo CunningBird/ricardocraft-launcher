@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.auth.details;
 
-import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.backend.dto.events.request.auth.GetAvailabilityAuthRequestEvent;
 
 public class AuthLoginOnlyDetails implements GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails {
     @Override

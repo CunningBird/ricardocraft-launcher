@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.auth.details;
 
-import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.backend.dto.events.request.auth.GetAvailabilityAuthRequestEvent;
 
 public class AuthWebViewDetails implements GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails {
     public final String url;

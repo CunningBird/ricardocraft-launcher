@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.base.helper.MakeProfileHelper;
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
+import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.CommandException;
 import ru.ricardocraft.backend.dto.updates.Version;

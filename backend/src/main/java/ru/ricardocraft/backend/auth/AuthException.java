@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.auth;
 
-import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
+import ru.ricardocraft.backend.dto.events.request.auth.AuthRequestEvent;
 
 import java.io.IOException;
 import java.io.Serial;

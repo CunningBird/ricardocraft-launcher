@@ -1,19 +1,38 @@
 package ru.ricardocraft.backend.command;
 
 import lombok.Getter;
+import org.jline.reader.*;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.InfoCmp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.*;
 
 @Getter
-public abstract class CommandHandler implements Runnable {
+@Component
+public class CommandHandler implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 
     private final List<Category> categories = new ArrayList<>();
     private final CommandCategory baseCategory = new BaseCommandCategory();
+
+    private final Terminal terminal;
+    private final LineReader reader;
+
+    public CommandHandler() throws IOException {
+        TerminalBuilder terminalBuilder = TerminalBuilder.builder();
+        terminal = terminalBuilder.build();
+        Completer completer = new JLineConsoleCompleter();
+        reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .completer(completer)
+                .build();
+    }
 
     public void eval(String line, boolean bell) {
         logger.info("Command '{}'", line);
@@ -69,7 +88,14 @@ public abstract class CommandHandler implements Runnable {
      * @return command line
      * @throws IOException Internal Error
      */
-    public abstract String readLine() throws IOException;
+    public String readLine() {
+        try {
+            return reader.readLine();
+        } catch (UserInterruptException e) {
+            System.exit(0);
+            return null;
+        }
+    }
 
     private void readLoop() throws IOException {
         for (String line = readLine(); line != null; line = readLine())
@@ -112,14 +138,16 @@ public abstract class CommandHandler implements Runnable {
     /**
      * If supported, sends a bell signal to the console
      */
-    public abstract void bell();
+    public void bell() {
+        terminal.puts(InfoCmp.Capability.bell);
+    }
 
     /**
      * Cleans the console
-     *
-     * @throws IOException Internal Error
      */
-    public abstract void clear() throws IOException;
+    public void clear() {
+        terminal.puts(InfoCmp.Capability.clear_screen);
+    }
 
     private String[] parseCommand(CharSequence line) throws CommandException {
         boolean quoted = false;
@@ -189,6 +217,28 @@ public abstract class CommandHandler implements Runnable {
             this.category = category;
             this.name = name;
             this.description = description;
+        }
+    }
+
+    public class JLineConsoleCompleter implements Completer {
+        @Override
+        public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
+            String completeWord = line.word();
+            if (line.wordIndex() == 0) {
+                walk((category, name, command) -> {
+                    if (name.startsWith(completeWord)) {
+                        candidates.add(command.buildCandidate(category, name));
+                    }
+                });
+            } else {
+                Command target = findCommand(line.words().get(0));
+                if(target == null) {
+                    return;
+                }
+                List<String> words = line.words();
+                List<Candidate> candidates1 = target.complete(words.subList(1, words.size()), line.wordIndex() - 1, completeWord);
+                candidates.addAll(candidates1);
+            }
         }
     }
 }

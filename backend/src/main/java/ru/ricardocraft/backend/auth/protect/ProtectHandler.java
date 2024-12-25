@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.auth.protect;
 
-import ru.ricardocraft.backend.dto.socket.auth.AuthResponse;
+import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 

@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.auth.protect.interfaces;
 
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
+import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.socket.Client;
 
 public interface ProfilesProtectHandler {

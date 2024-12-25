@@ -1,5 +1,7 @@
 package ru.ricardocraft.backend;
 
+import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -9,12 +11,20 @@ import ru.ricardocraft.backend.properties.DirectoriesProperties;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.properties.NettyProperties;
 
+import java.security.Security;
+import java.util.Locale;
+
+import static ru.ricardocraft.backend.base.helper.JVMHelper.LOADER;
+
+@Slf4j
 @EnableScheduling
 @SpringBootApplication
 @EnableConfigurationProperties({LaunchServerProperties.class, NettyProperties.class, DirectoriesProperties.class})
 public class BackendApplication {
 
     public static void main(String[] args) {
+        Security.addProvider(new BouncyCastleProvider());
+
         ConfigurableApplicationContext context = SpringApplication.run(BackendApplication.class, args);
         LaunchServer server = context.getBean(LaunchServer.class);
 

@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.auth.core.interfaces.user;
 
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
-import ru.ricardocraft.backend.base.profiles.Texture;
+import ru.ricardocraft.backend.profiles.ClientProfile;
+import ru.ricardocraft.backend.profiles.Texture;
 
 import java.util.HashMap;
 import java.util.Map;

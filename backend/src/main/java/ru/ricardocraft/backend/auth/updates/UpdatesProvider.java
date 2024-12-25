@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.auth.updates;
 
-import ru.ricardocraft.backend.base.core.hasher.HashedDir;
+import ru.ricardocraft.backend.base.hasher.HashedDir;
 
 import java.io.IOException;
 import java.nio.file.Path;

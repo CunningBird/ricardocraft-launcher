@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.auth.texture;
 
-import ru.ricardocraft.backend.base.profiles.Texture;
+import ru.ricardocraft.backend.profiles.Texture;
 
 import java.io.IOException;
 import java.util.HashMap;

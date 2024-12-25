@@ -4,10 +4,10 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
-import ru.ricardocraft.backend.base.events.request.AuthRequestEvent;
-import ru.ricardocraft.backend.base.events.request.CurrentUserRequestEvent;
-import ru.ricardocraft.backend.base.events.request.RefreshTokenRequestEvent;
-import ru.ricardocraft.backend.base.events.request.RestoreRequestEvent;
+import ru.ricardocraft.backend.dto.events.request.auth.AuthRequestEvent;
+import ru.ricardocraft.backend.dto.events.request.auth.CurrentUserRequestEvent;
+import ru.ricardocraft.backend.dto.events.request.auth.RefreshTokenRequestEvent;
+import ru.ricardocraft.backend.dto.events.request.auth.RestoreRequestEvent;
 import ru.ricardocraft.backend.base.request.auth.RefreshTokenRequest;
 import ru.ricardocraft.backend.base.request.auth.RestoreRequest;
 

@@ -6,7 +6,7 @@ import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.details.AuthLoginOnlyDetails;
 import ru.ricardocraft.backend.auth.password.AuthPassword;
 import ru.ricardocraft.backend.base.ClientPermissions;
-import ru.ricardocraft.backend.base.events.request.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.backend.dto.events.request.auth.GetAvailabilityAuthRequestEvent;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.repository.User;

@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -22,30 +23,19 @@ import static ru.ricardocraft.backend.base.helper.JVMHelper.LOADER;
  * The main LaunchServer class. Contains links to all necessary objects
  * Not a singleton
  */
+@Slf4j
 @Component
 public final class LaunchServer implements Runnable, AutoCloseable {
 
-    private final Logger logger = LogManager.getLogger(LaunchServer.class);
-
     private final AtomicBoolean started = new AtomicBoolean(false);
 
-    private final ProfileProvider profileProvider;
-    private final UpdatesProvider updatesProvider;
     private final CommandHandler commandHandler;
     private final NettyServerSocketHandler nettyServerSocketHandler;
 
     @Autowired
-    public LaunchServer(ProfileProvider profileProvider,
-                        UpdatesProvider updatesProvider,
-                        CommandHandler commandHandler,
-                        NettyServerSocketHandler nettyServerSocketHandler) throws IOException {
-        this.profileProvider = profileProvider;
-        this.updatesProvider = updatesProvider;
+    public LaunchServer(CommandHandler commandHandler, NettyServerSocketHandler nettyServerSocketHandler) throws IOException {
         this.commandHandler = commandHandler;
         this.nettyServerSocketHandler = nettyServerSocketHandler;
-
-        verifySystemProperties(LaunchServer.class, false);
-        Security.addProvider(new BouncyCastleProvider());
     }
 
     @Override
@@ -58,32 +48,21 @@ public final class LaunchServer implements Runnable, AutoCloseable {
             try {
                 close();
             } catch (Exception e) {
-                logger.error("LaunchServer close error", e);
+                log.error("LaunchServer close error", e);
             }
         }));
         newThread("Command Thread", true, commandHandler).start();
-        // Sync updates dir
-        newThread("Profiles and updates sync", true, () -> {
-            try {
-                // Sync profiles dir
-                profileProvider.syncProfilesDir();
-                // Sync updates dir
-                updatesProvider.syncInitially();
-            } catch (IOException e) {
-                logger.error("Updates/Profiles not synced", e);
-            }
-        }).start();
 
         nettyServerSocketHandler.close();
         newThread("Netty Server Socket Thread", false, nettyServerSocketHandler).start();
 
-        logger.info("LaunchServer started");
+        log.info("LaunchServer started");
     }
 
     public void close() throws Exception {
-        logger.info("Close server socket");
+        log.info("Close server socket");
         nettyServerSocketHandler.close();
-        logger.info("LaunchServer stopped");
+        log.info("LaunchServer stopped");
     }
 
     private Thread newThread(String name, boolean daemon, Runnable runnable) {
@@ -91,16 +70,5 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         thread.setDaemon(daemon);
         if (name != null) thread.setName(name);
         return thread;
-    }
-
-    private void verifySystemProperties(Class<?> mainClass, boolean requireSystem) {
-        Locale.setDefault(Locale.US);
-        // Verify class loader
-        logger.debug("Verifying class loader");
-        if (requireSystem && !mainClass.getClassLoader().equals(LOADER))
-            throw new SecurityException("ClassLoader should be system");
-
-        // Verify system and java architecture
-        logger.debug("Verifying JVM architecture");
     }
 }

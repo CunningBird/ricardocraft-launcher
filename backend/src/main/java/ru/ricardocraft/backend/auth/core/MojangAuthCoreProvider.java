@@ -11,7 +11,7 @@ import ru.ricardocraft.backend.auth.password.AuthPassword;
 import ru.ricardocraft.backend.auth.password.AuthPlainPassword;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
-import ru.ricardocraft.backend.base.profiles.Texture;
+import ru.ricardocraft.backend.profiles.Texture;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.repository.User;

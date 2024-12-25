@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.auth.profiles;
 
-import ru.ricardocraft.backend.base.profiles.ClientProfile;
+import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.socket.Client;
 
 import java.io.IOException;

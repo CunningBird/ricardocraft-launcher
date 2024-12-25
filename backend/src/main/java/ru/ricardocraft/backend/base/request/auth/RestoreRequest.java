@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.base.request.auth;
 
-import ru.ricardocraft.backend.base.events.request.RestoreRequestEvent;
+import ru.ricardocraft.backend.dto.events.request.auth.RestoreRequestEvent;
 import ru.ricardocraft.backend.base.request.Request;
 
 import java.util.Map;
