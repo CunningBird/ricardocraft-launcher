@@ -249,7 +249,7 @@ public class LaunchService {
             profile = builder.createClientProfile();
         }
         ClientLauncherProcess clientLauncherProcess =
-                new ClientLauncherProcess(modulesManager, clientDir, assetDir, javaVersion, clientDir.resolve("resourcepacks"), profile,
+                new ClientLauncherProcess(settingsManager, modulesManager, clientDir, assetDir, javaVersion, clientDir.resolve("resourcepacks"), profile,
                         authService.getPlayerProfile(), view,
                         authService.getAccessToken(), clientHDir, assetHDir, jvmHDir);
         clientLauncherProcess.params.ram = profileSettings.ram;
@@ -404,7 +404,7 @@ public class LaunchService {
                         //append(new String(buf, 0, length));
                         handleListeners(buf, 0, length);
                     }
-                } catch (EOFException ignored) {
+                } catch (Exception e) {
                     System.out.println("Flex");
                 }
                 if (proc.isAlive()) proc.waitFor();

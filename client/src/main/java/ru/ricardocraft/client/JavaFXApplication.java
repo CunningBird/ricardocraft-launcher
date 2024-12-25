@@ -163,7 +163,7 @@ public class JavaFXApplication extends Application {
         LogHelper.debug("JavaFX method stop invoked");
         settingsManager.saveSettings();
 
-        LogHelper.debug("Post Application.launch method invoked");
+        LogHelper.debug("Post Application.getLaunchProcess method invoked");
         launcherBeforeExit();
 
         settingsManager.exitLauncher(0);

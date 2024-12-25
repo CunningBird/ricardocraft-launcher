@@ -13,11 +13,13 @@ import java.net.URL;
 import java.nio.file.NoSuchFileException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class Launcher {
 
     public static final String RUNTIME_DIR = "runtime";
+    public static final AtomicBoolean LAUNCHED = new AtomicBoolean(false);
 
     // Constants
     public static final String CONFIG_FILE = "config.bin";

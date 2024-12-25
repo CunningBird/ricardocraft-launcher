@@ -6,9 +6,9 @@ import ru.ricardocraft.client.base.profiles.optional.OptionalFile;
 import ru.ricardocraft.client.base.profiles.optional.triggers.OptionalTrigger;
 import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.core.hasher.FileNameMatcher;
-import ru.ricardocraft.client.launch.ModuleConf;
 import ru.ricardocraft.client.utils.helper.IOHelper;
 import ru.ricardocraft.client.utils.helper.VerifyHelper;
+import ru.ricardocraft.client.utils.launch.LaunchOptions;
 
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
@@ -79,7 +79,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
     @LauncherNetworkAPI
     private String mainModule;
     @LauncherNetworkAPI
-    private ModuleConf moduleConf;
+    private LaunchOptions.ModuleConf moduleConf;
 
     public ClientProfile(String title,
                          UUID uuid,
@@ -110,7 +110,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
                          boolean limited,
                          String mainClass,
                          String mainModule,
-                         ModuleConf moduleConf) {
+                         LaunchOptions.ModuleConf moduleConf) {
         this.title = title;
         this.uuid = uuid;
         this.version = version;
@@ -216,7 +216,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
         return mainModule;
     }
 
-    public ModuleConf getModuleConf() {
+    public LaunchOptions.ModuleConf getModuleConf() {
         return moduleConf;
     }
 

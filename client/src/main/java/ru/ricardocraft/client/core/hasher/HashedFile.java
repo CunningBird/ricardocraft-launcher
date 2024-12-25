@@ -3,6 +3,7 @@ package ru.ricardocraft.client.core.hasher;
 import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.core.serialize.HInput;
 import ru.ricardocraft.client.core.serialize.HOutput;
+import ru.ricardocraft.client.utils.helper.IOHelper;
 import ru.ricardocraft.client.utils.helper.SecurityHelper;
 import ru.ricardocraft.client.utils.helper.SecurityHelper.DigestAlgorithm;
 import ru.ricardocraft.client.utils.helper.VerifyHelper;
@@ -46,6 +47,16 @@ public final class HashedFile extends HashedEntry {
         return size != o.size || (digest != null && o.digest != null && !Arrays.equals(digest, o.digest));
     }
 
+    public boolean isSame(Path file, boolean digest) throws IOException {
+        if (size != IOHelper.readAttributes(file).size())
+            return false;
+        if (!digest || this.digest == null)
+            return true;
+
+        // Create digest
+        byte[] actualDigest = SecurityHelper.digest(DIGEST_ALGO, file);
+        return Arrays.equals(this.digest, actualDigest);
+    }
 
     @Override
     public long size() {

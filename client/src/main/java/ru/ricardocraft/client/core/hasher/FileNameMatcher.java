@@ -40,5 +40,8 @@ public final class FileNameMatcher {
         return (anyMatch(update, path) || anyMatch(verify, path)) && !anyMatch(exclusions, path);
     }
 
+    public boolean shouldVerify(Collection<String> path) {
+        return anyMatch(verify, path) && !anyMatch(exclusions, path);
+    }
 
 }

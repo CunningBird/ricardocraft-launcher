@@ -1,7 +1,7 @@
 package ru.ricardocraft.client.base.profiles;
 
 import ru.ricardocraft.client.base.profiles.optional.OptionalFile;
-import ru.ricardocraft.client.launch.ModuleConf;
+import ru.ricardocraft.client.utils.launch.LaunchOptions;
 
 import java.util.*;
 
@@ -35,7 +35,7 @@ public class ClientProfileBuilder {
     private boolean limited;
     private String mainClass;
     private String mainModule;
-    private ModuleConf moduleConf;
+    private LaunchOptions.ModuleConf moduleConf;
 
     public ClientProfileBuilder(ClientProfile profile) {
         this.title = profile.getTitle();

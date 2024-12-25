@@ -18,6 +18,10 @@ public final class JVMHelper {
     public static final int OS_BITS = getCorrectOSArch();
     public static final ARCH ARCH_TYPE = getArch(System.getProperty("os.arch"));
     public static final int JVM_BITS = Integer.parseInt(System.getProperty("sun.arch.data.model"));
+
+    public static final String NATIVE_EXTENSION = getNativeExtension(OS_TYPE);
+    public static final String NATIVE_PREFIX = getNativePrefix(OS_TYPE);
+
     // Public static fields
     public static final Runtime RUNTIME = Runtime.getRuntime();
     public static final ClassLoader LOADER = ClassLoader.getSystemClassLoader();
@@ -127,6 +131,21 @@ public final class JVMHelper {
                 return MACOSX;
             throw new RuntimeException(String.format("This shit is not yet supported: '%s'", name));
         }
+    }
+
+    public static String getNativeExtension(JVMHelper.OS OS_TYPE) {
+        return switch (OS_TYPE) {
+            case WINDOWS -> ".dll";
+            case LINUX -> ".so";
+            case MACOSX -> ".dylib";
+        };
+    }
+
+    public static String getNativePrefix(JVMHelper.OS OS_TYPE) {
+        return switch (OS_TYPE) {
+            case LINUX, MACOSX -> "lib";
+            default -> "";
+        };
     }
 
 }
