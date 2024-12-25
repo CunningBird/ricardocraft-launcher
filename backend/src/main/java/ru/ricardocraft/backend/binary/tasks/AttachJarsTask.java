@@ -44,8 +44,7 @@ public class AttachJarsTask implements LauncherBuildTask {
     @Override
     public Path process(Path inputFile) throws IOException {
         Path outputFile = launcherBinary.nextPath("attached");
-        try (ZipInputStream input = IOHelper.newZipInput(inputFile);
-             ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputFile))) {
+        try (ZipInputStream input = IOHelper.newZipInput(inputFile); ZipOutputStream output = new ZipOutputStream(IOHelper.newOutput(outputFile))) {
             ZipEntry e = input.getNextEntry();
             while (e != null) {
                 if (e.isDirectory()) {
@@ -58,7 +57,7 @@ public class AttachJarsTask implements LauncherBuildTask {
             }
             attach(output, inputFile, jarLauncherInfo.getCoreLibs());
             attach(output, inputFile, jars);
-            for(var entry : jarLauncherInfo.getFiles().entrySet()) {
+            for (var entry : jarLauncherInfo.getFiles().entrySet()) {
                 ZipEntry newEntry = IOHelper.newZipEntry(entry.getKey());
                 output.putNextEntry(newEntry);
                 IOHelper.transfer(entry.getValue(), output);
@@ -76,9 +75,5 @@ public class AttachJarsTask implements LauncherBuildTask {
     private boolean filter(String name) {
         if (name.startsWith("META-INF/services")) return false;
         return exclusions.stream().anyMatch(name::startsWith);
-    }
-
-    public List<String> getExclusions() {
-        return exclusions;
     }
 }

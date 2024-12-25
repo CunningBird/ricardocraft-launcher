@@ -3,6 +3,7 @@ package ru.ricardocraft.backend.command.service.config.proguard;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
+import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.properties.config.ProguardConfig;
 
 import java.nio.file.Files;
@@ -12,6 +13,8 @@ import java.nio.file.Files;
 public class ProGuardResetCommand extends Command {
 
     private final ProguardConfig proguardConfig;
+
+    private final DirectoriesManager directoriesManager;
 
     @Override
     public String getArgsDescription() {
@@ -26,6 +29,6 @@ public class ProGuardResetCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         proguardConfig.prepare(true);
-        Files.deleteIfExists(proguardConfig.mappings);
+        Files.deleteIfExists(directoriesManager.getProguardMappingsFile());
     }
 }

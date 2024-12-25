@@ -9,7 +9,6 @@ import java.io.IOException;
 
 public abstract class HashedEntry extends StreamObject {
 
-    @LauncherNetworkAPI
     public boolean flag; // For external usage
 
     public abstract Type getType();

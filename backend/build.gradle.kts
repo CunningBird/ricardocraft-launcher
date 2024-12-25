@@ -4,8 +4,8 @@ plugins {
     id("io.spring.dependency-management") version "1.1.6"
 }
 
-group = "ru.ricardocraft"
-version = "0.0.1-SNAPSHOT"
+group = "ru.ricardocraft.backend"
+version = "1.0.0"
 
 java {
     toolchain {
@@ -54,8 +54,7 @@ dependencies {
     implementation("com.guardsquare:proguard-base:7.5.0")
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")
     implementation("io.jsonwebtoken:jjwt-impl:0.12.5")
-    implementation("io.jsonwebtoken:jjwt-gson:0.12.5")
-    implementation("com.google.code.gson:gson:2.11.0")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
 
     implementation("io.micrometer:micrometer-core:1.13.1")
     implementation("com.zaxxer:HikariCP:5.1.0") {
@@ -68,8 +67,6 @@ dependencies {
     implementation(platform("software.amazon.awssdk:bom:2.17.290"))
     implementation("software.amazon.awssdk:s3")
     implementation("software.amazon.awssdk:netty-nio-client")
-
-    implementation("pro.gravit.utils.enfs:enfs:2.0.1-SNAPSHOT")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")

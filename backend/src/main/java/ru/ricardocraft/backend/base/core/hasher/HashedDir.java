@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public final class HashedDir extends HashedEntry {
+
     @LauncherNetworkAPI
     private final Map<String, HashedEntry> map = new HashMap<>(32);
 
@@ -45,60 +46,6 @@ public final class HashedDir extends HashedEntry {
         IOHelper.walk(dir, new HashFileVisitor(dir, matcher, allowSymlinks, digest), true);
     }
 
-    public Diff diff(HashedDir other, FileNameMatcher matcher) {
-        HashedDir mismatch = sideDiff(other, matcher, new LinkedList<>(), true);
-        HashedDir extra = other.sideDiff(this, matcher, new LinkedList<>(), false);
-        return new Diff(mismatch, extra);
-    }
-
-    public Diff compare(HashedDir other, FileNameMatcher matcher) {
-        HashedDir mismatch = sideDiff(other, matcher, new LinkedList<>(), true);
-        HashedDir extra = other.sideDiff(this, matcher, new LinkedList<>(), false);
-        return new Diff(mismatch, extra);
-    }
-
-    public void remove(String name) {
-        map.remove(name);
-    }
-
-    public void moveTo(String elementName, HashedDir target, String targetElementName) {
-        HashedEntry entry = map.remove(elementName);
-        target.map.put(targetElementName, entry);
-    }
-
-    public FindRecursiveResult findRecursive(String path) {
-        StringTokenizer t = new StringTokenizer(path, "/");
-        HashedDir current = this;
-        HashedEntry entry = null;
-        String name = null;
-        while (t.hasMoreTokens()) {
-            name = t.nextToken();
-            HashedEntry e = current.map.get(name);
-            if (e == null && !t.hasMoreTokens()) {
-                break;
-            }
-            if (e == null) {
-                throw new RuntimeException(String.format("Directory %s not found", name));
-            }
-            if (e.getType() == Type.DIR) {
-                if (!t.hasMoreTokens()) {
-                    entry = e;
-                    break;
-                } else {
-                    current = ((HashedDir) e);
-                }
-            } else {
-                entry = e;
-                break;
-            }
-        }
-        return new FindRecursiveResult(current, entry, name);
-    }
-
-    public HashedEntry getEntry(String name) {
-        return map.get(name);
-    }
-
     @Override
     public Type getType() {
         return Type.DIR;
@@ -112,6 +59,10 @@ public final class HashedDir extends HashedEntry {
         return Collections.unmodifiableMap(map);
     }
 
+    public Map<String, HashedEntry> getMap() {
+        return map();
+    }
+
     public HashedEntry resolve(Iterable<String> path) {
         HashedEntry current = this;
         for (String pathEntry : path) {
@@ -122,110 +73,6 @@ public final class HashedDir extends HashedEntry {
             return null;
         }
         return current;
-    }
-
-    private HashedDir sideDiff(HashedDir other, FileNameMatcher matcher, Deque<String> path, boolean mismatchList) {
-        HashedDir diff = new HashedDir();
-        for (Entry<String, HashedEntry> mapEntry : map.entrySet()) {
-            String name = mapEntry.getKey();
-            HashedEntry entry = mapEntry.getValue();
-            path.add(name);
-
-            // Should update?
-            boolean shouldUpdate = matcher == null || matcher.shouldUpdate(path);
-
-            // Not found or of different type
-            Type type = entry.getType();
-            HashedEntry otherEntry = other.map.get(name);
-            if (otherEntry == null || otherEntry.getType() != type) {
-                if (shouldUpdate || mismatchList && otherEntry == null) {
-                    diff.map.put(name, entry);
-
-                    // Should be deleted!
-                    if (!mismatchList)
-                        entry.flag = true;
-                }
-                path.removeLast();
-                continue;
-            }
-
-            // Compare entries based on type
-            switch (type) {
-                case FILE:
-                    HashedFile file = (HashedFile) entry;
-                    HashedFile otherFile = (HashedFile) otherEntry;
-                    if (mismatchList && shouldUpdate && !file.isSame(otherFile))
-                        diff.map.put(name, entry);
-                    break;
-                case DIR:
-                    HashedDir dir = (HashedDir) entry;
-                    HashedDir otherDir = (HashedDir) otherEntry;
-                    if (mismatchList || shouldUpdate) { // Maybe isn't need to go deeper?
-                        HashedDir mismatch = dir.sideDiff(otherDir, matcher, path, mismatchList);
-                        if (!mismatch.isEmpty())
-                            diff.map.put(name, mismatch);
-                    }
-                    break;
-                default:
-                    throw new AssertionError("Unsupported hashed entry type: " + type.name());
-            }
-
-            // Remove this path entry
-            path.removeLast();
-        }
-        return diff;
-    }
-
-    public HashedDir sideCompare(HashedDir other, FileNameMatcher matcher, Deque<String> path, boolean mismatchList) {
-        HashedDir diff = new HashedDir();
-        for (Entry<String, HashedEntry> mapEntry : map.entrySet()) {
-            String name = mapEntry.getKey();
-            HashedEntry entry = mapEntry.getValue();
-            path.add(name);
-
-            // Should update?
-            boolean shouldUpdate = matcher == null || matcher.shouldUpdate(path);
-
-            // Not found or of different type
-            Type type = entry.getType();
-            HashedEntry otherEntry = other.map.get(name);
-            if (otherEntry == null || otherEntry.getType() != type) {
-                if (shouldUpdate || mismatchList && otherEntry == null) {
-                    diff.map.put(name, entry);
-
-                    // Should be deleted!
-                    if (!mismatchList)
-                        entry.flag = true;
-                }
-                path.removeLast();
-                continue;
-            }
-
-            // Compare entries based on type
-            switch (type) {
-                case FILE:
-                    HashedFile file = (HashedFile) entry;
-                    HashedFile otherFile = (HashedFile) otherEntry;
-                    if (mismatchList && shouldUpdate && file.isSame(otherFile))
-                        diff.map.put(name, entry);
-                    break;
-                case DIR:
-                    HashedDir dir = (HashedDir) entry;
-                    HashedDir otherDir = (HashedDir) otherEntry;
-                    if (mismatchList || shouldUpdate) { // Maybe isn't need to go deeper?
-                        HashedDir mismatch = dir.sideCompare(otherDir, matcher, path, mismatchList);
-                        if (!mismatch.isEmpty())
-                            diff.map.put(name, mismatch);
-                    }
-                    break;
-                default:
-                    throw new AssertionError("Unsupported hashed entry type: " + type.name());
-            }
-
-            // Remove this path entry
-            path.removeLast();
-        }
-        return diff;
     }
 
     @Override
@@ -283,35 +130,6 @@ public final class HashedDir extends HashedEntry {
     @FunctionalInterface
     public interface WalkCallback {
         WalkAction walked(String path, String name, HashedEntry entry) throws IOException;
-    }
-
-    public static class FindRecursiveResult {
-        public final HashedDir parent;
-        public final HashedEntry entry;
-        public final String name;
-
-        public FindRecursiveResult(HashedDir parent, HashedEntry entry, String name) {
-            this.parent = parent;
-            this.entry = entry;
-            this.name = name;
-        }
-    }
-
-    public static final class Diff {
-
-        public final HashedDir mismatch;
-
-        public final HashedDir extra;
-
-        private Diff(HashedDir mismatch, HashedDir extra) {
-            this.mismatch = mismatch;
-            this.extra = extra;
-        }
-
-
-        public boolean isSame() {
-            return mismatch.isEmpty() && extra.isEmpty();
-        }
     }
 
     private final class HashFileVisitor extends SimpleFileVisitor<Path> {

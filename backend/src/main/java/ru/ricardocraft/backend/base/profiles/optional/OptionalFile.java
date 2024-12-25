@@ -3,6 +3,7 @@ package ru.ricardocraft.backend.base.profiles.optional;
 import lombok.Getter;
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.base.profiles.optional.actions.OptionalAction;
+import ru.ricardocraft.backend.base.profiles.optional.triggers.OSTrigger;
 
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +23,7 @@ public class OptionalFile {
     @LauncherNetworkAPI
     public String info;
     @LauncherNetworkAPI
-    public List<ru.ricardocraft.backend.base.profiles.optional.triggers.OptionalTrigger> triggersList;
+    public List<OSTrigger> triggersList;
     @LauncherNetworkAPI
     public OptionalDepend[] dependenciesFile;
     @LauncherNetworkAPI

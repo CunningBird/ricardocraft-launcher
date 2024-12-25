@@ -28,7 +28,7 @@ public final class VersionCommand extends Command {
     public void invoke(String... args) {
         logger.info("LaunchServer version: {}.{}.{} (build #{})", Version.MAJOR, Version.MINOR, Version.PATCH, Version.BUILD);
         RuntimeMXBean mxBean = JVMHelper.RUNTIME_MXBEAN;
-        logger.info("Java {}({})", JVMHelper.getVersion(), mxBean.getVmVersion());
+        logger.info("Java {}({})", Runtime.version().feature(), mxBean.getVmVersion());
         logger.info("Java Home: {}", System.getProperty("java.home", "UNKNOWN"));
     }
 }

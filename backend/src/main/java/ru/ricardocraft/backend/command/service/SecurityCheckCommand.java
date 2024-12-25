@@ -13,8 +13,8 @@ import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.StdProtectHandler;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
-import ru.ricardocraft.backend.base.helper.SignHelper;
 import ru.ricardocraft.backend.base.profiles.ClientProfile;
+import ru.ricardocraft.backend.binary.tasks.sign.SignerJar;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
@@ -134,7 +134,7 @@ public class SecurityCheckCommand extends Command {
         } else {
             boolean bad = false;
             try {
-                KeyStore keyStore = SignHelper.getStore(new File(config.getSign().getKeyStore()).toPath(), config.getSign().getKeyStorePass(), config.getSign().getKeyStoreType());
+                KeyStore keyStore = SignerJar.getStore(new File(config.getSign().getKeyStore()).toPath(), config.getSign().getKeyStorePass(), config.getSign().getKeyStoreType());
                 Certificate[] certChainPlain = keyStore.getCertificateChain(config.getSign().getKeyAlias());
                 List<X509Certificate> certChain = Arrays.stream(certChainPlain).map(e -> (X509Certificate) e).toList();
                 X509Certificate cert = certChain.getFirst();

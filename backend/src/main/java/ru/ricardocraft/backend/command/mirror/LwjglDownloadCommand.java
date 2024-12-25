@@ -60,7 +60,7 @@ public class LwjglDownloadCommand extends Command {
 
     private static JVMHelper.OS getOS(String name) {
         return switch (name) {
-            case "windows" -> JVMHelper.OS.MUSTDIE;
+            case "windows" -> JVMHelper.OS.WINDOWS;
             case "linux" -> JVMHelper.OS.LINUX;
             case "macos" -> JVMHelper.OS.MACOSX;
             default -> throw new IllegalArgumentException(name);

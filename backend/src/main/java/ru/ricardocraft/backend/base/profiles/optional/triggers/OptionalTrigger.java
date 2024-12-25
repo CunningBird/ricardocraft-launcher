@@ -1,7 +1,15 @@
 package ru.ricardocraft.backend.base.profiles.optional.triggers;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import ru.ricardocraft.backend.base.profiles.optional.OptionalFile;
 
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = OSTrigger.class, name = "os"),
+})
 public abstract class OptionalTrigger {
     public boolean required;
     public boolean inverted;

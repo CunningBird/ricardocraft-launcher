@@ -2,6 +2,7 @@ package ru.ricardocraft.backend.binary.tasks;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.util.ResourceUtils;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.UnpackHelper;
 import ru.ricardocraft.backend.binary.JarLauncherInfo;
@@ -13,6 +14,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class PrepareBuildTask implements LauncherBuildTask {
 
@@ -39,10 +42,10 @@ public class PrepareBuildTask implements LauncherBuildTask {
         jarLauncherInfo.getAddonLibs().clear();
         jarLauncherInfo.getFiles().clear();
         IOHelper.walk(directoriesManager.getLibrariesDir(), new ListFileVisitor(jarLauncherInfo.getCoreLibs()), false);
-        if(Files.isDirectory(directoriesManager.getLauncherLibrariesCompileDir())) {
+        if (Files.isDirectory(directoriesManager.getLauncherLibrariesCompileDir())) {
             IOHelper.walk(directoriesManager.getLauncherLibrariesCompileDir(), new ListFileVisitor(jarLauncherInfo.getAddonLibs()), false);
         }
-        try(Stream<Path> stream = Files.walk(directoriesManager.getLauncherPackDir(), FileVisitOption.FOLLOW_LINKS).filter((e) -> {
+        try (Stream<Path> stream = Files.walk(directoriesManager.getLauncherPackDir(), FileVisitOption.FOLLOW_LINKS).filter((e) -> {
             try {
                 return !Files.isDirectory(e) && !Files.isHidden(e);
             } catch (IOException ex) {
@@ -52,14 +55,10 @@ public class PrepareBuildTask implements LauncherBuildTask {
             var map = stream.collect(Collectors.toMap(k -> directoriesManager.getLauncherPackDir().relativize(k).toString().replace("\\", "/"), (v) -> v));
             jarLauncherInfo.getFiles().putAll(map);
         }
-        UnpackHelper.unpack(IOHelper.getResourceURL("Launcher.jar"), result);
-        tryUnpack();
-        return result;
-    }
-
-    public void tryUnpack() throws IOException {
+        UnpackHelper.unpack(ResourceUtils.getFile("classpath:Launcher.jar").toURL(), result);
         logger.info("Unpacking launcher native guard list and runtime");
-        UnpackHelper.unpackZipNoCheck("runtime.zip", directoriesManager.getRuntimeDir());
+        unpackZipNoCheck("runtime.zip", directoriesManager.getRuntimeDir());
+        return result;
     }
 
     private static final class ListFileVisitor extends SimpleFileVisitor<Path> {
@@ -74,6 +73,24 @@ public class PrepareBuildTask implements LauncherBuildTask {
             if (!Files.isDirectory(file) && file.toFile().getName().endsWith(".jar"))
                 lst.add(file);
             return super.visitFile(file, attrs);
+        }
+    }
+
+    private void unpackZipNoCheck(String resource, Path target) throws IOException {
+        try {
+            if (Files.isDirectory(target))
+                return;
+            Files.deleteIfExists(target);
+            Files.createDirectory(target);
+            try (ZipInputStream input = IOHelper.newZipInput(ResourceUtils.getFile(resource).toPath())) {
+                for (ZipEntry entry = input.getNextEntry(); entry != null; entry = input.getNextEntry()) {
+                    if (entry.isDirectory())
+                        continue; // Skip dirs
+                    // Unpack file
+                    IOHelper.transfer(input, target.resolve(IOHelper.toPath(entry.getName())));
+                }
+            }
+        } catch (NoSuchFileException ignored) {
         }
     }
 }

@@ -7,12 +7,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.ricardocraft.backend.base.LaunchOptions;
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
-import ru.ricardocraft.backend.base.core.hasher.FileNameMatcher;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.VerifyHelper;
 import ru.ricardocraft.backend.base.profiles.optional.OptionalDepend;
 import ru.ricardocraft.backend.base.profiles.optional.OptionalFile;
-import ru.ricardocraft.backend.base.profiles.optional.triggers.OptionalTrigger;
+import ru.ricardocraft.backend.base.profiles.optional.triggers.OSTrigger;
 import ru.ricardocraft.backend.dto.updates.*;
 
 import java.util.*;
@@ -196,7 +195,7 @@ public final class ClientProfile implements Comparable<ClientProfile> {
                         throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.groupFile", f.name));
             }
             if (f.triggersList != null) {
-                for (OptionalTrigger trigger : f.triggersList) {
+                for (OSTrigger trigger : f.triggersList) {
                     if (trigger == null)
                         throw new IllegalArgumentException(String.format("Found null entry in updateOptional.%s.triggers", f.name));
                 }

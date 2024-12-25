@@ -35,7 +35,7 @@ launch-server-config:
     modeAfter: MainBuild
     jvmArgs:
       - '-Xmx512M'
-    enabled: true
+    enabled: false
     mappings: true
   launcher:
     compress: true
@@ -48,15 +48,15 @@ launch-server-config:
     memoryLimit: 256
   sign:
     enabled: true
-    keyStore: keystore
+    keyStore: C:\Users\cunningbird\IdeaProjects\ricardocraft-launcher\keystore.jks
     keyStoreType: PKCS12
     keyStorePass: mypass
-    keyAlias: myname
+    keyAlias: ricardocraft
     keyPass: mypass
     metaInfKeyName: SIGNUMO.RSA
     metaInfSfName: SIGNUMO.SF
     signAlgo: SHA256WITHRSA
-    checkCertificateExpired: false
+    checkCertificateExpired: true
   osslSignCodeConfig:
     timestampServer: http://timestamp.sectigo.com
     osslsigncodePath: osslsigncode
@@ -74,7 +74,7 @@ launch-server-config:
         startWithMode: false
         commands: [ ]
     enabled: true
-  runtimeConfig:
+  runtime:
     passwordEncryptKey: aad2ebe2604f9c71c54079c42ffc5b97
     runtimeEncryptKey: 60d7abd7904405be99f10b7641ace3b6
     registerApiKey: ec88066104566ff76136196baf0c0b2f
@@ -96,6 +96,8 @@ launch-server-config:
   localUpdatesProvider:
     cacheFile: .updates-cache
     cacheUpdates: true
+  openid:
+    tokenUri: 'http:/localhost:7777/oauth2/token'
 
 directories:
   launcherConfigFile: 'config.bin'
