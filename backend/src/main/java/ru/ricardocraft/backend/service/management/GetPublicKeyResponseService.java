@@ -17,15 +17,13 @@ public class GetPublicKeyResponseService extends AbstractResponseService {
     private final KeyAgreementManager keyAgreementManager;
 
     @Autowired
-    public GetPublicKeyResponseService(WebSocketService service, KeyAgreementManager keyAgreementManagerq) {
+    public GetPublicKeyResponseService(WebSocketService service, KeyAgreementManager keyAgreementManager) {
         super(GetPublicKeyResponse.class, service);
-        this.keyAgreementManager = keyAgreementManagerq;
+        this.keyAgreementManager = keyAgreementManager;
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
-        GetPublicKeyResponse response = (GetPublicKeyResponse) rawResponse;
-
-        sendResult(ctx, new GetPublicKeyRequestEvent(keyAgreementManager.rsaPublicKey, keyAgreementManager.ecdsaPublicKey), response.requestUUID);
+    public GetPublicKeyRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+        return new GetPublicKeyRequestEvent(keyAgreementManager.rsaPublicKey, keyAgreementManager.ecdsaPublicKey);
     }
 }

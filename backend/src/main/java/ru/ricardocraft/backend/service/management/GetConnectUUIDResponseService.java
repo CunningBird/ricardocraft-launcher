@@ -21,9 +21,8 @@ public class GetConnectUUIDResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public GetConnectUUIDRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         GetConnectUUIDResponse response = (GetConnectUUIDResponse) rawResponse;
-
-        sendResult(ctx, new GetConnectUUIDRequestEvent(response.connectUUID, shardId), response.requestUUID);
+        return new GetConnectUUIDRequestEvent(response.connectUUID, shardId);
     }
 }

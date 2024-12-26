@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.core.interfaces.user.UserSupportAdditionalData;
+import ru.ricardocraft.backend.dto.events.RequestEvent;
 import ru.ricardocraft.backend.dto.events.request.auth.AdditionalDataRequestEvent;
 import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.dto.response.auth.AdditionalDataResponse;
@@ -24,12 +25,11 @@ public class AdditionalDataResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public AdditionalDataRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         AdditionalDataResponse response = castResponse(rawResponse);
 
         if (!client.isAuth) {
-            sendError(ctx, "Access denied", response.requestUUID);
-            return;
+            throw new Exception("Access denied");
         }
         AuthProviderPair pair = client.auth;
         if (response.username == null && response.uuid == null) {
@@ -44,8 +44,7 @@ public class AdditionalDataResponseService extends AbstractResponseService {
             } else {
                 properties = Map.of();
             }
-            sendResult(ctx, new AdditionalDataRequestEvent(properties), response.requestUUID);
-            return;
+            return new AdditionalDataRequestEvent(properties);
         }
         User user;
         if (response.username != null) {
@@ -54,8 +53,7 @@ public class AdditionalDataResponseService extends AbstractResponseService {
             user = pair.core.getUserByUUID(response.uuid);
         }
         if (!(user instanceof UserSupportAdditionalData userSupport)) {
-            sendResult(ctx, new AdditionalDataRequestEvent(Map.of()), response.requestUUID);
-            return;
+            return new AdditionalDataRequestEvent(Map.of());
         }
         Map<String, String> properties;
         if (client.permissions.hasPerm("launchserver.request.addionaldata.privileged")) {
@@ -63,6 +61,6 @@ public class AdditionalDataResponseService extends AbstractResponseService {
         } else {
             properties = userSupport.getPropertiesMapUnprivileged();
         }
-        sendResult(ctx, new AdditionalDataRequestEvent(properties), response.requestUUID);
+        return new AdditionalDataRequestEvent(properties);
     }
 }

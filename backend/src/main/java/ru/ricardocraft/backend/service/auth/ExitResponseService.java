@@ -26,40 +26,38 @@ public class ExitResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public ExitRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         ExitResponse response = (ExitResponse) rawResponse;
 
         if (response.username != null && (!client.isAuth || client.permissions == null || !client.permissions.hasPerm("launchserver\\.management\\.kick"))) {
-            sendError(ctx,"Permissions denied", response.requestUUID);
-            return;
+            throw new Exception("Permissions denied");
         }
         if (response.username == null) {
-            if(!client.isAuth || client.auth == null) {
-                sendError(ctx,"You are not authorized", response.requestUUID);
-                return;
+            if (!client.isAuth || client.auth == null) {
+                throw new Exception("You are not authorized");
             }
-            {
-                WebSocketFrameHandler handler = ctx.pipeline().get(WebSocketFrameHandler.class);
-                if (handler == null) {
-                    sendError(ctx,"Exit internal error", response.requestUUID);
-                    return;
-                }
-                Client newClient = new Client();
-                newClient.checkSign = client.checkSign;
-                handler.setClient(newClient);
-                AuthSupportExit supportExit = client.auth.core.isSupport(AuthSupportExit.class);
-                if (supportExit != null) {
-                    if (response.exitAll) {
-                        supportExit.exitUser(client.getUser());
-                    } else {
-                        UserSession session = client.sessionObject;
-                        if (session != null) {
-                            supportExit.deleteSession(session);
-                        }
+
+            WebSocketFrameHandler handler = ctx.pipeline().get(WebSocketFrameHandler.class);
+            if (handler == null) {
+                throw new Exception("Exit internal error");
+            }
+
+            Client newClient = new Client();
+            newClient.checkSign = client.checkSign;
+            handler.setClient(newClient);
+
+            AuthSupportExit supportExit = client.auth.core.isSupport(AuthSupportExit.class);
+            if (supportExit != null) {
+                if (response.exitAll) {
+                    supportExit.exitUser(client.getUser());
+                } else {
+                    UserSession session = client.sessionObject;
+                    if (session != null) {
+                        supportExit.deleteSession(session);
                     }
                 }
-                sendResult(ctx, new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT), response.requestUUID);
             }
+            return new ExitRequestEvent(ExitRequestEvent.ExitReason.CLIENT);
         } else {
             service.forEachActiveChannels(((channel, webSocketFrameHandler) -> {
                 Client client1 = webSocketFrameHandler.getClient();
@@ -67,7 +65,7 @@ public class ExitResponseService extends AbstractResponseService {
                     exit(webSocketFrameHandler, channel, ExitRequestEvent.ExitReason.SERVER);
                 }
             }));
-            sendResult(ctx, new ExitRequestEvent(ExitRequestEvent.ExitReason.NO_EXIT), response.requestUUID);
+            return new ExitRequestEvent(ExitRequestEvent.ExitReason.NO_EXIT);
         }
     }
 

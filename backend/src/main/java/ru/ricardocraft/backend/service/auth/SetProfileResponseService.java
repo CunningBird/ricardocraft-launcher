@@ -32,21 +32,19 @@ public class SetProfileResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public SetProfileRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         SetProfileResponse response = (SetProfileResponse) rawResponse;
         Collection<ClientProfile> profiles = profileProvider.getProfiles();
         for (ClientProfile p : profiles) {
             if (p.getTitle().equals(response.client)) {
                 if (protectHandler instanceof ProfilesProtectHandler profilesProtectHandler &&
                         !profilesProtectHandler.canChangeProfile(p, client)) {
-                    sendError(ctx,"Access denied", response.requestUUID);
-                    return;
+                    throw new Exception("Access denied");
                 }
                 client.profile = p;
-                sendResult(ctx, new SetProfileRequestEvent(p), response.requestUUID);
-                return;
+                return new SetProfileRequestEvent(p);
             }
         }
-        sendError(ctx, "Profile not found", response.requestUUID);
+        throw new Exception("Profile not found");
     }
 }

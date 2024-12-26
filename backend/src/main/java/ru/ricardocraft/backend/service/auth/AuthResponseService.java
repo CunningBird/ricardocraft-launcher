@@ -36,7 +36,7 @@ public class AuthResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client clientData) throws Exception {
+    public AuthRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client clientData) throws Exception {
         AuthResponse response = castResponse(rawResponse);
 
         try {
@@ -45,8 +45,7 @@ public class AuthResponseService extends AbstractResponseService {
             if (response.auth_id == null || response.auth_id.isEmpty()) pair = authProviders.getAuthProviderPair();
             else pair = authProviders.getAuthProviderPair(response.auth_id);
             if (pair == null) {
-                sendError(ctx, "auth_id incorrect", response.requestUUID);
-                return;
+                throw new Exception("auth_id incorrect");
             }
             AuthContext context = authManager.makeAuthContext(clientData, response.authType, pair, response.login, response.client, response.ip);
             authManager.check(context);
@@ -61,9 +60,9 @@ public class AuthResponseService extends AbstractResponseService {
                 result.accessToken = context.report.minecraftAccessToken();
             }
             result.playerProfile = authManager.getPlayerProfile(clientData);
-            sendResult(ctx, result, response.requestUUID);
+            return result;
         } catch (AuthException e) {
-            sendError(ctx, e.getMessage(), response.requestUUID);
+            throw new Exception(e.getMessage());
         }
     }
 

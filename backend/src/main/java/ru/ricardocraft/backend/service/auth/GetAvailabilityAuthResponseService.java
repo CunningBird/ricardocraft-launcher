@@ -27,14 +27,12 @@ public class GetAvailabilityAuthResponseService extends AbstractResponseService 
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
-        GetAvailabilityAuthResponse response = (GetAvailabilityAuthResponse) rawResponse;
-
+    public GetAvailabilityAuthRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         List<GetAvailabilityAuthRequestEvent.AuthAvailability> list = new ArrayList<>();
         for (AuthProviderPair pair : authProviders.getAuthProviders().values()) {
             list.add(new GetAvailabilityAuthRequestEvent.AuthAvailability(pair.core.getDetails(client), pair.name, pair.displayName,
                     pair.visible, pair.getFeatures()));
         }
-        sendResult(ctx, new GetAvailabilityAuthRequestEvent(list), response.requestUUID);
+        return new GetAvailabilityAuthRequestEvent(list);
     }
 }

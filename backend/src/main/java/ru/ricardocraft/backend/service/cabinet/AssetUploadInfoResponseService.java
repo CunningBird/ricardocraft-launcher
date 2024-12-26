@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportAssetUpload;
+import ru.ricardocraft.backend.dto.events.request.cabinet.AssetUploadInfoRequestEvent;
 import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.dto.response.cabinet.AssetUploadInfoResponse;
 import ru.ricardocraft.backend.service.AbstractResponseService;
@@ -19,18 +20,14 @@ public class AssetUploadInfoResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
-        AssetUploadInfoResponse response = (AssetUploadInfoResponse) rawResponse;
-
+    public AssetUploadInfoRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         if (!client.isAuth || client.auth == null || client.getUser() == null) {
-            sendError(ctx, "Access denied", response.requestUUID);
-            return;
+            throw new Exception("Access denied");
         }
         var support = client.auth.isSupport(AuthSupportAssetUpload.class);
         if (support == null) {
-            sendError(ctx, "Not supported", response.requestUUID);
-            return;
+            throw new Exception("Not supported");
         }
-        sendResult(ctx, support.getAssetUploadInfo(client.getUser()), response.requestUUID);
+        return support.getAssetUploadInfo(client.getUser());
     }
 }

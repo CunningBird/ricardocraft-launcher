@@ -37,23 +37,22 @@ public class HardwareReportResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public HardwareReportRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         HardwareReportResponse response = (HardwareReportResponse) rawResponse;
 
         if (client.trustLevel == null || client.trustLevel.publicKey == null) {
-            sendError(ctx, "Invalid request", response.requestUUID);
-            return;
+            throw new Exception("Invalid request");
         }
         if (protectHandler instanceof AdvancedProtectHandler advancedProtectHandler) {
             try {
                 if (!client.isAuth) {
-                    sendError(ctx, "Access denied", response.requestUUID);
-                    return;
+                    throw new Exception("Access denied");
                 }
                 if (client.trustLevel.hardwareInfo != null) {
-                    sendResult(ctx, new HardwareReportRequestEvent(advancedProtectHandler.createHardwareToken(client.username, client.trustLevel.hardwareInfo),
-                            SECONDS.toMillis(nettyProperties.getSecurity().getHardwareTokenExpire())), response.requestUUID);
-                    return;
+                    return new HardwareReportRequestEvent(
+                            advancedProtectHandler.createHardwareToken(client.username, client.trustLevel.hardwareInfo),
+                            SECONDS.toMillis(nettyProperties.getSecurity().getHardwareTokenExpire())
+                    );
                 }
                 logger.debug("HardwareInfo received");
                 {
@@ -70,18 +69,20 @@ public class HardwareReportResponseService extends AbstractResponseService {
                             throw new SecurityException("Your hardware banned");
                         }
                         client.trustLevel.hardwareInfo = hardware;
-                        sendResult(ctx, new HardwareReportRequestEvent(advancedProtectHandler.createHardwareToken(client.username, hardware),
-                                SECONDS.toMillis(nettyProperties.getSecurity().getHardwareTokenExpire())), response.requestUUID);
+                        return new HardwareReportRequestEvent(
+                                advancedProtectHandler.createHardwareToken(client.username, hardware),
+                                SECONDS.toMillis(nettyProperties.getSecurity().getHardwareTokenExpire())
+                        );
                     } else {
                         logger.error("AuthCoreProvider not supported hardware");
-                        sendError(ctx, "AuthCoreProvider not supported hardware", response.requestUUID);
+                        throw new Exception("AuthCoreProvider not supported hardware");
                     }
                 }
             } catch (SecurityException e) {
-                sendError(ctx, e.getMessage(), response.requestUUID);
+                throw new Exception(e.getMessage());
             }
         } else {
-            sendResult(ctx, new HardwareReportRequestEvent(), response.requestUUID);
+            return new HardwareReportRequestEvent();
         }
     }
 }

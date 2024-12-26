@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.SecureProtectHandler;
+import ru.ricardocraft.backend.dto.events.request.secure.VerifySecureLevelKeyRequestEvent;
 import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.dto.response.secure.VerifySecureLevelKeyResponse;
 import ru.ricardocraft.backend.service.AbstractResponseService;
@@ -26,31 +27,27 @@ public class VerifySecureLevelKeyResponseService extends AbstractResponseService
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public VerifySecureLevelKeyRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         VerifySecureLevelKeyResponse response = (VerifySecureLevelKeyResponse) rawResponse;
 
         if (!(protectHandler instanceof SecureProtectHandler secureProtectHandler) || client.trustLevel == null || client.trustLevel.verifySecureKey == null) {
-            sendError(ctx, "This method not allowed", response.requestUUID);
-            return;
+            throw new Exception("This method not allowed");
         }
         try {
             secureProtectHandler.verifySecureLevelKey(response.publicKey, client.trustLevel.verifySecureKey, response.signature);
         } catch (InvalidKeySpecException e) {
-            sendError(ctx, "Invalid public key", response.requestUUID);
-            return;
+            throw new Exception("Invalid public key");
         } catch (SignatureException e) {
-            sendError(ctx, "Invalid signature", response.requestUUID);
-            return;
+            throw new Exception("Invalid signature");
         } catch (SecurityException e) {
-            sendError(ctx, e.getMessage(), response.requestUUID);
-            return;
+            throw new Exception(e.getMessage());
         }
         client.trustLevel.keyChecked = true;
         client.trustLevel.publicKey = response.publicKey;
         try {
-            sendResult(ctx, secureProtectHandler.onSuccessVerify(client), response.requestUUID);
+            return secureProtectHandler.onSuccessVerify(client);
         } catch (SecurityException e) {
-            sendError(ctx, e.getMessage(), response.requestUUID);
+            throw new Exception(e.getMessage());
         }
     }
 }

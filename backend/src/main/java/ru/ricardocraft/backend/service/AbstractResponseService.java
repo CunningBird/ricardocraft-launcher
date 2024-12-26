@@ -21,27 +21,11 @@ public abstract class AbstractResponseService {
         service.registerService(responseClass, this);
     }
 
-    abstract public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client)  throws Exception;
+    abstract public RequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception;
 
     @SuppressWarnings("unchecked")
     public <Response extends SimpleResponse> Response castResponse(SimpleResponse response) throws Exception {
         if (responseClass.isAssignableFrom(response.getClass())) return (Response) response;
         else throw new Exception("Cannot cast " + response.getClass() + " to " + responseClass.getName());
-    }
-
-    public void sendResult(ChannelHandlerContext ctx, RequestEvent result, UUID requestUUID) {
-        result.requestUUID = requestUUID;
-        service.sendObject(ctx.channel(), result);
-    }
-
-    public void sendResultAndClose(ChannelHandlerContext ctx, RequestEvent result, UUID requestUUID) {
-        result.requestUUID = requestUUID;
-        service.sendObjectAndClose(ctx, result);
-    }
-
-    public void sendError(ChannelHandlerContext ctx, String errorMessage, UUID requestUUID) {
-        ErrorRequestEvent event = new ErrorRequestEvent(errorMessage);
-        event.requestUUID = requestUUID;
-        service.sendObject(ctx.channel(), event);
     }
 }

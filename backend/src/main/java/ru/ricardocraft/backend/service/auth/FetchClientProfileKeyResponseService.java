@@ -26,12 +26,11 @@ public class FetchClientProfileKeyResponseService extends AbstractResponseServic
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public FetchClientProfileKeyRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         FetchClientProfileKeyResponse response = (FetchClientProfileKeyResponse) rawResponse;
 
         if (!client.isAuth || client.type != AuthResponse.ConnectTypes.CLIENT) {
-            sendError(ctx,"Permissions denied", response.requestUUID);
-            return;
+            throw new Exception("Permissions denied");
         }
         UserSession session = client.sessionObject;
         UserSessionSupportKeys.ClientProfileKeys keys;
@@ -40,6 +39,6 @@ public class FetchClientProfileKeyResponseService extends AbstractResponseServic
         } else {
             keys = authManager.createClientProfileKeys(client.uuid);
         }
-        sendResult(ctx, new FetchClientProfileKeyRequestEvent(keys.publicKey(), keys.privateKey(), keys.signature(), keys.expiresAt(), keys.refreshedAfter()), response.requestUUID);
+        return new FetchClientProfileKeyRequestEvent(keys.publicKey(), keys.privateKey(), keys.signature(), keys.expiresAt(), keys.refreshedAfter());
     }
 }

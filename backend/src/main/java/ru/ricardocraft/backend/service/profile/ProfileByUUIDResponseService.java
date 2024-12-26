@@ -30,7 +30,7 @@ public class ProfileByUUIDResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public ProfileByUUIDRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         ProfileByUUIDResponse response = (ProfileByUUIDResponse) rawResponse;
 
         AuthProviderPair pair;
@@ -40,14 +40,12 @@ public class ProfileByUUIDResponseService extends AbstractResponseService {
             pair = client.auth;
         }
         if (pair == null) {
-            sendError(ctx, "ProfileByUUIDResponse: AuthProviderPair is null", response.requestUUID);
-            return;
+            throw new Exception("ProfileByUUIDResponse: AuthProviderPair is null");
         }
         User user = pair.core.getUserByUUID(response.uuid);
         if (user == null) {
-            sendError(ctx, "User not found", response.requestUUID);
-            return;
+            throw new Exception("User not found");
         }
-        sendResult(ctx, new ProfileByUUIDRequestEvent(authManager.getPlayerProfile(pair, response.uuid)), response.requestUUID);
+        return new ProfileByUUIDRequestEvent(authManager.getPlayerProfile(pair, response.uuid));
     }
 }

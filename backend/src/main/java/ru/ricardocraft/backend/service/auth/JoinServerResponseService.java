@@ -26,32 +26,29 @@ public class JoinServerResponseService extends AbstractResponseService {
 
     @Autowired
     public JoinServerResponseService(WebSocketService service,
-                                        ProtectHandler protectHandler,
-                                        AuthManager authManager) {
+                                     ProtectHandler protectHandler,
+                                     AuthManager authManager) {
         super(JoinServerResponse.class, service);
         this.protectHandler = protectHandler;
         this.authManager = authManager;
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public JoinServerRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         JoinServerResponse response = (JoinServerResponse) rawResponse;
 
         if (!protectHandler.allowJoinServer(client)) {
-            sendError(ctx, "Permissions denied", response.requestUUID);
-            return;
+            throw new Exception("Permissions denied");
         }
         if ((response.username == null && response.uuid == null) || response.accessToken == null || response.serverID == null) {
-            sendError(ctx,"Invalid request", response.requestUUID);
-            return;
+            throw new Exception("Invalid request");
         }
         boolean success;
         try {
             if (protectHandler instanceof JoinServerProtectHandler joinServerProtectHandler) {
                 success = joinServerProtectHandler.onJoinServer(response.serverID, response.username, response.uuid, client);
                 if (!success) {
-                    sendResult(ctx, new JoinServerRequestEvent(false), response.requestUUID);
-                    return;
+                    return new JoinServerRequestEvent(false);
                 }
             }
             success = authManager.joinServer(client, response.username, response.uuid, response.accessToken, response.serverID);
@@ -59,13 +56,11 @@ public class JoinServerResponseService extends AbstractResponseService {
                 logger.debug("joinServer: {} accessToken: {} serverID: {}", response.username, response.accessToken, response.serverID);
             }
         } catch (AuthException | SecurityException e) {
-            sendError(ctx, e.getMessage(), response.requestUUID);
-            return;
+            throw new Exception(e.getMessage());
         } catch (Exception e) {
             logger.error("Join Server error", e);
-            sendError(ctx,"Internal authHandler error", response.requestUUID);
-            return;
+            throw new Exception("Internal authHandler error");
         }
-        sendResult(ctx, new JoinServerRequestEvent(success), response.requestUUID);
+        return new JoinServerRequestEvent(success);
     }
 }

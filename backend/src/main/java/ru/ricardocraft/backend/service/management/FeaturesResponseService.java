@@ -23,8 +23,7 @@ public class FeaturesResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
-        FeaturesResponse response = (FeaturesResponse) rawResponse;
-        sendResult(ctx, new FeaturesRequestEvent(featuresManager.getMap()), response.requestUUID);
+    public FeaturesRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+        return new FeaturesRequestEvent(featuresManager.getMap());
     }
 }

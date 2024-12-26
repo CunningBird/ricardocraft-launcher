@@ -30,13 +30,12 @@ public class BatchProfileByUsernameService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public BatchProfileByUsernameRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         BatchProfileByUsername response = (BatchProfileByUsername) rawResponse;
 
         BatchProfileByUsernameRequestEvent result = new BatchProfileByUsernameRequestEvent();
         if (response.list == null) {
-            sendError(ctx, "Invalid request", response.requestUUID);
-            return;
+            throw new Exception("Invalid request");
         }
         result.playerProfiles = new PlayerProfile[response.list.length];
         for (int i = 0; i < response.list.length; ++i) {
@@ -46,6 +45,6 @@ public class BatchProfileByUsernameService extends AbstractResponseService {
             }
             result.playerProfiles[i] = authManager.getPlayerProfile(pair, response.list[i].username);
         }
-        sendResult(ctx, result, response.requestUUID);
+        return result;
     }
 }

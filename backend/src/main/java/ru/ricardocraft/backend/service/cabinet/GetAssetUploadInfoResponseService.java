@@ -20,18 +20,16 @@ public class GetAssetUploadInfoResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public GetAssetUploadUrlRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         GetAssetUploadInfoResponse response = (GetAssetUploadInfoResponse) rawResponse;
 
         if (!client.isAuth || client.auth == null || client.getUser() == null) {
-            sendError(ctx, "Access denied", response.requestUUID);
-            return;
+            throw new Exception("Access denied");
         }
         var support = client.auth.isSupport(AuthSupportAssetUpload.class);
         if (support == null) {
-            sendError(ctx, "Not supported", response.requestUUID);
-            return;
+            throw new Exception("Not supported");
         }
-        sendResult(ctx, new GetAssetUploadUrlRequestEvent(support.getAssetUploadUrl(response.name, client.getUser()), support.getAssetUploadToken(response.name, client.getUser())), response.requestUUID);
+        return new GetAssetUploadUrlRequestEvent(support.getAssetUploadUrl(response.name, client.getUser()), support.getAssetUploadToken(response.name, client.getUser()));
     }
 }

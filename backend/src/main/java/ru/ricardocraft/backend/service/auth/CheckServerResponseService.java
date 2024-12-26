@@ -31,19 +31,17 @@ public class CheckServerResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client pClient) throws Exception {
+    public CheckServerRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client pClient) throws Exception {
         CheckServerResponse response = (CheckServerResponse) rawResponse;
 
         if (pClient.permissions == null || !pClient.permissions.hasPerm("launchserver.checkserver")) {
-            sendError(ctx, "Permissions denied", response.requestUUID);
-            return;
+            throw new Exception("Permissions denied");
         }
         CheckServerRequestEvent result = new CheckServerRequestEvent();
         try {
             AuthManager.CheckServerReport report = authManager.checkServer(pClient, response.username, response.serverID);
             if (report == null) {
-                sendError(ctx, "User not verified", response.requestUUID);
-                return;
+                throw new Exception("User not verified");
             }
             result.playerProfile = report.playerProfile;
             result.uuid = report.uuid;
@@ -58,13 +56,11 @@ public class CheckServerResponseService extends AbstractResponseService {
             }
             logger.debug("checkServer: {} uuid: {} serverID: {}", result.playerProfile == null ? null : result.playerProfile.username, result.uuid, response.serverID);
         } catch (AuthException e) {
-            sendError(ctx, e.getMessage(), response.requestUUID);
-            return;
+            throw new Exception(e.getMessage());
         } catch (Exception e) {
             logger.error("Internal authHandler error", e);
-            sendError(ctx, "Internal authHandler error", response.requestUUID);
-            return;
+            throw new Exception("Internal authHandler error");
         }
-        sendResult(ctx, result, response.requestUUID);
+        return result;
     }
 }

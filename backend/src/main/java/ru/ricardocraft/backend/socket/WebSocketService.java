@@ -132,15 +132,26 @@ public class WebSocketService {
         else response.ip = IOHelper.getIP(ctx.channel().remoteAddress());
         response.connectUUID = context.connectUUID;
         try {
-            services.get(response.getClass()).execute(response, ctx, client);
+            RequestEvent requestEvent = services.get(response.getClass()).execute(response, ctx, client);
+            sendResult(ctx, requestEvent, response.requestUUID);
         } catch (Throwable e) {
             context.exception = e;
             logger.error("WebSocket request processing failed", e);
             RequestEvent event;
-            event = new ErrorRequestEvent("Fatal server error. Contact administrator");
+            event = new ErrorRequestEvent(e.getMessage());
             event.requestUUID = response.requestUUID;
             sendObject(ctx.channel(), event);
         }
+    }
+
+    public void sendResult(ChannelHandlerContext ctx, RequestEvent result, UUID requestUUID) {
+        result.requestUUID = requestUUID;
+        sendObject(ctx.channel(), result);
+    }
+
+    public void sendResultAndClose(ChannelHandlerContext ctx, RequestEvent result, UUID requestUUID) {
+        result.requestUUID = requestUUID;
+        sendObjectAndClose(ctx, result);
     }
 
     public void registerClient(Channel channel) {

@@ -27,12 +27,11 @@ public class RefreshTokenResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public RefreshTokenRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         RefreshTokenResponse response = (RefreshTokenResponse) rawResponse;
 
         if (response.refreshToken == null) {
-            sendError(ctx, "Invalid request", response.requestUUID);
-            return;
+            throw new Exception("Invalid request");
         }
         AuthProviderPair pair;
         if (!client.isAuth) {
@@ -45,14 +44,12 @@ public class RefreshTokenResponseService extends AbstractResponseService {
             pair = client.auth;
         }
         if (pair == null) {
-            sendError(ctx, "Invalid request", response.requestUUID);
-            return;
+            throw new Exception("Invalid request");
         }
         AuthManager.AuthReport report = pair.core.refreshAccessToken(response.refreshToken, new AuthResponseService.AuthContext(client, null, null, response.ip, AuthResponse.ConnectTypes.API, pair));
         if (report == null || !report.isUsingOAuth()) {
-            sendError(ctx, "Invalid RefreshToken", response.requestUUID);
-            return;
+            throw new Exception("Invalid RefreshToken");
         }
-        sendResult(ctx, new RefreshTokenRequestEvent(new AuthRequestEvent.OAuthRequestEvent(report.oauthAccessToken(), report.oauthRefreshToken(), report.oauthExpire())), response.requestUUID);
+        return new RefreshTokenRequestEvent(new AuthRequestEvent.OAuthRequestEvent(report.oauthAccessToken(), report.oauthRefreshToken(), report.oauthExpire()));
     }
 }

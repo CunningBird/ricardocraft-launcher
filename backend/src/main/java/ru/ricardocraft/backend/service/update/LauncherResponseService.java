@@ -47,7 +47,7 @@ public class LauncherResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public LauncherRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         LauncherResponse response = (LauncherResponse) rawResponse;
 
 //        byte[] bytes;
@@ -56,29 +56,31 @@ public class LauncherResponseService extends AbstractResponseService {
 //        else
 //            bytes = response.digest;
         if (response.launcher_type == 1) {
-            sendResult(ctx, new LauncherRequestEvent(false, nettyProperties.getLauncherURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000), response.requestUUID);
+            return new LauncherRequestEvent(false, nettyProperties.getLauncherURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000);
 //            byte[] hash = launcherBinary.getDigest();
 //            if (hash == null)
 //                service.sendObjectAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherURL()));
 //            if (Arrays.equals(bytes, hash) && checkSecure(response.secureHash, response.secureSalt)) {
 //                client.checkSign = true;
-//                sendResult(ctx, new LauncherRequestEvent(false, nettyProperties.getLauncherURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000), response.requestUUID);
+//                return new LauncherRequestEvent(false, nettyProperties.getLauncherURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000);
 //            } else {
-//                sendResultAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherURL(), null, 0), response.requestUUID);
+//                service.sendResultAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherURL(), null, 0), response.requestUUID);
 //            }
         } else if (response.launcher_type == 2) //EXE
         {
-            sendResult(ctx, new LauncherRequestEvent(false, nettyProperties.getLauncherEXEURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000), response.requestUUID);
+            return new LauncherRequestEvent(false, nettyProperties.getLauncherEXEURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000);
 //            byte[] hash = exeLauncherBinary.getDigest();
 //            if (hash == null)
-//                sendResultAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherEXEURL()), response.requestUUID);
+//                service.sendResultAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherEXEURL()), response.requestUUID);
 //            if (Arrays.equals(bytes, hash) && checkSecure(response.secureHash, response.secureSalt)) {
 //                client.checkSign = true;
-//                sendResult(ctx, new LauncherRequestEvent(false, nettyProperties.getLauncherEXEURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000), response.requestUUID);
+//                return new LauncherRequestEvent(false, nettyProperties.getLauncherEXEURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000);
 //            } else {
-//                sendResultAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherEXEURL(), null, 0), response.requestUUID);
+//                service.sendResultAndClose(ctx, new LauncherRequestEvent(true, nettyProperties.getLauncherEXEURL(), null, 0), response.requestUUID);
 //            }
-        } else sendError(ctx, "Request launcher type error", response.requestUUID);
+        } else {
+            throw new Exception("Request launcher type error");
+        }
     }
 
     public String createLauncherExtendedToken() {

@@ -24,14 +24,13 @@ public class SecurityReportResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public SecurityReportRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         SecurityReportResponse response = (SecurityReportResponse) rawResponse;
 
         if (!(protectHandler instanceof SecureProtectHandler secureProtectHandler)) {
-            sendError(ctx, "Method not allowed", response.requestUUID);
+            throw new Exception("Method not allowed");
         } else {
-            SecurityReportRequestEvent event = secureProtectHandler.onSecurityReport(response, client);
-            sendResult(ctx, event, response.requestUUID);
+            return secureProtectHandler.onSecurityReport(response, client);
         }
     }
 }

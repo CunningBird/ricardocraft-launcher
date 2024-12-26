@@ -36,21 +36,18 @@ public class UpdateResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public UpdateRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         UpdateResponse response = (UpdateResponse) rawResponse;
 
         if (protectHandler instanceof ProfilesProtectHandler profilesProtectHandler && !profilesProtectHandler.canGetUpdates(response.dirName, client)) {
-            sendError(ctx, "Access denied", response.requestUUID);
-            return;
+            throw new Exception("Access denied");
         }
         if (response.dirName == null) {
-            sendError(ctx, "Invalid request", response.requestUUID);
-            return;
+            throw new Exception("Invalid request");
         }
         HashedDir dir = updatesManager.getUpdate(response.dirName);
         if (dir == null) {
-            sendError(ctx, "Directory %s not found".formatted(response.dirName), response.requestUUID);
-            return;
+            throw new Exception("Directory %s not found".formatted(response.dirName));
         }
         String url = nettyProperties.getDownloadURL().replace("%dirname%", IOHelper.urlEncode(response.dirName));
         boolean zip = false;
@@ -59,6 +56,6 @@ public class UpdateResponseService extends AbstractResponseService {
             url = bind.getUrl();
             zip = bind.getZip();
         }
-        sendResult(ctx, new UpdateRequestEvent(dir, url, zip), response.requestUUID);
+        return new UpdateRequestEvent(dir, url, zip);
     }
 }

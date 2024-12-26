@@ -30,13 +30,11 @@ public class ProfilesResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
-        ProfilesResponse response = (ProfilesResponse) rawResponse;
-
+    public ProfilesRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         if (protectHandler instanceof ProfilesProtectHandler profilesProtectHandler && !profilesProtectHandler.canGetProfiles(client)) {
-            sendError(ctx, "Access denied", response.requestUUID);
-            return;
+            throw new Exception("Access denied");
         }
-        sendResult(ctx, new ProfilesRequestEvent(profileProvider.getProfiles(client)), response.requestUUID);
+
+        return new ProfilesRequestEvent(profileProvider.getProfiles(client));
     }
 }

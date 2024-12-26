@@ -30,16 +30,16 @@ public class ProfileByUsernameService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public ProfileByUsernameRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         ProfileByUsername response = (ProfileByUsername) rawResponse;
 
         AuthProviderPair pair = client.auth;
         if (pair == null) pair = authProviders.getAuthProviderPair();
         PlayerProfile profile = authManager.getPlayerProfile(pair, response.username);
         if (profile == null) {
-            sendError(ctx, "User not found", response.requestUUID);
-            return;
+            throw new Exception("User not found");
         }
-        sendResult(ctx, new ProfileByUsernameRequestEvent(profile), response.requestUUID);
+
+        return new ProfileByUsernameRequestEvent(profile);
     }
 }

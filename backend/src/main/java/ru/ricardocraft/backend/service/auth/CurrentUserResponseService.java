@@ -23,9 +23,8 @@ public class CurrentUserResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
-        CurrentUserResponse response = (CurrentUserResponse) rawResponse;
-        sendResult(ctx, new CurrentUserRequestEvent(collectUserInfoFromClient(client)), response.requestUUID);
+    public CurrentUserRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+        return new CurrentUserRequestEvent(collectUserInfoFromClient(client));
     }
 
     public CurrentUserRequestEvent.UserInfo collectUserInfoFromClient(Client client) {

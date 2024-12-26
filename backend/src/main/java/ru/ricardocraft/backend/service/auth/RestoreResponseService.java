@@ -54,12 +54,11 @@ public class RestoreResponseService extends AbstractResponseService {
     }
 
     @Override
-    public void execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public RestoreRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
         RestoreResponse response = (RestoreResponse) rawResponse;
 
         if (response.accessToken == null && !client.isAuth && response.needUserInfo) {
-            sendError(ctx, "Invalid request", response.requestUUID);
-            return;
+            throw new Exception("Invalid request");
         }
         AuthProviderPair pair;
         if (!client.isAuth) {
@@ -72,25 +71,21 @@ public class RestoreResponseService extends AbstractResponseService {
             pair = client.auth;
         }
         if (pair == null) {
-            sendError(ctx, "Invalid authId", response.requestUUID);
-            return;
+            throw new Exception("Invalid authId");
         }
         if (response.accessToken != null) {
             UserSession session;
             try {
                 session = pair.core.getUserSessionByOAuthAccessToken(response.accessToken);
             } catch (AuthCoreProvider.OAuthAccessTokenExpired e) {
-                sendError(ctx, AuthRequestEvent.OAUTH_TOKEN_EXPIRE, response.requestUUID);
-                return;
+                throw new Exception(AuthRequestEvent.OAUTH_TOKEN_EXPIRE);
             }
             if (session == null) {
-                sendError(ctx, AuthRequestEvent.OAUTH_TOKEN_INVALID, response.requestUUID);
-                return;
+                throw new Exception(AuthRequestEvent.OAUTH_TOKEN_INVALID);
             }
             User user = session.getUser();
             if (user == null) {
-                sendError(ctx, "Internal Auth error: UserSession is broken", response.requestUUID);
-                return;
+                throw new Exception("Internal Auth error: UserSession is broken");
             }
             client.coreObject = user;
             client.sessionObject = session;
@@ -107,9 +102,9 @@ public class RestoreResponseService extends AbstractResponseService {
             });
         }
         if (response.needUserInfo && client.isAuth) {
-            sendResult(ctx, new RestoreRequestEvent(currentUserResponseService.collectUserInfoFromClient(client), invalidTokens), response.requestUUID);
+            return new RestoreRequestEvent(currentUserResponseService.collectUserInfoFromClient(client), invalidTokens);
         } else {
-            sendResult(ctx, new RestoreRequestEvent(invalidTokens), response.requestUUID);
+            return new RestoreRequestEvent(invalidTokens);
         }
     }
 
