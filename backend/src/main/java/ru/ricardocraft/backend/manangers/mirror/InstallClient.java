@@ -421,14 +421,14 @@ public class InstallClient {
     }
 
     private Path getPathToLauncherAuthlib(Version version) throws FileNotFoundException {
-        if (version.compareTo(ClientProfileVersions.MINECRAFT_1_16_5) < 0) return ResourceUtils.getFile("classpath:authlib/LauncherAuthlib1.jar").toPath();
-        else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_18) < 0) return ResourceUtils.getFile("classpath:authlib/LauncherAuthlib2.jar").toPath();
-        else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_19) < 0) return ResourceUtils.getFile("classpath:authlib/LauncherAuthlib3.jar").toPath();
-        else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_19) == 0) return ResourceUtils.getFile("classpath:authlib/LauncherAuthlib3-1.19.jar").toPath();
-        else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_20) < 0) return ResourceUtils.getFile("classpath:authlib/LauncherAuthlib3-1.19.1.jar").toPath();
-        else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_20_2) < 0) return ResourceUtils.getFile("classpath:authlib/LauncherAuthlib4.jar").toPath();
-        else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_20_3) < 0) return ResourceUtils.getFile("classpath:authlib/LauncherAuthlib5.jar").toPath();
-        else return ResourceUtils.getFile("classpath:authlib/LauncherAuthlib6.jar").toPath();
+        if (version.compareTo(ClientProfileVersions.MINECRAFT_1_16_5) < 0) return directoriesManager.getMirrorHelperWorkspaceDir().resolve("authlib").resolve("LauncherAuthlib1.jar");
+        else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_18) < 0) return directoriesManager.getMirrorHelperWorkspaceDir().resolve("authlib").resolve("LauncherAuthlib2.jar");
+        else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_19) < 0) return directoriesManager.getMirrorHelperWorkspaceDir().resolve("authlib").resolve("LauncherAuthlib3.jar");
+        else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_19) == 0) return directoriesManager.getMirrorHelperWorkspaceDir().resolve("authlib").resolve("LauncherAuthlib3-1.19.jar");
+        else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_20) < 0) return directoriesManager.getMirrorHelperWorkspaceDir().resolve("authlib").resolve("LauncherAuthlib3-1.19.1.jar");
+        else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_20_2) < 0) return directoriesManager.getMirrorHelperWorkspaceDir().resolve("authlib").resolve("LauncherAuthlib4.jar");
+        else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_20_3) < 0) return directoriesManager.getMirrorHelperWorkspaceDir().resolve("authlib").resolve("LauncherAuthlib5.jar");
+        else return directoriesManager.getMirrorHelperWorkspaceDir().resolve("authlib").resolve("LauncherAuthlib6.jar");
     }
 
     private void copyDir(Path source, Path target) throws IOException {

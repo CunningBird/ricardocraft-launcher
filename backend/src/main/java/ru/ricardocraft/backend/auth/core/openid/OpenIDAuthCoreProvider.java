@@ -23,7 +23,7 @@ import ru.ricardocraft.backend.properties.config.OpenIDProperties;
 import ru.ricardocraft.backend.repository.*;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.QueryBuilder;
+import ru.ricardocraft.backend.auth.QueryBuilder;
 
 import java.io.IOException;
 import java.net.URI;

@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.socket;
+package ru.ricardocraft.backend.auth;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
