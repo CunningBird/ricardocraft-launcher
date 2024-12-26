@@ -1,14 +1,14 @@
 package ru.ricardocraft.client.client;
 
-import ru.ricardocraft.client.base.events.request.*;
-import ru.ricardocraft.client.base.request.RequestException;
-import ru.ricardocraft.client.base.request.auth.*;
-import ru.ricardocraft.client.base.request.auth.details.AuthLoginOnlyDetails;
-import ru.ricardocraft.client.base.request.management.FeaturesRequest;
-import ru.ricardocraft.client.base.request.secure.GetSecureLevelInfoRequest;
-import ru.ricardocraft.client.base.request.secure.SecurityReportRequest;
-import ru.ricardocraft.client.base.request.update.LauncherRequest;
-import ru.ricardocraft.client.base.request.websockets.OfflineRequestService;
+import ru.ricardocraft.client.dto.request.auth.*;
+import ru.ricardocraft.client.dto.response.*;
+import ru.ricardocraft.client.dto.request.RequestException;
+import ru.ricardocraft.client.dto.request.auth.details.AuthLoginOnlyDetails;
+import ru.ricardocraft.client.dto.request.management.FeaturesRequest;
+import ru.ricardocraft.client.dto.request.secure.GetSecureLevelInfoRequest;
+import ru.ricardocraft.client.dto.request.secure.SecurityReportRequest;
+import ru.ricardocraft.client.dto.request.update.LauncherRequest;
+import ru.ricardocraft.client.dto.request.websockets.OfflineRequestService;
 
 import java.util.ArrayList;
 import java.util.HashSet;

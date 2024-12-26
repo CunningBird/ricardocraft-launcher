@@ -8,7 +8,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import ru.ricardocraft.client.JavaFXApplication;
-import ru.ricardocraft.client.base.profiles.ClientProfile;
+import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;

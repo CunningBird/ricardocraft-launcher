@@ -1,9 +1,12 @@
 server:
-  port: 9274
+  port: 9273
 
 spring:
   application:
-    name: bff
+    name: ricardocraft-backend
+#  shell:
+#    interactive:
+#      enabled: true
 
 launch-server-config:
   projectName: ricardocraft

@@ -5,8 +5,8 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import ru.ricardocraft.client.base.profiles.optional.OptionalFile;
-import ru.ricardocraft.client.base.profiles.optional.OptionalView;
+import ru.ricardocraft.client.profiles.optional.OptionalFile;
+import ru.ricardocraft.client.profiles.optional.OptionalView;
 import ru.ricardocraft.client.service.LaunchService;
 
 import java.util.Arrays;

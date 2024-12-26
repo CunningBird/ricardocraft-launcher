@@ -7,17 +7,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import ru.ricardocraft.backend.properties.DirectoriesProperties;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.properties.NettyProperties;
 
 import java.security.Security;
-import java.util.Locale;
-
-import static ru.ricardocraft.backend.base.helper.JVMHelper.LOADER;
 
 @Slf4j
 @EnableScheduling
+@EnableWebSocket
 @SpringBootApplication
 @EnableConfigurationProperties({LaunchServerProperties.class, NettyProperties.class, DirectoriesProperties.class})
 public class BackendApplication {

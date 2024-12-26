@@ -1,13 +1,13 @@
 package ru.ricardocraft.client.launch;
 
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.base.Launcher;
-import ru.ricardocraft.client.base.modules.LauncherModule;
-import ru.ricardocraft.client.base.modules.impl.SimpleModuleManager;
-import ru.ricardocraft.client.base.profiles.optional.actions.OptionalAction;
-import ru.ricardocraft.client.base.profiles.optional.triggers.OptionalTrigger;
-import ru.ricardocraft.client.base.request.auth.AuthRequest;
-import ru.ricardocraft.client.base.request.auth.GetAvailabilityAuthRequest;
+import ru.ricardocraft.client.core.Launcher;
+import ru.ricardocraft.client.modules.LauncherModule;
+import ru.ricardocraft.client.modules.impl.SimpleModuleManager;
+import ru.ricardocraft.client.profiles.optional.actions.OptionalAction;
+import ru.ricardocraft.client.profiles.optional.triggers.OptionalTrigger;
+import ru.ricardocraft.client.dto.request.auth.AuthRequest;
+import ru.ricardocraft.client.dto.request.auth.GetAvailabilityAuthRequest;
 import ru.ricardocraft.client.client.RuntimeLauncherCoreModule;
 import ru.ricardocraft.client.config.LauncherConfig;
 

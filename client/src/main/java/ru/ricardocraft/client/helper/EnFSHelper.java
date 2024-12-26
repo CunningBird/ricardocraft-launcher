@@ -2,7 +2,7 @@ package ru.ricardocraft.client.helper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.base.Launcher;
+import ru.ricardocraft.client.core.Launcher;
 import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.helper.enfs.EnFS;

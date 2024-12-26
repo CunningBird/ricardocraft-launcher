@@ -2,8 +2,8 @@ package ru.ricardocraft.client.scenes.login.methods;
 
 import javafx.scene.control.TextField;
 import ru.ricardocraft.client.JavaFXApplication;
-import ru.ricardocraft.client.base.request.auth.AuthRequest;
-import ru.ricardocraft.client.base.request.auth.details.AuthPasswordDetails;
+import ru.ricardocraft.client.dto.request.auth.AuthRequest;
+import ru.ricardocraft.client.dto.request.auth.details.AuthPasswordDetails;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.helper.LookupHelper;

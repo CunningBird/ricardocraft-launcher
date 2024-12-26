@@ -2,7 +2,7 @@ package ru.ricardocraft.client.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.base.profiles.ClientProfile;
+import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.runtime.client.DirBridge;
 import ru.ricardocraft.client.utils.helper.JVMHelper;

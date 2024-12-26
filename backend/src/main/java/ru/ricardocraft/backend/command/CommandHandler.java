@@ -24,6 +24,15 @@ public class CommandHandler implements Runnable {
     private final Terminal terminal;
     private final LineReader reader;
 
+    @Override
+    public void run() {
+        try {
+            readLoop();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
     public CommandHandler() throws IOException {
         TerminalBuilder terminalBuilder = TerminalBuilder.builder();
         terminal = terminalBuilder.build();
@@ -108,15 +117,6 @@ public class CommandHandler implements Runnable {
 
     public void registerCategory(Category category) {
         categories.add(category);
-    }
-
-    @Override
-    public void run() {
-        try {
-            readLoop();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
     }
 
     /**

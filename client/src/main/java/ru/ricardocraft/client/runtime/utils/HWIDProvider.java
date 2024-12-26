@@ -3,7 +3,7 @@ package ru.ricardocraft.client.runtime.utils;
 import oshi.SystemInfo;
 import oshi.hardware.*;
 import oshi.software.os.OperatingSystem;
-import ru.ricardocraft.client.base.request.secure.HardwareReportRequest;
+import ru.ricardocraft.client.dto.request.secure.HardwareReportRequest;
 
 import java.util.List;
 

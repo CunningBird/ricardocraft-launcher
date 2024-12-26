@@ -27,8 +27,10 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+
+//    implementation("org.springframework.shell:spring-shell-starter:3.4.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1")
     implementation("io.projectreactor:reactor-core")
 
@@ -40,6 +42,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
     implementation("org.bouncycastle:bcpkix-jdk18on:1.78.1")
     implementation("org.ow2.asm:asm-commons:9.7")
+
     implementation("io.netty:netty-codec-http:4.1.111.Final")
     implementation("io.netty:netty-transport-classes-epoll:4.1.111.Final")
     implementation("io.netty:netty-transport-native-epoll:4.1.111.Final:linux-x86_64")

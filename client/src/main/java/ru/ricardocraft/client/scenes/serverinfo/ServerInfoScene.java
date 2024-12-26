@@ -9,7 +9,7 @@ import javafx.scene.layout.Pane;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.JavaFXApplication;
-import ru.ricardocraft.client.base.profiles.ClientProfile;
+import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.components.ServerButton;
 import ru.ricardocraft.client.components.UserBlock;
 import ru.ricardocraft.client.config.GuiModuleConfig;

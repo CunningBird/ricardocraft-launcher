@@ -2,12 +2,12 @@ package ru.ricardocraft.client.impl;
 
 import javafx.application.Platform;
 import ru.ricardocraft.client.JavaFXApplication;
-import ru.ricardocraft.client.base.events.RequestEvent;
-import ru.ricardocraft.client.base.events.request.AuthRequestEvent;
-import ru.ricardocraft.client.base.events.request.ProfilesRequestEvent;
-import ru.ricardocraft.client.base.profiles.ClientProfile;
-import ru.ricardocraft.client.base.request.RequestService;
-import ru.ricardocraft.client.base.request.WebSocketEvent;
+import ru.ricardocraft.client.dto.RequestEvent;
+import ru.ricardocraft.client.dto.response.AuthRequestEvent;
+import ru.ricardocraft.client.dto.response.ProfilesRequestEvent;
+import ru.ricardocraft.client.profiles.ClientProfile;
+import ru.ricardocraft.client.dto.request.RequestService;
+import ru.ricardocraft.client.dto.request.WebSocketEvent;
 import ru.ricardocraft.client.runtime.managers.SettingsManager;
 import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.scenes.login.AuthFlow;

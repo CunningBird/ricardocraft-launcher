@@ -1,8 +1,8 @@
 package ru.ricardocraft.client.config;
 
-import ru.ricardocraft.client.base.events.request.GetAvailabilityAuthRequestEvent;
-import ru.ricardocraft.client.base.profiles.ClientProfile;
-import ru.ricardocraft.client.base.request.auth.AuthRequest;
+import ru.ricardocraft.client.dto.response.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.client.profiles.ClientProfile;
+import ru.ricardocraft.client.dto.request.auth.AuthRequest;
 import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.runtime.client.DirBridge;
 import ru.ricardocraft.client.runtime.client.UserSettings;

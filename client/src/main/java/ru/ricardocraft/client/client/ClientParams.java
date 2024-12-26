@@ -1,12 +1,12 @@
 package ru.ricardocraft.client.client;
 
-import ru.ricardocraft.client.base.events.request.AuthRequestEvent;
-import ru.ricardocraft.client.base.profiles.ClientProfile;
-import ru.ricardocraft.client.base.profiles.ClientProfileVersions;
-import ru.ricardocraft.client.base.profiles.PlayerProfile;
-import ru.ricardocraft.client.base.profiles.optional.actions.OptionalAction;
-import ru.ricardocraft.client.base.profiles.optional.actions.OptionalActionClientArgs;
-import ru.ricardocraft.client.base.request.Request;
+import ru.ricardocraft.client.dto.response.AuthRequestEvent;
+import ru.ricardocraft.client.profiles.ClientProfile;
+import ru.ricardocraft.client.profiles.ClientProfileVersions;
+import ru.ricardocraft.client.profiles.PlayerProfile;
+import ru.ricardocraft.client.profiles.optional.actions.OptionalAction;
+import ru.ricardocraft.client.profiles.optional.actions.OptionalActionClientArgs;
+import ru.ricardocraft.client.dto.request.Request;
 import ru.ricardocraft.client.core.hasher.HashedDir;
 import ru.ricardocraft.client.utils.Version;
 

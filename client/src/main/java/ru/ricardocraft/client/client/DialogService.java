@@ -2,7 +2,7 @@ package ru.ricardocraft.client.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.base.events.NotificationEvent;
+import ru.ricardocraft.client.dto.NotificationEvent;
 import ru.ricardocraft.client.service.RuntimeDialogService;
 
 @Component

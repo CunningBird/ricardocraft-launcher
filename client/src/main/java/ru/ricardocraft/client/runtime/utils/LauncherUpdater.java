@@ -1,6 +1,6 @@
 package ru.ricardocraft.client.runtime.utils;
 
-import ru.ricardocraft.client.base.request.update.LauncherRequest;
+import ru.ricardocraft.client.dto.request.update.LauncherRequest;
 import ru.ricardocraft.client.core.LauncherInject;
 import ru.ricardocraft.client.scenes.login.LoginScene;
 import ru.ricardocraft.client.utils.helper.IOHelper;
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static ru.ricardocraft.client.base.Downloader.makeSSLSocketFactory;
+import static ru.ricardocraft.client.core.Downloader.makeSSLSocketFactory;
 
 public class LauncherUpdater {
     @LauncherInject("launcher.certificatePinning")

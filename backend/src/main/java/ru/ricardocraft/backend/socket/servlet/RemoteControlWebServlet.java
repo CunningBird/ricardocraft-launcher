@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.ricardocraft.backend.command.CommandHandler;
@@ -16,9 +17,8 @@ import ru.ricardocraft.backend.socket.handlers.NettyWebAPIHandler;
 
 import java.util.Map;
 
+@Slf4j
 public class RemoteControlWebServlet implements NettyWebAPIHandler.SimpleServletHandler {
-
-    private transient final Logger logger = LogManager.getLogger(RemoteControlWebServlet.class);
 
     private final LaunchServerProperties config;
     private final CommandHandler commandHandler;
@@ -75,12 +75,12 @@ public class RemoteControlWebServlet implements NettyWebAPIHandler.SimpleServlet
                 return;
             }
         }
-        logger.info("[RemoteControl][Web] IP {} execute command '{}' with token {}...", context.ip, command, accessToken.substring(0, 5));
+        log.info("[RemoteControl][Web] IP {} execute command '{}' with token {}...", context.ip, command, accessToken.substring(0, 5));
         String exception = null;
         try {
             commandHandler.evalNative(command, false);
         } catch (Throwable e) {
-            logger.error(e);
+            log.error(e.getMessage());
             exception = e.toString();
         }
         SuccessCommandResponse response = new SuccessCommandResponse();
