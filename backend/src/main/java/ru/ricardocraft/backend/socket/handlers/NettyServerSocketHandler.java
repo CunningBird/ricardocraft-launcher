@@ -11,7 +11,6 @@ import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.properties.NettyProperties;
 import ru.ricardocraft.backend.properties.netty.NettyBindAddressProperties;
 import ru.ricardocraft.backend.socket.LauncherNettyServer;
-import ru.ricardocraft.backend.socket.WebSocketService;
 
 import java.net.InetSocketAddress;
 
@@ -23,7 +22,6 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     private transient final LaunchServerProperties config;
     private transient final DirectoriesManager directoriesManager;
     private transient final NettyProperties nettyProperties;
-    private transient final WebSocketService service;
     private transient final CommandHandler commandHandler;
     private transient final JacksonManager jacksonManager;
 
@@ -33,13 +31,11 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     public NettyServerSocketHandler(LaunchServerProperties config,
                                     DirectoriesManager directoriesManager,
                                     NettyProperties nettyProperties,
-                                    WebSocketService service,
                                     CommandHandler commandHandler,
                                     JacksonManager jacksonManager) {
         this.config = config;
         this.directoriesManager = directoriesManager;
         this.nettyProperties = nettyProperties;
-        this.service = service;
         this.commandHandler = commandHandler;
         this.jacksonManager = jacksonManager;
     }
@@ -48,13 +44,12 @@ public final class NettyServerSocketHandler implements Runnable, AutoCloseable {
     public void close() {
         if (nettyServer == null) return;
         nettyServer.close();
-        nettyServer.service.channels.close();
     }
 
     @Override
     public void run() {
         logger.info("Starting netty server socket thread");
-        nettyServer = new LauncherNettyServer(config, directoriesManager, nettyProperties, service, commandHandler, jacksonManager);
+        nettyServer = new LauncherNettyServer(config, directoriesManager, nettyProperties, commandHandler, jacksonManager);
         for (NettyBindAddressProperties address : nettyProperties.getBinds()) {
             nettyServer.bind(new InetSocketAddress(address.getAddress(), address.getPort()));
         }

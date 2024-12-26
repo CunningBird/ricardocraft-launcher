@@ -3,6 +3,7 @@ package ru.ricardocraft.backend.service.auth;
 import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketSession;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.AuthLimiter;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
@@ -13,7 +14,7 @@ import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.WebSocketService;
+import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
 
 @Component
 public class AuthResponseService extends AbstractResponseService {
@@ -25,18 +26,18 @@ public class AuthResponseService extends AbstractResponseService {
     private final AuthLimiter authLimiter;
 
     @Autowired
-    public AuthResponseService(WebSocketService service,
+    public AuthResponseService(ServerWebSocketHandler handler,
                                AuthProviders authProviders,
                                AuthManager authManager,
                                AuthLimiter authLimiter) {
-        super(AuthResponse.class, service);
+        super(AuthResponse.class, handler);
         this.authProviders = authProviders;
         this.authManager = authManager;
         this.authLimiter = authLimiter;
     }
 
     @Override
-    public AuthRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client clientData) throws Exception {
+    public AuthRequestEvent execute(SimpleResponse rawResponse, WebSocketSession session, Client clientData) throws Exception {
         AuthResponse response = castResponse(rawResponse);
 
         try {

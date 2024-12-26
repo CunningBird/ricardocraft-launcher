@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketSession;
 import ru.ricardocraft.backend.auth.core.interfaces.UserHardware;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportHardware;
 import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
@@ -15,7 +16,7 @@ import ru.ricardocraft.backend.dto.response.secure.HardwareReportResponse;
 import ru.ricardocraft.backend.properties.NettyProperties;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.WebSocketService;
+import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -28,16 +29,16 @@ public class HardwareReportResponseService extends AbstractResponseService {
     private final ProtectHandler protectHandler;
 
     @Autowired
-    public HardwareReportResponseService(WebSocketService service,
+    public HardwareReportResponseService(ServerWebSocketHandler handler,
                                          NettyProperties nettyProperties,
                                          ProtectHandler protectHandler) {
-        super(HardwareReportResponse.class, service);
+        super(HardwareReportResponse.class, handler);
         this.nettyProperties = nettyProperties;
         this.protectHandler = protectHandler;
     }
 
     @Override
-    public HardwareReportRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public HardwareReportRequestEvent execute(SimpleResponse rawResponse, WebSocketSession session, Client client) throws Exception {
         HardwareReportResponse response = (HardwareReportResponse) rawResponse;
 
         if (client.trustLevel == null || client.trustLevel.publicKey == null) {

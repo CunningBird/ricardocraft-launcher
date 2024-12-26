@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketSession;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.JoinServerProtectHandler;
@@ -14,7 +15,7 @@ import ru.ricardocraft.backend.dto.response.auth.JoinServerResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.WebSocketService;
+import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
 
 @Component
 public class JoinServerResponseService extends AbstractResponseService {
@@ -25,16 +26,14 @@ public class JoinServerResponseService extends AbstractResponseService {
     private final AuthManager authManager;
 
     @Autowired
-    public JoinServerResponseService(WebSocketService service,
-                                     ProtectHandler protectHandler,
-                                     AuthManager authManager) {
-        super(JoinServerResponse.class, service);
+    public JoinServerResponseService(ServerWebSocketHandler handler, ProtectHandler protectHandler, AuthManager authManager) {
+        super(JoinServerResponse.class, handler);
         this.protectHandler = protectHandler;
         this.authManager = authManager;
     }
 
     @Override
-    public JoinServerRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public JoinServerRequestEvent execute(SimpleResponse rawResponse, WebSocketSession session, Client client) throws Exception {
         JoinServerResponse response = (JoinServerResponse) rawResponse;
 
         if (!protectHandler.allowJoinServer(client)) {

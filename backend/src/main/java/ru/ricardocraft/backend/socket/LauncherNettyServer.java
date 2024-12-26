@@ -21,7 +21,6 @@ import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.properties.NettyProperties;
 import ru.ricardocraft.backend.socket.handlers.NettyIpForwardHandler;
 import ru.ricardocraft.backend.socket.handlers.NettyWebAPIHandler;
-import ru.ricardocraft.backend.socket.handlers.WebSocketFrameHandler;
 import ru.ricardocraft.backend.socket.handlers.fileserver.FileServerHandler;
 import ru.ricardocraft.backend.socket.servlet.RemoteControlWebServlet;
 
@@ -37,16 +36,13 @@ public class LauncherNettyServer implements AutoCloseable {
     public final ServerBootstrap serverBootstrap;
     public final EventLoopGroup bossGroup;
     public final EventLoopGroup workerGroup;
-    public final WebSocketService service;
     public final CommandHandler commandHandler;
 
     public LauncherNettyServer(LaunchServerProperties config,
                                DirectoriesManager directoriesManager,
                                NettyProperties nettyProperties,
-                               WebSocketService service,
                                CommandHandler commandHandler,
                                JacksonManager jacksonManager) {
-        this.service = service;
         this.commandHandler = commandHandler;
 
         NettyObjectFactory.setUsingEpoll(nettyProperties.getPerformance().getUsingEpoll());
@@ -78,7 +74,6 @@ public class LauncherNettyServer implements AutoCloseable {
                             pipeline.addLast("webapi", new NettyWebAPIHandler(context));
                         if (nettyProperties.getFileServerEnabled()) // default true
                             pipeline.addLast("fileserver", new FileServerHandler(directoriesManager.getUpdatesDir(), true, nettyProperties.getShowHiddenFiles()));
-                        pipeline.addLast("launchserver", new WebSocketFrameHandler(context, service));
                     }
                 });
 

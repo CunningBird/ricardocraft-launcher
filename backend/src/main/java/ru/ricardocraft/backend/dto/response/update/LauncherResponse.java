@@ -8,7 +8,7 @@ import ru.ricardocraft.backend.dto.response.SimpleResponse;
 public class LauncherResponse extends SimpleResponse {
     public Version version;
     public String hash;
-//    public byte[] digest; // TODO enable this
+//    public byte[] digest; TODO return this shit
     public int launcher_type;
 
     public String secureHash;

@@ -1,37 +1,40 @@
 package ru.ricardocraft.backend.command.unsafe;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.base.ClientPermissions;
+import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.dto.events.RequestEvent;
 import ru.ricardocraft.backend.dto.events.request.auth.AuthRequestEvent;
-import ru.ricardocraft.backend.profiles.PlayerProfile;
-import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
+import ru.ricardocraft.backend.profiles.PlayerProfile;
 import ru.ricardocraft.backend.repository.User;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.WebSocketService;
+import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Component
 public class SendAuthCommand extends Command {
 
-    private transient final WebSocketService service;
+    private transient final ServerWebSocketHandler serverWebSocketHandler;
     private transient final AuthManager authManager;
     private transient final AuthProviders authProviders;
 
     @Autowired
-    public SendAuthCommand(WebSocketService service,
+    public SendAuthCommand(ServerWebSocketHandler serverWebSocketHandler,
                            AuthManager authManager,
                            AuthProviders authProviders) {
         super();
-        this.service = service;
+        this.serverWebSocketHandler = serverWebSocketHandler;
         this.authManager = authManager;
         this.authProviders = authProviders;
     }
@@ -49,7 +52,7 @@ public class SendAuthCommand extends Command {
     @Override
     public void invoke(String... args) throws Exception {
         verifyArgs(args, 4);
-        UUID connectUUID = parseUUID(args[0]);
+        String connectUUID = args[0];
         String username = args[1];
         AuthResponse.ConnectTypes type = AuthResponse.ConnectTypes.valueOf(args[3]);
         AuthProviderPair pair = authProviders.getAuthProviderPair(args[2]);
@@ -61,7 +64,7 @@ public class SendAuthCommand extends Command {
         } else {
             uuid = user.getUUID();
         }
-        UserSession session;
+        UserSession userSession;
         String minecraftAccessToken;
         AuthRequestEvent.OAuthRequestEvent oauth;
         if (user != null) {
@@ -70,27 +73,32 @@ public class SendAuthCommand extends Command {
             minecraftAccessToken = report.minecraftAccessToken();
 
             if (report.isUsingOAuth()) {
-                session = report.session();
+                userSession = report.session();
                 oauth = new AuthRequestEvent.OAuthRequestEvent(report.oauthAccessToken(), report.oauthRefreshToken(), report.oauthExpire());
             } else {
-                session = null;
+                userSession = null;
                 oauth = null;
             }
         } else {
-            session = null;
+            userSession = null;
             minecraftAccessToken = null;
             oauth = null;
         }
-        service.forEachActiveChannels((ch, ws) -> {
-            if (!ws.getConnectUUID().equals(connectUUID)) return;
-            Client client = ws.getClient();
+        serverWebSocketHandler.forEachActiveChannels((session, client) -> {
+            if (!session.getId().equals(connectUUID)) return;
+
             client.coreObject = user;
-            client.sessionObject = session;
+            client.sessionObject = userSession;
             authManager.internalAuth(client, type, pair, username, uuid, permissions, oauth != null);
             PlayerProfile playerProfile = authManager.getPlayerProfile(client);
             AuthRequestEvent request = new AuthRequestEvent(permissions, playerProfile, minecraftAccessToken, null, null, oauth);
             request.requestUUID = RequestEvent.eventUUID;
-            service.sendObject(ch, request);
+
+            try {
+                serverWebSocketHandler.sendMessage(session, request, false);
+            } catch (IOException e) {
+                log.error("Error occurred during sending message. Cause: {}", e.getMessage());
+            }
         });
     }
 }

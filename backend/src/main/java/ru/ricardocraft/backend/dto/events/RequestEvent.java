@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.dto.events;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.base.request.TypeSerializeInterface;
 
@@ -15,4 +16,7 @@ public abstract class RequestEvent implements TypeSerializeInterface {
      */
     @LauncherNetworkAPI
     public UUID requestUUID;
+
+    @JsonIgnore
+    public boolean closeChannel = false;
 }

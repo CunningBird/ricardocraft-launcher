@@ -1,18 +1,18 @@
 package ru.ricardocraft.backend.command.service;
 
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.dto.events.NotificationEvent;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.socket.WebSocketService;
+import ru.ricardocraft.backend.dto.events.NotificationEvent;
+import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
 
 @Component
 public class NotifyCommand extends Command {
 
-    private transient final WebSocketService service;
+    private transient final ServerWebSocketHandler handler;
 
-    public NotifyCommand(WebSocketService service) {
+    public NotifyCommand(ServerWebSocketHandler handler) {
         super();
-        this.service = service;
+        this.handler = handler;
     }
 
     @Override
@@ -34,6 +34,6 @@ public class NotifyCommand extends Command {
         } else {
             event = new NotificationEvent(args[0], args[1], Enum.valueOf(NotificationEvent.NotificationType.class, args[2]));
         }
-        service.sendObjectAll(event);
+        handler.sendMessageToAll(event);
     }
 }

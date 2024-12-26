@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketSession;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.core.interfaces.session.UserSessionSupportHardware;
 import ru.ricardocraft.backend.auth.core.interfaces.session.UserSessionSupportProperties;
@@ -14,7 +15,7 @@ import ru.ricardocraft.backend.dto.response.auth.CheckServerResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.WebSocketService;
+import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
 
 @Component
 public class CheckServerResponseService extends AbstractResponseService {
@@ -24,14 +25,13 @@ public class CheckServerResponseService extends AbstractResponseService {
     private final AuthManager authManager;
 
     @Autowired
-    public CheckServerResponseService(WebSocketService service,
-                                      AuthManager authManager) {
-        super(CheckServerResponse.class, service);
+    public CheckServerResponseService(ServerWebSocketHandler handler, AuthManager authManager) {
+        super(CheckServerResponse.class, handler);
         this.authManager = authManager;
     }
 
     @Override
-    public CheckServerRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client pClient) throws Exception {
+    public CheckServerRequestEvent execute(SimpleResponse rawResponse, WebSocketSession session, Client pClient) throws Exception {
         CheckServerResponse response = (CheckServerResponse) rawResponse;
 
         if (pClient.permissions == null || !pClient.permissions.hasPerm("launchserver.checkserver")) {

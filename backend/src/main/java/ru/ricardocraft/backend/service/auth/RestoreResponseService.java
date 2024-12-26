@@ -3,14 +3,15 @@ package ru.ricardocraft.backend.service.auth;
 import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketSession;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
 import ru.ricardocraft.backend.dto.events.request.auth.AuthRequestEvent;
-import ru.ricardocraft.backend.dto.events.request.update.LauncherRequestEvent;
 import ru.ricardocraft.backend.dto.events.request.auth.RestoreRequestEvent;
+import ru.ricardocraft.backend.dto.events.request.update.LauncherRequestEvent;
 import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
 import ru.ricardocraft.backend.dto.response.auth.RestoreResponse;
@@ -20,7 +21,7 @@ import ru.ricardocraft.backend.repository.User;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.service.update.LauncherResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.WebSocketService;
+import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,12 +38,12 @@ public class RestoreResponseService extends AbstractResponseService {
     private final Map<String, ExtendedTokenProvider> restoreProviders = new HashMap<>();
 
     @Autowired
-    public RestoreResponseService(WebSocketService service,
+    public RestoreResponseService(ServerWebSocketHandler handler,
                                   AuthProviders authProviders,
                                   AuthManager authManager,
                                   KeyAgreementManager keyAgreementManager,
                                   CurrentUserResponseService currentUserResponseService) {
-        super(RestoreResponse.class, service);
+        super(RestoreResponse.class, handler);
         this.authProviders = authProviders;
         this.authManager = authManager;
         this.currentUserResponseService = currentUserResponseService;
@@ -54,7 +55,7 @@ public class RestoreResponseService extends AbstractResponseService {
     }
 
     @Override
-    public RestoreRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public RestoreRequestEvent execute(SimpleResponse rawResponse, WebSocketSession session, Client client) throws Exception {
         RestoreResponse response = (RestoreResponse) rawResponse;
 
         if (response.accessToken == null && !client.isAuth && response.needUserInfo) {
@@ -74,21 +75,21 @@ public class RestoreResponseService extends AbstractResponseService {
             throw new Exception("Invalid authId");
         }
         if (response.accessToken != null) {
-            UserSession session;
+            UserSession userSession;
             try {
-                session = pair.core.getUserSessionByOAuthAccessToken(response.accessToken);
+                userSession = pair.core.getUserSessionByOAuthAccessToken(response.accessToken);
             } catch (AuthCoreProvider.OAuthAccessTokenExpired e) {
                 throw new Exception(AuthRequestEvent.OAUTH_TOKEN_EXPIRE);
             }
-            if (session == null) {
+            if (userSession == null) {
                 throw new Exception(AuthRequestEvent.OAUTH_TOKEN_INVALID);
             }
-            User user = session.getUser();
+            User user = userSession.getUser();
             if (user == null) {
                 throw new Exception("Internal Auth error: UserSession is broken");
             }
             client.coreObject = user;
-            client.sessionObject = session;
+            client.sessionObject = userSession;
             authManager.internalAuth(client, client.type == null ? AuthResponse.ConnectTypes.API : client.type, pair, user.getUsername(), user.getUUID(), user.getPermissions(), true);
         }
         List<String> invalidTokens = new ArrayList<>(4);

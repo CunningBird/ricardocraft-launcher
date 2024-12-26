@@ -3,16 +3,17 @@ package ru.ricardocraft.backend.service.profile;
 import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketSession;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.dto.events.request.profile.ProfileByUsernameRequestEvent;
-import ru.ricardocraft.backend.profiles.PlayerProfile;
 import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.dto.response.profile.ProfileByUsername;
 import ru.ricardocraft.backend.manangers.AuthManager;
+import ru.ricardocraft.backend.profiles.PlayerProfile;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.WebSocketService;
+import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
 
 @Component
 public class ProfileByUsernameService extends AbstractResponseService {
@@ -21,16 +22,16 @@ public class ProfileByUsernameService extends AbstractResponseService {
     private final AuthManager authManager;
 
     @Autowired
-    public ProfileByUsernameService(WebSocketService service,
+    public ProfileByUsernameService(ServerWebSocketHandler handler,
                                     AuthProviders authProviders,
                                     AuthManager authManager) {
-        super(ProfileByUsername.class, service);
+        super(ProfileByUsername.class, handler);
         this.authProviders = authProviders;
         this.authManager = authManager;
     }
 
     @Override
-    public ProfileByUsernameRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public ProfileByUsernameRequestEvent execute(SimpleResponse rawResponse, WebSocketSession session, Client client) throws Exception {
         ProfileByUsername response = (ProfileByUsername) rawResponse;
 
         AuthProviderPair pair = client.auth;

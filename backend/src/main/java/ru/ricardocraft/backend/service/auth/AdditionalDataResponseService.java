@@ -3,16 +3,16 @@ package ru.ricardocraft.backend.service.auth;
 import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketSession;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.core.interfaces.user.UserSupportAdditionalData;
-import ru.ricardocraft.backend.dto.events.RequestEvent;
 import ru.ricardocraft.backend.dto.events.request.auth.AdditionalDataRequestEvent;
 import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.dto.response.auth.AdditionalDataResponse;
 import ru.ricardocraft.backend.repository.User;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.WebSocketService;
+import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
 
 import java.util.Map;
 
@@ -20,12 +20,12 @@ import java.util.Map;
 public class AdditionalDataResponseService extends AbstractResponseService {
 
     @Autowired
-    protected AdditionalDataResponseService(WebSocketService service) {
-        super(AdditionalDataResponse.class, service);
+    protected AdditionalDataResponseService(ServerWebSocketHandler handler) {
+        super(AdditionalDataResponse.class, handler);
     }
 
     @Override
-    public AdditionalDataRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public AdditionalDataRequestEvent execute(SimpleResponse rawResponse, WebSocketSession session, Client client) throws Exception {
         AdditionalDataResponse response = castResponse(rawResponse);
 
         if (!client.isAuth) {

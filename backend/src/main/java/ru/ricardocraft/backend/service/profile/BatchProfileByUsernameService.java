@@ -3,16 +3,17 @@ package ru.ricardocraft.backend.service.profile;
 import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketSession;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.dto.events.request.profile.BatchProfileByUsernameRequestEvent;
-import ru.ricardocraft.backend.profiles.PlayerProfile;
 import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.dto.response.profile.BatchProfileByUsername;
 import ru.ricardocraft.backend.manangers.AuthManager;
+import ru.ricardocraft.backend.profiles.PlayerProfile;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.WebSocketService;
+import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
 
 @Component
 public class BatchProfileByUsernameService extends AbstractResponseService {
@@ -21,16 +22,16 @@ public class BatchProfileByUsernameService extends AbstractResponseService {
     private final AuthManager authManager;
 
     @Autowired
-    public BatchProfileByUsernameService(WebSocketService service,
+    public BatchProfileByUsernameService(ServerWebSocketHandler handler,
                                          AuthProviders authProviders,
                                          AuthManager authManager) {
-        super(BatchProfileByUsername.class, service);
+        super(BatchProfileByUsername.class, handler);
         this.authProviders = authProviders;
         this.authManager = authManager;
     }
 
     @Override
-    public BatchProfileByUsernameRequestEvent execute(SimpleResponse rawResponse, ChannelHandlerContext ctx, Client client) throws Exception {
+    public BatchProfileByUsernameRequestEvent execute(SimpleResponse rawResponse, WebSocketSession session, Client client) throws Exception {
         BatchProfileByUsername response = (BatchProfileByUsername) rawResponse;
 
         BatchProfileByUsernameRequestEvent result = new BatchProfileByUsernameRequestEvent();

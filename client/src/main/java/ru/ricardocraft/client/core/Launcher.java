@@ -27,7 +27,7 @@ public final class Launcher {
     public static ClientProfile profile;
     public static GsonManager gsonManager;
 
-    public static String webSocketURL = System.getProperty("launcherdebug.websocket", "ws://localhost:9274/api");
+    public static String webSocketURL = System.getProperty("launcherdebug.websocket", "ws://localhost:9273/api");
     public static String projectName = System.getProperty("launcherdebug.projectname", "Ricardocraft");
     public static LauncherConfig.LauncherEnvironment environment = LauncherConfig.LauncherEnvironment.valueOf(System.getProperty("launcherdebug.env", "DEBUG"));
 
