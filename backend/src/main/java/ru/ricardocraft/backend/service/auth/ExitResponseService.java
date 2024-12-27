@@ -41,7 +41,7 @@ public class ExitResponseService extends AbstractResponseService {
             Client newClient = new Client();
             newClient.checkSign = client.checkSign;
 
-            handler.updateSessionClient(session, client);
+            handler.updateSessionClient(session, newClient);
 
             AuthSupportExit supportExit = client.auth.core.isSupport(AuthSupportExit.class);
             if (supportExit != null) {
