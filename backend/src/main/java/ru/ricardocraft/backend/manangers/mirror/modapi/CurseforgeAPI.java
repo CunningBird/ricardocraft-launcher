@@ -3,7 +3,7 @@ package ru.ricardocraft.backend.manangers.mirror.modapi;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.socket.HttpRequester;
-import ru.ricardocraft.backend.socket.handlers.error.CurseForgeErrorHandler;
+import ru.ricardocraft.backend.socket.error.CurseForgeErrorHandler;
 
 import java.io.IOException;
 import java.net.URI;

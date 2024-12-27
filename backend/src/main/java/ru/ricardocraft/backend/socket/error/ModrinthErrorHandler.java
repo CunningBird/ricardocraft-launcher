@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.socket.handlers.error;
+package ru.ricardocraft.backend.socket.error;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import ru.ricardocraft.backend.manangers.JacksonManager;
@@ -9,10 +9,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.http.HttpResponse;
 
-public class CurseForgeErrorHandler<T> implements HttpErrorHandler<T, Void> {
+public class ModrinthErrorHandler<T> implements HttpErrorHandler<T, Void> {
     private final Class<T> type;
 
-    public CurseForgeErrorHandler(Class<T> type) {
+    public ModrinthErrorHandler(Class<T> type) {
         this.type = type;
     }
 
@@ -23,7 +23,7 @@ public class CurseForgeErrorHandler<T> implements HttpErrorHandler<T, Void> {
         }
         try (Reader reader = new InputStreamReader(response.body())) {
             JsonNode element = jacksonManager.getMapper().readTree(reader);
-            return new HttpOptional<>(jacksonManager.getMapper().readValue(element.get("data").asText(), type), null, response.statusCode());
+            return new HttpOptional<>(jacksonManager.getMapper().readValue(element.asText(), type), null, response.statusCode());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

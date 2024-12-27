@@ -4,9 +4,9 @@ server:
 spring:
   application:
     name: ricardocraft-backend
-#  shell:
-#    interactive:
-#      enabled: true
+  shell:
+    interactive:
+      enabled: true
 
 launch-server-config:
   projectName: ricardocraft

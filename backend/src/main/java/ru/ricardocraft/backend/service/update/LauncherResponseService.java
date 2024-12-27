@@ -19,7 +19,7 @@ import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.service.auth.RestoreResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;

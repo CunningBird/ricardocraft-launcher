@@ -18,9 +18,9 @@ import ru.ricardocraft.backend.properties.config.MicrosoftAuthCoreProviderProper
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.HttpRequester;
-import ru.ricardocraft.backend.socket.handlers.error.BasicJsonHttpErrorHandler;
-import ru.ricardocraft.backend.socket.handlers.error.MicrosoftErrorHandler;
-import ru.ricardocraft.backend.socket.handlers.error.XSTSErrorHandler;
+import ru.ricardocraft.backend.socket.error.BasicJsonHttpErrorHandler;
+import ru.ricardocraft.backend.socket.error.MicrosoftErrorHandler;
+import ru.ricardocraft.backend.socket.error.XSTSErrorHandler;
 
 import java.io.IOException;
 import java.net.URI;

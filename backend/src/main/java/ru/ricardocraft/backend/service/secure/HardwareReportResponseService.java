@@ -15,7 +15,7 @@ import ru.ricardocraft.backend.dto.response.secure.HardwareReportResponse;
 import ru.ricardocraft.backend.properties.HttpServerProperties;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 

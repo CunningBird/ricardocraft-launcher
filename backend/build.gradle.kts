@@ -27,24 +27,17 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
-//    implementation("org.springframework.shell:spring-shell-starter:3.4.0")
+    implementation("org.springframework.shell:spring-shell-starter:3.4.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1")
-    implementation("io.projectreactor:reactor-core")
 
     implementation("me.tongfei:progressbar:0.10.1")
     implementation("org.fusesource.jansi:jansi:2.4.1")
-    implementation("org.jline:jline:3.26.3")
-    implementation("org.jline:jline-reader:3.26.3")
-    implementation("org.jline:jline-terminal:3.26.3")
     implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
     implementation("org.bouncycastle:bcpkix-jdk18on:1.78.1")
     implementation("org.ow2.asm:asm-commons:9.7")
-
-    implementation("org.slf4j:slf4j-api:2.0.13")
 
     implementation("com.mysql:mysql-connector-j:9.0.0")
     implementation("org.mariadb.jdbc:mariadb-java-client:3.4.0")
@@ -62,13 +55,10 @@ dependencies {
         exclude("io.micrometer")
     }
 
-    implementation("io.sentry:sentry:8.0.0-alpha.4")
+//    implementation("io.sentry:sentry:8.0.0-alpha.4")
 
 //    implementation(platform("software.amazon.awssdk:bom:2.17.290"))
 //    implementation("software.amazon.awssdk:s3")
-
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
 
     // Tools
     compileOnly("org.projectlombok:lombok")

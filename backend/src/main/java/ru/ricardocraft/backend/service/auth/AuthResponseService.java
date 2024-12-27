@@ -13,7 +13,7 @@ import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 @Component
 public class AuthResponseService extends AbstractResponseService {

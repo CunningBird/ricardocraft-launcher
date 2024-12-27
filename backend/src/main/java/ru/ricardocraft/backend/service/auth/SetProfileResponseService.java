@@ -12,7 +12,7 @@ import ru.ricardocraft.backend.dto.response.auth.SetProfileResponse;
 import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 import java.util.Collection;
 

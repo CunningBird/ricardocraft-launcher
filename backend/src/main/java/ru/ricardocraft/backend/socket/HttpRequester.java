@@ -3,10 +3,10 @@ package ru.ricardocraft.backend.socket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.manangers.JacksonManager;
-import ru.ricardocraft.backend.socket.handlers.error.HttpErrorHandler;
-import ru.ricardocraft.backend.socket.handlers.error.HttpOptional;
-import ru.ricardocraft.backend.socket.handlers.error.SimpleError;
-import ru.ricardocraft.backend.socket.handlers.error.SimpleErrorHandler;
+import ru.ricardocraft.backend.socket.error.HttpErrorHandler;
+import ru.ricardocraft.backend.socket.error.HttpOptional;
+import ru.ricardocraft.backend.socket.error.SimpleError;
+import ru.ricardocraft.backend.socket.error.SimpleErrorHandler;
 
 import java.io.IOException;
 import java.net.URI;

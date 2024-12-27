@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Version;
 import ru.ricardocraft.backend.socket.HttpRequester;
-import ru.ricardocraft.backend.socket.handlers.error.ModrinthErrorHandler;
+import ru.ricardocraft.backend.socket.error.ModrinthErrorHandler;
 
 import java.io.IOException;
 import java.net.URI;

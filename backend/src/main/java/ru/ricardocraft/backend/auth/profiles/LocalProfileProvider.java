@@ -16,7 +16,7 @@ import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.properties.HttpServerProperties;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

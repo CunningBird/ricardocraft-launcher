@@ -4,7 +4,7 @@ import org.springframework.web.socket.WebSocketSession;
 import ru.ricardocraft.backend.dto.events.RequestEvent;
 import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 public abstract class AbstractResponseService {
 

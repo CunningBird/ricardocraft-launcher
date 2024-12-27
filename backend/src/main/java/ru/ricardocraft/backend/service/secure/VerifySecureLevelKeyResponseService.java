@@ -10,7 +10,7 @@ import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.dto.response.secure.VerifySecureLevelKeyResponse;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;

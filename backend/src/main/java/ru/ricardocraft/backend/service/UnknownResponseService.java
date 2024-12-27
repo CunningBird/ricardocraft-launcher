@@ -7,7 +7,7 @@ import ru.ricardocraft.backend.dto.events.request.update.UpdateRequestEvent;
 import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.dto.response.UnknownResponse;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 @Component
 public class UnknownResponseService extends AbstractResponseService {

@@ -20,7 +20,7 @@ import ru.ricardocraft.backend.repository.User;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.service.update.LauncherResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;

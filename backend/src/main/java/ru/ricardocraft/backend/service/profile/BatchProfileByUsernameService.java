@@ -12,7 +12,7 @@ import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.profiles.PlayerProfile;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 @Component
 public class BatchProfileByUsernameService extends AbstractResponseService {

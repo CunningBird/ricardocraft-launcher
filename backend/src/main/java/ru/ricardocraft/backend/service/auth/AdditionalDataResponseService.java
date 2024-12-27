@@ -11,7 +11,7 @@ import ru.ricardocraft.backend.dto.response.auth.AdditionalDataResponse;
 import ru.ricardocraft.backend.repository.User;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 import java.util.Map;
 

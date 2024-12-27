@@ -15,7 +15,7 @@ import ru.ricardocraft.backend.properties.HttpServerProperties;
 import ru.ricardocraft.backend.properties.httpserver.HttpServerUpdatesBindProperties;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 @Component
 public class UpdateResponseService extends AbstractResponseService {

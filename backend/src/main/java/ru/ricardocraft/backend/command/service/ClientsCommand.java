@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 import java.io.IOException;
 import java.util.Base64;

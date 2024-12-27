@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.socket.handlers;
+package ru.ricardocraft.backend.controller;
 
 import java.io.File;
 import java.nio.file.Files;

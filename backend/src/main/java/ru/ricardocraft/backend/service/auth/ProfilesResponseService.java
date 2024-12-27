@@ -11,7 +11,7 @@ import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.dto.response.auth.ProfilesResponse;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 @Component
 public class ProfilesResponseService extends AbstractResponseService {

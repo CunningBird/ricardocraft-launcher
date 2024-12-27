@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.socket.handlers.error;
+package ru.ricardocraft.backend.socket.error;
 
 import ru.ricardocraft.backend.base.request.RequestException;
 

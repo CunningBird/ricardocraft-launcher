@@ -9,7 +9,7 @@ import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.dto.response.cabinet.AssetUploadInfoResponse;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 @Component
 public class AssetUploadInfoResponseService extends AbstractResponseService {

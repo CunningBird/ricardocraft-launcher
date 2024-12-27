@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.socket;
+package ru.ricardocraft.backend;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +13,7 @@ import ru.ricardocraft.backend.dto.events.RequestEvent;
 import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.service.AbstractResponseService;
+import ru.ricardocraft.backend.socket.Client;
 
 import java.io.IOException;
 import java.util.Collections;

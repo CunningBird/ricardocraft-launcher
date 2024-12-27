@@ -8,7 +8,6 @@ import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.VerifyHelper;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.properties.HttpServerProperties;
-import ru.ricardocraft.backend.socket.handlers.ContentType;
 
 import java.io.File;
 import java.io.IOException;
