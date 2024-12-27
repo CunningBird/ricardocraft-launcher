@@ -39,7 +39,12 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
     public static final String READ = "r";
     public static final int HTTP_CACHE_SECONDS = VerifyHelper.verifyInt(Integer.parseInt(System.getProperty("launcher.fileserver.cachesec", "60")), VerifyHelper.NOT_NEGATIVE, "HttpCache seconds should be positive");
     private static final boolean OLD_ALGO = Boolean.parseBoolean(System.getProperty("launcher.fileserver.oldalgo", "true"));
-    private static final ContentType TYPE_PROBE = Arrays.stream(ContentType.values()).filter(e -> e.name().toLowerCase(Locale.US).equals(System.getProperty("launcher.fileserver.typeprobe", "nio"))).findFirst().orElse(ContentType.UNIVERSAL);
+
+    private static final ContentType TYPE_PROBE = Arrays.stream(ContentType.values())
+            .filter(e -> e.name().toLowerCase(Locale.US).equals(System.getProperty("launcher.fileserver.typeprobe", "nio")))
+            .findFirst()
+            .orElse(ContentType.UNIVERSAL);
+
     private static final Pattern ALLOWED_FILE_NAME = Pattern.compile("[^-\\._]?[^<>&\\\"]*");
 
     static {
@@ -56,119 +61,6 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         this.showHiddenFiles = showHiddenFiles;
     }
 
-    private static void sendListing(ChannelHandlerContext ctx, File dir, String dirPath, boolean showHidden) {
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
-
-        StringBuilder buf = new StringBuilder()
-                .append("<!DOCTYPE html>\r\n")
-                .append("<html><head><meta charset='utf-8' /><title>")
-                .append("Listing of: ")
-                .append(dirPath)
-                .append("</title></head><body>\r\n")
-
-                .append("<h3>Listing of: ")
-                .append(dirPath)
-                .append("</h3>\r\n")
-
-                .append("<ul>")
-                .append("<li><a href=\"../\">..</a></li>\r\n");
-
-        for (File f : Objects.requireNonNull(dir.listFiles())) {
-            if ((f.isHidden() && !showHidden) || !f.canRead()) {
-                continue;
-            }
-
-            String name = f.getName();
-            if (!ALLOWED_FILE_NAME.matcher(name).matches()) {
-                continue;
-            }
-
-            buf.append("<li><a href=\"")
-                    .append(name)
-                    .append("\">")
-                    .append(name)
-                    .append("</a></li>\r\n");
-        }
-
-        buf.append("</ul></body></html>\r\n");
-        ByteBuf buffer = Unpooled.copiedBuffer(buf, CharsetUtil.UTF_8);
-        response.content().writeBytes(buffer);
-        buffer.release();
-
-        // Close the connection as soon as the error message is sent.
-        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-    }
-
-    private static void sendRedirect(ChannelHandlerContext ctx, String newUri) {
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, FOUND);
-        response.headers().set(HttpHeaderNames.LOCATION, newUri);
-
-        // Close the connection as soon as the error message is sent.
-        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-    }
-
-    private static void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
-        FullHttpResponse response = new DefaultFullHttpResponse(
-                HTTP_1_1, status, Unpooled.copiedBuffer("Failure: " + status + "\r\n", CharsetUtil.UTF_8));
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
-
-        // Close the connection as soon as the error message is sent.
-        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-    }
-
-    /**
-     * When file timestamp is the same as what the browser is sending up, send a "304 Not Modified"
-     *
-     * @param ctx Context
-     */
-    private static void sendNotModified(ChannelHandlerContext ctx) {
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, NOT_MODIFIED);
-        setDateHeader(response);
-
-        // Close the connection as soon as the error message is sent.
-        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-    }
-
-    /**
-     * Sets the Date header for the HTTP response
-     *
-     * @param response HTTP response
-     */
-    private static void setDateHeader(FullHttpResponse response) {
-        response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(Instant.ofEpochMilli(System.currentTimeMillis())));
-    }
-
-    /**
-     * Sets the Date and Cache headers for the HTTP Response
-     *
-     * @param response    HTTP response
-     * @param fileToCache file to extract content type
-     */
-    private static void setDateAndCacheHeaders(HttpResponse response, File fileToCache) {
-        // Date header
-        LocalDateTime time = LocalDateTime.now(Clock.systemUTC());
-        response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(time));
-
-        // Add cache headers
-        response.headers().set(HttpHeaderNames.EXPIRES, dateFormatter.format(time.plusSeconds(HTTP_CACHE_SECONDS)));
-        response.headers().set(HttpHeaderNames.CACHE_CONTROL, "private, max-age=" + HTTP_CACHE_SECONDS);
-        response.headers().set(
-                HttpHeaderNames.LAST_MODIFIED, dateFormatter.format(Instant.ofEpochMilli(fileToCache.lastModified())));
-    }
-
-    /**
-     * Sets the content type header for the HTTP Response
-     *
-     * @param response HTTP response
-     * @param file     file to extract content type
-     */
-    private static void setContentTypeHeader(HttpResponse response, File file) {
-        String contentType = TYPE_PROBE.forPath(file);
-        if (contentType != null)
-            response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
-    }
-
     @Override
     public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
         if (!request.decoderResult().isSuccess()) {
@@ -182,7 +74,7 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         }
 
         // URLDecoder tries to decode string as application/x-www-form-urlencoded which allows + character to be used as space escape therefore breaking file names with +
-        final String uri = IOHelper.urlDecodeStrict(request.uri());
+        final String uri = IOHelper.urlDecodeStrict(request.uri().replace("/files", ""));
         final String path;
 
         if (uri == null) {
@@ -286,5 +178,121 @@ public class FileServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         if (ctx.channel().isActive()) {
             sendError(ctx, INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private static void sendListing(ChannelHandlerContext ctx, File dir, String dirPath, boolean showHidden) {
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
+
+        StringBuilder buf = new StringBuilder()
+                .append("<!DOCTYPE html>\r\n")
+                .append("<html><head><meta charset='utf-8' /><title>")
+                .append("Listing of: ")
+                .append(dirPath)
+                .append("</title></head><body>\r\n")
+
+                .append("<h3>Listing of: ")
+                .append(dirPath)
+                .append("</h3>\r\n")
+
+                .append("<ul>")
+                .append("<li><a href=\"../\">..</a></li>\r\n");
+
+        for (File f : Objects.requireNonNull(dir.listFiles())) {
+            if ((f.isHidden() && !showHidden) || !f.canRead()) {
+                continue;
+            }
+
+            String name = f.getName();
+            if (!ALLOWED_FILE_NAME.matcher(name).matches()) {
+                continue;
+            }
+
+            buf.append("<li><a href=\"")
+                    .append(name)
+                    .append("\">")
+                    .append(name)
+                    .append("</a></li>\r\n");
+        }
+
+        buf.append("</ul></body></html>\r\n");
+        ByteBuf buffer = Unpooled.copiedBuffer(buf, CharsetUtil.UTF_8);
+        response.content().writeBytes(buffer);
+        buffer.release();
+
+        // Close the connection as soon as the error message is sent.
+        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    }
+
+    private static void sendRedirect(ChannelHandlerContext ctx, String newUri) {
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, FOUND);
+        response.headers().set(HttpHeaderNames.LOCATION, newUri);
+
+        // Close the connection as soon as the error message is sent.
+        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    }
+
+    private static void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
+        FullHttpResponse response = new DefaultFullHttpResponse(
+                HTTP_1_1,
+                status,
+                Unpooled.copiedBuffer("Failure: " + status + "\r\n", CharsetUtil.UTF_8)
+        );
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
+
+        // Close the connection as soon as the error message is sent.
+        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    }
+
+    /**
+     * When file timestamp is the same as what the browser is sending up, send a "304 Not Modified"
+     *
+     * @param ctx Context
+     */
+    private static void sendNotModified(ChannelHandlerContext ctx) {
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, NOT_MODIFIED);
+        setDateHeader(response);
+
+        // Close the connection as soon as the error message is sent.
+        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    }
+
+    /**
+     * Sets the Date header for the HTTP response
+     *
+     * @param response HTTP response
+     */
+    private static void setDateHeader(FullHttpResponse response) {
+        response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(Instant.ofEpochMilli(System.currentTimeMillis())));
+    }
+
+    /**
+     * Sets the Date and Cache headers for the HTTP Response
+     *
+     * @param response    HTTP response
+     * @param fileToCache file to extract content type
+     */
+    private static void setDateAndCacheHeaders(HttpResponse response, File fileToCache) {
+        // Date header
+        LocalDateTime time = LocalDateTime.now(Clock.systemUTC());
+        response.headers().set(HttpHeaderNames.DATE, dateFormatter.format(time));
+
+        // Add cache headers
+        response.headers().set(HttpHeaderNames.EXPIRES, dateFormatter.format(time.plusSeconds(HTTP_CACHE_SECONDS)));
+        response.headers().set(HttpHeaderNames.CACHE_CONTROL, "private, max-age=" + HTTP_CACHE_SECONDS);
+        response.headers().set(
+                HttpHeaderNames.LAST_MODIFIED, dateFormatter.format(Instant.ofEpochMilli(fileToCache.lastModified())));
+    }
+
+    /**
+     * Sets the content type header for the HTTP Response
+     *
+     * @param response HTTP response
+     * @param file     file to extract content type
+     */
+    private static void setContentTypeHeader(HttpResponse response, File file) {
+        String contentType = TYPE_PROBE.forPath(file);
+        if (contentType != null)
+            response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
     }
 }

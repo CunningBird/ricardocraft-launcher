@@ -113,10 +113,10 @@ netty:
   disableWebApiInterface: false
   showHiddenFiles: false
   sendProfileUpdatesEvent: true
-  launcherURL: http://localhost:9274/Launcher.jar
-  downloadURL: http://localhost:9274/%dirname%/
-  launcherEXEURL: http://localhost:9274/Launcher.exe
-  address: ws://localhost:9274/api
+  launcherURL: http://localhost:9273/Launcher.jar
+  downloadURL: http://localhost:9273/files/%dirname%/
+  launcherEXEURL: http://localhost:9273/Launcher.exe
+  address: ws://localhost:9273/api
   logLevel: DEBUG
   bindings: { }
   performance:

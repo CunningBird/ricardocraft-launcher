@@ -1,0 +1,9 @@
+server:
+  port: 9273
+
+spring:
+  application:
+    name: ricardocraft-backend
+  shell:
+    interactive:
+      enabled: false

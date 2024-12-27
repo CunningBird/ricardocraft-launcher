@@ -53,8 +53,8 @@ public final class LaunchServer implements Runnable, AutoCloseable {
         }));
         newThread("Command Thread", true, commandHandler).start();
 
-        nettyServerSocketHandler.close();
-        newThread("Netty Server Socket Thread", false, nettyServerSocketHandler).start();
+//        nettyServerSocketHandler.close();
+//        newThread("Netty Server Socket Thread", false, nettyServerSocketHandler).start();
 
         log.info("LaunchServer started");
     }

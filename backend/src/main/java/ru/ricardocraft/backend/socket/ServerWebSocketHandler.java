@@ -35,10 +35,6 @@ public class ServerWebSocketHandler extends TextWebSocketHandler implements SubP
         services.put(responseClass, service);
     }
 
-    public Map<WebSocketSession, Client> getSessions() {
-        return new ConcurrentHashMap<>(sessions);
-    }
-
     public void updateSessionClient(WebSocketSession session, Client newClient) {
         sessions.put(session, newClient);
     }
