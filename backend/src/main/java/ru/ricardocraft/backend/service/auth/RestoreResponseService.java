@@ -1,6 +1,5 @@
 package ru.ricardocraft.backend.service.auth;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;

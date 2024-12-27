@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthException;
+import ru.ricardocraft.backend.auth.QueryBuilder;
 import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.auth.core.UserSession;
 import ru.ricardocraft.backend.auth.details.AuthWebViewDetails;
@@ -23,7 +24,6 @@ import ru.ricardocraft.backend.properties.config.OpenIDProperties;
 import ru.ricardocraft.backend.repository.*;
 import ru.ricardocraft.backend.service.auth.AuthResponseService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.auth.QueryBuilder;
 
 import java.io.IOException;
 import java.net.URI;

@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.base.request.secure;
 
-import ru.ricardocraft.backend.dto.events.request.secure.HardwareReportRequestEvent;
 import ru.ricardocraft.backend.base.request.Request;
+import ru.ricardocraft.backend.dto.events.request.secure.HardwareReportRequestEvent;
 
 import java.util.Base64;
 

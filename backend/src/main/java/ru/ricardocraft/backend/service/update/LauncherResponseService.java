@@ -3,21 +3,19 @@ package ru.ricardocraft.backend.service.update;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.netty.channel.ChannelHandlerContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
-import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.dto.events.request.update.LauncherRequestEvent;
 import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
 import ru.ricardocraft.backend.dto.response.update.LauncherResponse;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
+import ru.ricardocraft.backend.properties.HttpServerProperties;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
-import ru.ricardocraft.backend.properties.NettyProperties;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.service.auth.RestoreResponseService;
 import ru.ricardocraft.backend.socket.Client;
@@ -33,17 +31,17 @@ import java.util.Date;
 public class LauncherResponseService extends AbstractResponseService {
 
     private final LaunchServerProperties config;
-    private final NettyProperties nettyProperties;
+    private final HttpServerProperties httpServerProperties;
     private final KeyAgreementManager keyAgreementManager;
 
     @Autowired
     public LauncherResponseService(ServerWebSocketHandler handler,
                                    LaunchServerProperties config,
-                                   NettyProperties nettyProperties,
+                                   HttpServerProperties httpServerProperties,
                                    KeyAgreementManager keyAgreementManager) {
         super(LauncherResponse.class, handler);
         this.config = config;
-        this.nettyProperties = nettyProperties;
+        this.httpServerProperties = httpServerProperties;
         this.keyAgreementManager = keyAgreementManager;
     }
 
@@ -60,30 +58,30 @@ public class LauncherResponseService extends AbstractResponseService {
         if (response.launcher_type == 1) {
             byte[] hash = getLauncherJarHash(bytes);
             if (hash == null) {
-                LauncherRequestEvent res = new LauncherRequestEvent(true, nettyProperties.getLauncherURL());
+                LauncherRequestEvent res = new LauncherRequestEvent(true, httpServerProperties.getLauncherURL());
                 res.closeChannel = true;
                 return res;
             }
             if (Arrays.equals(bytes, hash) && checkSecure(response.secureHash, response.secureSalt)) {
                 client.checkSign = true;
-                return new LauncherRequestEvent(false, nettyProperties.getLauncherURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000);
+                return new LauncherRequestEvent(false, httpServerProperties.getLauncherURL(), createLauncherExtendedToken(), httpServerProperties.getSecurity().getLauncherTokenExpire() * 1000);
             } else {
-                LauncherRequestEvent res = new LauncherRequestEvent(true, nettyProperties.getLauncherURL(), null, 0);
+                LauncherRequestEvent res = new LauncherRequestEvent(true, httpServerProperties.getLauncherURL(), null, 0);
                 res.closeChannel = true;
                 return res;
             }
         } else if (response.launcher_type == 2) { // EXE
             byte[] hash = getLauncherExeHash(bytes);
             if (hash == null) {
-                LauncherRequestEvent res = new LauncherRequestEvent(true, nettyProperties.getLauncherEXEURL());
+                LauncherRequestEvent res = new LauncherRequestEvent(true, httpServerProperties.getLauncherEXEURL());
                 res.closeChannel = true;
                 return res;
             }
             if (Arrays.equals(bytes, hash) && checkSecure(response.secureHash, response.secureSalt)) {
                 client.checkSign = true;
-                return new LauncherRequestEvent(false, nettyProperties.getLauncherEXEURL(), createLauncherExtendedToken(), nettyProperties.getSecurity().getLauncherTokenExpire() * 1000);
+                return new LauncherRequestEvent(false, httpServerProperties.getLauncherEXEURL(), createLauncherExtendedToken(), httpServerProperties.getSecurity().getLauncherTokenExpire() * 1000);
             } else {
-                LauncherRequestEvent res = new LauncherRequestEvent(true, nettyProperties.getLauncherEXEURL(), null, 0);
+                LauncherRequestEvent res = new LauncherRequestEvent(true, httpServerProperties.getLauncherEXEURL(), null, 0);
                 res.closeChannel = true;
                 return res;
             }
@@ -104,7 +102,7 @@ public class LauncherResponseService extends AbstractResponseService {
         return Jwts.builder()
                 .setIssuer("LaunchServer")
                 .claim("checkSign", true)
-                .setExpiration(Date.from(LocalDateTime.now().plusSeconds(nettyProperties.getSecurity().getLauncherTokenExpire()).toInstant(ZoneOffset.UTC)))
+                .setExpiration(Date.from(LocalDateTime.now().plusSeconds(httpServerProperties.getSecurity().getLauncherTokenExpire()).toInstant(ZoneOffset.UTC)))
                 .signWith(keyAgreementManager.ecdsaPrivateKey, SignatureAlgorithm.ES256)
                 .compact();
     }

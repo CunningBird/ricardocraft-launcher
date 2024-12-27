@@ -1,5 +1,8 @@
 package ru.ricardocraft.backend.base.helper;
 
+import ru.ricardocraft.backend.dto.updates.ClassLoaderConfig;
+import ru.ricardocraft.backend.dto.updates.ServerProfile;
+import ru.ricardocraft.backend.dto.updates.Version;
 import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.profiles.ClientProfileBuilder;
 import ru.ricardocraft.backend.profiles.ClientProfileVersions;
@@ -7,9 +10,6 @@ import ru.ricardocraft.backend.profiles.optional.OptionalFile;
 import ru.ricardocraft.backend.profiles.optional.actions.OptionalActionFile;
 import ru.ricardocraft.backend.profiles.optional.actions.OptionalActionJvmArgs;
 import ru.ricardocraft.backend.profiles.optional.triggers.OSTrigger;
-import ru.ricardocraft.backend.dto.updates.ClassLoaderConfig;
-import ru.ricardocraft.backend.dto.updates.ServerProfile;
-import ru.ricardocraft.backend.dto.updates.Version;
 
 import java.io.IOException;
 import java.nio.file.Files;

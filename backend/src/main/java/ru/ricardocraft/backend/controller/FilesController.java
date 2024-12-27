@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.VerifyHelper;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.properties.NettyProperties;
+import ru.ricardocraft.backend.properties.HttpServerProperties;
 import ru.ricardocraft.backend.socket.handlers.ContentType;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -48,10 +50,10 @@ public class FilesController {
     private final boolean fullOut;
     private final boolean showHiddenFiles;
 
-    public FilesController(DirectoriesManager directoriesManager, NettyProperties nettyProperties) {
+    public FilesController(DirectoriesManager directoriesManager, HttpServerProperties httpServerProperties) {
         this.base = directoriesManager.getUpdatesDir();
         this.fullOut = true;
-        showHiddenFiles = nettyProperties.getShowHiddenFiles();
+        showHiddenFiles = httpServerProperties.getShowHiddenFiles();
     }
 
     @GetMapping("/files/**")

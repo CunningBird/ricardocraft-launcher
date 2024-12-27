@@ -1,11 +1,11 @@
-package ru.ricardocraft.backend.properties.netty;
+package ru.ricardocraft.backend.properties.httpserver;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class NettyUpdatesBindProperties {
+public class HttpServerUpdatesBindProperties {
     private String url;
     private Boolean zip;
 }

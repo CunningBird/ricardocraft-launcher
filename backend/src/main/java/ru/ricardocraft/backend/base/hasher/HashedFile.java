@@ -2,11 +2,11 @@ package ru.ricardocraft.backend.base.hasher;
 
 import lombok.Getter;
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
-import ru.ricardocraft.backend.base.serialize.HInput;
-import ru.ricardocraft.backend.base.serialize.HOutput;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper.DigestAlgorithm;
 import ru.ricardocraft.backend.base.helper.VerifyHelper;
+import ru.ricardocraft.backend.base.serialize.HInput;
+import ru.ricardocraft.backend.base.serialize.HOutput;
 
 import java.io.IOException;
 import java.nio.file.Path;

@@ -1,6 +1,5 @@
 package ru.ricardocraft.backend.service.secure;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,7 @@ import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.dto.events.request.secure.HardwareReportRequestEvent;
 import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.dto.response.secure.HardwareReportResponse;
-import ru.ricardocraft.backend.properties.NettyProperties;
+import ru.ricardocraft.backend.properties.HttpServerProperties;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
@@ -25,15 +24,15 @@ public class HardwareReportResponseService extends AbstractResponseService {
 
     private static final Logger logger = LogManager.getLogger(HardwareReportResponseService.class);
 
-    private final NettyProperties nettyProperties;
+    private final HttpServerProperties httpServerProperties;
     private final ProtectHandler protectHandler;
 
     @Autowired
     public HardwareReportResponseService(ServerWebSocketHandler handler,
-                                         NettyProperties nettyProperties,
+                                         HttpServerProperties httpServerProperties,
                                          ProtectHandler protectHandler) {
         super(HardwareReportResponse.class, handler);
-        this.nettyProperties = nettyProperties;
+        this.httpServerProperties = httpServerProperties;
         this.protectHandler = protectHandler;
     }
 
@@ -52,7 +51,7 @@ public class HardwareReportResponseService extends AbstractResponseService {
                 if (client.trustLevel.hardwareInfo != null) {
                     return new HardwareReportRequestEvent(
                             advancedProtectHandler.createHardwareToken(client.username, client.trustLevel.hardwareInfo),
-                            SECONDS.toMillis(nettyProperties.getSecurity().getHardwareTokenExpire())
+                            SECONDS.toMillis(httpServerProperties.getSecurity().getHardwareTokenExpire())
                     );
                 }
                 logger.debug("HardwareInfo received");
@@ -72,7 +71,7 @@ public class HardwareReportResponseService extends AbstractResponseService {
                         client.trustLevel.hardwareInfo = hardware;
                         return new HardwareReportRequestEvent(
                                 advancedProtectHandler.createHardwareToken(client.username, hardware),
-                                SECONDS.toMillis(nettyProperties.getSecurity().getHardwareTokenExpire())
+                                SECONDS.toMillis(httpServerProperties.getSecurity().getHardwareTokenExpire())
                         );
                     } else {
                         logger.error("AuthCoreProvider not supported hardware");

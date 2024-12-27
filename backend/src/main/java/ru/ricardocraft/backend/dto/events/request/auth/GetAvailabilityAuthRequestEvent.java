@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.dto.events.request.auth;
 
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
-import ru.ricardocraft.backend.dto.events.RequestEvent;
 import ru.ricardocraft.backend.base.request.TypeSerializeInterface;
+import ru.ricardocraft.backend.dto.events.RequestEvent;
 
 import java.util.List;
 import java.util.Set;

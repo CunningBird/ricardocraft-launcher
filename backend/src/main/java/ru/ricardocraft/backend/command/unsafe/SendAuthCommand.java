@@ -14,7 +14,6 @@ import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.profiles.PlayerProfile;
 import ru.ricardocraft.backend.repository.User;
-import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
 
 import java.io.IOException;

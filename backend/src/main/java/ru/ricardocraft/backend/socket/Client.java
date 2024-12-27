@@ -3,8 +3,8 @@ package ru.ricardocraft.backend.socket;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.core.interfaces.UserHardware;
 import ru.ricardocraft.backend.base.ClientPermissions;
-import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
+import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.repository.User;
 
 import java.util.HashMap;

@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
-import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.manangers.AuthManager;
+import ru.ricardocraft.backend.profiles.ClientProfile;
 
 @Component
 public class TokenServerCommand extends Command {

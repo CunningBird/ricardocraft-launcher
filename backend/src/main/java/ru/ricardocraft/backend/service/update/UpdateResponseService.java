@@ -1,6 +1,5 @@
 package ru.ricardocraft.backend.service.update;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
@@ -12,8 +11,8 @@ import ru.ricardocraft.backend.dto.events.request.update.UpdateRequestEvent;
 import ru.ricardocraft.backend.dto.response.SimpleResponse;
 import ru.ricardocraft.backend.dto.response.update.UpdateResponse;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
-import ru.ricardocraft.backend.properties.NettyProperties;
-import ru.ricardocraft.backend.properties.netty.NettyUpdatesBindProperties;
+import ru.ricardocraft.backend.properties.HttpServerProperties;
+import ru.ricardocraft.backend.properties.httpserver.HttpServerUpdatesBindProperties;
 import ru.ricardocraft.backend.service.AbstractResponseService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
@@ -21,17 +20,17 @@ import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
 @Component
 public class UpdateResponseService extends AbstractResponseService {
 
-    private final NettyProperties nettyProperties;
+    private final HttpServerProperties httpServerProperties;
     private final ProtectHandler protectHandler;
     private final UpdatesManager updatesManager;
 
     @Autowired
     public UpdateResponseService(ServerWebSocketHandler handler,
-                                 NettyProperties nettyProperties,
+                                 HttpServerProperties httpServerProperties,
                                  ProtectHandler protectHandler,
                                  UpdatesManager updatesManager) {
         super(UpdateResponse.class, handler);
-        this.nettyProperties = nettyProperties;
+        this.httpServerProperties = httpServerProperties;
         this.protectHandler = protectHandler;
         this.updatesManager = updatesManager;
     }
@@ -50,10 +49,10 @@ public class UpdateResponseService extends AbstractResponseService {
         if (dir == null) {
             throw new Exception("Directory %s not found".formatted(response.dirName));
         }
-        String url = nettyProperties.getDownloadURL().replace("%dirname%", IOHelper.urlEncode(response.dirName));
+        String url = httpServerProperties.getDownloadURL().replace("%dirname%", IOHelper.urlEncode(response.dirName));
         boolean zip = false;
-        if (nettyProperties.getBindings().get(response.dirName) != null) {
-            NettyUpdatesBindProperties bind = nettyProperties.getBindings().get(response.dirName);
+        if (httpServerProperties.getBindings().get(response.dirName) != null) {
+            HttpServerUpdatesBindProperties bind = httpServerProperties.getBindings().get(response.dirName);
             url = bind.getUrl();
             zip = bind.getZip();
         }

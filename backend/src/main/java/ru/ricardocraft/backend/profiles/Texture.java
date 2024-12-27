@@ -1,9 +1,9 @@
 package ru.ricardocraft.backend.profiles;
 
-import ru.ricardocraft.backend.base.serialize.HOutput;
-import ru.ricardocraft.backend.base.serialize.StreamObject;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
+import ru.ricardocraft.backend.base.serialize.HOutput;
+import ru.ricardocraft.backend.base.serialize.StreamObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

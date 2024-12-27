@@ -1,5 +1,5 @@
 server:
-  port: 9273
+  port: 9274
 
 spring:
   application:
@@ -107,17 +107,16 @@ directories:
   cacheFile: '.updates-cache'
   root: 'C:\Users\cunningbird\IdeaProjects\ricardocraft-launcher\backend\build\app'
 
-netty:
+http-server:
   fileServerEnabled: true
   ipForwarding: false
   disableWebApiInterface: false
   showHiddenFiles: false
   sendProfileUpdatesEvent: true
-  launcherURL: http://localhost:9273/Launcher.jar
-  downloadURL: http://localhost:9273/files/%dirname%/
-  launcherEXEURL: http://localhost:9273/Launcher.exe
-  address: ws://localhost:9273/api
-  logLevel: DEBUG
+  launcherURL: http://localhost:9274/Launcher.jar
+  downloadURL: http://localhost:9274/files/%dirname%/
+  launcherEXEURL: http://localhost:9274/Launcher.exe
+  address: ws://localhost:9274/api
   bindings: { }
   performance:
     usingEpoll: false

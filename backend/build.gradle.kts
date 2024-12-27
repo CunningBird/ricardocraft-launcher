@@ -44,10 +44,6 @@ dependencies {
     implementation("org.bouncycastle:bcpkix-jdk18on:1.78.1")
     implementation("org.ow2.asm:asm-commons:9.7")
 
-    implementation("io.netty:netty-codec-http:4.1.111.Final")
-    implementation("io.netty:netty-transport-classes-epoll:4.1.111.Final")
-    implementation("io.netty:netty-transport-native-epoll:4.1.111.Final:linux-x86_64")
-    implementation("io.netty:netty-transport-native-epoll:4.1.111.Final:linux-aarch_64")
     implementation("org.slf4j:slf4j-api:2.0.13")
 
     implementation("com.mysql:mysql-connector-j:9.0.0")
@@ -68,9 +64,8 @@ dependencies {
 
     implementation("io.sentry:sentry:8.0.0-alpha.4")
 
-    implementation(platform("software.amazon.awssdk:bom:2.17.290"))
-    implementation("software.amazon.awssdk:s3")
-    implementation("software.amazon.awssdk:netty-nio-client")
+//    implementation(platform("software.amazon.awssdk:bom:2.17.290"))
+//    implementation("software.amazon.awssdk:s3")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")

@@ -13,11 +13,11 @@ import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.StdProtectHandler;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
-import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
+import ru.ricardocraft.backend.profiles.ClientProfile;
+import ru.ricardocraft.backend.properties.HttpServerProperties;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
-import ru.ricardocraft.backend.properties.NettyProperties;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,7 +34,7 @@ public class SecurityCheckCommand extends Command {
 
     private final transient LaunchServerProperties config;
     private final transient DirectoriesManager directoriesManager;
-    private final transient NettyProperties nettyProperties;
+    private final transient HttpServerProperties httpServerProperties;
     private final transient AuthProviders authProviders;
     private final transient ProtectHandler protectHandler;
     private final transient ProfileProvider profileProvider;
@@ -42,7 +42,7 @@ public class SecurityCheckCommand extends Command {
     @Autowired
     public SecurityCheckCommand(LaunchServerProperties config,
                                 DirectoriesManager directoriesManager,
-                                NettyProperties nettyProperties,
+                                HttpServerProperties httpServerProperties,
                                 AuthProviders authProviders,
                                 ProtectHandler protectHandler,
                                 ProfileProvider profileProvider) {
@@ -50,7 +50,7 @@ public class SecurityCheckCommand extends Command {
 
         this.config = config;
         this.directoriesManager = directoriesManager;
-        this.nettyProperties = nettyProperties;
+        this.httpServerProperties = httpServerProperties;
         this.authProviders = authProviders;
         this.protectHandler = protectHandler;
         this.profileProvider = profileProvider;
@@ -81,8 +81,8 @@ public class SecurityCheckCommand extends Command {
         authProviders.getAuthProviders().forEach((name, pair) -> {
         });
         switch (protectHandler) {
-            case NoProtectHandler noProtectHandler -> printCheckResult("protectHandler", "protectHandler none", false);
-            case AdvancedProtectHandler advancedProtectHandler -> {
+            case NoProtectHandler ignored -> printCheckResult("protectHandler", "protectHandler none", false);
+            case AdvancedProtectHandler ignored -> {
                 printCheckResult("protectHandler", "", true);
                 if (!config.getAdvancedProtectHandler().getEnableHardwareFeature()) {
                     printCheckResult("protectHandler.hardwareId", "you can improve security by using hwid provider", null);
@@ -94,32 +94,32 @@ public class SecurityCheckCommand extends Command {
                     printCheckResult("protectHandler", "you can improve security by using advanced", null);
             case null, default -> printCheckResult("protectHandler", "unknown protectHandler", null);
         }
-        if (nettyProperties.getAddress().startsWith("ws://")) {
-            if (nettyProperties.getIpForwarding())
-                printCheckResult("netty.ipForwarding", "ipForwarding may be used to spoofing ip", null);
-            printCheckResult("netty.address", "websocket connection not secure", false);
-        } else if (nettyProperties.getAddress().startsWith("wss://")) {
-            if (!nettyProperties.getIpForwarding())
-                printCheckResult("netty.ipForwarding", "ipForwarding not enabled. authLimiter may be get incorrect ip", null);
-            printCheckResult("netty.address", "", true);
+        if (httpServerProperties.getAddress().startsWith("ws://")) {
+            if (httpServerProperties.getIpForwarding())
+                printCheckResult("server.ipForwarding", "ipForwarding may be used to spoofing ip", null);
+            printCheckResult("server.address", "websocket connection not secure", false);
+        } else if (httpServerProperties.getAddress().startsWith("wss://")) {
+            if (!httpServerProperties.getIpForwarding())
+                printCheckResult("server.ipForwarding", "ipForwarding not enabled. authLimiter may be get incorrect ip", null);
+            printCheckResult("server.address", "", true);
         }
 
-        if (nettyProperties.getLauncherURL().startsWith("http://")) {
-            printCheckResult("netty.launcherUrl", "launcher jar download connection not secure", false);
-        } else if (nettyProperties.getLauncherURL().startsWith("https://")) {
-            printCheckResult("netty.launcherUrl", "", true);
+        if (httpServerProperties.getLauncherURL().startsWith("http://")) {
+            printCheckResult("server.launcherUrl", "launcher jar download connection not secure", false);
+        } else if (httpServerProperties.getLauncherURL().startsWith("https://")) {
+            printCheckResult("server.launcherUrl", "", true);
         }
 
-        if (nettyProperties.getLauncherEXEURL().startsWith("http://")) {
-            printCheckResult("netty.launcherExeUrl", "launcher exe download connection not secure", false);
-        } else if (nettyProperties.getLauncherEXEURL().startsWith("https://")) {
-            printCheckResult("netty.launcherExeUrl", "", true);
+        if (httpServerProperties.getLauncherEXEURL().startsWith("http://")) {
+            printCheckResult("server.launcherExeUrl", "launcher exe download connection not secure", false);
+        } else if (httpServerProperties.getLauncherEXEURL().startsWith("https://")) {
+            printCheckResult("server.launcherExeUrl", "", true);
         }
 
-        if (nettyProperties.getDownloadURL().startsWith("http://")) {
-            printCheckResult("netty.downloadUrl", "assets/clients download connection not secure", false);
-        } else if (nettyProperties.getDownloadURL().startsWith("https://")) {
-            printCheckResult("netty.downloadUrl", "", true);
+        if (httpServerProperties.getDownloadURL().startsWith("http://")) {
+            printCheckResult("server.downloadUrl", "assets/clients download connection not secure", false);
+        } else if (httpServerProperties.getDownloadURL().startsWith("https://")) {
+            printCheckResult("server.downloadUrl", "", true);
         }
 
         if (config.getProguard().getEnabled()) {

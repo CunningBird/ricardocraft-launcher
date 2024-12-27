@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.profiles.ClientProfile;
-import ru.ricardocraft.backend.profiles.ClientProfileBuilder;
 import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
+import ru.ricardocraft.backend.profiles.ClientProfile;
+import ru.ricardocraft.backend.profiles.ClientProfileBuilder;
 
 import java.io.IOException;
 import java.nio.file.Files;

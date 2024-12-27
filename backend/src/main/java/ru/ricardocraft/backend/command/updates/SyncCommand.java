@@ -3,7 +3,10 @@ package ru.ricardocraft.backend.command.updates;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.command.updates.sync.*;
+import ru.ricardocraft.backend.command.updates.sync.SyncProfilesCommand;
+import ru.ricardocraft.backend.command.updates.sync.SyncUPCommand;
+import ru.ricardocraft.backend.command.updates.sync.SyncUpdatesCacheCommand;
+import ru.ricardocraft.backend.command.updates.sync.SyncUpdatesCommand;
 
 @Component
 public class SyncCommand extends Command {

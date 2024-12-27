@@ -14,7 +14,7 @@ import ru.ricardocraft.backend.dto.events.request.auth.ProfilesRequestEvent;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.profiles.ClientProfile;
-import ru.ricardocraft.backend.properties.NettyProperties;
+import ru.ricardocraft.backend.properties.HttpServerProperties;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.ServerWebSocketHandler;
 
@@ -34,19 +34,19 @@ public class LocalProfileProvider extends ProfileProvider {
     private transient volatile Set<ClientProfile> profilesList; // Cache
 
     private final transient DirectoriesManager directoriesManager;
-    private final transient NettyProperties nettyProperties;
+    private final transient HttpServerProperties httpServerProperties;
     private final transient ProtectHandler handler;
     private final transient ServerWebSocketHandler webSocketHandler;
     private final transient JacksonManager jacksonManager;
 
     @Autowired
     public LocalProfileProvider(DirectoriesManager directoriesManager,
-                                NettyProperties nettyProperties,
+                                HttpServerProperties httpServerProperties,
                                 ProtectHandler handler,
                                 ServerWebSocketHandler webSocketHandler,
                                 JacksonManager jacksonManager, ClientsCommand clientsCommand) {
         this.directoriesManager = directoriesManager;
-        this.nettyProperties = nettyProperties;
+        this.httpServerProperties = httpServerProperties;
         this.handler = handler;
         this.webSocketHandler = webSocketHandler;
         this.jacksonManager = jacksonManager;
@@ -133,7 +133,7 @@ public class LocalProfileProvider extends ProfileProvider {
     @Override
     public void syncProfilesDir() throws IOException {
         sync();
-        if (nettyProperties.getSendProfileUpdatesEvent()) {
+        if (httpServerProperties.getSendProfileUpdatesEvent()) {
             webSocketHandler.forEachActiveChannels((session, client) -> {
                 if (client == null || !client.isAuth) {
                     return;

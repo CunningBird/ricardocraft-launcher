@@ -9,10 +9,10 @@ import ru.ricardocraft.backend.base.LaunchOptions;
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.VerifyHelper;
+import ru.ricardocraft.backend.dto.updates.*;
 import ru.ricardocraft.backend.profiles.optional.OptionalDepend;
 import ru.ricardocraft.backend.profiles.optional.OptionalFile;
 import ru.ricardocraft.backend.profiles.optional.triggers.OSTrigger;
-import ru.ricardocraft.backend.dto.updates.*;
 
 import java.util.*;
 
