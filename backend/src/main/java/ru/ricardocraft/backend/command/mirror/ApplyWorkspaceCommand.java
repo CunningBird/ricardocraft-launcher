@@ -1,8 +1,14 @@
 package ru.ricardocraft.backend.command.mirror;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Downloader;
 import ru.ricardocraft.backend.base.helper.IOHelper;
@@ -25,54 +31,31 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-@Component
-public class ApplyWorkspaceCommand extends Command {
+@Slf4j
+@ShellComponent
+@ShellCommandGroup("mirror")
+@RequiredArgsConstructor
+public class ApplyWorkspaceCommand {
 
-    private final Logger logger = LogManager.getLogger(ApplyWorkspaceCommand.class);
+    private final DirectoriesManager directoriesManager;
+    private final MirrorManager mirrorManager;
+    private final JacksonManager jacksonManager;
+    private final LwjglDownloadCommand lwjglDownloadCommand;
 
-    private transient final DirectoriesManager directoriesManager;
-    private transient final MirrorManager mirrorManager;
-    private transient final JacksonManager jacksonManager;
-
-    private transient final LwjglDownloadCommand lwjglDownloadCommand;
-
-    @Autowired
-    public ApplyWorkspaceCommand(DirectoriesManager directoriesManager,
-                                 MirrorManager mirrorManager,
-                                 JacksonManager jacksonManager,
-
-                                 LwjglDownloadCommand lwjglDownloadCommand) {
-        super();
-        this.directoriesManager = directoriesManager;
-        this.mirrorManager = mirrorManager;
-        this.jacksonManager = jacksonManager;
-        this.lwjglDownloadCommand = lwjglDownloadCommand;
-    }
-
-    @Override
-    public String getArgsDescription() {
-        return "[path]";
-    }
-
-    @Override
-    public String getUsageDescription() {
-        return "apply workspace. This action remove your files in workspace!";
-    }
-
-    @Override
-    public void invoke(String... args) throws Exception {
+    @ShellMethod("[path] apply workspace. This action remove your files in workspace!")
+    public void applyWorkspace(@ShellOption(defaultValue = ShellOption.NULL) String path) throws Exception {
         URI url = null;
         Path workspaceFilePath = null;
-        if (args.length == 0) {
+        if (path == null) {
             url = mirrorManager.getDefaultMirror().getURL("workspace.json").toURI();
-        } else if (args[0].startsWith("http://") || args[0].startsWith("https://")) {
-            url = new URI(args[0]);
+        } else if (path.startsWith("http://") || path.startsWith("https://")) {
+            url = new URI(path);
         } else {
-            workspaceFilePath = Paths.get(args[0]);
+            workspaceFilePath = Paths.get(path);
         }
         if (url != null) {
             workspaceFilePath = directoriesManager.getMirrorHelperDir().resolve("workspace.json");
-            logger.info("Download {} to {}", url, workspaceFilePath);
+            log.info("Download {} to {}", url, workspaceFilePath);
             Downloader.downloadFile(url, workspaceFilePath, null).getFuture().get();
         }
         MirrorWorkspaceProperties workspace;
@@ -81,21 +64,21 @@ public class ApplyWorkspaceCommand extends Command {
         }
         Path workspacePath = directoriesManager.getMirrorHelperWorkspaceDir();
         if (Files.exists(workspacePath)) {
-            logger.warn("THIS ACTION DELETE ALL FILES IN {}", workspacePath);
+            log.warn("THIS ACTION DELETE ALL FILES IN {}", workspacePath);
             IOHelper.deleteDir(workspacePath, false);
         } else {
             Files.createDirectories(workspacePath);
         }
         applyWorkspace(workspace);
-        logger.info("Complete");
+        log.info("Complete");
     }
 
     public void applyWorkspace(MirrorWorkspaceProperties workspace) throws Exception {
         Path workspacePath = directoriesManager.getMirrorHelperWorkspaceDir();
         Path tmp = Files.createTempDirectory("mirrorhelper");
         try {
-            logger.info("Apply workspace");
-            logger.info("Download libraries");
+            log.info("Apply workspace");
+            log.info("Download libraries");
             for (var l : workspace.getLibraries()) {
                 if (l.getData() != null) {
                     IOHelper.createParentDirs(workspacePath.resolve(l.getPath()));
@@ -104,7 +87,7 @@ public class ApplyWorkspaceCommand extends Command {
                 }
                 String randomName = SecurityHelper.randomStringAESKey();
                 Path tmpPath = tmp.resolve(randomName);
-                logger.info("Download {} to {}", l.getUrl(), tmpPath);
+                log.info("Download {} to {}", l.getUrl(), tmpPath);
                 Downloader.downloadFile(new URI(l.getUrl()), tmpPath, null).getFuture().get();
                 if (l.getPath() != null) {
                     Path lPath = workspacePath.resolve(l.getPath());
@@ -152,18 +135,18 @@ public class ApplyWorkspaceCommand extends Command {
                     }
                 }
             }
-            logger.info("Download multiMods");
+            log.info("Download multiMods");
             for (var e : workspace.getMultiMods().entrySet()) {
                 Path target = workspacePath.resolve("multimods").resolve(e.getKey().concat(".jar"));
-                logger.info("Download {} to {}", e.getValue().getUrl(), target);
+                log.info("Download {} to {}", e.getValue().getUrl(), target);
                 Downloader.downloadFile(new URI(e.getValue().getUrl()), target, null).getFuture().get();
             }
-            logger.info("Install lwjgl3 directory");
-            lwjglDownloadCommand.invoke(workspace.getLwjgl3version(), "mirrorhelper-tmp-lwjgl3");
+            log.info("Install lwjgl3 directory");
+            lwjglDownloadCommand.lwjglDownload(workspace.getLwjgl3version(), "mirrorhelper-tmp-lwjgl3");
             Path lwjgl3Path = workspacePath.resolve("workdir").resolve("lwjgl3");
             IOHelper.move(directoriesManager.getUpdatesDir().resolve("mirrorhelper-tmp-lwjgl3"), lwjgl3Path);
             Files.deleteIfExists(directoriesManager.getUpdatesDir().resolve("mirrorhelper-tmp-lwjgl3"));
-            logger.info("Save config");
+            log.info("Save config");
         } finally {
             IOHelper.deleteDir(tmp, true);
         }

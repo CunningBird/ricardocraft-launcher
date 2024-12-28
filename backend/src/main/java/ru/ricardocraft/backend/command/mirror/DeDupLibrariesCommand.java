@@ -1,11 +1,12 @@
 package ru.ricardocraft.backend.command.mirror;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
 
 import java.io.FileNotFoundException;
@@ -18,40 +19,20 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component
-public class DeDupLibrariesCommand extends Command {
+@Slf4j
+@ShellComponent
+@ShellCommandGroup("mirror")
+@RequiredArgsConstructor
+public class DeDupLibrariesCommand {
 
-    private transient final Logger logger = LogManager.getLogger(DeDupLibrariesCommand.class);
+    private final DirectoriesManager directoriesManager;
 
-    private transient final DirectoriesManager directoriesManager;
-
-    @Autowired
-    public DeDupLibrariesCommand(DirectoriesManager directoriesManager) {
-        super();
-        this.directoriesManager = directoriesManager;
-    }
-
-    @Override
-    public String getArgsDescription() {
-        return "[clientDir] (ignore lwjgl)";
-    }
-
-    @Override
-    public String getUsageDescription() {
-        return "remove libraries duplication (excludes lwjgl)";
-    }
-
-
-    @Override
-    public void invoke(String... args) throws Exception {
-        verifyArgs(args, 1);
-        Path dir = directoriesManager.getUpdatesDir().resolve(args[0]).resolve("libraries");
+    @ShellMethod("[clientDir] (ignore lwjgl) remove libraries duplication (excludes lwjgl)")
+    public void deDupLibraries(@ShellOption String clientDir,
+                               @ShellOption(defaultValue = "true") Boolean isIgnoreLwjgl) throws Exception {
+        Path dir = directoriesManager.getUpdatesDir().resolve(clientDir).resolve("libraries");
         if (!Files.isDirectory(dir)) {
             throw new FileNotFoundException(dir.toString());
-        }
-        boolean isIgnoreLwjgl = true;
-        if (args.length > 1) {
-            isIgnoreLwjgl = Boolean.parseBoolean(args[1]);
         }
         Map<String, List<Path>> map = new HashMap<>(16);
         IOHelper.walk(dir, new FileVisitor<>() {
@@ -80,21 +61,21 @@ public class DeDupLibrariesCommand extends Command {
                 return FileVisitResult.CONTINUE;
             }
         }, false);
-        logger.info("Found {} libraries", map.size());
+        log.info("Found {} libraries", map.size());
         for (Map.Entry<String, List<Path>> entry : map.entrySet()) {
             var key = entry.getKey();
             var value = entry.getValue();
             if (value.size() > 1) {
                 if (isIgnoreLwjgl && key.contains("lwjgl")) {
-                    logger.trace("Path {} skipped (lwjgl found)", key);
+                    log.trace("Path {} skipped (lwjgl found)", key);
                     continue;
                 }
-                logger.info("In path {} found {} libraries", key, value.size());
+                log.info("In path {} found {} libraries", key, value.size());
                 var version = value.stream()
                         .filter((f) -> !key.contains("jopt-simple") || !f.getFileName().toString().contains("6.0"))
                         .map(this::convertStringToVersion)
                         .max(Comparator.naturalOrder()).orElse(null);
-                logger.info("In path {} variants [{}] selected {} version", key,
+                log.info("In path {} variants [{}] selected {} version", key,
                         value.stream().map(e -> e.getFileName().toString()).collect(Collectors.joining(", ")),
                         version.originalPath.getFileName().toString());
                 Path selectedPath = version.originalPath;
@@ -102,7 +83,7 @@ public class DeDupLibrariesCommand extends Command {
                     if (path.equals(selectedPath)) {
                         continue;
                     }
-                    logger.trace("Delete dir {}", path.toString());
+                    log.trace("Delete dir {}", path.toString());
                     IOHelper.deleteDir(path, true);
                 }
             }
@@ -125,7 +106,7 @@ public class DeDupLibrariesCommand extends Command {
         public InternalLibraryVersion(long[] data, Path originalPath) {
             this.data = data;
             this.originalPath = originalPath;
-            //logger.debug("LibraryVersion parsed: [{}]", Arrays.stream(data).mapToObj(String::valueOf).collect(Collectors.joining(", ")));
+            //log.debug("LibraryVersion parsed: [{}]", Arrays.stream(data).mapToObj(String::valueOf).collect(Collectors.joining(", ")));
         }
 
         @Override

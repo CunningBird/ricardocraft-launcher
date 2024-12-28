@@ -1,10 +1,14 @@
 package ru.ricardocraft.backend.command.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.LaunchServer;
 import ru.ricardocraft.backend.auth.AuthProviders;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
@@ -27,59 +31,22 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-@Component
-public class SecurityCheckCommand extends Command {
+@Slf4j
+@ShellComponent
+@ShellCommandGroup("service")
+@RequiredArgsConstructor
+public class SecurityCheckCommand {
 
-    private static final Logger logger = LogManager.getLogger(SecurityCheckCommand.class);
+    private final LaunchServerProperties config;
+    private final DirectoriesManager directoriesManager;
+    private final HttpServerProperties httpServerProperties;
+    private final AuthProviders authProviders;
+    private final ProtectHandler protectHandler;
+    private final ProfileProvider profileProvider;
 
-    private final transient LaunchServerProperties config;
-    private final transient DirectoriesManager directoriesManager;
-    private final transient HttpServerProperties httpServerProperties;
-    private final transient AuthProviders authProviders;
-    private final transient ProtectHandler protectHandler;
-    private final transient ProfileProvider profileProvider;
-
-    @Autowired
-    public SecurityCheckCommand(LaunchServerProperties config,
-                                DirectoriesManager directoriesManager,
-                                HttpServerProperties httpServerProperties,
-                                AuthProviders authProviders,
-                                ProtectHandler protectHandler,
-                                ProfileProvider profileProvider) {
-        super();
-
-        this.config = config;
-        this.directoriesManager = directoriesManager;
-        this.httpServerProperties = httpServerProperties;
-        this.authProviders = authProviders;
-        this.protectHandler = protectHandler;
-        this.profileProvider = profileProvider;
-    }
-
-    public static void printCheckResult(String module, String comment, Boolean status) {
-        if (status == null) {
-            logger.warn("[%s] %s".formatted(module, comment));
-        } else if (status) {
-            logger.info("[%s] %s OK".formatted(module, comment));
-        } else {
-            logger.error("[%s] %s".formatted(module, comment));
-        }
-    }
-
-    @Override
-    public String getArgsDescription() {
-        return "[]";
-    }
-
-    @Override
-    public String getUsageDescription() {
-        return "multiModCheck configuration";
-    }
-
-    @Override
-    public void invoke(String... args) {
-        authProviders.getAuthProviders().forEach((name, pair) -> {
-        });
+    @ShellMethod("[] multiModCheck configuration")
+    public void securityCheck() {
+        authProviders.getAuthProviders().forEach((name, pair) -> {});
         switch (protectHandler) {
             case NoProtectHandler ignored -> printCheckResult("protectHandler", "protectHandler none", false);
             case AdvancedProtectHandler ignored -> {
@@ -180,35 +147,42 @@ public class SecurityCheckCommand extends Command {
                     if (parts[0].trim().equalsIgnoreCase("Uid")) {
                         String[] words = parts[1].trim().split(" ");
                         if (Integer.parseInt(words[0]) == 0) {
-                            logger.error("The process is started as root! It is not recommended");
+                            log.error("The process is started as root! It is not recommended");
                         }
                     }
                     if (parts[0].trim().equalsIgnoreCase("Gid")) {
                         String[] words = parts[1].trim().split(" ");
                         if (Integer.parseInt(words[0]) == 0) {
-                            logger.error("The process is started as root group! It is not recommended");
+                            log.error("The process is started as root group! It is not recommended");
                         }
                     }
                 }
-                if (checkOtherWriteAccess(IOHelper.getCodeSource(LaunchServer.class))) {
-                    logger.warn("Write access to LaunchServer.jar. Please use 'chmod 755 LaunchServer.jar'");
-                }
                 if (checkOtherReadOrWriteAccess(this.directoriesManager.getKeyDirectoryDir())) {
-                    logger.warn("Write or read access to .keys directory. Please use 'chmod -R 600 .keys'");
+                    log.warn("Write or read access to .keys directory. Please use 'chmod -R 600 .keys'");
                 }
             } catch (IOException e) {
-                logger.error(e);
+                log.error(e.getMessage());
             }
         }
-        logger.info("Check completed");
+        log.info("Check completed");
     }
 
-    public boolean checkOtherWriteAccess(Path file) throws IOException {
+    private void printCheckResult(String module, String comment, Boolean status) {
+        if (status == null) {
+            log.warn("[%s] %s".formatted(module, comment));
+        } else if (status) {
+            log.info("[%s] %s OK".formatted(module, comment));
+        } else {
+            log.error("[%s] %s".formatted(module, comment));
+        }
+    }
+
+    private boolean checkOtherWriteAccess(Path file) throws IOException {
         Set<PosixFilePermission> permissionSet = Files.getPosixFilePermissions(file);
         return permissionSet.contains(PosixFilePermission.OTHERS_WRITE);
     }
 
-    public boolean checkOtherReadOrWriteAccess(Path file) throws IOException {
+    private boolean checkOtherReadOrWriteAccess(Path file) throws IOException {
         Set<PosixFilePermission> permissionSet = Files.getPosixFilePermissions(file);
         return permissionSet.contains(PosixFilePermission.OTHERS_WRITE) || permissionSet.contains(PosixFilePermission.OTHERS_READ);
     }

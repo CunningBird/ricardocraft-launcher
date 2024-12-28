@@ -4,12 +4,13 @@ package ru.ricardocraft.backend.manangers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
-import ru.ricardocraft.backend.LaunchServer;
+import ru.ricardocraft.backend.BackendApplication;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.net.URL;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.PrivateKey;
+import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -36,8 +38,10 @@ public class CertificateManager {
 
     @Autowired
     public CertificateManager(DirectoriesManager directoriesManager) throws CertificateException, IOException {
+        Security.addProvider(new BouncyCastleProvider());
+
         readTrustStore(directoriesManager.getTrustStoreDir());
-        LauncherTrustManager.CheckClassResult result = checkClass(LaunchServer.class);
+        LauncherTrustManager.CheckClassResult result = checkClass(BackendApplication.class);
         if (result.type == LauncherTrustManager.CheckClassResultType.SUCCESS) {
             logger.info("LaunchServer signed by {}", result.endCertificate.getSubjectX500Principal().getName());
         } else if (result.type == LauncherTrustManager.CheckClassResultType.NOT_SIGNED) {

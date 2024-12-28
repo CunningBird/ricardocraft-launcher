@@ -1,10 +1,11 @@
 package ru.ricardocraft.backend.command.mirror;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.command.Command;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
 
 import java.io.FileInputStream;
@@ -20,33 +21,18 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-@Component
-public class PatchAuthlibCommand extends Command {
+@Slf4j
+@ShellComponent
+@ShellCommandGroup("mirror")
+@RequiredArgsConstructor
+public class PatchAuthlibCommand {
 
-    private static final Logger logger = LogManager.getLogger(PatchAuthlibCommand.class);
+    private final DirectoriesManager directoriesManager;
 
-    private transient final DirectoriesManager directoriesManager;
-
-    @Autowired
-    public PatchAuthlibCommand(DirectoriesManager directoriesManager) {
-        super();
-        this.directoriesManager = directoriesManager;
-    }
-
-    @Override
-    public String getArgsDescription() {
-        return "[dir] [authlib file]";
-    }
-
-    @Override
-    public String getUsageDescription() {
-        return "patch client authlib";
-    }
-
-    @Override
-    public void invoke(String... args) throws Exception {
-        verifyArgs(args, 2);
-        Path dir = directoriesManager.getUpdatesDir().resolve(args[0]);
+    @ShellMethod("[dir] [authlib file] patch client authlib")
+    public void patchAuthlib(@ShellOption String patchDirectory,
+                             @ShellOption String authlibFile) throws Exception {
+        Path dir = directoriesManager.getUpdatesDir().resolve(patchDirectory);
         Path originalAuthlib;
         if (Files.isDirectory(dir)) {
             Optional<Path> authlibDir = Files.list(dir.resolve("libraries/com/mojang/authlib")).findFirst();
@@ -58,7 +44,7 @@ public class PatchAuthlibCommand extends Command {
             originalAuthlib = dir;
         }
         String version = originalAuthlib.getFileName().toString();
-        Path launcherAuthlib = Paths.get(args[1]);
+        Path launcherAuthlib = Paths.get(authlibFile);
         if (Files.isDirectory(launcherAuthlib)) {
             launcherAuthlib = launcherAuthlib.resolve(version.concat(".jar"));
         }
@@ -66,7 +52,7 @@ public class PatchAuthlibCommand extends Command {
             throw new FileNotFoundException(launcherAuthlib.toString());
         }
         Path mergedFile = directoriesManager.getTmpDir().resolve("merged.jar");
-        logger.info("Merge {} and {} into {}", launcherAuthlib, originalAuthlib, mergedFile);
+        log.info("Merge {} and {} into {}", launcherAuthlib, originalAuthlib, mergedFile);
         try (ZipOutputStream output = new ZipOutputStream(new FileOutputStream(mergedFile.toFile()))) {
             Set<String> files = new HashSet<>();
             try (ZipInputStream input = new ZipInputStream(new FileInputStream(launcherAuthlib.toFile()))) {
@@ -90,10 +76,10 @@ public class PatchAuthlibCommand extends Command {
                 }
             }
         }
-        logger.info("Delete original authlib {}", originalAuthlib);
+        log.info("Delete original authlib {}", originalAuthlib);
         Files.delete(originalAuthlib);
-        logger.info("Move {} into {}", mergedFile, originalAuthlib);
+        log.info("Move {} into {}", mergedFile, originalAuthlib);
         Files.move(mergedFile, originalAuthlib);
-        logger.info("Successful");
+        log.info("Successful");
     }
 }

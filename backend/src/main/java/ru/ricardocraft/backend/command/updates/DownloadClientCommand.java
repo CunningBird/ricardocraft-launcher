@@ -1,14 +1,15 @@
 package ru.ricardocraft.backend.command.updates;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.MakeProfileHelper;
-import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.command.CommandException;
 import ru.ricardocraft.backend.dto.updates.ServerProfile;
 import ru.ricardocraft.backend.dto.updates.Version;
@@ -25,10 +26,11 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.UUID;
 
-@Component
-public final class DownloadClientCommand extends Command {
-
-    private transient final Logger logger = LogManager.getLogger(DownloadClientCommand.class);
+@Slf4j
+@ShellComponent
+@ShellCommandGroup("updates")
+@RequiredArgsConstructor
+public final class DownloadClientCommand {
 
     private transient final DirectoriesManager directoriesManager;
     private transient final MirrorManager mirrorManager;
@@ -36,50 +38,26 @@ public final class DownloadClientCommand extends Command {
     private transient final ProfileProvider profileProvider;
     private transient final JacksonManager jacksonManager;
 
-    @Autowired
-    public DownloadClientCommand(DirectoriesManager directoriesManager,
-                                 MirrorManager mirrorManager,
-                                 UpdatesManager updatesManager,
-                                 ProfileProvider profileProvider,
-                                 JacksonManager jacksonManager) {
-        super();
-        this.directoriesManager = directoriesManager;
-        this.mirrorManager = mirrorManager;
-        this.updatesManager = updatesManager;
-        this.profileProvider = profileProvider;
-        this.jacksonManager = jacksonManager;
-    }
-
-    @Override
-    public String getArgsDescription() {
-        return "[version] [dir] (mirror/generate)";
-    }
-
-    @Override
-    public String getUsageDescription() {
-        return "Download client dir";
-    }
-
-    @Override
-    public void invoke(String... args) throws IOException, CommandException {
-        verifyArgs(args, 2);
-        //Version version = Version.byName(args[0]);
-        String versionName = args[0];
-        String dirName = IOHelper.verifyFileName(args[1] != null ? args[1] : args[0]);
+    @ShellMethod("[version] [dir] (mirror/generate) Download client dir")
+    public void downloadClient(@ShellOption String versionName,
+                       @ShellOption(defaultValue = ShellOption.NULL) String dir,
+                       @ShellOption(defaultValue = ShellOption.NULL) String downloadType) throws IOException, CommandException {
+        //Version version = Version.byName(versionName);
+        String dirName = IOHelper.verifyFileName(dir != null ? dir : versionName);
         Path clientDir = directoriesManager.getUpdatesDir().resolve(dirName);
 
         boolean isMirrorClientDownload = false;
-        if (args.length > 2) {
-            isMirrorClientDownload = args[2].equals("mirror");
+        if (downloadType != null) {
+            isMirrorClientDownload = downloadType.equals("mirror");
         }
 
         // Download required client
-        logger.info("Downloading client, it may take some time");
+        log.info("Downloading client, it may take some time");
         //HttpDownloader.downloadZip(server.mirrorManager.getDefaultMirror().getClientsURL(version.name), clientDir);
         mirrorManager.downloadZip(clientDir, "clients/%s.zip", versionName);
 
         // Create profile file
-        logger.info("Creaing profile file: '{}'", dirName);
+        log.info("Creaing profile file: '{}'", dirName);
         ClientProfile clientProfile = null;
         if (isMirrorClientDownload) {
             try {
@@ -97,7 +75,7 @@ public final class DownloadClientCommand extends Command {
                     }
                 }
             } catch (Exception e) {
-                logger.error("Filed download clientProfile from mirror: '{}' Generation through MakeProfileHelper", versionName);
+                log.error("Filed download clientProfile from mirror: '{}' Generation through MakeProfileHelper", versionName);
                 isMirrorClientDownload = false;
             }
         }
@@ -109,11 +87,11 @@ public final class DownloadClientCommand extends Command {
                 }
                 Version version = Version.of(internalVersion);
                 if (version.compareTo(ClientProfileVersions.MINECRAFT_1_7_10) <= 0) {
-                    logger.warn("Minecraft 1.7.9 and below not supported. Use at your own risk");
+                    log.warn("Minecraft 1.7.9 and below not supported. Use at your own risk");
                 }
                 MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(clientDir, version);
                 for (MakeProfileHelper.MakeProfileOption option : options) {
-                    logger.debug("Detected option {}", option.getClass().getSimpleName());
+                    log.debug("Detected option {}", option.getClass().getSimpleName());
                 }
                 clientProfile = MakeProfileHelper.makeProfile(version, dirName, options);
             } catch (Throwable e) {
@@ -125,6 +103,6 @@ public final class DownloadClientCommand extends Command {
         // Finished
         profileProvider.syncProfilesDir();
         updatesManager.syncUpdatesDir(Collections.singleton(dirName));
-        logger.info("Client successfully downloaded: '{}'", dirName);
+        log.info("Client successfully downloaded: '{}'", dirName);
     }
 }

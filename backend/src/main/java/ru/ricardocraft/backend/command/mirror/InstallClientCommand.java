@@ -1,9 +1,10 @@
 package ru.ricardocraft.backend.command.mirror;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.command.CommandException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.dto.updates.Version;
 import ru.ricardocraft.backend.dto.updates.VersionType;
 import ru.ricardocraft.backend.manangers.mirror.InstallClient;
@@ -11,38 +12,23 @@ import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.properties.config.MirrorWorkspaceProperties;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-@Component
-public class InstallClientCommand extends Command {
+@ShellComponent
+@ShellCommandGroup("mirror")
+@RequiredArgsConstructor
+public class InstallClientCommand {
 
-    private final transient LaunchServerProperties config;
-    private final transient InstallClient installClient;
+    private final LaunchServerProperties config;
+    private final InstallClient installClient;
 
-    @Autowired
-    public InstallClientCommand(LaunchServerProperties config, InstallClient installClient) {
-        super();
-        this.config = config;
-        this.installClient = installClient;
-    }
-
-    @Override
-    public String getArgsDescription() {
-        return "[name] [version] [versionType] (mods)";
-    }
-
-    @Override
-    public String getUsageDescription() {
-        return "";
-    }
-
-    @Override
-    public void invoke(String... args) throws Exception {
-        verifyArgs(args, 3);
-        String name = args[0];
-        Version version = parseClientVersion(args[1]);
-        VersionType versionType = VersionType.valueOf(args[2]);
+    @ShellMethod("[name] [version] [versionType] (mods)")
+    public void installClient(@ShellOption String name,
+                              @ShellOption String clientVersion,
+                              @ShellOption String clientVersionType,
+                              @ShellOption(defaultValue = ShellOption.NULL) String[] clientMods) throws Exception {
+        Version version = parseClientVersion(clientVersion);
+        VersionType versionType = VersionType.valueOf(clientVersionType);
         List<String> mods = new ArrayList<>();
         MirrorWorkspaceProperties mirrorWorkspace = config.getMirror().getWorkspace();
         if (mirrorWorkspace != null) {
@@ -54,14 +40,14 @@ public class InstallClientCommand extends Command {
                 case QUILT -> mods.addAll(config.getMirror().getWorkspace().getQuiltMods());
             }
         }
-        if (args.length > 3) {
-            mods = Arrays.stream(args[3].split(",")).toList();
+        if (clientMods != null && clientMods.length > 0) {
+            mods = List.of(clientMods);
         }
         installClient.run(name, version, mods, versionType);
     }
 
-    protected Version parseClientVersion(String arg) throws CommandException {
-        if (arg.isEmpty()) throw new CommandException("ClientVersion can't be empty");
+    protected Version parseClientVersion(String arg) throws Exception {
+        if (arg.isEmpty()) throw new Exception("ClientVersion can't be empty");
         return Version.of(arg);
     }
 }

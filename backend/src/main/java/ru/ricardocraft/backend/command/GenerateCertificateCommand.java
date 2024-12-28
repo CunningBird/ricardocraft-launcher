@@ -1,7 +1,6 @@
 package ru.ricardocraft.backend.command;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.DERBMPString;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -28,7 +27,6 @@ import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.manangers.CertificateManager;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.IOException;
@@ -42,27 +40,23 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class GenerateCertificateCommand extends Command {
-
-    private final Logger logger = LogManager.getLogger(GenerateCertificateCommand.class);
 
     private transient final LaunchServerProperties config;
     private transient final DirectoriesManager directoriesManager;
     private transient final CertificateManager certificateManager;
-    private transient final KeyAgreementManager keyAgreementManager;
 
     @Autowired
     public GenerateCertificateCommand(CommandHandler commandHandler,
                                       LaunchServerProperties config,
                                       DirectoriesManager directoriesManager,
-                                      CertificateManager certificateManager,
-                                      KeyAgreementManager keyAgreementManager) {
+                                      CertificateManager certificateManager) {
         super();
         this.config = config;
         this.directoriesManager = directoriesManager;
         this.certificateManager = certificateManager;
-        this.keyAgreementManager = keyAgreementManager;
 
         commandHandler.registerCommand("generatecertificate", this);
     }
@@ -87,31 +81,31 @@ public class GenerateCertificateCommand extends Command {
         Path codeSignKeyPath = targetDir.resolve(projectName.concat("CodeSign.key"));
         Path p12FilePath = targetDir.resolve(projectName.concat("CodeSign.p12"));
 
-        logger.info("Generate certificates for project {}", projectName);
+        log.info("Generate certificates for project {}", projectName);
         LocalDateTime startDate = LocalDate.now().atStartOfDay();
-        logger.info("Generate CA Certificate");
+        log.info("Generate CA Certificate");
         GeneratedCertificate rootCA = generateRootCA(projectName, startDate);
-        logger.info("Generate ending certificate");
+        log.info("Generate ending certificate");
         GeneratedCertificate endCert = generateEndCertificate(projectName, rootCA.certificate().getSubject(), rootCA.pair.getPrivate(), startDate);
-        logger.info("Save certificates to disk");
+        log.info("Save certificates to disk");
         certificateManager.writeCertificate(rootCACrtPath, rootCA.certificate());
         certificateManager.writePrivateKey(rootCAKeyPath, rootCA.pair().getPrivate());
 
         certificateManager.writeCertificate(codeSignCrtPath, rootCA.certificate());
         certificateManager.writePrivateKey(codeSignKeyPath, rootCA.pair().getPrivate());
 
-        logger.info("Prepare PKCS#12 keystore");
+        log.info("Prepare PKCS#12 keystore");
         String passwd = SecurityHelper.randomStringToken();
         PKCS12PfxPdu pfx = makePkcs12(endCert, rootCA, projectName, passwd);
-        logger.info("Save PKCS#12 keystore");
+        log.info("Save PKCS#12 keystore");
         try (OutputStream output = IOHelper.newOutput(p12FilePath)) {
             output.write(pfx.getEncoded());
         }
-        logger.info("Generate sign config");
-        logger.warn("Must save your store password");
+        log.info("Generate sign config");
+        log.warn("Must save your store password");
         if (!config.getSign().getEnabled()) {
-            logger.info("Write config");
-            logger.info("Add your RootCA to truststore");
+            log.info("Write config");
+            log.info("Add your RootCA to truststore");
             Path pathToRootCA = directoriesManager.getTrustStoreDir().resolve(projectName.concat("RootCA.crt"));
             Files.deleteIfExists(pathToRootCA);
             Files.copy(rootCACrtPath, pathToRootCA);

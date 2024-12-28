@@ -1,13 +1,15 @@
 package ru.ricardocraft.backend.command.unsafe;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
+import ru.ricardocraft.backend.base.patcher.impl.*;
 import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.command.unsafe.patcher.UnsafePatcher;
-import ru.ricardocraft.backend.command.unsafe.patcher.impl.*;
+import ru.ricardocraft.backend.base.patcher.UnsafePatcher;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
 
 import java.lang.invoke.MethodHandles;
@@ -18,57 +20,43 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
-public class PatcherCommand extends Command {
+@Slf4j
+@ShellComponent
+@ShellCommandGroup("unsafe")
+public class PatcherCommand {
 
-    private final Logger logger = LoggerFactory.getLogger(PatcherCommand.class);
+    private final Map<String, UnsafePatcher> patchers = new HashMap<>();
 
-    public static Map<String, UnsafePatcher> patchers = new HashMap<>();
+    private final DirectoriesManager directoriesManager;
 
-    private transient final DirectoriesManager directoriesManager;
-
-    @Autowired
     public PatcherCommand(DirectoriesManager directoriesManager) {
-        super();
         this.directoriesManager = directoriesManager;
+
+        patchers.put("findSystem", new FindSystemPatcher());
+        patchers.put("findRemote", new FindRemotePatcher());
+        patchers.put("findSun", new FindSunPatcher());
+        patchers.put("findPacketHack", new FindPacketHackPatcher());
+        patchers.put("findDefineClass", new FindDefineClassPatcher());
+        patchers.put("findReflect", new FindReflectPatcher());
     }
 
-    @Override
-    public String getArgsDescription() {
-        return "[patcher name or class] [path] [test mode(true/false)] (other args)";
-    }
-
-    @Override
-    public String getUsageDescription() {
-        return "";
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
-    public void invoke(String... args) throws Exception {
-        if (patchers.isEmpty()) {
-            patchers.put("findSystem", new FindSystemPatcher());
-            patchers.put("findRemote", new FindRemotePatcher());
-            patchers.put("findSun", new FindSunPatcher());
-            patchers.put("findPacketHack", new FindPacketHackPatcher());
-            patchers.put("findDefineClass", new FindDefineClassPatcher());
-            patchers.put("findReflect", new FindReflectPatcher());
-        }
-        verifyArgs(args, 3);
-        String name = args[0];
-        Path target = Paths.get(args[1]);
-        boolean testMode = Boolean.parseBoolean(args[2]);
+    @ShellMethod("[patcher name or class] [path] [test mode(true/false)] (other args)")
+    public void patcher(@ShellOption String name,
+                        @ShellOption String path,
+                        @ShellOption Boolean testMode,
+                        @ShellOption(defaultValue = ShellOption.NULL) String[] realArgs) throws Exception {
+        Path target = Paths.get(path);
         UnsafePatcher patcher = patchers.get(name);
         if (patcher == null) {
             Class<? extends UnsafePatcher> clazz = (Class<? extends UnsafePatcher>) Class.forName(name);
             try {
-                String[] real_args = Arrays.copyOfRange(args, 3, args.length);
-                if (real_args.length > 0)
-                    patcher = (UnsafePatcher) MethodHandles.publicLookup().findConstructor(clazz, MethodType.methodType(void.class, String[].class)).asFixedArity().invoke(real_args);
+                if (realArgs != null && realArgs.length > 0)
+                    patcher = (UnsafePatcher) MethodHandles.publicLookup().findConstructor(clazz, MethodType.methodType(void.class, String[].class)).asFixedArity().invoke((Object) realArgs);
                 else
                     patcher = (UnsafePatcher) MethodHandles.publicLookup().findConstructor(clazz, MethodType.methodType(void.class)).invoke();
             } catch (Throwable e) {
-                logger.debug(e.getMessage());
+                log.debug(e.getMessage());
                 try {
                     patcher = (UnsafePatcher) MethodHandles.publicLookup().findConstructor(clazz, MethodType.methodType(void.class)).invokeWithArguments();
                 } catch (Throwable t) {

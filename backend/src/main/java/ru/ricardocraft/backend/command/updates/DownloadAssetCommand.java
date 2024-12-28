@@ -1,12 +1,18 @@
 package ru.ricardocraft.backend.command.updates;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.Downloader;
 import ru.ricardocraft.backend.base.helper.IOHelper;
@@ -29,54 +35,31 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Component
-public final class DownloadAssetCommand extends Command {
-
-    private transient final Logger logger = LogManager.getLogger(DownloadAssetCommand.class);
+@Slf4j
+@ShellComponent
+@ShellCommandGroup("updates")
+@RequiredArgsConstructor
+public final class DownloadAssetCommand {
 
     private static final String MINECRAFT_VERSIONS_URL = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
     private static final String RESOURCES_DOWNLOAD_URL = "https://resources.download.minecraft.net/";
 
-    private transient final DirectoriesManager directoriesManager;
-    private transient final MirrorManager mirrorManager;
-    private transient final UpdatesManager updatesManager;
-    private transient final JacksonManager jacksonManager;
-    private transient final HttpRequester requester;
+    private final DirectoriesManager directoriesManager;
+    private final MirrorManager mirrorManager;
+    private final UpdatesManager updatesManager;
+    private final JacksonManager jacksonManager;
+    private final HttpRequester requester;
 
-    @Autowired
-    public DownloadAssetCommand(DirectoriesManager directoriesManager,
-                                MirrorManager mirrorManager,
-                                UpdatesManager updatesManager,
-                                JacksonManager jacksonManager,
-                                HttpRequester requester) {
-        super();
-        this.directoriesManager = directoriesManager;
-        this.mirrorManager = mirrorManager;
-        this.updatesManager = updatesManager;
-        this.jacksonManager = jacksonManager;
-        this.requester = requester;
-    }
-
-    @Override
-    public String getArgsDescription() {
-        return "[version] [dir] (mojang/mirror)";
-    }
-
-    @Override
-    public String getUsageDescription() {
-        return "Download asset dir";
-    }
-
-    @Override
-    public void invoke(String... args) throws Exception {
-        verifyArgs(args, 1);
-        String versionName = args[0];
-        String dirName = IOHelper.verifyFileName(args.length > 1 ? args[1] : "assets");
-        String type = args.length > 2 ? args[2] : "mojang";
+    @ShellMethod("[version] [dir] (mojang/mirror) Download asset dir")
+    public void downloadAsset(@ShellOption String versionName,
+                       @ShellOption(defaultValue = ShellOption.NULL) String dir,
+                       @ShellOption(defaultValue = ShellOption.NULL) String mirrorType) throws Exception {
+        String dirName = IOHelper.verifyFileName(dir != null ? dir : "assets");
+        String type = mirrorType != null ? mirrorType : "mojang";
 
         Path assetDir = directoriesManager.getUpdatesAssetsDir();
         if (type.equals("mojang")) {
-            logger.info("Fetch versions from {}", MINECRAFT_VERSIONS_URL);
+            log.info("Fetch versions from {}", MINECRAFT_VERSIONS_URL);
             var versions = requester.send(requester.get(MINECRAFT_VERSIONS_URL, null), MinecraftVersions.class).getOrThrow();
             String profileUrl = null;
             for (var e : versions.getVersions()) {
@@ -86,24 +69,24 @@ public final class DownloadAssetCommand extends Command {
                 }
             }
             if (profileUrl == null) {
-                logger.error("Version {} not found", versionName);
+                log.error("Version {} not found", versionName);
                 return;
             }
-            logger.info("Fetch profile {} from {}", versionName, profileUrl);
+            log.info("Fetch profile {} from {}", versionName, profileUrl);
             var profileInfo = requester.send(requester.get(profileUrl, null), MiniVersion.class).getOrThrow();
             String assetsIndexUrl = profileInfo.getAssetIndex().getUrl();
             String assetIndex = profileInfo.getAssetIndex().getId();
             Path indexPath = assetDir.resolve("indexes").resolve(assetIndex + ".json");
-            logger.info("Fetch asset index {} from {}", assetIndex, assetsIndexUrl);
+            log.info("Fetch asset index {} from {}", assetIndex, assetsIndexUrl);
             JsonNode assets = requester.send(requester.get(assetsIndexUrl, null), JsonNode.class).getOrThrow();
 
             try (Writer writer = IOHelper.newWriter(indexPath)) {
-                logger.info("Save {}", indexPath);
+                log.info("Save {}", indexPath);
                 writer.write(jacksonManager.getMapper().writeValueAsString(assets));
             }
             if (!assetIndex.equals(versionName)) {
                 Path targetPath = assetDir.resolve("indexes").resolve(versionName + ".json");
-                logger.info("Copy {} into {}", indexPath, targetPath);
+                log.info("Copy {} into {}", indexPath, targetPath);
                 Files.copy(indexPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
             }
             List<Downloader.SizedFile> toDownload = new ArrayList<>(128);
@@ -118,25 +101,25 @@ public final class DownloadAssetCommand extends Command {
                 if (Files.exists(target)) {
                     long fileSize = Files.size(target);
                     if (fileSize != size) {
-                        logger.warn("File {} corrupted. Size {}, expected {}", target, size, fileSize);
+                        log.warn("File {} corrupted. Size {}, expected {}", target, size, fileSize);
                     } else {
                         continue;
                     }
                 }
                 toDownload.add(new Downloader.SizedFile(hash, path, size));
             }
-            logger.info("Download {} files", toDownload.size());
+            log.info("Download {} files", toDownload.size());
             Downloader downloader = downloadWithProgressBar(dirName, toDownload, RESOURCES_DOWNLOAD_URL, assetDir);
             downloader.getFuture().get();
         } else {
             // Download required asset
-            logger.info("Downloading asset, it may take some time");
+            log.info("Downloading asset, it may take some time");
             mirrorManager.downloadZip(assetDir, "assets/%s.zip", versionName);
         }
 
         // Finished
         updatesManager.syncUpdatesDir(Collections.singleton(dirName));
-        logger.info("Asset successfully downloaded: '{}'", dirName);
+        log.info("Asset successfully downloaded: '{}'", dirName);
     }
 
     private Downloader downloadWithProgressBar(String taskName, List<Downloader.SizedFile> list, String baseUrl, Path targetDir) throws Exception {

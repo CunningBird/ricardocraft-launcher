@@ -1,38 +1,26 @@
 package ru.ricardocraft.backend.command.unsafe;
 
-import lombok.NoArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.command.Command;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 
 import java.lang.instrument.Instrumentation;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.jar.JarFile;
 
-@Component
-@NoArgsConstructor
-public class LoadJarCommand extends Command {
+@Slf4j
+@ShellComponent
+@ShellCommandGroup("unsafe")
+public class LoadJarCommand {
 
-    private final Logger logger = LoggerFactory.getLogger(LoadJarCommand.class);
-
-    @Override
-    public String getArgsDescription() {
-        return "[jarfile]";
-    }
-
-    @Override
-    public String getUsageDescription() {
-        return "Load jar file";
-    }
-
-    @Override
-    public void invoke(String... args) throws Exception {
-        verifyArgs(args, 1);
-        Path file = Paths.get(args[0]);
+    @ShellMethod("[jarfile] Load jar file")
+    public void sendAuth(@ShellOption String jarFile) throws Exception {
+        Path file = Paths.get(jarFile);
         StarterAgent.inst.appendToSystemClassLoaderSearch(new JarFile(file.toFile()));
-        logger.info("File {} added to system classpath", file.toAbsolutePath());
+        log.info("File {} added to system classpath", file.toAbsolutePath());
     }
 
     public static final class StarterAgent {

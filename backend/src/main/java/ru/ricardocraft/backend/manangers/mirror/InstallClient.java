@@ -11,9 +11,9 @@ import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.base.Downloader;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.command.mirror.DeDupLibrariesCommand;
-import ru.ricardocraft.backend.command.mirror.installers.FabricInstallerCommand;
-import ru.ricardocraft.backend.command.mirror.installers.QuiltInstallerCommand;
-import ru.ricardocraft.backend.command.updates.profile.MakeProfileCommand;
+import ru.ricardocraft.backend.command.mirror.LaunchInstallerFabricCommand;
+import ru.ricardocraft.backend.command.mirror.LaunchInstallerQuiltCommand;
+import ru.ricardocraft.backend.command.updates.ProfilesCommand;
 import ru.ricardocraft.backend.dto.updates.Version;
 import ru.ricardocraft.backend.dto.updates.VersionType;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
@@ -61,10 +61,10 @@ public class InstallClient {
     private final transient ProfileProvider profileProvider;
     private final transient ModrinthAPI modrinthAPI;
     private final transient CurseforgeAPI curseforgeApi;
-    private final transient FabricInstallerCommand fabricInstallerCommand;
-    private final transient QuiltInstallerCommand quiltInstallerCommand;
+    private final transient LaunchInstallerFabricCommand launchInstallerFabricCommand;
+    private final transient LaunchInstallerQuiltCommand launchInstallerQuiltCommand;
     private final transient DeDupLibrariesCommand deDupLibrariesCommand;
-    private final transient MakeProfileCommand makeProfileCommand;
+    private final transient ProfilesCommand profilesCommand;
 
     @Autowired
     public InstallClient(LaunchServerProperties properties,
@@ -74,10 +74,10 @@ public class InstallClient {
                          ProfileProvider profileProvider,
                          ModrinthAPI modrinthAPI,
                          CurseforgeAPI curseforgeApi,
-                         FabricInstallerCommand fabricInstallerCommand,
-                         QuiltInstallerCommand quiltInstallerCommand,
+                         LaunchInstallerFabricCommand launchInstallerFabricCommand,
+                         LaunchInstallerQuiltCommand launchInstallerQuiltCommand,
                          DeDupLibrariesCommand deDupLibrariesCommand,
-                         MakeProfileCommand makeProfileCommand) {
+                         ProfilesCommand profilesCommand) {
         this.properties = properties;
         this.directoriesManager = directoriesManager;
         this.updatesManager = updatesManager;
@@ -85,10 +85,10 @@ public class InstallClient {
         this.profileProvider = profileProvider;
         this.modrinthAPI = modrinthAPI;
         this.curseforgeApi = curseforgeApi;
-        this.fabricInstallerCommand = fabricInstallerCommand;
-        this.quiltInstallerCommand = quiltInstallerCommand;
+        this.launchInstallerFabricCommand = launchInstallerFabricCommand;
+        this.launchInstallerQuiltCommand = launchInstallerQuiltCommand;
         this.deDupLibrariesCommand = deDupLibrariesCommand;
-        this.makeProfileCommand = makeProfileCommand;
+        this.profilesCommand = profilesCommand;
 
         this.buildInCommands.put("%download", new DownloadCommand());
         this.buildInCommands.put("%findJar", new FindJar());
@@ -157,14 +157,28 @@ public class InstallClient {
         // Apply mod engine
         if (versionType == VersionType.FABRIC) {
             if (properties.getMirror().getWorkspace().getFabricLoaderVersion() == null) {
-                fabricInstallerCommand.invoke(version.toString(), name, directoriesManager.getMirrorHelperWorkspaceDir().resolve("installers").resolve("fabric-installer.jar").toAbsolutePath().toString());
+                launchInstallerFabricCommand.launchInstallerFabric(
+                        version.toString(),
+                        name,
+                        directoriesManager.getMirrorHelperWorkspaceDir().resolve("installers").resolve("fabric-installer.jar").toAbsolutePath().toString(),
+                        null
+                );
             } else {
-                fabricInstallerCommand.invoke(version.toString(), name, directoriesManager.getMirrorHelperWorkspaceDir().resolve("installers").resolve("fabric-installer.jar").toAbsolutePath().toString(), properties.getMirror().getWorkspace().getFabricLoaderVersion());
+                launchInstallerFabricCommand.launchInstallerFabric(
+                        version.toString(),
+                        name,
+                        directoriesManager.getMirrorHelperWorkspaceDir().resolve("installers").resolve("fabric-installer.jar").toAbsolutePath().toString(),
+                        properties.getMirror().getWorkspace().getFabricLoaderVersion()
+                );
             }
             Files.createDirectories(clientPath.resolve("mods"));
             logger.info("Fabric installed");
         } else if (versionType == VersionType.QUILT) {
-            quiltInstallerCommand.invoke(version.toString(), name, directoriesManager.getMirrorHelperWorkspaceDir().resolve("installers").resolve("quilt-installer.jar").toAbsolutePath().toString());
+            launchInstallerQuiltCommand.launchInstallerQuilit(
+                    version.toString(),
+                    name,
+                    directoriesManager.getMirrorHelperWorkspaceDir().resolve("installers").resolve("quilt-installer.jar").toAbsolutePath().toString()
+            );
             Files.createDirectories(clientPath.resolve("mods"));
             logger.info("Quilt installed");
         } else if (versionType == VersionType.FORGE || versionType == VersionType.NEOFORGE) {
@@ -228,7 +242,7 @@ public class InstallClient {
                 if (libName.endsWith("@jar")) {
                     libName = libName.substring(0, libName.length() - 4);
                 }
-                FabricInstallerCommand.NamedURL url = FabricInstallerCommand.makeURL(libUrl, libName);
+                LaunchInstallerFabricCommand.NamedURL url = LaunchInstallerFabricCommand.makeURL(libUrl, libName);
                 Path file = clientPath.resolve("libraries").resolve(url.name);
                 IOHelper.createParentDirs(file);
                 if (Files.exists(file)) {
@@ -296,7 +310,7 @@ public class InstallClient {
                     }
                     installMod(modsDir, modId, loaderName, version);
                 } catch (Throwable e) {
-                    logger.warn("Mod {} not installed! Exception {}", modId, e);
+                    logger.warn("Mod {} not installed! Exception {}", modId, e.getMessage());
                 }
             }
             logger.info("Mods installed");
@@ -318,11 +332,11 @@ public class InstallClient {
             IOHelper.copy(file, targetMod);
             logger.info("MultiMods installed");
         }
-        deDupLibrariesCommand.invoke(clientPath.toAbsolutePath().toString(), "false");
+        deDupLibrariesCommand.deDupLibraries(clientPath.toAbsolutePath().toString(), false);
         logger.info("deduplibraries completed");
 
 
-        makeProfileCommand.invoke(name, version.toString(), name);
+        profilesCommand.profileMake(name, version.toString(), name);
         logger.info("makeprofile completed");
         if ((versionType == VersionType.FORGE || versionType == VersionType.NEOFORGE) && version.compareTo(ClientProfileVersions.MINECRAFT_1_17) >= 0) {
             ClientProfile profile = profileProvider.getProfile(name);
@@ -416,7 +430,7 @@ public class InstallClient {
             }
             logger.info("Deleting temp dir {}", context.scriptBuildDir);
         } catch (Throwable e) {
-            logger.error("Build {} failed: {}", scriptName, e);
+            logger.error("Build {} failed: {}", scriptName, e.getMessage());
         }
     }
 

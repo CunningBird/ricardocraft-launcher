@@ -1,9 +1,15 @@
 package ru.ricardocraft.backend.command.updates;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
@@ -24,28 +30,19 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Map;
 
-@Component
-public final class IndexAssetCommand extends Command {
+@Slf4j
+@ShellComponent
+@ShellCommandGroup("updates")
+@RequiredArgsConstructor
+public final class IndexAssetCommand {
 
-    private transient final Logger logger = LogManager.getLogger(IndexAssetCommand.class);
+    private static final String INDEXES_DIR = "indexes";
+    private static final String OBJECTS_DIR = "objects";
+    private static final String JSON_EXTENSION = ".json";
 
     private transient final DirectoriesManager directoriesManager;
     private transient final UpdatesManager updatesManager;
     private transient final JacksonManager jacksonManager;
-
-    public static final String INDEXES_DIR = "indexes";
-    public static final String OBJECTS_DIR = "objects";
-    private static final String JSON_EXTENSION = ".json";
-
-    @Autowired
-    public IndexAssetCommand(DirectoriesManager directoriesManager,
-                             UpdatesManager updatesManager,
-                             JacksonManager jacksonManager) {
-        super();
-        this.directoriesManager = directoriesManager;
-        this.updatesManager = updatesManager;
-        this.jacksonManager = jacksonManager;
-    }
 
     public static Path resolveIndexFile(Path assetDir, String name) {
         return assetDir.resolve(INDEXES_DIR).resolve(name + JSON_EXTENSION);
@@ -55,38 +52,29 @@ public final class IndexAssetCommand extends Command {
         return assetDir.resolve(OBJECTS_DIR).resolve(hash.substring(0, 2)).resolve(hash);
     }
 
-    @Override
-    public String getArgsDescription() {
-        return "[dir] [index] [output-dir]";
-    }
-
-    @Override
-    public String getUsageDescription() {
-        return "Index asset dir (1.7.10+)";
-    }
-
-    @Override
-    public void invoke(String... args) throws Exception {
-        verifyArgs(args, 3);
-        String inputAssetDirName = IOHelper.verifyFileName(args[0]);
-        String indexFileName = IOHelper.verifyFileName(args[1]);
-        String outputAssetDirName = IOHelper.verifyFileName(args[2]);
+    @ShellMethod("[dir] [index] [output-dir] Index asset dir (1.7.10+)")
+    public void indexAsset(@ShellOption String indexInputAssetDirName,
+                           @ShellOption String indexIndexFileName,
+                           @ShellOption String outputOutputAssetDirName) throws Exception {
+        String inputAssetDirName = IOHelper.verifyFileName(indexInputAssetDirName);
+        String indexFileName = IOHelper.verifyFileName(indexIndexFileName);
+        String outputAssetDirName = IOHelper.verifyFileName(outputOutputAssetDirName);
         Path inputAssetDir = directoriesManager.getUpdatesDir().resolve(inputAssetDirName);
         Path outputAssetDir = directoriesManager.getUpdatesDir().resolve(outputAssetDirName);
         if (outputAssetDir.equals(inputAssetDir))
             throw new CommandException("Unindexed and indexed asset dirs can't be same");
 
         // Create new asset dir
-        logger.info("Creating indexed asset dir: '{}'", outputAssetDirName);
+        log.info("Creating indexed asset dir: '{}'", outputAssetDirName);
         Files.createDirectory(outputAssetDir);
 
         // Index objects
         Map<String, JsonNode> objects = Map.of();
-        logger.info("Indexing objects");
+        log.info("Indexing objects");
         IOHelper.walk(inputAssetDir, new IndexAssetVisitor(objects, inputAssetDir, outputAssetDir), false);
 
         // Write index file
-        logger.info("Writing asset index file: '{}'", indexFileName);
+        log.info("Writing asset index file: '{}'", indexFileName);
 
         try (BufferedWriter writer = IOHelper.newWriter(resolveIndexFile(outputAssetDir, indexFileName))) {
             writer.write(jacksonManager.getMapper().writeValueAsString(objects));
@@ -94,7 +82,7 @@ public final class IndexAssetCommand extends Command {
 
         // Finished
         updatesManager.syncUpdatesDir(Collections.singleton(outputAssetDirName));
-        logger.info("Asset successfully indexed: '{}'", inputAssetDirName);
+        log.info("Asset successfully indexed: '{}'", inputAssetDirName);
     }
 
     public static class IndexObject {
@@ -121,7 +109,7 @@ public final class IndexAssetCommand extends Command {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             String name = IOHelper.toString(inputAssetDir.relativize(file));
-            logger.info("Indexing: '{}'", name);
+            log.info("Indexing: '{}'", name);
 
             // Add to index and copy file
             String digest = SecurityHelper.toHex(SecurityHelper.digest(DigestAlgorithm.SHA1, file));

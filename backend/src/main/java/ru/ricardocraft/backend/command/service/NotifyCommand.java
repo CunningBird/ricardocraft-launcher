@@ -1,38 +1,31 @@
 package ru.ricardocraft.backend.command.service;
 
-import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.dto.events.NotificationEvent;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.shell.standard.ShellCommandGroup;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.ServerWebSocketHandler;
+import ru.ricardocraft.backend.dto.events.NotificationEvent;
 
-@Component
-public class NotifyCommand extends Command {
+@Slf4j
+@ShellComponent
+@ShellCommandGroup("service")
+@RequiredArgsConstructor
+public class NotifyCommand {
 
-    private transient final ServerWebSocketHandler handler;
+    private final ServerWebSocketHandler handler;
 
-    public NotifyCommand(ServerWebSocketHandler handler) {
-        super();
-        this.handler = handler;
-    }
-
-    @Override
-    public String getArgsDescription() {
-        return "[head] [message] (icon)";
-    }
-
-    @Override
-    public String getUsageDescription() {
-        return "send notification to all connected client";
-    }
-
-    @Override
-    public void invoke(String... args) throws Exception {
-        verifyArgs(args, 2);
+    @ShellMethod("[head] [message] (icon) send notification to all connected client")
+    public void notify(@ShellOption String head,
+                       @ShellOption String message,
+                       @ShellOption(defaultValue = ShellOption.NULL) String icon) throws Exception {
         NotificationEvent event;
-        if (args.length < 3) {
-            event = new NotificationEvent(args[0], args[1]);
+        if (icon == null) {
+            event = new NotificationEvent(head, message);
         } else {
-            event = new NotificationEvent(args[0], args[1], Enum.valueOf(NotificationEvent.NotificationType.class, args[2]));
+            event = new NotificationEvent(head, message, Enum.valueOf(NotificationEvent.NotificationType.class, icon));
         }
         handler.sendMessageToAll(event);
     }
