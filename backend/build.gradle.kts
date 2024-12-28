@@ -29,36 +29,25 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-
     implementation("org.springframework.shell:spring-shell-starter:3.4.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1")
 
     implementation("me.tongfei:progressbar:0.10.1")
-    implementation("org.fusesource.jansi:jansi:2.4.1")
     implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
     implementation("org.bouncycastle:bcpkix-jdk18on:1.78.1")
     implementation("org.ow2.asm:asm-commons:9.7")
-
-    implementation("com.mysql:mysql-connector-j:9.0.0")
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.4.0")
-    implementation("org.postgresql:postgresql:42.7.4")
-    implementation("com.h2database:h2:2.3.232")
 
     implementation("com.guardsquare:proguard-base:7.5.0")
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")
     implementation("io.jsonwebtoken:jjwt-impl:0.12.5")
     implementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
 
+    implementation("com.mysql:mysql-connector-j:9.0.0")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.4.0")
+    implementation("org.postgresql:postgresql:42.7.4")
+    implementation("com.h2database:h2:2.3.232")
+
     implementation("io.micrometer:micrometer-core:1.13.1")
-    implementation("com.zaxxer:HikariCP:5.1.0") {
-        exclude("javassist")
-        exclude("io.micrometer")
-    }
-
-//    implementation("io.sentry:sentry:8.0.0-alpha.4")
-
-//    implementation(platform("software.amazon.awssdk:bom:2.17.290"))
-//    implementation("software.amazon.awssdk:s3")
+    implementation("com.zaxxer:HikariCP:5.1.0")
 
     // Tools
     compileOnly("org.projectlombok:lombok")

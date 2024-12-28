@@ -10,7 +10,6 @@ import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.MakeProfileHelper;
-import ru.ricardocraft.backend.command.CommandException;
 import ru.ricardocraft.backend.dto.updates.Version;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
@@ -130,8 +129,8 @@ public class ProfilesCommand {
         }
     }
 
-    protected Version parseClientVersion(String arg) throws CommandException {
-        if (arg.isEmpty()) throw new CommandException("ClientVersion can't be empty");
+    protected Version parseClientVersion(String arg) throws Exception {
+        if (arg.isEmpty()) throw new Exception("ClientVersion can't be empty");
         return Version.of(arg);
     }
 }

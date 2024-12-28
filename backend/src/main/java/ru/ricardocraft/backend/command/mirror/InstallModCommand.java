@@ -2,12 +2,10 @@ package ru.ricardocraft.backend.command.mirror;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.ricardocraft.backend.command.CommandException;
 import ru.ricardocraft.backend.dto.updates.Version;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.mirror.InstallClient;
@@ -15,7 +13,6 @@ import ru.ricardocraft.backend.manangers.mirror.InstallClient;
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -57,8 +54,8 @@ public class InstallModCommand {
         }
     }
 
-    protected Version parseClientVersion(String arg) throws CommandException {
-        if (arg.isEmpty()) throw new CommandException("ClientVersion can't be empty");
+    protected Version parseClientVersion(String arg) throws Exception {
+        if (arg.isEmpty()) throw new Exception("ClientVersion can't be empty");
         return Version.of(arg);
     }
 }

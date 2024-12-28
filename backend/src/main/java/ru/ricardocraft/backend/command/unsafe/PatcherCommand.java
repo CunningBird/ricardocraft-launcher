@@ -5,18 +5,15 @@ import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.base.patcher.impl.*;
-import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.base.patcher.UnsafePatcher;
+import ru.ricardocraft.backend.base.patcher.impl.*;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 

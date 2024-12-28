@@ -8,7 +8,6 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.command.CommandException;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
@@ -40,7 +39,7 @@ public final class UnindexAssetCommand {
         Path inputAssetDir = directoriesManager.getUpdatesDir().resolve(inputAssetDirName);
         Path outputAssetDir = directoriesManager.getUpdatesDir().resolve(outputAssetDirName);
         if (outputAssetDir.equals(inputAssetDir))
-            throw new CommandException("Indexed and unindexed asset dirs can't be same");
+            throw new Exception("Indexed and unindexed asset dirs can't be same");
 
         // Create new asset dir
         log.info("Creating unindexed asset dir: '{}'", outputAssetDirName);

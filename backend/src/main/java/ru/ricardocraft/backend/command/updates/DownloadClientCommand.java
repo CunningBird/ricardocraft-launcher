@@ -10,7 +10,6 @@ import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.MakeProfileHelper;
-import ru.ricardocraft.backend.command.CommandException;
 import ru.ricardocraft.backend.dto.updates.ServerProfile;
 import ru.ricardocraft.backend.dto.updates.Version;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
@@ -41,7 +40,7 @@ public final class DownloadClientCommand {
     @ShellMethod("[version] [dir] (mirror/generate) Download client dir")
     public void downloadClient(@ShellOption String versionName,
                        @ShellOption(defaultValue = ShellOption.NULL) String dir,
-                       @ShellOption(defaultValue = ShellOption.NULL) String downloadType) throws IOException, CommandException {
+                       @ShellOption(defaultValue = ShellOption.NULL) String downloadType) throws Exception {
         //Version version = Version.byName(versionName);
         String dirName = IOHelper.verifyFileName(dir != null ? dir : versionName);
         Path clientDir = directoriesManager.getUpdatesDir().resolve(dirName);

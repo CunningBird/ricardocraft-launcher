@@ -2,14 +2,11 @@ package ru.ricardocraft.backend.command.updates;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
-import ru.ricardocraft.backend.command.Command;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 
 import java.io.IOException;

@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.command;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.DERBMPString;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -21,8 +22,8 @@ import org.bouncycastle.pkcs.bc.BcPKCS12MacCalculatorBuilder;
 import org.bouncycastle.pkcs.bc.BcPKCS12PBEOutputEncryptorBuilder;
 import org.bouncycastle.pkcs.jcajce.JcaPKCS12SafeBagBuilder;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.manangers.CertificateManager;
@@ -41,38 +42,16 @@ import java.time.ZoneId;
 import java.util.Date;
 
 @Slf4j
-@Component
-public class GenerateCertificateCommand extends Command {
+@ShellComponent
+@RequiredArgsConstructor
+public class GenerateCertificateCommand {
 
-    private transient final LaunchServerProperties config;
-    private transient final DirectoriesManager directoriesManager;
-    private transient final CertificateManager certificateManager;
+    private final LaunchServerProperties config;
+    private final DirectoriesManager directoriesManager;
+    private final CertificateManager certificateManager;
 
-    @Autowired
-    public GenerateCertificateCommand(CommandHandler commandHandler,
-                                      LaunchServerProperties config,
-                                      DirectoriesManager directoriesManager,
-                                      CertificateManager certificateManager) {
-        super();
-        this.config = config;
-        this.directoriesManager = directoriesManager;
-        this.certificateManager = certificateManager;
-
-        commandHandler.registerCommand("generatecertificate", this);
-    }
-
-    @Override
-    public String getArgsDescription() {
-        return "[]";
-    }
-
-    @Override
-    public String getUsageDescription() {
-        return "Generate self-signed certificate";
-    }
-
-    @Override
-    public void invoke(String... args) throws Exception {
+    @ShellMethod("[] Generate self-signed certificate")
+    public void generateCertificate() throws Exception {
         String projectName = config.getProjectName();
         Path targetDir = directoriesManager.getKeyDirectoryDir().resolve("certs");
         Path rootCACrtPath = targetDir.resolve(projectName.concat("RootCA.crt"));

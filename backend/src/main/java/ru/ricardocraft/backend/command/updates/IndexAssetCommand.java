@@ -3,19 +3,13 @@ package ru.ricardocraft.backend.command.updates;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper.DigestAlgorithm;
-import ru.ricardocraft.backend.command.Command;
-import ru.ricardocraft.backend.command.CommandException;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
@@ -62,7 +56,7 @@ public final class IndexAssetCommand {
         Path inputAssetDir = directoriesManager.getUpdatesDir().resolve(inputAssetDirName);
         Path outputAssetDir = directoriesManager.getUpdatesDir().resolve(outputAssetDirName);
         if (outputAssetDir.equals(inputAssetDir))
-            throw new CommandException("Unindexed and indexed asset dirs can't be same");
+            throw new Exception("Unindexed and indexed asset dirs can't be same");
 
         // Create new asset dir
         log.info("Creating indexed asset dir: '{}'", outputAssetDirName);
