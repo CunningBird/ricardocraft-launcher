@@ -1,6 +1,7 @@
 package ru.ricardocraft.backend.command.updates;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.tongfei.progressbar.ProgressBar;
@@ -10,14 +11,13 @@ import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.ricardocraft.backend.socket.Downloader;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.dto.updates.MinecraftVersions;
 import ru.ricardocraft.backend.dto.updates.MiniVersion;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
+import ru.ricardocraft.backend.socket.Downloader;
 import ru.ricardocraft.backend.socket.HttpRequester;
 
 import java.io.Writer;
@@ -42,13 +42,13 @@ public final class DownloadAssetCommand {
     private final DirectoriesManager directoriesManager;
     private final MirrorManager mirrorManager;
     private final UpdatesManager updatesManager;
-    private final JacksonManager jacksonManager;
+    private final ObjectMapper objectMapper;
     private final HttpRequester requester;
 
     @ShellMethod("[version] [dir] (mojang/mirror) Download asset dir")
     public void downloadAsset(@ShellOption String versionName,
-                       @ShellOption(defaultValue = ShellOption.NULL) String dir,
-                       @ShellOption(defaultValue = ShellOption.NULL) String mirrorType) throws Exception {
+                              @ShellOption(defaultValue = ShellOption.NULL) String dir,
+                              @ShellOption(defaultValue = ShellOption.NULL) String mirrorType) throws Exception {
         String dirName = IOHelper.verifyFileName(dir != null ? dir : "assets");
         String type = mirrorType != null ? mirrorType : "mojang";
 
@@ -77,7 +77,7 @@ public final class DownloadAssetCommand {
 
             try (Writer writer = IOHelper.newWriter(indexPath)) {
                 log.info("Save {}", indexPath);
-                writer.write(jacksonManager.getMapper().writeValueAsString(assets));
+                writer.write(objectMapper.writeValueAsString(assets));
             }
             if (!assetIndex.equals(versionName)) {
                 Path targetPath = assetDir.resolve("indexes").resolve(versionName + ".json");

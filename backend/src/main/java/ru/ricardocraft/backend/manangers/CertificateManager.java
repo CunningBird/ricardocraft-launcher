@@ -1,8 +1,7 @@
 package ru.ricardocraft.backend.manangers;
 
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemObject;
@@ -29,10 +28,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @Component
 public class CertificateManager {
-
-    private transient final Logger logger = LogManager.getLogger(CertificateManager.class);
 
     public LauncherTrustManager trustManager;
 
@@ -43,14 +41,14 @@ public class CertificateManager {
         readTrustStore(directoriesManager.getTrustStoreDir());
         LauncherTrustManager.CheckClassResult result = checkClass(BackendApplication.class);
         if (result.type == LauncherTrustManager.CheckClassResultType.SUCCESS) {
-            logger.info("LaunchServer signed by {}", result.endCertificate.getSubjectX500Principal().getName());
+            log.info("LaunchServer signed by {}", result.endCertificate.getSubjectX500Principal().getName());
         } else if (result.type == LauncherTrustManager.CheckClassResultType.NOT_SIGNED) {
             // None
         } else {
             if (result.exception != null) {
-                logger.error(result.exception);
+                log.error(result.exception.getMessage());
             }
-            logger.warn("LaunchServer signed incorrectly. Status: {}", result.type.name());
+            log.warn("LaunchServer signed incorrectly. Status: {}", result.type.name());
         }
     }
 
@@ -89,7 +87,7 @@ public class CertificateManager {
 
         } else {
             if (IOHelper.exists(dir.resolve("GravitCentralRootCA.crt"))) {
-                logger.warn("Found old default certificate - 'GravitCentralRootCA.crt'. Delete...");
+                log.warn("Found old default certificate - 'GravitCentralRootCA.crt'. Delete...");
                 Files.delete(dir.resolve("GravitCentralRootCA.crt"));
             }
         }

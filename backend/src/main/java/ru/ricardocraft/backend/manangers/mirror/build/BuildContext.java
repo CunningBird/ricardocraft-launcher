@@ -1,8 +1,5 @@
 package ru.ricardocraft.backend.manangers.mirror.build;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,8 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BuildContext {
-
-    public final Logger logger = LogManager.getLogger(BuildContext.class);
 
     public Path scriptBuildDir;
     public Path targetClientDir;

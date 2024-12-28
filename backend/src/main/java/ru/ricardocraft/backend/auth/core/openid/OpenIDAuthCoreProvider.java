@@ -1,10 +1,10 @@
 package ru.ricardocraft.backend.auth.core.openid;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Jwks;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthException;
@@ -17,7 +17,6 @@ import ru.ricardocraft.backend.auth.password.AuthPassword;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.dto.response.auth.GetAvailabilityAuthResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
-import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.properties.config.OpenIDProperties;
@@ -38,15 +37,14 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Component
 public class OpenIDAuthCoreProvider extends AuthCoreProvider {
-
-    private final Logger logger = LoggerFactory.getLogger(OpenIDAuthCoreProvider.class);
 
     private final HttpClient CLIENT = HttpClient.newBuilder().build();
     private OpenIDProperties openIdProperties;
     private JwtParser jwtParser;
-    private JacksonManager jacksonManager;
+    private ObjectMapper objectMapper;
 
     private transient SQLUserStore sqlUserStore;
     private transient SQLServerSessionStore sqlSessionStore;
@@ -56,7 +54,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
 
     @Autowired
     public OpenIDAuthCoreProvider(LaunchServerProperties properties,
-                                  JacksonManager jacksonManager,
+                                  ObjectMapper objectMapper,
                                   KeyAgreementManager keyAgreementManager) {
 
 //        this.sqlSourceConfig.init();
@@ -67,7 +65,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
 
 //        this.keyAgreementManager = keyAgreementManager;
 //        this.openIdProperties = properties.getOpenid();
-//        this.jacksonManager = jacksonManager;
+//        this.objectMapper = objectMapper;
 //        var keyLocator = loadKeyLocator(openIdProperties);
 //        this.jwtParser = Jwts.parser()
 //                .keyLocator(keyLocator)
@@ -164,7 +162,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
         try {
             user = createUserFromMinecraftToken(accessToken);
         } catch (AuthException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
             return false;
         }
         if (!user.getUUID().equals(uuid)) {
@@ -342,6 +340,6 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return jacksonManager.getMapper().readValue(resp.body(), AccessTokenResponse.class);
+        return objectMapper.readValue(resp.body(), AccessTokenResponse.class);
     }
 }

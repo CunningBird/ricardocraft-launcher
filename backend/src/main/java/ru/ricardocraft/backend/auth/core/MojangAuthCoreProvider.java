@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.auth.core;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthException;
@@ -12,7 +12,6 @@ import ru.ricardocraft.backend.auth.password.AuthPlainPassword;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.manangers.AuthManager;
-import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.profiles.Texture;
 import ru.ricardocraft.backend.repository.User;
 import ru.ricardocraft.backend.service.auth.AuthService;
@@ -31,20 +30,19 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Component
 public class MojangAuthCoreProvider extends AuthCoreProvider {
 
-    private transient final Logger logger = LogManager.getLogger(MojangAuthCoreProvider.class);
-
     private static final Pattern UUID_REGEX = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
-    private transient HttpClient client;
+    private final transient HttpClient client;
 
-    protected final JacksonManager jacksonManager;
+    protected final ObjectMapper objectMapper;
 
     @Autowired
-    public MojangAuthCoreProvider(JacksonManager jacksonManager) {
+    public MojangAuthCoreProvider(ObjectMapper objectMapper) {
         this.client = HttpClient.newBuilder().build();
-        this.jacksonManager = jacksonManager;
+        this.objectMapper = objectMapper;
     }
 
     public static UUID getUUIDFromMojangHash(String hash) {
@@ -60,7 +58,7 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
             }
             return getUserByHash(response1.id);
         } catch (IOException | URISyntaxException | InterruptedException e) {
-            logger.error(e);
+            log.error(e.getMessage());
             return null;
         }
     }
@@ -97,7 +95,7 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
             }
             return getUserByProfileResponse(response1);
         } catch (IOException | URISyntaxException | InterruptedException e) {
-            logger.error(e);
+            log.error(e.getMessage());
             return null;
         }
     }
@@ -198,7 +196,7 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
             }
             return getUserByProfileResponse(result);
         } catch (URISyntaxException | InterruptedException | IOException e) {
-            logger.error(e);
+            log.error(e.getMessage());
             return null;
         }
     }
@@ -210,7 +208,7 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
     protected <T, V> T mojangRequest(String method, String url, String accessToken, V request, Class<T> clazz) throws IOException, URISyntaxException, InterruptedException {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .method(method, request == null ? HttpRequest.BodyPublishers.noBody() :
-                        HttpRequest.BodyPublishers.ofString(jacksonManager.getMapper().writeValueAsString(request)))
+                        HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(request)))
                 .uri(new URI(url))
                 .header("Accept", "application/json");
         if (request != null) {
@@ -224,11 +222,11 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
         if (response.statusCode() != 200) {
             String error = response.body();
             if (error != null && !error.isEmpty()) {
-                logger.warn("Error {} return {}", url, error);
+                log.warn("Error {} return {}", url, error);
             }
             return null;
         }
-        return jacksonManager.getMapper().readValue(response.body(), clazz);
+        return objectMapper.readValue(response.body(), clazz);
     }
 
     private static class MojangUUIDResponse {
@@ -251,7 +249,7 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
                 return null;
             }
             String jsonData = new String(Base64.getDecoder().decode(property.value), StandardCharsets.UTF_8);
-            return jacksonManager.getMapper().readValue(jsonData, MojangProfilePropertyTexture.class);
+            return objectMapper.readValue(jsonData, MojangProfilePropertyTexture.class);
         }
 
         public static class MojangProfileProperty {

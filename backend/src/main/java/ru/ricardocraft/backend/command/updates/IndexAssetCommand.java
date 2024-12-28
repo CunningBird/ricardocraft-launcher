@@ -1,6 +1,7 @@
 package ru.ricardocraft.backend.command.updates;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.standard.ShellCommandGroup;
@@ -11,7 +12,6 @@ import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper.DigestAlgorithm;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 
 import java.io.BufferedWriter;
@@ -36,7 +36,7 @@ public final class IndexAssetCommand {
 
     private transient final DirectoriesManager directoriesManager;
     private transient final UpdatesManager updatesManager;
-    private transient final JacksonManager jacksonManager;
+    private transient final ObjectMapper objectMapper;
 
     public static Path resolveIndexFile(Path assetDir, String name) {
         return assetDir.resolve(INDEXES_DIR).resolve(name + JSON_EXTENSION);
@@ -71,7 +71,7 @@ public final class IndexAssetCommand {
         log.info("Writing asset index file: '{}'", indexFileName);
 
         try (BufferedWriter writer = IOHelper.newWriter(resolveIndexFile(outputAssetDir, indexFileName))) {
-            writer.write(jacksonManager.getMapper().writeValueAsString(objects));
+            writer.write(objectMapper.writeValueAsString(objects));
         }
 
         // Finished
@@ -108,7 +108,7 @@ public final class IndexAssetCommand {
             // Add to index and copy file
             String digest = SecurityHelper.toHex(SecurityHelper.digest(DigestAlgorithm.SHA1, file));
             IndexObject obj = new IndexObject(attrs.size(), digest);
-            objects.put(name, jacksonManager.getMapper().valueToTree(obj));
+            objects.put(name, objectMapper.valueToTree(obj));
             IOHelper.copy(file, resolveObjectFile(outputAssetDir, digest));
 
             // Continue visiting

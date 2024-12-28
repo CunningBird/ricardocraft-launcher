@@ -1,7 +1,6 @@
 package ru.ricardocraft.backend.auth.texture;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
@@ -14,10 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Component
 public class JsonTextureProvider extends TextureProvider {
-
-    private transient final Logger logger = LogManager.getLogger(JsonTextureProvider.class);
 
     private static final Map<String, JsonTexture> map = new HashMap<>();
 
@@ -36,13 +34,13 @@ public class JsonTextureProvider extends TextureProvider {
 
     @Override
     public Texture getCloakTexture(UUID uuid, String username, String client) {
-        logger.warn("Ineffective get cloak texture for {}", username);
+        log.warn("Ineffective get cloak texture for {}", username);
         return getAssets(uuid, username, client).get("CAPE");
     }
 
     @Override
     public Texture getSkinTexture(UUID uuid, String username, String client) {
-        logger.warn("Ineffective get skin texture for {}", username);
+        log.warn("Ineffective get skin texture for {}", username);
         return getAssets(uuid, username, client).get("SKIN");
     }
 
@@ -53,7 +51,7 @@ public class JsonTextureProvider extends TextureProvider {
                     config.getJsonTextureProvider().getUrl(), uuid, username, client), config.getJsonTextureProvider().getBearerToken()), (Class<Map<String, JsonTexture>>) this.map.getClass()).getOrThrow();
             return JsonTexture.convertMap(map);
         } catch (IOException e) {
-            logger.error("JsonTextureProvider", e);
+            log.error("JsonTextureProvider", e);
             return new HashMap<>();
         }
     }

@@ -2,8 +2,7 @@ package ru.ricardocraft.backend.auth.protect;
 
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
@@ -25,10 +24,9 @@ import java.util.UUID;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+@Slf4j
 @Component
 public class AdvancedProtectHandler extends StdProtectHandler implements SecureProtectHandler, JoinServerProtectHandler {
-
-    private final Logger logger = LogManager.getLogger(AdvancedProtectHandler.class);
 
     private final HttpServerProperties httpServerProperties;
     private final KeyAgreementManager keyAgreementManager;
@@ -67,7 +65,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 authSupportHardware.connectUserAndHardware(client.sessionObject, hardware);
                 return new VerifySecureLevelKeyResponse(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(httpServerProperties.getSecurity().getPublicKeyTokenExpire()));
             } else {
-                logger.warn("AuthCoreProvider not supported hardware. HardwareInfo not checked!");
+                log.warn("AuthCoreProvider not supported hardware. HardwareInfo not checked!");
             }
         }
         return new VerifySecureLevelKeyResponse(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(httpServerProperties.getSecurity().getPublicKeyTokenExpire()));
@@ -100,8 +98,6 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
 
     public static class HardwareInfoTokenVerifier implements RestoreService.ExtendedTokenProvider {
 
-        private transient final Logger logger = LogManager.getLogger(HardwareInfoTokenVerifier.class);
-
         private final JwtParser parser;
 
         public HardwareInfoTokenVerifier(KeyAgreementManager keyAgreementManager) {
@@ -125,7 +121,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 client.trustLevel.hardwareInfo = hardware;
                 return true;
             } catch (Throwable e) {
-                logger.error("Hardware JWT error", e);
+                log.error("Hardware JWT error", e);
             }
 
             return false;
@@ -133,8 +129,6 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     }
 
     public static class PublicKeyTokenVerifier implements RestoreService.ExtendedTokenProvider {
-
-        private transient final Logger logger = LogManager.getLogger(PublicKeyTokenVerifier.class);
 
         private final JwtParser parser;
 
@@ -155,7 +149,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 client.trustLevel.publicKey = Base64.getDecoder().decode(publicKey);
                 return true;
             } catch (Throwable e) {
-                logger.error("Public Key JWT error", e);
+                log.error("Public Key JWT error", e);
             }
 
             return false;

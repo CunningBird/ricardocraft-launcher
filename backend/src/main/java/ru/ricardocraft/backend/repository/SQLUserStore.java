@@ -1,15 +1,13 @@
 package ru.ricardocraft.backend.repository;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import ru.ricardocraft.backend.base.ClientPermissions;
 
 import java.sql.SQLException;
 import java.util.UUID;
 
+@Slf4j
 public class SQLUserStore implements UserStore {
-
-    private final Logger logger = LoggerFactory.getLogger(SQLUserStore.class);
 
     private static final String CREATE_USER_TABLE = """
             create table if not exists `gravit_user` (
@@ -47,7 +45,7 @@ public class SQLUserStore implements UserStore {
             selectUserStmt.setString(1, username);
             try (var rs = selectUserStmt.executeQuery()) {
                 if (!rs.next()) {
-                    logger.debug("User not found, username: {}", username);
+                    log.debug("User not found, username: {}", username);
                     return null;
                 }
                 return new UserEntity(rs.getString("username"),
@@ -55,7 +53,7 @@ public class SQLUserStore implements UserStore {
                         new ClientPermissions());
             }
         } catch (SQLException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
         }
 
         return null;
@@ -68,7 +66,7 @@ public class SQLUserStore implements UserStore {
             selectUserStmt.setString(1, uuid.toString());
             try (var rs = selectUserStmt.executeQuery()) {
                 if (!rs.next()) {
-                    logger.debug("User not found, UUID: {}", uuid);
+                    log.debug("User not found, UUID: {}", uuid);
                     return null;
                 }
                 return new UserEntity(rs.getString("username"),
@@ -76,7 +74,7 @@ public class SQLUserStore implements UserStore {
                         new ClientPermissions());
             }
         } catch (SQLException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
         }
 
         return null;
@@ -95,14 +93,14 @@ public class SQLUserStore implements UserStore {
                 insertUserStmt.setString(2, user.getUsername());
                 insertUserStmt.execute();
                 connection.commit();
-                logger.debug("User saved. UUID: {}, username: {}", user.getUUID(), user.getUsername());
+                log.debug("User saved. UUID: {}, username: {}", user.getUUID(), user.getUsername());
             } catch (Exception e) {
                 connection.rollback(savepoint);
                 throw e;
             }
         } catch (SQLException e) {
-            logger.debug("Failed to save user");
-            logger.error(e.getMessage());
+            log.debug("Failed to save user");
+            log.error(e.getMessage());
             throw new RuntimeException("Failed to save user", e);
         }
     }

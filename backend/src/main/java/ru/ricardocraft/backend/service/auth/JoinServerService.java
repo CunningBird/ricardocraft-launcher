@@ -1,25 +1,23 @@
 package ru.ricardocraft.backend.service.auth;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.JoinServerProtectHandler;
-import ru.ricardocraft.backend.dto.response.auth.JoinServerResponse;
 import ru.ricardocraft.backend.dto.request.AbstractRequest;
 import ru.ricardocraft.backend.dto.request.auth.JoinServerRequest;
+import ru.ricardocraft.backend.dto.response.auth.JoinServerResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.ServerWebSocketHandler;
 
+@Slf4j
 @Component
 public class JoinServerService extends AbstractService {
-
-    private transient final Logger logger = LogManager.getLogger(JoinServerService.class);
 
     private final ProtectHandler protectHandler;
     private final AuthManager authManager;
@@ -51,12 +49,12 @@ public class JoinServerService extends AbstractService {
             }
             success = authManager.joinServer(client, response.username, response.uuid, response.accessToken, response.serverID);
             if (success) {
-                logger.debug("joinServer: {} accessToken: {} serverID: {}", response.username, response.accessToken, response.serverID);
+                log.debug("joinServer: {} accessToken: {} serverID: {}", response.username, response.accessToken, response.serverID);
             }
         } catch (AuthException | SecurityException e) {
             throw new Exception(e.getMessage());
         } catch (Exception e) {
-            logger.error("Join Server error", e);
+            log.error("Join Server error", e);
             throw new Exception("Internal authHandler error");
         }
         return new JoinServerResponse(success);

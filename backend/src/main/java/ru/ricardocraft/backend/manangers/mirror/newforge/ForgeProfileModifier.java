@@ -1,10 +1,10 @@
 package ru.ricardocraft.backend.manangers.mirror.newforge;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.ricardocraft.backend.base.LaunchOptions;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.dto.updates.ClassLoaderConfig;
 import ru.ricardocraft.backend.dto.updates.CompatibilityFlags;
-import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.profiles.ClientProfileBuilder;
 
@@ -25,9 +25,9 @@ public class ForgeProfileModifier {
     public static List<String> exclusionList = List.of("AutoRenamingTool", "net/minecraft/client");
     private static List<String> prevArgsList = List.of("-p", "--add-modules", "--add-opens", "--add-exports");
 
-    public ForgeProfileModifier(Path forgeProfilePath, ClientProfile profile, Path clientDir, JacksonManager jacksonManager) {
+    public ForgeProfileModifier(Path forgeProfilePath, ClientProfile profile, Path clientDir, ObjectMapper objectMapper) {
         try (Reader reader = IOHelper.newReader(forgeProfilePath)) {
-            this.forgeProfile = jacksonManager.getMapper().readValue(reader, ForgeProfile.class);
+            this.forgeProfile = objectMapper.readValue(reader, ForgeProfile.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

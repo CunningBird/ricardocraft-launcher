@@ -1,14 +1,12 @@
 package ru.ricardocraft.backend.repository;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
 import java.util.UUID;
 
+@Slf4j
 public class SQLServerSessionStore implements ServerSessionStore {
-
-    private final Logger logger = LoggerFactory.getLogger(SQLServerSessionStore.class);
 
     private static final String CREATE_TABLE = """
             create table if not exists `gravit_server_session` (
@@ -57,8 +55,8 @@ public class SQLServerSessionStore implements ServerSessionStore {
                 throw e;
             }
         } catch (SQLException e) {
-            logger.debug("Can't join server. Username: {}", username);
-            logger.error(e.getMessage());
+            log.debug("Can't join server. Username: {}", username);
+            log.error(e.getMessage());
         }
 
         return false;
@@ -76,8 +74,8 @@ public class SQLServerSessionStore implements ServerSessionStore {
                 return rs.getString("server_id");
             }
         } catch (SQLException e) {
-            logger.debug("Can't find server id by username. Username: {}", username);
-            logger.error(e.getMessage());
+            log.debug("Can't find server id by username. Username: {}", username);
+            log.error(e.getMessage());
         }
         return null;
     }

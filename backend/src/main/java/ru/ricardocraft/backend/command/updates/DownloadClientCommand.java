@@ -1,6 +1,7 @@
 package ru.ricardocraft.backend.command.updates;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.standard.ShellCommandGroup;
@@ -13,14 +14,12 @@ import ru.ricardocraft.backend.base.helper.MakeProfileHelper;
 import ru.ricardocraft.backend.dto.updates.ServerProfile;
 import ru.ricardocraft.backend.dto.updates.Version;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.profiles.ClientProfileBuilder;
 import ru.ricardocraft.backend.profiles.ClientProfileVersions;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.UUID;
@@ -35,12 +34,12 @@ public final class DownloadClientCommand {
     private transient final MirrorManager mirrorManager;
     private transient final UpdatesManager updatesManager;
     private transient final ProfileProvider profileProvider;
-    private transient final JacksonManager jacksonManager;
+    private transient final ObjectMapper objectMapper;
 
     @ShellMethod("[version] [dir] (mirror/generate) Download client dir")
     public void downloadClient(@ShellOption String versionName,
-                       @ShellOption(defaultValue = ShellOption.NULL) String dir,
-                       @ShellOption(defaultValue = ShellOption.NULL) String downloadType) throws Exception {
+                               @ShellOption(defaultValue = ShellOption.NULL) String dir,
+                               @ShellOption(defaultValue = ShellOption.NULL) String downloadType) throws Exception {
         //Version version = Version.byName(versionName);
         String dirName = IOHelper.verifyFileName(dir != null ? dir : versionName);
         Path clientDir = directoriesManager.getUpdatesDir().resolve(dirName);
@@ -61,7 +60,7 @@ public final class DownloadClientCommand {
         if (isMirrorClientDownload) {
             try {
                 JsonNode clientJson = mirrorManager.jsonRequest(null, "GET", "clients/%s.json", versionName);
-                clientProfile = jacksonManager.getMapper().readValue(clientJson.asText(), ClientProfile.class);
+                clientProfile = objectMapper.readValue(clientJson.asText(), ClientProfile.class);
                 var builder = new ClientProfileBuilder(clientProfile);
                 builder.setTitle(dirName);
                 builder.setDir(dirName);

@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.command.mirror;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.standard.ShellCommandGroup;
@@ -8,7 +9,6 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 
 import java.io.FileNotFoundException;
@@ -33,7 +33,7 @@ public class LaunchInstallerFabricCommand {
 
     private final DirectoriesManager directoriesManager;
     private final UpdatesManager updatesManager;
-    private final JacksonManager jacksonManager;
+    private final ObjectMapper objectMapper;
 
     @ShellMethod("[minecraft version] [vanilla dir] [fabric installer file] (loader version) install fabric to client")
     public void launchInstallerFabric(@ShellOption String version,
@@ -69,7 +69,7 @@ public class LaunchInstallerFabricCommand {
         log.debug("Fabric profile {}", fabricProfileFile);
         MinecraftProfile fabricProfile;
         try (Reader reader = IOHelper.newReader(fabricProfileFile)) {
-            fabricProfile = jacksonManager.getMapper().readValue(reader, MinecraftProfile.class);
+            fabricProfile = objectMapper.readValue(reader, MinecraftProfile.class);
         }
         for (MinecraftProfileLibrary library : fabricProfile.libraries) {
             NamedURL url = makeURL(library.url, library.name);

@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.auth.core;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthException;
@@ -12,7 +12,6 @@ import ru.ricardocraft.backend.auth.password.AuthPassword;
 import ru.ricardocraft.backend.base.request.RequestException;
 import ru.ricardocraft.backend.dto.response.auth.GetAvailabilityAuthResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
-import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.properties.config.MicrosoftAuthCoreProviderProperties;
 import ru.ricardocraft.backend.service.auth.AuthService;
@@ -34,19 +33,18 @@ import java.util.UUID;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+@Slf4j
 @Component
 public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
-
-    private transient final Logger logger = LogManager.getLogger(MicrosoftAuthCoreProvider.class);
 
     private transient final MicrosoftAuthCoreProviderProperties properties;
     private transient final HttpRequester requester;
 
     @Autowired
-    public MicrosoftAuthCoreProvider(JacksonManager jacksonManager,
+    public MicrosoftAuthCoreProvider(ObjectMapper objectMapper,
                                      LaunchServerProperties properties,
                                      HttpRequester requester) {
-        super(jacksonManager);
+        super(objectMapper);
         this.properties = properties.getMicrosoftAuthCoreProvider();
         this.requester = requester;
     }
@@ -78,7 +76,7 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
             var response = getMinecraftTokenByMicrosoftToken(result.access_token);
             return AuthManager.AuthReport.ofOAuth(response.access_token, result.refresh_token, SECONDS.toMillis(response.expires_in), null);
         } catch (IOException e) {
-            logger.error("Microsoft refresh failed", e);
+            log.error("Microsoft refresh failed", e);
             return null;
         }
     }
@@ -208,7 +206,7 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
     }
 
     public <T> HttpRequest.BodyPublisher jsonBodyPublisher(T obj) throws JsonProcessingException {
-        return HttpRequest.BodyPublishers.ofString(jacksonManager.getMapper().writeValueAsString(obj));
+        return HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(obj));
     }
 
     private URI makeURI(String s) throws IOException {

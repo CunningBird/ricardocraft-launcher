@@ -1,18 +1,18 @@
 package ru.ricardocraft.backend.command.mirror;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.ricardocraft.backend.socket.Downloader;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.MirrorManager;
 import ru.ricardocraft.backend.properties.config.MirrorWorkspaceProperties;
+import ru.ricardocraft.backend.socket.Downloader;
 
 import java.io.OutputStream;
 import java.io.Reader;
@@ -34,7 +34,7 @@ public class ApplyWorkspaceCommand {
 
     private final DirectoriesManager directoriesManager;
     private final MirrorManager mirrorManager;
-    private final JacksonManager jacksonManager;
+    private final ObjectMapper objectMapper;
     private final LwjglDownloadCommand lwjglDownloadCommand;
 
     @ShellMethod("[path] apply workspace. This action remove your files in workspace!")
@@ -55,7 +55,7 @@ public class ApplyWorkspaceCommand {
         }
         MirrorWorkspaceProperties workspace;
         try (Reader reader = IOHelper.newReader(workspaceFilePath)) {
-            workspace = jacksonManager.getMapper().readValue(reader, MirrorWorkspaceProperties.class);
+            workspace = objectMapper.readValue(reader, MirrorWorkspaceProperties.class);
         }
         Path workspacePath = directoriesManager.getMirrorHelperWorkspaceDir();
         if (Files.exists(workspacePath)) {

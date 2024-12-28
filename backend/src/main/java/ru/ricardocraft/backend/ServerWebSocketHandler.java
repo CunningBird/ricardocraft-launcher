@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import ru.ricardocraft.backend.dto.AbstractResponse;
 import ru.ricardocraft.backend.dto.request.AbstractRequest;
-import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.service.AbstractService;
 import ru.ricardocraft.backend.socket.Client;
 
@@ -30,7 +30,7 @@ public class ServerWebSocketHandler extends TextWebSocketHandler implements SubP
     private final Map<WebSocketSession, Client> sessions = new ConcurrentHashMap<>();
     private final Map<Class<? extends AbstractRequest>, AbstractService> services = new HashMap<>();
 
-    private final JacksonManager jacksonManager;
+    private final ObjectMapper objectMapper;
 
     public void registerService(Class<? extends AbstractRequest> responseClass, AbstractService service) {
         services.put(responseClass, service);
@@ -41,8 +41,8 @@ public class ServerWebSocketHandler extends TextWebSocketHandler implements SubP
     }
 
     @Autowired
-    public ServerWebSocketHandler(JacksonManager jacksonManager) {
-        this.jacksonManager = jacksonManager;
+    public ServerWebSocketHandler(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class ServerWebSocketHandler extends TextWebSocketHandler implements SubP
 
         Client client = sessions.get(session);
 
-        AbstractRequest requestDeserialized = jacksonManager.getMapper().readValue(request, AbstractRequest.class);
+        AbstractRequest requestDeserialized = objectMapper.readValue(request, AbstractRequest.class);
         AbstractResponse abstractResponse = services.get(requestDeserialized.getClass()).execute(requestDeserialized, session, client);
         abstractResponse.requestUUID = requestDeserialized.requestUUID;
 
@@ -99,7 +99,7 @@ public class ServerWebSocketHandler extends TextWebSocketHandler implements SubP
     }
 
     public void sendMessage(WebSocketSession session, Object object, Boolean closeChannel) throws IOException {
-        String response = jacksonManager.getMapper().writeValueAsString(object);
+        String response = objectMapper.writeValueAsString(object);
         log.info("Server sends: {}", response);
         session.sendMessage(new TextMessage(response));
         if (closeChannel) {

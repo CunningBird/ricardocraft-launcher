@@ -1,22 +1,19 @@
 package ru.ricardocraft.backend.auth.profiles;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.command.service.ClientsCommand;
 import ru.ricardocraft.backend.dto.AbstractResponse;
 import ru.ricardocraft.backend.dto.response.auth.ProfilesResponse;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.properties.HttpServerProperties;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -29,7 +26,6 @@ import java.util.*;
 @Component
 public class LocalProfileProvider extends ProfileProvider {
 
-    private final ClientsCommand clientsCommand;
     private transient volatile Map<Path, ClientProfile> profilesMap;
     private transient volatile Set<ClientProfile> profilesList; // Cache
 
@@ -37,20 +33,19 @@ public class LocalProfileProvider extends ProfileProvider {
     private final transient HttpServerProperties httpServerProperties;
     private final transient ProtectHandler handler;
     private final transient ServerWebSocketHandler webSocketHandler;
-    private final transient JacksonManager jacksonManager;
+    private final transient ObjectMapper objectMapper;
 
     @Autowired
     public LocalProfileProvider(DirectoriesManager directoriesManager,
                                 HttpServerProperties httpServerProperties,
                                 ProtectHandler handler,
                                 ServerWebSocketHandler webSocketHandler,
-                                JacksonManager jacksonManager, ClientsCommand clientsCommand) {
+                                ObjectMapper objectMapper) {
         this.directoriesManager = directoriesManager;
         this.httpServerProperties = httpServerProperties;
         this.handler = handler;
         this.webSocketHandler = webSocketHandler;
-        this.jacksonManager = jacksonManager;
-        this.clientsCommand = clientsCommand;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -84,7 +79,7 @@ public class LocalProfileProvider extends ProfileProvider {
             }
         }
         try (BufferedWriter writer = IOHelper.newWriter(target)) {
-            jacksonManager.getMapper().writeValue(writer, profile);
+            objectMapper.writeValue(writer, profile);
         }
         addProfile(target, profile);
     }
@@ -151,8 +146,6 @@ public class LocalProfileProvider extends ProfileProvider {
 
     private final class ProfilesFileVisitor extends SimpleFileVisitor<Path> {
 
-        private transient final Logger logger = LogManager.getLogger(ProfilesFileVisitor.class);
-
         private final Map<Path, ClientProfile> result;
 
         private ProfilesFileVisitor(Map<Path, ClientProfile> result) {
@@ -161,12 +154,12 @@ public class LocalProfileProvider extends ProfileProvider {
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            logger.info("Syncing '{}' profile", IOHelper.getFileName(file));
+            log.info("Syncing '{}' profile", IOHelper.getFileName(file));
 
             // Read profile
             ClientProfile profile;
             try (BufferedReader reader = IOHelper.newReader(file)) {
-                profile = jacksonManager.getMapper().readValue(reader, ClientProfile.class);
+                profile = objectMapper.readValue(reader, ClientProfile.class);
             }
             profile.verify();
 

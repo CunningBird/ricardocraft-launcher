@@ -1,28 +1,26 @@
 package ru.ricardocraft.backend.service.secure;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 import ru.ricardocraft.backend.auth.core.interfaces.UserHardware;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportHardware;
 import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
 import ru.ricardocraft.backend.auth.protect.ProtectHandler;
-import ru.ricardocraft.backend.dto.response.secure.HardwareReportResponse;
 import ru.ricardocraft.backend.dto.request.AbstractRequest;
 import ru.ricardocraft.backend.dto.request.secure.HardwareReportRequest;
+import ru.ricardocraft.backend.dto.response.secure.HardwareReportResponse;
 import ru.ricardocraft.backend.properties.HttpServerProperties;
 import ru.ricardocraft.backend.service.AbstractService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+@Slf4j
 @Component
 public class HardwareReportService extends AbstractService {
-
-    private static final Logger logger = LogManager.getLogger(HardwareReportService.class);
 
     private final HttpServerProperties httpServerProperties;
     private final ProtectHandler protectHandler;
@@ -54,7 +52,7 @@ public class HardwareReportService extends AbstractService {
                             SECONDS.toMillis(httpServerProperties.getSecurity().getHardwareTokenExpire())
                     );
                 }
-                logger.debug("HardwareInfo received");
+                log.debug("HardwareInfo received");
                 {
                     var authSupportHardware = client.auth.isSupport(AuthSupportHardware.class);
                     if (authSupportHardware != null) {
@@ -74,7 +72,7 @@ public class HardwareReportService extends AbstractService {
                                 SECONDS.toMillis(httpServerProperties.getSecurity().getHardwareTokenExpire())
                         );
                     } else {
-                        logger.error("AuthCoreProvider not supported hardware");
+                        log.error("AuthCoreProvider not supported hardware");
                         throw new Exception("AuthCoreProvider not supported hardware");
                     }
                 }

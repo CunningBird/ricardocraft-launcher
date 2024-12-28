@@ -1,7 +1,6 @@
 package ru.ricardocraft.backend.auth.updates;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.hasher.HashedDir;
@@ -19,10 +18,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Stream;
 
+@Slf4j
 @Component
 public class LocalUpdatesProvider extends UpdatesProvider {
-
-    private final Logger logger = LogManager.getLogger(LocalUpdatesProvider.class);
 
     private final LaunchServerProperties config;
     private final DirectoriesManager directoriesManager;
@@ -99,7 +97,7 @@ public class LocalUpdatesProvider extends UpdatesProvider {
                 entry.getValue().write(output);
             }
         }
-        logger.debug("Saved {} updates to cache", updatesDirMap.size());
+        log.debug("Saved {} updates to cache", updatesDirMap.size());
     }
 
     private void readCache(Path file) throws IOException {
@@ -112,7 +110,7 @@ public class LocalUpdatesProvider extends UpdatesProvider {
                 updatesDirMap.put(name, dir);
             }
         }
-        logger.debug("Found {} updates from cache", updatesDirMap.size());
+        log.debug("Found {} updates from cache", updatesDirMap.size());
         this.updatesDirMap = Collections.unmodifiableMap(updatesDirMap);
     }
 
@@ -124,7 +122,7 @@ public class LocalUpdatesProvider extends UpdatesProvider {
                     readCache(cacheFilePath);
                     return;
                 } catch (Throwable e) {
-                    logger.error("Read updates cache failed", e);
+                    log.error("Read updates cache failed", e);
                 }
             }
         }
@@ -132,7 +130,7 @@ public class LocalUpdatesProvider extends UpdatesProvider {
     }
 
     public void sync(Collection<String> dirs) throws IOException {
-        logger.info("Syncing updates dir");
+        log.info("Syncing updates dir");
         Map<String, HashedDir> newUpdatesDirMap = new HashMap<>(16);
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directoriesManager.getUpdatesDir())) {
             for (final Path updateDir : dirStream) {
@@ -143,7 +141,7 @@ public class LocalUpdatesProvider extends UpdatesProvider {
                 String name = IOHelper.getFileName(updateDir);
                 if (!IOHelper.isDir(updateDir)) {
                     if (!IOHelper.isFile(updateDir) && Stream.of(".jar", ".exe", ".hash").noneMatch(e -> updateDir.toString().endsWith(e)))
-                        logger.warn("Not update dir: '{}'", name);
+                        log.warn("Not update dir: '{}'", name);
                     continue;
                 }
 
@@ -157,7 +155,7 @@ public class LocalUpdatesProvider extends UpdatesProvider {
                 }
 
                 // Sync and sign update dir
-                logger.info("Syncing '{}' update dir", name);
+                log.info("Syncing '{}' update dir", name);
                 HashedDir updateHDir = new HashedDir(updateDir, null, true, true);
                 newUpdatesDirMap.put(name, updateHDir);
             }
@@ -167,7 +165,7 @@ public class LocalUpdatesProvider extends UpdatesProvider {
             try {
                 writeCache(directoriesManager.getCacheFile());
             } catch (Throwable e) {
-                logger.error("Write updates cache failed", e);
+                log.error("Write updates cache failed", e);
             }
         }
     }

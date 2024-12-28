@@ -2,8 +2,7 @@ package ru.ricardocraft.backend.manangers;
 
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.AuthException;
@@ -21,8 +20,8 @@ import ru.ricardocraft.backend.auth.texture.TextureProvider;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
-import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
 import ru.ricardocraft.backend.dto.request.auth.AuthRequest;
+import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
 import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.profiles.PlayerProfile;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
@@ -35,10 +34,9 @@ import javax.crypto.Cipher;
 import java.io.IOException;
 import java.util.*;
 
+@Slf4j
 @Component
 public class AuthManager {
-
-    private final Logger logger = LogManager.getLogger(AuthManager.class);
 
     private final KeyAgreementManager keyAgreementManager;
     private final LaunchServerProperties properties;
@@ -140,7 +138,7 @@ public class AuthManager {
         try {
             AuthReport result = provider.authorize(login, context, password, context.authType == AuthRequest.ConnectTypes.CLIENT && protectHandler.allowGetAccessToken(context));
             if (result == null || result.session == null || result.session.getUser() == null) {
-                logger.error("AuthCoreProvider {} method 'authorize' return null", context.pair.name);
+                log.error("AuthCoreProvider {} method 'authorize' return null", context.pair.name);
                 throw new AuthException("Internal Auth Error");
             }
             var session = result.session;
@@ -151,7 +149,7 @@ public class AuthManager {
             return result;
         } catch (IOException e) {
             if (e instanceof AuthException authException) throw authException;
-            logger.error(e);
+            log.error(e.getMessage());
             throw new AuthException("Internal Auth Error");
         }
     }
@@ -179,9 +177,9 @@ public class AuthManager {
     public CheckServerReport checkServer(Client client, String username, String serverID) throws IOException {
         if (client.auth == null) return null;
         var supportExtended = client.auth.core.isSupport(AuthSupportExtendedCheckServer.class);
-        if(supportExtended != null) {
+        if (supportExtended != null) {
             var session = supportExtended.extendedCheckServer(client, username, serverID);
-            if(session == null) return null;
+            if (session == null) return null;
             return CheckServerReport.ofUserSession(session, getPlayerProfile(client.auth, session.getUser()));
         } else {
             var user = client.auth.core.checkServer(client, username, serverID);
@@ -338,7 +336,7 @@ public class AuthManager {
             client.auth = authProviders.getAuthProviderPair(info.authId);
             if (client.permissions == null) client.permissions = new ClientPermissions();
             client.permissions.addPerm("launchserver.checkserver");
-            if(!info.isPublic) {
+            if (!info.isPublic) {
                 client.permissions.addPerm("launchserver.checkserver.extended");
                 client.permissions.addPerm("launchserver.profile.%s.show".formatted(info.serverName));
             }

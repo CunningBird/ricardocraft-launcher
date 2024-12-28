@@ -1,9 +1,9 @@
 package ru.ricardocraft.backend.manangers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.helper.IOHelper;
@@ -24,24 +24,21 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@Slf4j
 @Component
 public class MirrorManager {
 
-    private transient final Logger logger = LogManager.getLogger(MirrorManager.class);
-
-    private transient final HttpClient client = HttpClient.newBuilder().build();
+    private final HttpClient client = HttpClient.newBuilder().build();
 
     @Getter
-    private transient final Mirror defaultMirror;
-    private transient final List<Mirror> list;
+    private final Mirror defaultMirror;
+    private final List<Mirror> list;
 
-    private transient final JacksonManager jacksonManager;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public MirrorManager(LaunchServerProperties config, JacksonManager jacksonManager) {
-
-        this.jacksonManager = jacksonManager;
-
+    public MirrorManager(LaunchServerProperties config, ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
         this.list = Arrays.stream(config.getMirrors())
                 .map(Mirror::new)
                 .peek(mirror -> mirror.setEnabled(true))
@@ -55,11 +52,11 @@ public class MirrorManager {
     public boolean downloadZip(Mirror mirror, Path path, String mask, Object... args) throws IOException {
         if (!mirror.getEnabled()) return false;
         URL url = mirror.getURL(mask, args);
-        logger.debug("Try download {}", url.toString());
+        log.debug("Try download {}", url.toString());
         try {
             downloadZip(url, path);
         } catch (IOException e) {
-            logger.error("Download {} failed({}: {})", url.toString(), e.getClass().getName(), e.getMessage());
+            log.error("Download {} failed({}: {})", url.toString(), e.getClass().getName(), e.getMessage());
             return false;
         }
         return true;
@@ -82,12 +79,12 @@ public class MirrorManager {
         URL url = mirror.getURL(mask, args);
         try {
             var response = client.send(HttpRequest.newBuilder()
-                    .method(method, request == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(jacksonManager.getMapper().writeValueAsString(request)))
+                    .method(method, request == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(request)))
                     .uri(url.toURI())
                     .build(), HttpResponse.BodyHandlers.ofString());
-            return jacksonManager.getMapper().readTree(response.body());
+            return objectMapper.readTree(response.body());
         } catch (IOException | URISyntaxException | InterruptedException e) {
-            logger.error("JsonRequest {} failed({}: {})", url.toString(), e.getClass().getName(), e.getMessage());
+            log.error("JsonRequest {} failed({}: {})", url.toString(), e.getClass().getName(), e.getMessage());
             return null;
         }
     }
@@ -114,7 +111,7 @@ public class MirrorManager {
                 }
                 // Unpack entry
                 String name = entry.getName();
-                logger.debug("Downloading file: '{}'", name);
+                log.debug("Downloading file: '{}'", name);
                 IOHelper.transfer(input, dir.resolve(IOHelper.toPath(name)));
             }
         }

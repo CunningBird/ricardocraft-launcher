@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.socket;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.socket.error.HttpErrorHandler;
 import ru.ricardocraft.backend.socket.error.HttpOptional;
 import ru.ricardocraft.backend.socket.error.SimpleError;
@@ -19,12 +19,11 @@ import java.time.Duration;
 public class HttpRequester {
 
     private final HttpClient client = HttpClient.newBuilder().build();
-
-    private transient final JacksonManager jacksonManager;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public HttpRequester(JacksonManager jacksonManager) {
-        this.jacksonManager = jacksonManager;
+    public HttpRequester(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
     }
 
     public HttpRequest get(String url, String token) {
@@ -51,7 +50,7 @@ public class HttpRequester {
     public <T, E> HttpOptional<T, E> send(HttpRequest request, HttpErrorHandler<T, E> handler) throws IOException {
         try {
             var response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-            return handler.apply(response, jacksonManager);
+            return handler.apply(response, objectMapper);
         } catch (InterruptedException e) {
             throw new IOException(e);
         }

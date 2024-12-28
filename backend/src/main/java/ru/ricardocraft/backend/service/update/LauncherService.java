@@ -3,23 +3,21 @@ package ru.ricardocraft.backend.service.update;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
-import ru.ricardocraft.backend.dto.response.update.LauncherResponse;
 import ru.ricardocraft.backend.dto.request.AbstractRequest;
 import ru.ricardocraft.backend.dto.request.auth.AuthRequest;
 import ru.ricardocraft.backend.dto.request.update.LauncherRequest;
+import ru.ricardocraft.backend.dto.response.update.LauncherResponse;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.HttpServerProperties;
-import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.service.AbstractService;
 import ru.ricardocraft.backend.service.auth.RestoreService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -30,17 +28,14 @@ import java.util.Date;
 @Component
 public class LauncherService extends AbstractService {
 
-    private final LaunchServerProperties config;
     private final HttpServerProperties httpServerProperties;
     private final KeyAgreementManager keyAgreementManager;
 
     @Autowired
     public LauncherService(ServerWebSocketHandler handler,
-                           LaunchServerProperties config,
                            HttpServerProperties httpServerProperties,
                            KeyAgreementManager keyAgreementManager) {
         super(LauncherRequest.class, handler);
-        this.config = config;
         this.httpServerProperties = httpServerProperties;
         this.keyAgreementManager = keyAgreementManager;
     }
@@ -117,9 +112,8 @@ public class LauncherService extends AbstractService {
 //        return Arrays.equals(normal_hash, launcher_hash);
     }
 
+    @Slf4j
     public static class LauncherTokenVerifier implements RestoreService.ExtendedTokenProvider {
-
-        private final Logger logger = LogManager.getLogger(LauncherTokenVerifier.class);
 
         private final JwtParser parser;
 
@@ -138,7 +132,7 @@ public class LauncherService extends AbstractService {
                 client.type = AuthRequest.ConnectTypes.CLIENT;
                 return true;
             } catch (Exception e) {
-                logger.error("JWT multiModCheck failed", e);
+                log.error("JWT multiModCheck failed", e);
                 return false;
             }
 

@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.command.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.standard.ShellCommandGroup;
@@ -11,7 +12,6 @@ import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
 import ru.ricardocraft.backend.auth.password.AuthPassword;
 import ru.ricardocraft.backend.auth.password.AuthPlainPassword;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.properties.config.ProguardConfig;
 import ru.ricardocraft.backend.repository.User;
 
@@ -26,7 +26,7 @@ public class ConfigCommand {
 
     private final AuthLimiter authLimiter;
     private final AuthCoreProvider authCoreProvider;
-    private final JacksonManager jacksonManager;
+    private final ObjectMapper objectMapper;
     private final ProguardConfig proguardConfig;
     private final DirectoriesManager directoriesManager;
 
@@ -65,7 +65,7 @@ public class ConfigCommand {
         AuthPassword password = null;
         if (passwordData != null) {
             if (passwordData.startsWith("{")) {
-                password = jacksonManager.getMapper().readValue(passwordData, AuthPassword.class);
+                password = objectMapper.readValue(passwordData, AuthPassword.class);
             } else {
                 password = new AuthPlainPassword(passwordData);
             }

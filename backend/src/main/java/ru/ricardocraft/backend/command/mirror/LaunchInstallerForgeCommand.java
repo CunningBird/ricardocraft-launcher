@@ -1,5 +1,6 @@
 package ru.ricardocraft.backend.command.mirror;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -9,7 +10,6 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.JacksonManager;
 
 import java.io.*;
 import java.net.URI;
@@ -29,7 +29,7 @@ import java.util.zip.ZipInputStream;
 public class LaunchInstallerForgeCommand {
 
     private final DirectoriesManager directoriesManager;
-    private final JacksonManager jacksonManager;
+    private final ObjectMapper objectMapper;
 
     @ShellMethod("[vanilla dir] [forge installer file] install forge to client")
     public void launchInstallerForge(@ShellOption String vanillaDir,
@@ -103,7 +103,7 @@ public class LaunchInstallerForgeCommand {
 
     private ForgeInstallManifest readForgeInstallManifest(InputStream stream) throws IOException {
         try (Reader reader = new InputStreamReader(stream)) {
-            return jacksonManager.getMapper().readValue(reader, ForgeInstallManifest.class);
+            return objectMapper.readValue(reader, ForgeInstallManifest.class);
         }
     }
 

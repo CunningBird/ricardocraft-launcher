@@ -1,25 +1,23 @@
 package ru.ricardocraft.backend.service.auth;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
+import ru.ricardocraft.backend.ServerWebSocketHandler;
 import ru.ricardocraft.backend.auth.AuthException;
 import ru.ricardocraft.backend.auth.core.interfaces.session.UserSessionSupportHardware;
 import ru.ricardocraft.backend.auth.core.interfaces.session.UserSessionSupportProperties;
-import ru.ricardocraft.backend.dto.response.auth.CheckServerResponse;
 import ru.ricardocraft.backend.dto.request.AbstractRequest;
 import ru.ricardocraft.backend.dto.request.auth.CheckServerRequest;
+import ru.ricardocraft.backend.dto.response.auth.CheckServerResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.service.AbstractService;
 import ru.ricardocraft.backend.socket.Client;
-import ru.ricardocraft.backend.ServerWebSocketHandler;
 
+@Slf4j
 @Component
 public class CheckServerService extends AbstractService {
-
-    private transient final Logger logger = LogManager.getLogger(CheckServerService.class);
 
     private final AuthManager authManager;
 
@@ -53,11 +51,11 @@ public class CheckServerService extends AbstractService {
                     result.hardwareId = supportHardware.getHardwareId();
                 }
             }
-            logger.debug("checkServer: {} uuid: {} serverID: {}", result.playerProfile == null ? null : result.playerProfile.username, result.uuid, response.serverID);
+            log.debug("checkServer: {} uuid: {} serverID: {}", result.playerProfile == null ? null : result.playerProfile.username, result.uuid, response.serverID);
         } catch (AuthException e) {
             throw new Exception(e.getMessage());
         } catch (Exception e) {
-            logger.error("Internal authHandler error", e);
+            log.error("Internal authHandler error", e);
             throw new Exception("Internal authHandler error");
         }
         return result;

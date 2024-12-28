@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.socket.error;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import ru.ricardocraft.backend.manangers.JacksonManager;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,13 +17,13 @@ public class CurseForgeErrorHandler<T> implements HttpErrorHandler<T, Void> {
     }
 
     @Override
-    public HttpOptional<T, Void> apply(HttpResponse<InputStream> response, JacksonManager jacksonManager) {
+    public HttpOptional<T, Void> apply(HttpResponse<InputStream> response, ObjectMapper objectMapper) {
         if (response.statusCode() < 200 || response.statusCode() >= 300) {
             return new HttpOptional<>(null, null, response.statusCode());
         }
         try (Reader reader = new InputStreamReader(response.body())) {
-            JsonNode element = jacksonManager.getMapper().readTree(reader);
-            return new HttpOptional<>(jacksonManager.getMapper().readValue(element.get("data").asText(), type), null, response.statusCode());
+            JsonNode element = objectMapper.readTree(reader);
+            return new HttpOptional<>(objectMapper.readValue(element.get("data").asText(), type), null, response.statusCode());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

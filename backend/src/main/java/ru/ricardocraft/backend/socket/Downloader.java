@@ -1,8 +1,7 @@
 package ru.ricardocraft.backend.socket;
 
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import ru.ricardocraft.backend.base.core.CertificatePinningTrustManager;
 import ru.ricardocraft.backend.base.core.LauncherInject;
 import ru.ricardocraft.backend.base.helper.IOHelper;
@@ -30,9 +29,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+@Slf4j
 public class Downloader {
-
-    private static final Logger logger = LoggerFactory.getLogger(Downloader.class);
 
     @LauncherInject("launcher.certificatePinning")
     private static boolean isCertificatePinning;
@@ -103,7 +101,7 @@ public class Downloader {
 
     public static Downloader downloadList(List<SizedFile> files, String baseURL, Path targetDir, DownloadCallback callback, ExecutorService executor, int threads) throws Exception {
         boolean closeExecutor = false;
-        logger.info("Download with Java 11+ HttpClient");
+        log.info("Download with Java 11+ HttpClient");
         if (executor == null) {
             executor = Executors.newWorkStealingPool(Math.min(3, threads));
             closeExecutor = true;
@@ -178,7 +176,7 @@ public class Downloader {
                     return null;
                 });
             } catch (Exception exception) {
-                logger.error(exception.getMessage());
+                log.error(exception.getMessage());
                 future.completeExceptionally(exception);
             }
         };

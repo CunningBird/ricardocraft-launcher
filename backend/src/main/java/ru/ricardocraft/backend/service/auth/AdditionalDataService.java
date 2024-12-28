@@ -25,13 +25,13 @@ public class AdditionalDataService extends AbstractService {
 
     @Override
     public AdditionalDataResponse execute(AbstractRequest rawResponse, WebSocketSession session, Client client) throws Exception {
-        AdditionalDataRequest response = castResponse(rawResponse);
+        AdditionalDataRequest request = castResponse(rawResponse);
 
         if (!client.isAuth) {
             throw new Exception("Access denied");
         }
         AuthProviderPair pair = client.auth;
-        if (response.username == null && response.uuid == null) {
+        if (request.username == null && request.uuid == null) {
             Map<String, String> properties;
             User user = client.getUser();
             if (user instanceof UserSupportAdditionalData userSupport) {
@@ -46,10 +46,10 @@ public class AdditionalDataService extends AbstractService {
             return new AdditionalDataResponse(properties);
         }
         User user;
-        if (response.username != null) {
-            user = pair.core.getUserByUsername(response.username);
+        if (request.username != null) {
+            user = pair.core.getUserByUsername(request.username);
         } else {
-            user = pair.core.getUserByUUID(response.uuid);
+            user = pair.core.getUserByUUID(request.uuid);
         }
         if (!(user instanceof UserSupportAdditionalData userSupport)) {
             return new AdditionalDataResponse(Map.of());

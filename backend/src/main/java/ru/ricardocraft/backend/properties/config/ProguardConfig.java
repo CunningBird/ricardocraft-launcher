@@ -1,7 +1,6 @@
 package ru.ricardocraft.backend.properties.config;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
@@ -17,10 +16,9 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.security.SecureRandom;
 
+@Slf4j
 @Component
 public class ProguardConfig {
-
-    private transient final Logger logger = LogManager.getLogger(ProguardConfig.class);
 
     public final char[] chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKlL5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ".toCharArray();
 
@@ -39,7 +37,7 @@ public class ProguardConfig {
             genWords(force);
             genConfig(force);
         } catch (IOException e) {
-            logger.error(e);
+            log.error(e.getMessage());
         }
     }
 

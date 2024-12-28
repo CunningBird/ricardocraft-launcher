@@ -1,8 +1,7 @@
 package ru.ricardocraft.backend.base.request;
 
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.base.request.auth.RefreshTokenRequest;
 import ru.ricardocraft.backend.base.request.auth.RestoreRequest;
@@ -19,9 +18,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
+@Slf4j
 public abstract class Request<R extends TypeSerializeInterface> implements TypeSerializeInterface {
-
-    private static final Logger logger = LoggerFactory.getLogger(Request.class);
 
     private static final List<ExtendedTokenCallback> extendedTokenCallbacks = new ArrayList<>(4);
     private static final List<BiConsumer<String, AuthResponse.OAuthRequestEvent>> oauthChangeHandlers = new ArrayList<>(4);
@@ -52,7 +50,7 @@ public abstract class Request<R extends TypeSerializeInterface> implements TypeS
                 try {
                     restore(false, true, false);
                 } catch (Exception e) {
-                    logger.error(e.getMessage());
+                    log.error(e.getMessage());
                 }
             }, 5, 5, TimeUnit.SECONDS);
             autoRefreshRunning = true;
@@ -160,7 +158,7 @@ public abstract class Request<R extends TypeSerializeInterface> implements TypeS
                 request = new RestoreRequest(authId, null, tokens, false);
                 event = request.request();
                 if (event.invalidTokens != null && !event.invalidTokens.isEmpty()) {
-                    logger.warn("Tokens {} not restored", String.join(",", event.invalidTokens));
+                    log.warn("Tokens {} not restored", String.join(",", event.invalidTokens));
                 }
             }
             invalidTokens = event.invalidTokens;

@@ -1,6 +1,7 @@
 package ru.ricardocraft.backend.command.updates;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.standard.ShellCommandGroup;
@@ -9,7 +10,6 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.UpdatesManager;
 
 import java.io.BufferedReader;
@@ -27,7 +27,7 @@ public final class UnindexAssetCommand {
 
     private final DirectoriesManager directoriesManager;
     private final UpdatesManager updatesManager;
-    private final JacksonManager jacksonManager;
+    private final ObjectMapper objectMapper;
 
     @ShellMethod( "[dir] [index] [output-dir] Unindex asset dir (1.7.10+)")
     public void unindexAsset(@ShellOption String indexInputAssetDirName,
@@ -49,7 +49,7 @@ public final class UnindexAssetCommand {
         JsonNode objects;
         log.info("Reading asset index file: '{}'", indexFileName);
         try (BufferedReader reader = IOHelper.newReader(IndexAssetCommand.resolveIndexFile(inputAssetDir, indexFileName))) {
-            objects = jacksonManager.getMapper().readTree(reader).get("objects");
+            objects = objectMapper.readTree(reader).get("objects");
         }
 
         // Restore objects

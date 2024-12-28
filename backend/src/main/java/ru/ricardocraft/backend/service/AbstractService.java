@@ -10,19 +10,19 @@ public abstract class AbstractService {
 
     protected final ServerWebSocketHandler handler;
 
-    protected final Class<? extends AbstractRequest> responseClass;
+    protected final Class<? extends AbstractRequest> requestClass;
 
-    protected AbstractService(Class<? extends AbstractRequest> responseClass, ServerWebSocketHandler handler) {
+    protected AbstractService(Class<? extends AbstractRequest> requestClass, ServerWebSocketHandler handler) {
         this.handler = handler;
-        this.responseClass = responseClass;
-        handler.registerService(responseClass, this);
+        this.requestClass = requestClass;
+        handler.registerService(requestClass, this);
     }
 
     abstract public AbstractResponse execute(AbstractRequest rawResponse, WebSocketSession session, Client client) throws Exception;
 
     @SuppressWarnings("unchecked")
     public <Response extends AbstractRequest> Response castResponse(AbstractRequest response) throws Exception {
-        if (responseClass.isAssignableFrom(response.getClass())) return (Response) response;
-        else throw new Exception("Cannot cast " + response.getClass() + " to " + responseClass.getName());
+        if (requestClass.isAssignableFrom(response.getClass())) return (Response) response;
+        else throw new Exception("Cannot cast " + response.getClass() + " to " + requestClass.getName());
     }
 }
