@@ -1,10 +1,18 @@
 package ru.ricardocraft.backend.dto.response.auth;
 
-import ru.ricardocraft.backend.dto.response.SimpleResponse;
+import ru.ricardocraft.backend.dto.AbstractResponse;
 
-import java.util.UUID;
+import java.util.Map;
 
-public class AdditionalDataResponse extends SimpleResponse {
-    public String username;
-    public UUID uuid;
+public class AdditionalDataResponse extends AbstractResponse {
+    public Map<String, String> data;
+
+    public AdditionalDataResponse(Map<String, String> data) {
+        this.data = data;
+    }
+
+    @Override
+    public String getType() {
+        return "additionalData";
+    }
 }

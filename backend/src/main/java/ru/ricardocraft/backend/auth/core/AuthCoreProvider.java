@@ -3,10 +3,10 @@ package ru.ricardocraft.backend.auth.core;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import ru.ricardocraft.backend.auth.details.AuthPasswordDetails;
 import ru.ricardocraft.backend.auth.password.AuthPassword;
-import ru.ricardocraft.backend.dto.events.request.auth.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.backend.dto.response.auth.GetAvailabilityAuthResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.repository.User;
-import ru.ricardocraft.backend.service.auth.AuthResponseService;
+import ru.ricardocraft.backend.service.auth.AuthService;
 import ru.ricardocraft.backend.socket.Client;
 
 import java.io.IOException;
@@ -30,19 +30,19 @@ public abstract class AuthCoreProvider {
 
     public abstract UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired;
 
-    public abstract AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponseService.AuthContext context /* may be null */) throws JsonProcessingException;
+    public abstract AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthService.AuthContext context /* may be null */) throws JsonProcessingException;
 
-    public void verifyAuth(AuthResponseService.AuthContext context) {
+    public void verifyAuth(AuthService.AuthContext context) {
         // None
     }
 
-    public abstract AuthManager.AuthReport authorize(String login, AuthResponseService.AuthContext context /* may be null */, AuthPassword password /* may be null */, boolean minecraftAccess) throws IOException;
+    public abstract AuthManager.AuthReport authorize(String login, AuthService.AuthContext context /* may be null */, AuthPassword password /* may be null */, boolean minecraftAccess) throws IOException;
 
-    public AuthManager.AuthReport authorize(User user, AuthResponseService.AuthContext context /* may be null */, AuthPassword password /* may be null */, boolean minecraftAccess) throws IOException {
+    public AuthManager.AuthReport authorize(User user, AuthService.AuthContext context /* may be null */, AuthPassword password /* may be null */, boolean minecraftAccess) throws IOException {
         return authorize(user.getUsername(), context, password, minecraftAccess);
     }
 
-    public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client) {
+    public List<GetAvailabilityAuthResponse.AuthAvailabilityDetails> getDetails(Client client) {
         return List.of(new AuthPasswordDetails());
     }
 

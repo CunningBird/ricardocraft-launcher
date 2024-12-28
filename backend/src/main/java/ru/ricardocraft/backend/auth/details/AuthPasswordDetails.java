@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.auth.details;
 
-import ru.ricardocraft.backend.dto.events.request.auth.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.backend.dto.response.auth.GetAvailabilityAuthResponse;
 
-public class AuthPasswordDetails implements GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails {
+public class AuthPasswordDetails implements GetAvailabilityAuthResponse.AuthAvailabilityDetails {
     @Override
     public String getType() {
         return "password";

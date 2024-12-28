@@ -15,7 +15,7 @@ import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.profiles.Texture;
 import ru.ricardocraft.backend.repository.User;
-import ru.ricardocraft.backend.service.auth.AuthResponseService;
+import ru.ricardocraft.backend.service.auth.AuthService;
 import ru.ricardocraft.backend.socket.Client;
 
 import java.io.IOException;
@@ -135,12 +135,12 @@ public class MojangAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponseService.AuthContext context) {
+    public AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthService.AuthContext context) {
         return null;
     }
 
     @Override
-    public AuthManager.AuthReport authorize(String login, AuthResponseService.AuthContext context, AuthPassword password, boolean minecraftAccess) throws IOException {
+    public AuthManager.AuthReport authorize(String login, AuthService.AuthContext context, AuthPassword password, boolean minecraftAccess) throws IOException {
         if (login == null) {
             throw AuthException.userNotFound();
         }

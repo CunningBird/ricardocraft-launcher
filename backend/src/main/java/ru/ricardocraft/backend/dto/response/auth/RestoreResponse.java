@@ -1,17 +1,24 @@
 package ru.ricardocraft.backend.dto.response.auth;
 
-import ru.ricardocraft.backend.dto.response.SimpleResponse;
+import ru.ricardocraft.backend.dto.AbstractResponse;
 
-import java.util.Map;
+import java.util.List;
 
-public class RestoreResponse extends SimpleResponse {
-    public String authId;
-    public String accessToken;
-    public Map<String, String> extended;
-    public boolean needUserInfo;
+public class RestoreResponse extends AbstractResponse {
+    public CurrentUserResponse.UserInfo userInfo;
+    public List<String> invalidTokens;
+
+    public RestoreResponse(CurrentUserResponse.UserInfo userInfo, List<String> invalidTokens) {
+        this.userInfo = userInfo;
+        this.invalidTokens = invalidTokens;
+    }
+
+    public RestoreResponse(List<String> invalidTokens) {
+        this.invalidTokens = invalidTokens;
+    }
 
     @Override
-    public ThreadSafeStatus getThreadSafeStatus() {
-        return ThreadSafeStatus.READ_WRITE;
+    public String getType() {
+        return "restore";
     }
 }

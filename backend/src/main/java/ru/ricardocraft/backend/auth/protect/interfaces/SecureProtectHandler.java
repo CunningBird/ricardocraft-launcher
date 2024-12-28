@@ -1,10 +1,10 @@
 package ru.ricardocraft.backend.auth.protect.interfaces;
 
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
-import ru.ricardocraft.backend.dto.events.request.secure.GetSecureLevelInfoRequestEvent;
-import ru.ricardocraft.backend.dto.events.request.secure.SecurityReportRequestEvent;
-import ru.ricardocraft.backend.dto.events.request.secure.VerifySecureLevelKeyRequestEvent;
+import ru.ricardocraft.backend.dto.response.secure.GetSecureLevelInfoResponse;
 import ru.ricardocraft.backend.dto.response.secure.SecurityReportResponse;
+import ru.ricardocraft.backend.dto.response.secure.VerifySecureLevelKeyResponse;
+import ru.ricardocraft.backend.dto.request.secure.SecurityReportRequest;
 import ru.ricardocraft.backend.socket.Client;
 
 import java.security.Signature;
@@ -25,15 +25,15 @@ public interface SecureProtectHandler {
         sign.verify(signature);
     }
 
-    GetSecureLevelInfoRequestEvent onGetSecureLevelInfo(GetSecureLevelInfoRequestEvent event);
+    GetSecureLevelInfoResponse onGetSecureLevelInfo(GetSecureLevelInfoResponse event);
 
     boolean allowGetSecureLevelInfo(Client client);
 
-    default SecurityReportRequestEvent onSecurityReport(SecurityReportResponse report, Client client) {
-        return new SecurityReportRequestEvent();
+    default SecurityReportResponse onSecurityReport(SecurityReportRequest report, Client client) {
+        return new SecurityReportResponse();
     }
 
-    default VerifySecureLevelKeyRequestEvent onSuccessVerify(Client client) {
-        return new VerifySecureLevelKeyRequestEvent();
+    default VerifySecureLevelKeyResponse onSuccessVerify(Client client) {
+        return new VerifySecureLevelKeyResponse();
     }
 }

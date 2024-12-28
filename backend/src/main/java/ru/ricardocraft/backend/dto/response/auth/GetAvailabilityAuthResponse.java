@@ -1,7 +1,63 @@
 package ru.ricardocraft.backend.dto.response.auth;
 
-import ru.ricardocraft.backend.dto.response.SimpleResponse;
+import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
+import ru.ricardocraft.backend.base.request.TypeSerializeInterface;
+import ru.ricardocraft.backend.dto.AbstractResponse;
 
-public class GetAvailabilityAuthResponse extends SimpleResponse {
+import java.util.List;
+import java.util.Set;
 
+public class GetAvailabilityAuthResponse extends AbstractResponse {
+    @LauncherNetworkAPI
+    public final List<AuthAvailability> list;
+    @LauncherNetworkAPI
+    public final long features;
+
+    public GetAvailabilityAuthResponse(List<AuthAvailability> list) {
+        this.list = list;
+        this.features = ServerFeature.FEATURE_SUPPORT.val;
+    }
+
+    public GetAvailabilityAuthResponse(List<AuthAvailability> list, long features) {
+        this.list = list;
+        this.features = features;
+    }
+
+    @Override
+    public String getType() {
+        return "getAvailabilityAuth";
+    }
+
+    public enum ServerFeature {
+        FEATURE_SUPPORT(1);
+        public final int val;
+
+        ServerFeature(int val) {
+            this.val = val;
+        }
+    }
+
+    public interface AuthAvailabilityDetails extends TypeSerializeInterface {
+    }
+
+    public static class AuthAvailability {
+        public final List<AuthAvailabilityDetails> details;
+        @LauncherNetworkAPI
+        public String name;
+        @LauncherNetworkAPI
+        public String displayName;
+
+        @LauncherNetworkAPI
+        public boolean visible;
+        @LauncherNetworkAPI
+        public Set<String> features;
+
+        public AuthAvailability(List<AuthAvailabilityDetails> details, String name, String displayName, boolean visible, Set<String> features) {
+            this.details = details;
+            this.name = name;
+            this.displayName = displayName;
+            this.visible = visible;
+            this.features = features;
+        }
+    }
 }

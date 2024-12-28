@@ -3,7 +3,7 @@ package ru.ricardocraft.backend.socket;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.core.interfaces.UserHardware;
 import ru.ricardocraft.backend.base.ClientPermissions;
-import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
+import ru.ricardocraft.backend.dto.request.auth.AuthRequest;
 import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.repository.User;
 
@@ -18,7 +18,7 @@ public class Client {
     ReadWriteLock lock = new ReentrantReadWriteLock();
     public String auth_id;
     public long timestamp;
-    public AuthResponse.ConnectTypes type;
+    public AuthRequest.ConnectTypes type;
     public ClientProfile profile;
     public boolean isAuth;
     public boolean checkSign;

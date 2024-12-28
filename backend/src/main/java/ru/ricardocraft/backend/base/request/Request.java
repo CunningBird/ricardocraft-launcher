@@ -6,10 +6,10 @@ import org.slf4j.LoggerFactory;
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.base.request.auth.RefreshTokenRequest;
 import ru.ricardocraft.backend.base.request.auth.RestoreRequest;
-import ru.ricardocraft.backend.dto.events.request.auth.AuthRequestEvent;
-import ru.ricardocraft.backend.dto.events.request.auth.CurrentUserRequestEvent;
-import ru.ricardocraft.backend.dto.events.request.auth.RefreshTokenRequestEvent;
-import ru.ricardocraft.backend.dto.events.request.auth.RestoreRequestEvent;
+import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
+import ru.ricardocraft.backend.dto.response.auth.CurrentUserResponse;
+import ru.ricardocraft.backend.dto.response.auth.RefreshTokenResponse;
+import ru.ricardocraft.backend.dto.response.auth.RestoreResponse;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,11 +24,11 @@ public abstract class Request<R extends TypeSerializeInterface> implements TypeS
     private static final Logger logger = LoggerFactory.getLogger(Request.class);
 
     private static final List<ExtendedTokenCallback> extendedTokenCallbacks = new ArrayList<>(4);
-    private static final List<BiConsumer<String, AuthRequestEvent.OAuthRequestEvent>> oauthChangeHandlers = new ArrayList<>(4);
+    private static final List<BiConsumer<String, AuthResponse.OAuthRequestEvent>> oauthChangeHandlers = new ArrayList<>(4);
 
     @Getter
     private static volatile RequestService requestService;
-    private static volatile AuthRequestEvent.OAuthRequestEvent oauth;
+    private static volatile AuthResponse.OAuthRequestEvent oauth;
     private static volatile Map<String, ExtendedToken> extendedTokens;
     private static volatile String authId;
     private static volatile long tokenExpiredTime;
@@ -63,7 +63,7 @@ public abstract class Request<R extends TypeSerializeInterface> implements TypeS
         return requestService != null;
     }
 
-    public static void setOAuth(String authId, AuthRequestEvent.OAuthRequestEvent event) {
+    public static void setOAuth(String authId, AuthResponse.OAuthRequestEvent event) {
         oauth = event;
         Request.authId = authId;
         if (oauth != null && oauth.expire != 0) {
@@ -71,7 +71,7 @@ public abstract class Request<R extends TypeSerializeInterface> implements TypeS
         } else {
             tokenExpiredTime = 0;
         }
-        for (BiConsumer<String, AuthRequestEvent.OAuthRequestEvent> handler : oauthChangeHandlers) {
+        for (BiConsumer<String, AuthResponse.OAuthRequestEvent> handler : oauthChangeHandlers) {
             handler.accept(authId, event);
         }
     }
@@ -138,7 +138,7 @@ public abstract class Request<R extends TypeSerializeInterface> implements TypeS
                     oauth = null;
                 } else {
                     RefreshTokenRequest refreshRequest = new RefreshTokenRequest(authId, oauth.refreshToken);
-                    RefreshTokenRequestEvent event = refreshRequest.request();
+                    RefreshTokenResponse event = refreshRequest.request();
                     setOAuth(authId, event.oauth);
                     refreshed = true;
                 }
@@ -152,7 +152,7 @@ public abstract class Request<R extends TypeSerializeInterface> implements TypeS
         if(refreshOnly && (request.extended == null || request.extended.isEmpty())) {
             return new RequestRestoreReport(refreshed, null, null);
         }
-        RestoreRequestEvent event = request.request();
+        RestoreResponse event = request.request();
         List<String> invalidTokens = null;
         if (event.invalidTokens != null && !event.invalidTokens.isEmpty()) {
             Map<String, String> tokens = makeNewTokens(event.invalidTokens);
@@ -208,9 +208,9 @@ public abstract class Request<R extends TypeSerializeInterface> implements TypeS
     public static class RequestRestoreReport {
         public final boolean refreshed;
         public final List<String> invalidExtendedTokens;
-        public final CurrentUserRequestEvent.UserInfo userInfo;
+        public final CurrentUserResponse.UserInfo userInfo;
 
-        public RequestRestoreReport(boolean refreshed, List<String> invalidExtendedTokens, CurrentUserRequestEvent.UserInfo userInfo) {
+        public RequestRestoreReport(boolean refreshed, List<String> invalidExtendedTokens, CurrentUserResponse.UserInfo userInfo) {
             this.refreshed = refreshed;
             this.invalidExtendedTokens = invalidExtendedTokens;
             this.userInfo = userInfo;

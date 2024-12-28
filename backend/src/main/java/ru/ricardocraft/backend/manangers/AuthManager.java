@@ -21,14 +21,14 @@ import ru.ricardocraft.backend.auth.texture.TextureProvider;
 import ru.ricardocraft.backend.base.ClientPermissions;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
-import ru.ricardocraft.backend.dto.events.request.auth.AuthRequestEvent;
 import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
+import ru.ricardocraft.backend.dto.request.auth.AuthRequest;
 import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.profiles.PlayerProfile;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.repository.User;
-import ru.ricardocraft.backend.service.auth.AuthResponseService;
-import ru.ricardocraft.backend.service.auth.RestoreResponseService;
+import ru.ricardocraft.backend.service.auth.AuthService;
+import ru.ricardocraft.backend.service.auth.RestoreService;
 import ru.ricardocraft.backend.socket.Client;
 
 import javax.crypto.Cipher;
@@ -85,11 +85,11 @@ public class AuthManager {
      *
      * @return AuthContext instance
      */
-    public AuthResponseService.AuthContext makeAuthContext(Client client, AuthResponse.ConnectTypes authType, AuthProviderPair pair, String login, String profileName, String ip) {
+    public AuthService.AuthContext makeAuthContext(Client client, AuthRequest.ConnectTypes authType, AuthProviderPair pair, String login, String profileName, String ip) {
         Objects.requireNonNull(client, "Client must be not null");
         Objects.requireNonNull(authType, "authType must be not null");
         Objects.requireNonNull(pair, "AuthProviderPair must be not null");
-        return new AuthResponseService.AuthContext(client, login, profileName, ip, authType, pair);
+        return new AuthService.AuthContext(client, login, profileName, ip, authType, pair);
     }
 
     /**
@@ -98,8 +98,8 @@ public class AuthManager {
      * @param context Auth context
      * @throws AuthException auth not possible
      */
-    public void check(AuthResponseService.AuthContext context) throws AuthException {
-        if (context.authType == AuthResponse.ConnectTypes.CLIENT && !context.client.checkSign) {
+    public void check(AuthService.AuthContext context) throws AuthException {
+        if (context.authType == AuthRequest.ConnectTypes.CLIENT && !context.client.checkSign) {
             throw new AuthException("Don't skip Launcher Update");
         }
         if (context.client.isAuth) {
@@ -114,7 +114,7 @@ public class AuthManager {
      * @param password User password
      * @return Access token
      */
-    public AuthReport auth(AuthResponseService.AuthContext context, AuthPassword password) throws AuthException {
+    public AuthReport auth(AuthService.AuthContext context, AuthPassword password) throws AuthException {
         AuthCoreProvider provider = context.pair.core;
         provider.verifyAuth(context);
         if (password instanceof AuthOAuthPassword password1) {
@@ -122,23 +122,23 @@ public class AuthManager {
             try {
                 session = provider.getUserSessionByOAuthAccessToken(password1.accessToken);
             } catch (AuthCoreProvider.OAuthAccessTokenExpired oAuthAccessTokenExpired) {
-                throw new AuthException(AuthRequestEvent.OAUTH_TOKEN_EXPIRE);
+                throw new AuthException(AuthResponse.OAUTH_TOKEN_EXPIRE);
             }
             if (session == null) {
-                throw new AuthException(AuthRequestEvent.OAUTH_TOKEN_INVALID);
+                throw new AuthException(AuthResponse.OAUTH_TOKEN_INVALID);
             }
             User user = session.getUser();
             context.client.coreObject = user;
             context.client.sessionObject = session;
             internalAuth(context.client, context.authType, context.pair, user.getUsername(), user.getUUID(), user.getPermissions(), true);
-            if (context.authType == AuthResponse.ConnectTypes.CLIENT && protectHandler.allowGetAccessToken(context)) {
+            if (context.authType == AuthRequest.ConnectTypes.CLIENT && protectHandler.allowGetAccessToken(context)) {
                 return AuthReport.ofMinecraftAccessToken(session.getMinecraftAccessToken(), session);
             }
             return AuthReport.ofMinecraftAccessToken(null, session);
         }
         String login = context.login;
         try {
-            AuthReport result = provider.authorize(login, context, password, context.authType == AuthResponse.ConnectTypes.CLIENT && protectHandler.allowGetAccessToken(context));
+            AuthReport result = provider.authorize(login, context, password, context.authType == AuthRequest.ConnectTypes.CLIENT && protectHandler.allowGetAccessToken(context));
             if (result == null || result.session == null || result.session.getUser() == null) {
                 logger.error("AuthCoreProvider {} method 'authorize' return null", context.pair.name);
                 throw new AuthException("Internal Auth Error");
@@ -159,7 +159,7 @@ public class AuthManager {
     /**
      * Writing authorization information to the Client object
      */
-    public void internalAuth(Client client, AuthResponse.ConnectTypes authType, AuthProviderPair pair, String username, UUID uuid, ClientPermissions permissions, boolean oauth) {
+    public void internalAuth(Client client, AuthRequest.ConnectTypes authType, AuthProviderPair pair, String username, UUID uuid, ClientPermissions permissions, boolean oauth) {
         if (!oauth) {
             throw new UnsupportedOperationException("Unsupported legacy session system");
         }
@@ -319,7 +319,7 @@ public class AuthManager {
     public record CheckServerTokenInfo(String serverName, String authId, boolean isPublic) {
     }
 
-    public static class CheckServerVerifier implements RestoreResponseService.ExtendedTokenProvider {
+    public static class CheckServerVerifier implements RestoreService.ExtendedTokenProvider {
         private final AuthProviders authProviders;
         private final AuthManager authManager;
 

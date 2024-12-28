@@ -5,17 +5,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.AuthProviders;
-import ru.ricardocraft.backend.dto.events.request.profile.BatchProfileByUsernameRequestEvent;
-import ru.ricardocraft.backend.dto.response.SimpleResponse;
-import ru.ricardocraft.backend.dto.response.profile.BatchProfileByUsername;
+import ru.ricardocraft.backend.dto.response.profile.BatchProfileByUsernameResponse;
+import ru.ricardocraft.backend.dto.request.AbstractRequest;
+import ru.ricardocraft.backend.dto.request.profile.BatchProfileByUsername;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.profiles.PlayerProfile;
-import ru.ricardocraft.backend.service.AbstractResponseService;
+import ru.ricardocraft.backend.service.AbstractService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 @Component
-public class BatchProfileByUsernameService extends AbstractResponseService {
+public class BatchProfileByUsernameService extends AbstractService {
 
     private final AuthProviders authProviders;
     private final AuthManager authManager;
@@ -30,10 +30,10 @@ public class BatchProfileByUsernameService extends AbstractResponseService {
     }
 
     @Override
-    public BatchProfileByUsernameRequestEvent execute(SimpleResponse rawResponse, WebSocketSession session, Client client) throws Exception {
+    public BatchProfileByUsernameResponse execute(AbstractRequest rawResponse, WebSocketSession session, Client client) throws Exception {
         BatchProfileByUsername response = (BatchProfileByUsername) rawResponse;
 
-        BatchProfileByUsernameRequestEvent result = new BatchProfileByUsernameRequestEvent();
+        BatchProfileByUsernameResponse result = new BatchProfileByUsernameResponse();
         if (response.list == null) {
             throw new Exception("Invalid request");
         }

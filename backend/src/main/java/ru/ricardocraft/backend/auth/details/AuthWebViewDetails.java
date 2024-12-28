@@ -1,8 +1,8 @@
 package ru.ricardocraft.backend.auth.details;
 
-import ru.ricardocraft.backend.dto.events.request.auth.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.backend.dto.response.auth.GetAvailabilityAuthResponse;
 
-public class AuthWebViewDetails implements GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails {
+public class AuthWebViewDetails implements GetAvailabilityAuthResponse.AuthAvailabilityDetails {
     public final String url;
     public final String redirectUrl;
     public final boolean canBrowser;

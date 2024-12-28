@@ -1,11 +1,11 @@
 package ru.ricardocraft.backend.base.request.auth;
 
 import ru.ricardocraft.backend.base.request.Request;
-import ru.ricardocraft.backend.dto.events.request.auth.RestoreRequestEvent;
+import ru.ricardocraft.backend.dto.response.auth.RestoreResponse;
 
 import java.util.Map;
 
-public class RestoreRequest extends Request<RestoreRequestEvent> {
+public class RestoreRequest extends Request<RestoreResponse> {
     public String authId;
     public String accessToken;
     public Map<String, String> extended;

@@ -10,12 +10,12 @@ import ru.ricardocraft.backend.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.backend.auth.password.AuthCodePassword;
 import ru.ricardocraft.backend.auth.password.AuthPassword;
 import ru.ricardocraft.backend.base.request.RequestException;
-import ru.ricardocraft.backend.dto.events.request.auth.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.backend.dto.response.auth.GetAvailabilityAuthResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.properties.config.MicrosoftAuthCoreProviderProperties;
-import ru.ricardocraft.backend.service.auth.AuthResponseService;
+import ru.ricardocraft.backend.service.auth.AuthService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.socket.HttpRequester;
 import ru.ricardocraft.backend.socket.error.BasicJsonHttpErrorHandler;
@@ -52,7 +52,7 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
     }
 
     @Override
-    public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client) {
+    public List<GetAvailabilityAuthResponse.AuthAvailabilityDetails> getDetails(Client client) {
         String uuid = UUID.randomUUID().toString();
         client.setStaticProperty("microsoftCode", uuid);
         return List.of(new AuthWebViewDetails(
@@ -69,7 +69,7 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
     }
 
     @Override
-    public AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthResponseService.AuthContext context) {
+    public AuthManager.AuthReport refreshAccessToken(String refreshToken, AuthService.AuthContext context) {
         try {
             var result = sendMicrosoftOAuthRefreshTokenRequest(refreshToken);
             if (result == null) {
@@ -84,7 +84,7 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
     }
 
     @Override
-    public AuthManager.AuthReport authorize(String login, AuthResponseService.AuthContext context, AuthPassword password, boolean minecraftAccess) throws IOException {
+    public AuthManager.AuthReport authorize(String login, AuthService.AuthContext context, AuthPassword password, boolean minecraftAccess) throws IOException {
         if (password == null) {
             throw AuthException.wrongPassword();
         }

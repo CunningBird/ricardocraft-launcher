@@ -9,10 +9,10 @@ import org.springframework.web.socket.SubProtocolCapable;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import ru.ricardocraft.backend.dto.events.RequestEvent;
-import ru.ricardocraft.backend.dto.response.SimpleResponse;
+import ru.ricardocraft.backend.dto.AbstractResponse;
+import ru.ricardocraft.backend.dto.request.AbstractRequest;
 import ru.ricardocraft.backend.manangers.JacksonManager;
-import ru.ricardocraft.backend.service.AbstractResponseService;
+import ru.ricardocraft.backend.service.AbstractService;
 import ru.ricardocraft.backend.socket.Client;
 
 import java.io.IOException;
@@ -28,11 +28,11 @@ import java.util.function.BiConsumer;
 public class ServerWebSocketHandler extends TextWebSocketHandler implements SubProtocolCapable {
 
     private final Map<WebSocketSession, Client> sessions = new ConcurrentHashMap<>();
-    private final Map<Class<? extends SimpleResponse>, AbstractResponseService> services = new HashMap<>();
+    private final Map<Class<? extends AbstractRequest>, AbstractService> services = new HashMap<>();
 
     private final JacksonManager jacksonManager;
 
-    public void registerService(Class<? extends SimpleResponse> responseClass, AbstractResponseService service) {
+    public void registerService(Class<? extends AbstractRequest> responseClass, AbstractService service) {
         services.put(responseClass, service);
     }
 
@@ -64,11 +64,11 @@ public class ServerWebSocketHandler extends TextWebSocketHandler implements SubP
 
         Client client = sessions.get(session);
 
-        SimpleResponse requestDeserialized = jacksonManager.getMapper().readValue(request, SimpleResponse.class);
-        RequestEvent requestEvent = services.get(requestDeserialized.getClass()).execute(requestDeserialized, session, client);
-        requestEvent.requestUUID = requestDeserialized.requestUUID;
+        AbstractRequest requestDeserialized = jacksonManager.getMapper().readValue(request, AbstractRequest.class);
+        AbstractResponse abstractResponse = services.get(requestDeserialized.getClass()).execute(requestDeserialized, session, client);
+        abstractResponse.requestUUID = requestDeserialized.requestUUID;
 
-        sendMessage(session, requestEvent, requestEvent.closeChannel);
+        sendMessage(session, abstractResponse, abstractResponse.closeChannel);
     }
 
     @Override

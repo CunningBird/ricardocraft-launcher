@@ -11,12 +11,12 @@ import ru.ricardocraft.backend.auth.core.interfaces.UserHardware;
 import ru.ricardocraft.backend.auth.core.interfaces.provider.AuthSupportHardware;
 import ru.ricardocraft.backend.auth.protect.interfaces.JoinServerProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.SecureProtectHandler;
-import ru.ricardocraft.backend.dto.events.request.secure.GetSecureLevelInfoRequestEvent;
-import ru.ricardocraft.backend.dto.events.request.secure.VerifySecureLevelKeyRequestEvent;
+import ru.ricardocraft.backend.dto.response.secure.GetSecureLevelInfoResponse;
+import ru.ricardocraft.backend.dto.response.secure.VerifySecureLevelKeyResponse;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.HttpServerProperties;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
-import ru.ricardocraft.backend.service.auth.RestoreResponseService;
+import ru.ricardocraft.backend.service.auth.RestoreService;
 import ru.ricardocraft.backend.socket.Client;
 
 import java.util.Base64;
@@ -43,7 +43,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     }
 
     @Override
-    public GetSecureLevelInfoRequestEvent onGetSecureLevelInfo(GetSecureLevelInfoRequestEvent event) {
+    public GetSecureLevelInfoResponse onGetSecureLevelInfo(GetSecureLevelInfoResponse event) {
         return event;
     }
 
@@ -53,24 +53,24 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
     }
 
     @Override
-    public VerifySecureLevelKeyRequestEvent onSuccessVerify(Client client) {
+    public VerifySecureLevelKeyResponse onSuccessVerify(Client client) {
         if (config.getAdvancedProtectHandler().getEnableHardwareFeature()) {
             var authSupportHardware = client.auth.isSupport(AuthSupportHardware.class);
             if (authSupportHardware != null) {
                 UserHardware hardware = authSupportHardware.getHardwareInfoByPublicKey(client.trustLevel.publicKey);
                 if (hardware == null) //HWID not found?
-                    return new VerifySecureLevelKeyRequestEvent(true, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(httpServerProperties.getSecurity().getHardwareTokenExpire()));
+                    return new VerifySecureLevelKeyResponse(true, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(httpServerProperties.getSecurity().getHardwareTokenExpire()));
                 if (hardware.isBanned()) {
                     throw new SecurityException("Your hardware banned");
                 }
                 client.trustLevel.hardwareInfo = hardware;
                 authSupportHardware.connectUserAndHardware(client.sessionObject, hardware);
-                return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(httpServerProperties.getSecurity().getPublicKeyTokenExpire()));
+                return new VerifySecureLevelKeyResponse(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(httpServerProperties.getSecurity().getPublicKeyTokenExpire()));
             } else {
                 logger.warn("AuthCoreProvider not supported hardware. HardwareInfo not checked!");
             }
         }
-        return new VerifySecureLevelKeyRequestEvent(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(httpServerProperties.getSecurity().getPublicKeyTokenExpire()));
+        return new VerifySecureLevelKeyResponse(false, false, createPublicKeyToken(client.username, client.trustLevel.publicKey), SECONDS.toMillis(httpServerProperties.getSecurity().getPublicKeyTokenExpire()));
     }
 
     @Override
@@ -98,7 +98,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 .compact();
     }
 
-    public static class HardwareInfoTokenVerifier implements RestoreResponseService.ExtendedTokenProvider {
+    public static class HardwareInfoTokenVerifier implements RestoreService.ExtendedTokenProvider {
 
         private transient final Logger logger = LogManager.getLogger(HardwareInfoTokenVerifier.class);
 
@@ -132,7 +132,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         }
     }
 
-    public static class PublicKeyTokenVerifier implements RestoreResponseService.ExtendedTokenProvider {
+    public static class PublicKeyTokenVerifier implements RestoreService.ExtendedTokenProvider {
 
         private transient final Logger logger = LogManager.getLogger(PublicKeyTokenVerifier.class);
 

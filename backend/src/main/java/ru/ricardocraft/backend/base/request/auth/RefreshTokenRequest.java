@@ -1,9 +1,9 @@
 package ru.ricardocraft.backend.base.request.auth;
 
 import ru.ricardocraft.backend.base.request.Request;
-import ru.ricardocraft.backend.dto.events.request.auth.RefreshTokenRequestEvent;
+import ru.ricardocraft.backend.dto.response.auth.RefreshTokenResponse;
 
-public class RefreshTokenRequest extends Request<RefreshTokenRequestEvent> {
+public class RefreshTokenRequest extends Request<RefreshTokenResponse> {
     public String authId;
     public String refreshToken;
 

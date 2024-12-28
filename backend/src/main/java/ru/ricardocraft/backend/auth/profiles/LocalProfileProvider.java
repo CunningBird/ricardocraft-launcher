@@ -9,8 +9,8 @@ import ru.ricardocraft.backend.auth.protect.ProtectHandler;
 import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.command.service.ClientsCommand;
-import ru.ricardocraft.backend.dto.events.RequestEvent;
-import ru.ricardocraft.backend.dto.events.request.auth.ProfilesRequestEvent;
+import ru.ricardocraft.backend.dto.AbstractResponse;
+import ru.ricardocraft.backend.dto.response.auth.ProfilesResponse;
 import ru.ricardocraft.backend.manangers.DirectoriesManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.profiles.ClientProfile;
@@ -138,8 +138,8 @@ public class LocalProfileProvider extends ProfileProvider {
                 if (client == null || !client.isAuth) {
                     return;
                 }
-                ProfilesRequestEvent event = new ProfilesRequestEvent(this.getProfiles(client));
-                event.requestUUID = RequestEvent.eventUUID;
+                ProfilesResponse event = new ProfilesResponse(this.getProfiles(client));
+                event.requestUUID = AbstractResponse.eventUUID;
                 try {
                     webSocketHandler.sendMessage(session, event, false);
                 } catch (IOException e) {

@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.auth.protect.interfaces.ProfilesProtectHandler;
-import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
+import ru.ricardocraft.backend.dto.request.auth.AuthRequest;
 import ru.ricardocraft.backend.profiles.ClientProfile;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
-import ru.ricardocraft.backend.service.auth.AuthResponseService;
+import ru.ricardocraft.backend.service.auth.AuthService;
 import ru.ricardocraft.backend.socket.Client;
 
 import java.util.List;
@@ -25,8 +25,8 @@ public class StdProtectHandler extends ProtectHandler implements ProfilesProtect
     }
 
     @Override
-    public boolean allowGetAccessToken(AuthResponseService.AuthContext context) {
-        return (context.authType == AuthResponse.ConnectTypes.CLIENT) && context.client.checkSign;
+    public boolean allowGetAccessToken(AuthService.AuthContext context) {
+        return (context.authType == AuthRequest.ConnectTypes.CLIENT) && context.client.checkSign;
     }
 
     @Override

@@ -5,17 +5,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 import ru.ricardocraft.backend.auth.AuthProviderPair;
 import ru.ricardocraft.backend.auth.AuthProviders;
-import ru.ricardocraft.backend.dto.events.request.profile.ProfileByUsernameRequestEvent;
-import ru.ricardocraft.backend.dto.response.SimpleResponse;
-import ru.ricardocraft.backend.dto.response.profile.ProfileByUsername;
+import ru.ricardocraft.backend.dto.response.profile.ProfileByUsernameResponse;
+import ru.ricardocraft.backend.dto.request.AbstractRequest;
+import ru.ricardocraft.backend.dto.request.profile.ProfileByUsername;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.profiles.PlayerProfile;
-import ru.ricardocraft.backend.service.AbstractResponseService;
+import ru.ricardocraft.backend.service.AbstractService;
 import ru.ricardocraft.backend.socket.Client;
 import ru.ricardocraft.backend.ServerWebSocketHandler;
 
 @Component
-public class ProfileByUsernameService extends AbstractResponseService {
+public class ProfileByUsernameService extends AbstractService {
 
     private final AuthProviders authProviders;
     private final AuthManager authManager;
@@ -30,7 +30,7 @@ public class ProfileByUsernameService extends AbstractResponseService {
     }
 
     @Override
-    public ProfileByUsernameRequestEvent execute(SimpleResponse rawResponse, WebSocketSession session, Client client) throws Exception {
+    public ProfileByUsernameResponse execute(AbstractRequest rawResponse, WebSocketSession session, Client client) throws Exception {
         ProfileByUsername response = (ProfileByUsername) rawResponse;
 
         AuthProviderPair pair = client.auth;
@@ -40,6 +40,6 @@ public class ProfileByUsernameService extends AbstractResponseService {
             throw new Exception("User not found");
         }
 
-        return new ProfileByUsernameRequestEvent(profile);
+        return new ProfileByUsernameResponse(profile);
     }
 }

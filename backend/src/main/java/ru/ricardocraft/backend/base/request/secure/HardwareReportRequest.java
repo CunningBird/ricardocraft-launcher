@@ -1,11 +1,11 @@
 package ru.ricardocraft.backend.base.request.secure;
 
 import ru.ricardocraft.backend.base.request.Request;
-import ru.ricardocraft.backend.dto.events.request.secure.HardwareReportRequestEvent;
+import ru.ricardocraft.backend.dto.response.secure.HardwareReportResponse;
 
 import java.util.Base64;
 
-public class HardwareReportRequest extends Request<HardwareReportRequestEvent> {
+public class HardwareReportRequest extends Request<HardwareReportResponse> {
     public HardwareInfo hardware;
 
     @Override

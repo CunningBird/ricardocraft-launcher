@@ -7,7 +7,7 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.ServerWebSocketHandler;
-import ru.ricardocraft.backend.dto.events.NotificationEvent;
+import ru.ricardocraft.backend.dto.NotificationResponse;
 
 @Slf4j
 @ShellComponent
@@ -21,11 +21,11 @@ public class NotifyCommand {
     public void notify(@ShellOption String head,
                        @ShellOption String message,
                        @ShellOption(defaultValue = ShellOption.NULL) String icon) throws Exception {
-        NotificationEvent event;
+        NotificationResponse event;
         if (icon == null) {
-            event = new NotificationEvent(head, message);
+            event = new NotificationResponse(head, message);
         } else {
-            event = new NotificationEvent(head, message, Enum.valueOf(NotificationEvent.NotificationType.class, icon));
+            event = new NotificationResponse(head, message, Enum.valueOf(NotificationResponse.NotificationType.class, icon));
         }
         handler.sendMessageToAll(event);
     }

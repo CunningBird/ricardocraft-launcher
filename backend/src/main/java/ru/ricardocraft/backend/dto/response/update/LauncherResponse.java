@@ -1,22 +1,56 @@
 package ru.ricardocraft.backend.dto.response.update;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import ru.ricardocraft.backend.base.Version;
-import ru.ricardocraft.backend.dto.response.SimpleResponse;
+import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
+import ru.ricardocraft.backend.dto.ExtendedTokenResponse;
+import ru.ricardocraft.backend.dto.AbstractResponse;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class LauncherResponse extends SimpleResponse {
-    public Version version;
-    public String hash;
-//    public byte[] digest; TODO return this shit
-    public int launcher_type;
+import java.util.UUID;
 
-    public String secureHash;
-    public String secureSalt;
 
-    @Override
-    public ThreadSafeStatus getThreadSafeStatus() {
-        return ThreadSafeStatus.READ_WRITE;
+public class LauncherResponse extends AbstractResponse implements ExtendedTokenResponse {
+    public static final String LAUNCHER_EXTENDED_TOKEN_NAME = "launcher";
+    @SuppressWarnings("unused")
+    private static final UUID uuid = UUID.fromString("d54cc12a-4f59-4f23-9b10-f527fdd2e38f");
+    @LauncherNetworkAPI
+    public String url;
+    @LauncherNetworkAPI
+    public byte[] digest;
+    @LauncherNetworkAPI
+    public byte[] binary;
+    @LauncherNetworkAPI
+    public boolean needUpdate;
+    public String launcherExtendedToken;
+    public long launcherExtendedTokenExpire;
+
+    public LauncherResponse(boolean needUpdate, String url) {
+        this.needUpdate = needUpdate;
+        this.url = url;
     }
 
+    public LauncherResponse(boolean needUpdate, String url, String launcherExtendedToken, long expire) {
+        this.url = url;
+        this.needUpdate = needUpdate;
+        this.launcherExtendedToken = launcherExtendedToken;
+        this.launcherExtendedTokenExpire = expire;
+    }
+
+    @Override
+    public String getType() {
+        return "launcher";
+    }
+
+    @Override
+    public String getExtendedTokenName() {
+        return "launcher";
+    }
+
+    @Override
+    public String getExtendedToken() {
+        return launcherExtendedToken;
+    }
+
+    @Override
+    public long getExtendedTokenExpire() {
+        return launcherExtendedTokenExpire;
+    }
 }

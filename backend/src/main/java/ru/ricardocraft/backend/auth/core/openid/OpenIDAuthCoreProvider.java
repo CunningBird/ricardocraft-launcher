@@ -15,14 +15,14 @@ import ru.ricardocraft.backend.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.backend.auth.password.AuthCodePassword;
 import ru.ricardocraft.backend.auth.password.AuthPassword;
 import ru.ricardocraft.backend.base.ClientPermissions;
-import ru.ricardocraft.backend.dto.events.request.auth.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.backend.dto.response.auth.GetAvailabilityAuthResponse;
 import ru.ricardocraft.backend.manangers.AuthManager;
 import ru.ricardocraft.backend.manangers.JacksonManager;
 import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.properties.config.OpenIDProperties;
 import ru.ricardocraft.backend.repository.*;
-import ru.ricardocraft.backend.service.auth.AuthResponseService;
+import ru.ricardocraft.backend.service.auth.AuthService;
 import ru.ricardocraft.backend.socket.Client;
 
 import java.io.IOException;
@@ -77,7 +77,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails(Client client) {
+    public List<GetAvailabilityAuthResponse.AuthAvailabilityDetails> getDetails(Client client) {
         return getDetails();
     }
 
@@ -97,7 +97,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public AuthManager.AuthReport refreshAccessToken(String oldRefreshToken, AuthResponseService.AuthContext context) throws JsonProcessingException {
+    public AuthManager.AuthReport refreshAccessToken(String oldRefreshToken, AuthService.AuthContext context) throws JsonProcessingException {
         var tokens = refreshAccessToken(oldRefreshToken);
         var accessToken = tokens.accessToken();
         var refreshToken = tokens.refreshToken();
@@ -116,7 +116,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public AuthManager.AuthReport authorize(String login, AuthResponseService.AuthContext context, AuthPassword password, boolean minecraftAccess) throws IOException {
+    public AuthManager.AuthReport authorize(String login, AuthService.AuthContext context, AuthPassword password, boolean minecraftAccess) throws IOException {
         if (password == null) {
             throw AuthException.wrongPassword();
         }
@@ -217,7 +217,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
         return new KeyLocator(Jwks.setParser().build().parse(response.body()));
     }
 
-    public List<GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails> getDetails() {
+    public List<GetAvailabilityAuthResponse.AuthAvailabilityDetails> getDetails() {
         var state = UUID.randomUUID().toString();
         var uri = QueryBuilder.get(openIdProperties.getAuthorizationEndpoint())
                 .addQuery("response_type", "code")

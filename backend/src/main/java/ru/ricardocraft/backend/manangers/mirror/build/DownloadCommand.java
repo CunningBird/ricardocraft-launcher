@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.manangers.mirror.build;
 
-import ru.ricardocraft.backend.base.Downloader;
+import ru.ricardocraft.backend.socket.Downloader;
 
 import java.net.URI;
 import java.nio.file.Path;
