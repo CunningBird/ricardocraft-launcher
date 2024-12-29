@@ -8,8 +8,8 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.UpdatesManager;
+import ru.ricardocraft.backend.service.DirectoriesService;
+import ru.ricardocraft.backend.service.UpdatesService;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -31,15 +31,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LaunchInstallerQuiltCommand {
 
-    private final DirectoriesManager directoriesManager;
-    private final UpdatesManager updatesManager;
+    private final DirectoriesService directoriesService;
+    private final UpdatesService updatesService;
     private final ObjectMapper objectMapper;
 
     @ShellMethod("[minecraft version] [vanilla dir] [fabric installer file] install quilt to client")
     public void launchInstallerQuilit(@ShellOption String version,
                                       @ShellOption String installerVanillaDir,
                                       @ShellOption String installerFabricFile) throws Exception {
-        Path vanillaDir = directoriesManager.getUpdatesDir().resolve(installerVanillaDir);
+        Path vanillaDir = directoriesService.getUpdatesDir().resolve(installerVanillaDir);
         if (!Files.exists(vanillaDir)) {
             throw new FileNotFoundException(vanillaDir.toString());
         }
@@ -79,7 +79,7 @@ public class LaunchInstallerQuiltCommand {
         }
         log.info("Clearing...");
         IOHelper.deleteDir(vanillaDir.resolve("versions"), true);
-        updatesManager.syncUpdatesDir(List.of(installerVanillaDir));
+        updatesService.syncUpdatesDir(List.of(installerVanillaDir));
         log.info("Quilt installed successful. Please use `makeprofile` command");
     }
 

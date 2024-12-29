@@ -4,7 +4,7 @@ import ru.ricardocraft.backend.dto.request.AbstractRequest;
 
 public class HardwareReportRequest extends AbstractRequest {
 
-    public ru.ricardocraft.backend.base.request.secure.HardwareReportRequest.HardwareInfo hardware;
+    public ru.ricardocraft.backend.dto.request.HardwareReportRequest.HardwareInfo hardware;
 
     @Override
     public ThreadSafeStatus getThreadSafeStatus() {

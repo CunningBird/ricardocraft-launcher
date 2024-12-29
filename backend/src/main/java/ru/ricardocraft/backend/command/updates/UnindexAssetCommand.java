@@ -9,8 +9,8 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.UpdatesManager;
+import ru.ricardocraft.backend.service.DirectoriesService;
+import ru.ricardocraft.backend.service.UpdatesService;
 
 import java.io.BufferedReader;
 import java.nio.file.Files;
@@ -25,8 +25,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public final class UnindexAssetCommand {
 
-    private final DirectoriesManager directoriesManager;
-    private final UpdatesManager updatesManager;
+    private final DirectoriesService directoriesService;
+    private final UpdatesService updatesService;
     private final ObjectMapper objectMapper;
 
     @ShellMethod( "[dir] [index] [output-dir] Unindex asset dir (1.7.10+)")
@@ -36,8 +36,8 @@ public final class UnindexAssetCommand {
         String inputAssetDirName = IOHelper.verifyFileName(indexInputAssetDirName);
         String indexFileName = IOHelper.verifyFileName(indexIndexFileName);
         String outputAssetDirName = IOHelper.verifyFileName(outputOutputAssetDirName);
-        Path inputAssetDir = directoriesManager.getUpdatesDir().resolve(inputAssetDirName);
-        Path outputAssetDir = directoriesManager.getUpdatesDir().resolve(outputAssetDirName);
+        Path inputAssetDir = directoriesService.getUpdatesDir().resolve(inputAssetDirName);
+        Path outputAssetDir = directoriesService.getUpdatesDir().resolve(outputAssetDirName);
         if (outputAssetDir.equals(inputAssetDir))
             throw new Exception("Indexed and unindexed asset dirs can't be same");
 
@@ -67,7 +67,7 @@ public final class UnindexAssetCommand {
         }
 
         // Finished
-        updatesManager.syncUpdatesDir(Collections.singleton(outputAssetDirName));
+        updatesService.syncUpdatesDir(Collections.singleton(outputAssetDirName));
         log.info("Asset successfully unindexed: '{}'", inputAssetDirName);
     }
 }

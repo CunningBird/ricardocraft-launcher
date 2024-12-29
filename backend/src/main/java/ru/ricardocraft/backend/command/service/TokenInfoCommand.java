@@ -7,7 +7,7 @@ import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.ricardocraft.backend.manangers.KeyAgreementManager;
+import ru.ricardocraft.backend.service.KeyAgreementService;
 
 @Slf4j
 @ShellComponent
@@ -15,11 +15,11 @@ import ru.ricardocraft.backend.manangers.KeyAgreementManager;
 @RequiredArgsConstructor
 public class TokenInfoCommand {
 
-    private final KeyAgreementManager keyAgreementManager;
+    private final KeyAgreementService keyAgreementService;
 
     @ShellMethod("[token] print token info")
     public void tokenInfo(@ShellOption String token) {
-        var parser = Jwts.parser().verifyWith(keyAgreementManager.ecdsaPublicKey).build();
+        var parser = Jwts.parser().verifyWith(keyAgreementService.ecdsaPublicKey).build();
         var claims = parser.parseSignedClaims(token);
         log.info("Token: {}", claims.getPayload());
     }

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import ru.ricardocraft.backend.ServerWebSocketHandler;
+import ru.ricardocraft.backend.controller.ServerWebSocketHandler;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 
 import java.util.Base64;

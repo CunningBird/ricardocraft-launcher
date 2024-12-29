@@ -6,9 +6,9 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.base.patcher.UnsafePatcher;
-import ru.ricardocraft.backend.base.patcher.impl.*;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
+import ru.ricardocraft.backend.service.patcher.UnsafePatcher;
+import ru.ricardocraft.backend.service.DirectoriesService;
+import ru.ricardocraft.backend.service.patcher.impl.*;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -24,10 +24,10 @@ public class PatcherCommand {
 
     private final Map<String, UnsafePatcher> patchers = new HashMap<>();
 
-    private final DirectoriesManager directoriesManager;
+    private final DirectoriesService directoriesService;
 
-    public PatcherCommand(DirectoriesManager directoriesManager) {
-        this.directoriesManager = directoriesManager;
+    public PatcherCommand(DirectoriesService directoriesService) {
+        this.directoriesService = directoriesService;
 
         patchers.put("findSystem", new FindSystemPatcher());
         patchers.put("findRemote", new FindRemotePatcher());
@@ -63,7 +63,7 @@ public class PatcherCommand {
         }
         if (!IOHelper.exists(target))
             throw new IllegalStateException("Target path not exist");
-        Path tempFile = directoriesManager.getBuildDir().resolve("patcher.tmp.jar");
+        Path tempFile = directoriesService.getBuildDir().resolve("patcher.tmp.jar");
         if (IOHelper.isFile(target)) {
             patcher.processFile(target, tempFile, testMode);
         } else if (IOHelper.isDir(target)) {

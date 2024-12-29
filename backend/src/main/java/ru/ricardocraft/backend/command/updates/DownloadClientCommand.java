@@ -8,17 +8,17 @@ import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
+import ru.ricardocraft.backend.service.profiles.ProfileProvider;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.MakeProfileHelper;
 import ru.ricardocraft.backend.dto.updates.ServerProfile;
 import ru.ricardocraft.backend.dto.updates.Version;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.MirrorManager;
-import ru.ricardocraft.backend.manangers.UpdatesManager;
-import ru.ricardocraft.backend.profiles.ClientProfile;
-import ru.ricardocraft.backend.profiles.ClientProfileBuilder;
-import ru.ricardocraft.backend.profiles.ClientProfileVersions;
+import ru.ricardocraft.backend.service.DirectoriesService;
+import ru.ricardocraft.backend.service.MirrorService;
+import ru.ricardocraft.backend.service.UpdatesService;
+import ru.ricardocraft.backend.service.profiles.ClientProfile;
+import ru.ricardocraft.backend.service.profiles.ClientProfileBuilder;
+import ru.ricardocraft.backend.service.profiles.ClientProfileVersions;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -30,9 +30,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public final class DownloadClientCommand {
 
-    private transient final DirectoriesManager directoriesManager;
-    private transient final MirrorManager mirrorManager;
-    private transient final UpdatesManager updatesManager;
+    private transient final DirectoriesService directoriesService;
+    private transient final MirrorService mirrorService;
+    private transient final UpdatesService updatesService;
     private transient final ProfileProvider profileProvider;
     private transient final ObjectMapper objectMapper;
 
@@ -42,7 +42,7 @@ public final class DownloadClientCommand {
                                @ShellOption(defaultValue = ShellOption.NULL) String downloadType) throws Exception {
         //Version version = Version.byName(versionName);
         String dirName = IOHelper.verifyFileName(dir != null ? dir : versionName);
-        Path clientDir = directoriesManager.getUpdatesDir().resolve(dirName);
+        Path clientDir = directoriesService.getUpdatesDir().resolve(dirName);
 
         boolean isMirrorClientDownload = false;
         if (downloadType != null) {
@@ -52,14 +52,14 @@ public final class DownloadClientCommand {
         // Download required client
         log.info("Downloading client, it may take some time");
         //HttpDownloader.downloadZip(server.mirrorManager.getDefaultMirror().getClientsURL(version.name), clientDir);
-        mirrorManager.downloadZip(clientDir, "clients/%s.zip", versionName);
+        mirrorService.downloadZip(clientDir, "clients/%s.zip", versionName);
 
         // Create profile file
         log.info("Creaing profile file: '{}'", dirName);
         ClientProfile clientProfile = null;
         if (isMirrorClientDownload) {
             try {
-                JsonNode clientJson = mirrorManager.jsonRequest(null, "GET", "clients/%s.json", versionName);
+                JsonNode clientJson = mirrorService.jsonRequest(null, "GET", "clients/%s.json", versionName);
                 clientProfile = objectMapper.readValue(clientJson.asText(), ClientProfile.class);
                 var builder = new ClientProfileBuilder(clientProfile);
                 builder.setTitle(dirName);
@@ -100,7 +100,7 @@ public final class DownloadClientCommand {
 
         // Finished
         profileProvider.syncProfilesDir();
-        updatesManager.syncUpdatesDir(Collections.singleton(dirName));
+        updatesService.syncUpdatesDir(Collections.singleton(dirName));
         log.info("Client successfully downloaded: '{}'", dirName);
     }
 }

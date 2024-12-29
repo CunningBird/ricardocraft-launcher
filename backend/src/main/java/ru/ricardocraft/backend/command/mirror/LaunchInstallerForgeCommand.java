@@ -9,7 +9,7 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
+import ru.ricardocraft.backend.service.DirectoriesService;
 
 import java.io.*;
 import java.net.URI;
@@ -28,13 +28,13 @@ import java.util.zip.ZipInputStream;
 @RequiredArgsConstructor
 public class LaunchInstallerForgeCommand {
 
-    private final DirectoriesManager directoriesManager;
+    private final DirectoriesService directoriesService;
     private final ObjectMapper objectMapper;
 
     @ShellMethod("[vanilla dir] [forge installer file] install forge to client")
     public void launchInstallerForge(@ShellOption String vanillaDir,
                                      @ShellOption String forgeInstallerFile) throws Exception {
-        Path dir = directoriesManager.getUpdatesDir().resolve(vanillaDir);
+        Path dir = directoriesService.getUpdatesDir().resolve(vanillaDir);
         if (!Files.exists(dir)) {
             throw new FileNotFoundException(dir.toString());
         }

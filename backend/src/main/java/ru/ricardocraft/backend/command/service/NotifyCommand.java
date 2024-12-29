@@ -6,7 +6,7 @@ import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.ricardocraft.backend.ServerWebSocketHandler;
+import ru.ricardocraft.backend.controller.ServerWebSocketHandler;
 import ru.ricardocraft.backend.dto.NotificationResponse;
 
 @Slf4j

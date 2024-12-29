@@ -2,7 +2,7 @@ package ru.ricardocraft.backend.dto.response.auth;
 
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.dto.AbstractResponse;
-import ru.ricardocraft.backend.profiles.ClientProfile;
+import ru.ricardocraft.backend.service.profiles.ClientProfile;
 
 import java.util.UUID;
 

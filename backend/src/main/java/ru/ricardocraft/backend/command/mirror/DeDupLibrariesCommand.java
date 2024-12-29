@@ -7,7 +7,7 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
+import ru.ricardocraft.backend.service.DirectoriesService;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DeDupLibrariesCommand {
 
-    private final DirectoriesManager directoriesManager;
+    private final DirectoriesService directoriesService;
 
     @ShellMethod("[clientDir] (ignore lwjgl) remove libraries duplication (excludes lwjgl)")
     public void deDupLibraries(@ShellOption String clientDir,
                                @ShellOption(defaultValue = "true") Boolean isIgnoreLwjgl) throws Exception {
-        Path dir = directoriesManager.getUpdatesDir().resolve(clientDir).resolve("libraries");
+        Path dir = directoriesService.getUpdatesDir().resolve(clientDir).resolve("libraries");
         if (!Files.isDirectory(dir)) {
             throw new FileNotFoundException(dir.toString());
         }

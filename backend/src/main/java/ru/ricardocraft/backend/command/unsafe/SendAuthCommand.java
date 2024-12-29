@@ -6,16 +6,16 @@ import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.ricardocraft.backend.ServerWebSocketHandler;
-import ru.ricardocraft.backend.auth.AuthProviderPair;
-import ru.ricardocraft.backend.auth.AuthProviders;
-import ru.ricardocraft.backend.auth.core.UserSession;
-import ru.ricardocraft.backend.base.ClientPermissions;
+import ru.ricardocraft.backend.controller.ServerWebSocketHandler;
+import ru.ricardocraft.backend.service.auth.AuthProviderPair;
+import ru.ricardocraft.backend.service.auth.AuthProviders;
+import ru.ricardocraft.backend.service.auth.core.UserSession;
+import ru.ricardocraft.backend.dto.response.auth.ClientPermissions;
 import ru.ricardocraft.backend.dto.AbstractResponse;
 import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
 import ru.ricardocraft.backend.dto.request.auth.AuthRequest;
-import ru.ricardocraft.backend.manangers.AuthManager;
-import ru.ricardocraft.backend.profiles.PlayerProfile;
+import ru.ricardocraft.backend.service.AuthService;
+import ru.ricardocraft.backend.service.profiles.PlayerProfile;
 import ru.ricardocraft.backend.repository.User;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ import java.util.UUID;
 public class SendAuthCommand {
 
     private final ServerWebSocketHandler serverWebSocketHandler;
-    private final AuthManager authManager;
+    private final AuthService authService;
     private final AuthProviders authProviders;
 
     @ShellMethod("[connectUUID] [username] [auth_id] [client type] (permissions) manual send auth request")
@@ -52,7 +52,7 @@ public class SendAuthCommand {
         String minecraftAccessToken;
         AuthResponse.OAuthRequestEvent oauth;
         if (user != null) {
-            AuthManager.AuthReport report = pair.core.authorize(user, null, null, true);
+            AuthService.AuthReport report = pair.core.authorize(user, null, null, true);
             if (report == null) throw new UnsupportedOperationException("AuthCoreProvider not supported sendAuth");
             minecraftAccessToken = report.minecraftAccessToken();
 
@@ -73,8 +73,8 @@ public class SendAuthCommand {
 
             client.coreObject = user;
             client.sessionObject = userSession;
-            authManager.internalAuth(client, type, pair, username, uuid, permissions, oauth != null);
-            PlayerProfile playerProfile = authManager.getPlayerProfile(client);
+            authService.internalAuth(client, type, pair, username, uuid, permissions, oauth != null);
+            PlayerProfile playerProfile = authService.getPlayerProfile(client);
             AuthResponse request = new AuthResponse(permissions, playerProfile, minecraftAccessToken, null, null, oauth);
             request.requestUUID = AbstractResponse.eventUUID;
 

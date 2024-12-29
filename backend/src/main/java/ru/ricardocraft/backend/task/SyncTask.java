@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
-import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
-import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
+import ru.ricardocraft.backend.service.profiles.ProfileProvider;
+import ru.ricardocraft.backend.service.auth.updates.UpdatesProvider;
 
 import java.io.IOException;
 

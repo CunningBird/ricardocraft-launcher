@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.repository;
 
 import lombok.extern.slf4j.Slf4j;
-import ru.ricardocraft.backend.base.ClientPermissions;
+import ru.ricardocraft.backend.dto.response.auth.ClientPermissions;
 
 import java.sql.SQLException;
 import java.util.UUID;

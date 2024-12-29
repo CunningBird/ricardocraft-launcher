@@ -6,15 +6,15 @@ import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
-import ru.ricardocraft.backend.auth.updates.UpdatesProvider;
+import ru.ricardocraft.backend.service.profiles.ProfileProvider;
+import ru.ricardocraft.backend.service.auth.updates.UpdatesProvider;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.MakeProfileHelper;
 import ru.ricardocraft.backend.dto.updates.Version;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.UpdatesManager;
-import ru.ricardocraft.backend.profiles.ClientProfile;
-import ru.ricardocraft.backend.profiles.ClientProfileBuilder;
+import ru.ricardocraft.backend.service.DirectoriesService;
+import ru.ricardocraft.backend.service.UpdatesService;
+import ru.ricardocraft.backend.service.profiles.ClientProfile;
+import ru.ricardocraft.backend.service.profiles.ClientProfileBuilder;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,9 +29,9 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class ProfilesCommand {
 
-    private final DirectoriesManager directoriesManager;
+    private final DirectoriesService directoriesService;
     private final ProfileProvider profileProvider;
-    private final UpdatesManager updatesManager;
+    private final UpdatesService updatesService;
     private final UpdatesProvider updatesProvider;
 
     @ShellMethod("[profile title/uuid] [new profile title] clone profile and profile dir")
@@ -50,8 +50,8 @@ public class ProfilesCommand {
             profile.getServers().getFirst().name = profileTitle;
         }
         log.info("Copy {} to {}", profile.getDir(), profileTitle);
-        var src = directoriesManager.getUpdatesDir().resolve(profile.getDir());
-        var dest = directoriesManager.getUpdatesDir().resolve(profileTitle);
+        var src = directoriesService.getUpdatesDir().resolve(profile.getDir());
+        var dest = directoriesService.getUpdatesDir().resolve(profileTitle);
         try (Stream<Path> stream = Files.walk(src)) {
             stream.forEach(source -> {
                 try {
@@ -66,7 +66,7 @@ public class ProfilesCommand {
         profileProvider.addProfile(profile);
         log.info("Profile {} cloned from {}", profileTitle, profileUuid);
         profileProvider.syncProfilesDir();
-        updatesManager.syncUpdatesDir(List.of(profileTitle));
+        updatesService.syncUpdatesDir(List.of(profileTitle));
     }
 
     @ShellMethod("[uuid/title] permanently delete profile")
@@ -102,7 +102,7 @@ public class ProfilesCommand {
                             @ShellOption String minecraftVersion,
                             @ShellOption String dir) throws Exception {
         Version version = parseClientVersion(minecraftVersion);
-        MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(directoriesManager.getUpdatesDir().resolve(dir), version);
+        MakeProfileHelper.MakeProfileOption[] options = MakeProfileHelper.getMakeProfileOptionsFromDir(directoriesService.getUpdatesDir().resolve(dir), version);
         for (MakeProfileHelper.MakeProfileOption option : options) {
             log.info("Detected option {}", option);
         }

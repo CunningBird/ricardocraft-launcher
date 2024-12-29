@@ -11,8 +11,8 @@ import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper.DigestAlgorithm;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.UpdatesManager;
+import ru.ricardocraft.backend.service.DirectoriesService;
+import ru.ricardocraft.backend.service.UpdatesService;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -34,8 +34,8 @@ public final class IndexAssetCommand {
     private static final String OBJECTS_DIR = "objects";
     private static final String JSON_EXTENSION = ".json";
 
-    private transient final DirectoriesManager directoriesManager;
-    private transient final UpdatesManager updatesManager;
+    private transient final DirectoriesService directoriesService;
+    private transient final UpdatesService updatesService;
     private transient final ObjectMapper objectMapper;
 
     public static Path resolveIndexFile(Path assetDir, String name) {
@@ -53,8 +53,8 @@ public final class IndexAssetCommand {
         String inputAssetDirName = IOHelper.verifyFileName(indexInputAssetDirName);
         String indexFileName = IOHelper.verifyFileName(indexIndexFileName);
         String outputAssetDirName = IOHelper.verifyFileName(outputOutputAssetDirName);
-        Path inputAssetDir = directoriesManager.getUpdatesDir().resolve(inputAssetDirName);
-        Path outputAssetDir = directoriesManager.getUpdatesDir().resolve(outputAssetDirName);
+        Path inputAssetDir = directoriesService.getUpdatesDir().resolve(inputAssetDirName);
+        Path outputAssetDir = directoriesService.getUpdatesDir().resolve(outputAssetDirName);
         if (outputAssetDir.equals(inputAssetDir))
             throw new Exception("Unindexed and indexed asset dirs can't be same");
 
@@ -75,7 +75,7 @@ public final class IndexAssetCommand {
         }
 
         // Finished
-        updatesManager.syncUpdatesDir(Collections.singleton(outputAssetDirName));
+        updatesService.syncUpdatesDir(Collections.singleton(outputAssetDirName));
         log.info("Asset successfully indexed: '{}'", inputAssetDirName);
     }
 

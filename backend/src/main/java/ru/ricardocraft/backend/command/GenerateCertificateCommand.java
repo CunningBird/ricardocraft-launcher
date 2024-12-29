@@ -26,8 +26,8 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
-import ru.ricardocraft.backend.manangers.CertificateManager;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
+import ru.ricardocraft.backend.service.CertificateService;
+import ru.ricardocraft.backend.service.DirectoriesService;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.IOException;
@@ -47,13 +47,13 @@ import java.util.Date;
 public class GenerateCertificateCommand {
 
     private final LaunchServerProperties config;
-    private final DirectoriesManager directoriesManager;
-    private final CertificateManager certificateManager;
+    private final DirectoriesService directoriesService;
+    private final CertificateService certificateService;
 
     @ShellMethod("[] Generate self-signed certificate")
     public void generateCertificate() throws Exception {
         String projectName = config.getProjectName();
-        Path targetDir = directoriesManager.getKeyDirectoryDir().resolve("certs");
+        Path targetDir = directoriesService.getKeyDirectoryDir().resolve("certs");
         Path rootCACrtPath = targetDir.resolve(projectName.concat("RootCA.crt"));
         Path rootCAKeyPath = targetDir.resolve(projectName.concat("RootCA.key"));
         Path codeSignCrtPath = targetDir.resolve(projectName.concat("CodeSign.crt"));
@@ -67,11 +67,11 @@ public class GenerateCertificateCommand {
         log.info("Generate ending certificate");
         GeneratedCertificate endCert = generateEndCertificate(projectName, rootCA.certificate().getSubject(), rootCA.pair.getPrivate(), startDate);
         log.info("Save certificates to disk");
-        certificateManager.writeCertificate(rootCACrtPath, rootCA.certificate());
-        certificateManager.writePrivateKey(rootCAKeyPath, rootCA.pair().getPrivate());
+        certificateService.writeCertificate(rootCACrtPath, rootCA.certificate());
+        certificateService.writePrivateKey(rootCAKeyPath, rootCA.pair().getPrivate());
 
-        certificateManager.writeCertificate(codeSignCrtPath, rootCA.certificate());
-        certificateManager.writePrivateKey(codeSignKeyPath, rootCA.pair().getPrivate());
+        certificateService.writeCertificate(codeSignCrtPath, rootCA.certificate());
+        certificateService.writePrivateKey(codeSignKeyPath, rootCA.pair().getPrivate());
 
         log.info("Prepare PKCS#12 keystore");
         String passwd = SecurityHelper.randomStringToken();
@@ -85,10 +85,10 @@ public class GenerateCertificateCommand {
         if (!config.getSign().getEnabled()) {
             log.info("Write config");
             log.info("Add your RootCA to truststore");
-            Path pathToRootCA = directoriesManager.getTrustStoreDir().resolve(projectName.concat("RootCA.crt"));
+            Path pathToRootCA = directoriesService.getTrustStoreDir().resolve(projectName.concat("RootCA.crt"));
             Files.deleteIfExists(pathToRootCA);
             Files.copy(rootCACrtPath, pathToRootCA);
-            certificateManager.readTrustStore(targetDir.resolve("truststore"));
+            certificateService.readTrustStore(targetDir.resolve("truststore"));
         } else {
             Path pathToRootCA = targetDir.resolve("truststore").resolve(projectName.concat("RootCA.crt"));
             Files.deleteIfExists(pathToRootCA);

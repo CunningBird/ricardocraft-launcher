@@ -6,7 +6,7 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
+import ru.ricardocraft.backend.service.DirectoriesService;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
@@ -17,11 +17,11 @@ import java.nio.file.Path;
 @RequiredArgsConstructor
 public class WorkspaceClearClientCacheCommand {
 
-    private final DirectoriesManager directoriesManager;
+    private final DirectoriesService directoriesService;
 
     @ShellMethod("[vanilla/forge/fabric/neoforge] remove client cache with specific loader and version")
     public void workspaceClearClientCache(@ShellOption String engine) throws Exception {
-        Path target = directoriesManager.getMirrorHelperWorkspaceDir().resolve("clients").resolve(engine);
+        Path target = directoriesService.getMirrorHelperWorkspaceDir().resolve("clients").resolve(engine);
         if (!Files.isDirectory(target)) {
             throw new FileNotFoundException(target.toString());
         }

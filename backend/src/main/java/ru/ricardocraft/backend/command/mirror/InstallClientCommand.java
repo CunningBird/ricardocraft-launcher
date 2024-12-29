@@ -7,7 +7,7 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.dto.updates.Version;
 import ru.ricardocraft.backend.dto.updates.VersionType;
-import ru.ricardocraft.backend.manangers.mirror.InstallClient;
+import ru.ricardocraft.backend.service.mirror.InstallClient;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.properties.config.MirrorWorkspaceProperties;
 

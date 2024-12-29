@@ -6,8 +6,8 @@ import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
-import ru.ricardocraft.backend.manangers.UpdatesManager;
+import ru.ricardocraft.backend.service.profiles.ProfileProvider;
+import ru.ricardocraft.backend.service.UpdatesService;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -21,7 +21,7 @@ import java.util.Set;
 public class SyncCommand {
 
     private final ProfileProvider profileProvider;
-    private final UpdatesManager updatesManager;
+    private final UpdatesService updatesService;
 
     @ShellMethod("Resync profiles dir")
     public void syncProfiles() throws IOException {
@@ -31,7 +31,7 @@ public class SyncCommand {
 
     @ShellMethod("sync updates cache")
     public void syncUpdatesCache() throws Exception {
-        updatesManager.readUpdatesFromCache();
+        updatesService.readUpdatesFromCache();
     }
 
     @ShellMethod("Resync profiles & updates dirs")
@@ -39,7 +39,7 @@ public class SyncCommand {
         profileProvider.syncProfilesDir();
         log.info("Profiles successfully resynced");
 
-        updatesManager.syncUpdatesDir(null);
+        updatesService.syncUpdatesDir(null);
         log.info("Updates dir successfully resynced");
     }
 
@@ -52,7 +52,7 @@ public class SyncCommand {
         }
 
         // Hash updates dir
-        updatesManager.syncUpdatesDir(dirs);
+        updatesService.syncUpdatesDir(dirs);
         log.info("Updates dir successfully resynced");
     }
 }

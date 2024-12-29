@@ -3,7 +3,7 @@ package ru.ricardocraft.backend.command;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import ru.ricardocraft.backend.base.Version;
+import ru.ricardocraft.backend.dto.Version;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
 
 import java.lang.management.RuntimeMXBean;

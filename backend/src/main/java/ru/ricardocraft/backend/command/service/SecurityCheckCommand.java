@@ -5,16 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import ru.ricardocraft.backend.auth.AuthProviders;
-import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
-import ru.ricardocraft.backend.auth.protect.AdvancedProtectHandler;
-import ru.ricardocraft.backend.auth.protect.NoProtectHandler;
-import ru.ricardocraft.backend.auth.protect.ProtectHandler;
-import ru.ricardocraft.backend.auth.protect.StdProtectHandler;
+import ru.ricardocraft.backend.service.auth.AuthProviders;
+import ru.ricardocraft.backend.service.profiles.ProfileProvider;
+import ru.ricardocraft.backend.service.auth.protect.AdvancedProtectHandler;
+import ru.ricardocraft.backend.service.auth.protect.NoProtectHandler;
+import ru.ricardocraft.backend.service.auth.protect.ProtectHandler;
+import ru.ricardocraft.backend.service.auth.protect.StdProtectHandler;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.profiles.ClientProfile;
+import ru.ricardocraft.backend.service.DirectoriesService;
+import ru.ricardocraft.backend.service.profiles.ClientProfile;
 import ru.ricardocraft.backend.properties.HttpServerProperties;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
@@ -33,7 +33,7 @@ import java.util.StringTokenizer;
 public class SecurityCheckCommand {
 
     private final LaunchServerProperties config;
-    private final DirectoriesManager directoriesManager;
+    private final DirectoriesService directoriesService;
     private final HttpServerProperties httpServerProperties;
     private final AuthProviders authProviders;
     private final ProtectHandler protectHandler;
@@ -152,7 +152,7 @@ public class SecurityCheckCommand {
                         }
                     }
                 }
-                if (checkOtherReadOrWriteAccess(this.directoriesManager.getKeyDirectoryDir())) {
+                if (checkOtherReadOrWriteAccess(this.directoriesService.getKeyDirectoryDir())) {
                     log.warn("Write or read access to .keys directory. Please use 'chmod -R 600 .keys'");
                 }
             } catch (IOException e) {

@@ -7,8 +7,8 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.dto.updates.Version;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.mirror.InstallClient;
+import ru.ricardocraft.backend.service.DirectoriesService;
+import ru.ricardocraft.backend.service.mirror.InstallClient;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
@@ -22,14 +22,14 @@ import java.util.List;
 public class InstallModCommand {
 
     private final InstallClient installClient;
-    private final DirectoriesManager directoriesManager;
+    private final DirectoriesService directoriesService;
 
     @ShellMethod("[dir] [version] [forge/fabric] [mod1,mod2,mod3]")
     public void installMods(@ShellOption String modDir,
                             @ShellOption String modVersion,
                             @ShellOption String loaderName,
                             @ShellOption String[] modsList) throws Exception {
-        Path dir = directoriesManager.getUpdatesDir().resolve(modDir);
+        Path dir = directoriesService.getUpdatesDir().resolve(modDir);
         if (Files.notExists(dir)) {
             throw new FileNotFoundException(dir.toString());
         }

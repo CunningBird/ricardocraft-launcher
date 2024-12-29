@@ -8,8 +8,8 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.UpdatesManager;
+import ru.ricardocraft.backend.service.DirectoriesService;
+import ru.ricardocraft.backend.service.UpdatesService;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -31,8 +31,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LaunchInstallerFabricCommand {
 
-    private final DirectoriesManager directoriesManager;
-    private final UpdatesManager updatesManager;
+    private final DirectoriesService directoriesService;
+    private final UpdatesService updatesService;
     private final ObjectMapper objectMapper;
 
     @ShellMethod("[minecraft version] [vanilla dir] [fabric installer file] (loader version) install fabric to client")
@@ -40,7 +40,7 @@ public class LaunchInstallerFabricCommand {
                        @ShellOption String installerVanillaDir,
                        @ShellOption String installerFabricInstallerFile,
                        @ShellOption(defaultValue = ShellOption.NULL) String loaderVersion) throws Exception {
-        Path vanillaDir = directoriesManager.getUpdatesDir().resolve(installerVanillaDir);
+        Path vanillaDir = directoriesService.getUpdatesDir().resolve(installerVanillaDir);
         if (!Files.exists(vanillaDir)) {
             throw new FileNotFoundException(vanillaDir.toString());
         }
@@ -84,7 +84,7 @@ public class LaunchInstallerFabricCommand {
         }
         log.info("Clearing...");
         IOHelper.deleteDir(vanillaDir.resolve("versions"), true);
-        updatesManager.syncUpdatesDir(List.of(installerVanillaDir));
+        updatesService.syncUpdatesDir(List.of(installerVanillaDir));
         log.info("Fabric installed successful. Please use `makeprofile` command");
     }
 

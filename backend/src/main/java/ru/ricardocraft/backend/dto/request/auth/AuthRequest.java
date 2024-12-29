@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.dto.request.auth;
 
-import ru.ricardocraft.backend.auth.password.AuthPassword;
+import ru.ricardocraft.backend.service.auth.password.AuthPassword;
 import ru.ricardocraft.backend.dto.request.AbstractRequest;
 
 public class AuthRequest extends AbstractRequest {

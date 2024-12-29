@@ -14,11 +14,11 @@ import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.dto.updates.MinecraftVersions;
 import ru.ricardocraft.backend.dto.updates.MiniVersion;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.MirrorManager;
-import ru.ricardocraft.backend.manangers.UpdatesManager;
-import ru.ricardocraft.backend.socket.Downloader;
-import ru.ricardocraft.backend.socket.HttpRequester;
+import ru.ricardocraft.backend.service.DirectoriesService;
+import ru.ricardocraft.backend.service.MirrorService;
+import ru.ricardocraft.backend.service.UpdatesService;
+import ru.ricardocraft.backend.client.Downloader;
+import ru.ricardocraft.backend.client.HttpRequester;
 
 import java.io.Writer;
 import java.nio.file.Files;
@@ -39,9 +39,9 @@ public final class DownloadAssetCommand {
     private static final String MINECRAFT_VERSIONS_URL = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
     private static final String RESOURCES_DOWNLOAD_URL = "https://resources.download.minecraft.net/";
 
-    private final DirectoriesManager directoriesManager;
-    private final MirrorManager mirrorManager;
-    private final UpdatesManager updatesManager;
+    private final DirectoriesService directoriesService;
+    private final MirrorService mirrorService;
+    private final UpdatesService updatesService;
     private final ObjectMapper objectMapper;
     private final HttpRequester requester;
 
@@ -52,7 +52,7 @@ public final class DownloadAssetCommand {
         String dirName = IOHelper.verifyFileName(dir != null ? dir : "assets");
         String type = mirrorType != null ? mirrorType : "mojang";
 
-        Path assetDir = directoriesManager.getUpdatesAssetsDir();
+        Path assetDir = directoriesService.getUpdatesAssetsDir();
         if (type.equals("mojang")) {
             log.info("Fetch versions from {}", MINECRAFT_VERSIONS_URL);
             var versions = requester.send(requester.get(MINECRAFT_VERSIONS_URL, null), MinecraftVersions.class).getOrThrow();
@@ -109,11 +109,11 @@ public final class DownloadAssetCommand {
         } else {
             // Download required asset
             log.info("Downloading asset, it may take some time");
-            mirrorManager.downloadZip(assetDir, "assets/%s.zip", versionName);
+            mirrorService.downloadZip(assetDir, "assets/%s.zip", versionName);
         }
 
         // Finished
-        updatesManager.syncUpdatesDir(Collections.singleton(dirName));
+        updatesService.syncUpdatesDir(Collections.singleton(dirName));
         log.info("Asset successfully downloaded: '{}'", dirName);
     }
 

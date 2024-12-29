@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.dto.request.update;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import ru.ricardocraft.backend.base.Version;
+import ru.ricardocraft.backend.dto.Version;
 import ru.ricardocraft.backend.dto.request.AbstractRequest;
 
 @JsonIgnoreProperties(ignoreUnknown = true)

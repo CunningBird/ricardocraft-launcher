@@ -1,6 +1,6 @@
 package ru.ricardocraft.backend.repository;
 
-import ru.ricardocraft.backend.base.ClientPermissions;
+import ru.ricardocraft.backend.dto.response.auth.ClientPermissions;
 
 import java.util.UUID;
 

@@ -7,7 +7,7 @@ import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.ricardocraft.backend.manangers.mirror.modapi.CurseforgeAPI;
+import ru.ricardocraft.backend.service.mirror.modapi.CurseforgeAPI;
 
 @Slf4j
 @ShellComponent

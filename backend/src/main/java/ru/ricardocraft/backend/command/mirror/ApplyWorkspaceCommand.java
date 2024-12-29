@@ -9,10 +9,10 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
-import ru.ricardocraft.backend.manangers.MirrorManager;
+import ru.ricardocraft.backend.service.DirectoriesService;
+import ru.ricardocraft.backend.service.MirrorService;
 import ru.ricardocraft.backend.properties.config.MirrorWorkspaceProperties;
-import ru.ricardocraft.backend.socket.Downloader;
+import ru.ricardocraft.backend.client.Downloader;
 
 import java.io.OutputStream;
 import java.io.Reader;
@@ -32,8 +32,8 @@ import java.util.zip.ZipOutputStream;
 @RequiredArgsConstructor
 public class ApplyWorkspaceCommand {
 
-    private final DirectoriesManager directoriesManager;
-    private final MirrorManager mirrorManager;
+    private final DirectoriesService directoriesService;
+    private final MirrorService mirrorService;
     private final ObjectMapper objectMapper;
     private final LwjglDownloadCommand lwjglDownloadCommand;
 
@@ -42,14 +42,14 @@ public class ApplyWorkspaceCommand {
         URI url = null;
         Path workspaceFilePath = null;
         if (path == null) {
-            url = mirrorManager.getDefaultMirror().getURL("workspace.json").toURI();
+            url = mirrorService.getDefaultMirror().getURL("workspace.json").toURI();
         } else if (path.startsWith("http://") || path.startsWith("https://")) {
             url = new URI(path);
         } else {
             workspaceFilePath = Paths.get(path);
         }
         if (url != null) {
-            workspaceFilePath = directoriesManager.getMirrorHelperDir().resolve("workspace.json");
+            workspaceFilePath = directoriesService.getMirrorHelperDir().resolve("workspace.json");
             log.info("Download {} to {}", url, workspaceFilePath);
             Downloader.downloadFile(url, workspaceFilePath, null).getFuture().get();
         }
@@ -57,7 +57,7 @@ public class ApplyWorkspaceCommand {
         try (Reader reader = IOHelper.newReader(workspaceFilePath)) {
             workspace = objectMapper.readValue(reader, MirrorWorkspaceProperties.class);
         }
-        Path workspacePath = directoriesManager.getMirrorHelperWorkspaceDir();
+        Path workspacePath = directoriesService.getMirrorHelperWorkspaceDir();
         if (Files.exists(workspacePath)) {
             log.warn("THIS ACTION DELETE ALL FILES IN {}", workspacePath);
             IOHelper.deleteDir(workspacePath, false);
@@ -69,7 +69,7 @@ public class ApplyWorkspaceCommand {
     }
 
     public void applyWorkspace(MirrorWorkspaceProperties workspace) throws Exception {
-        Path workspacePath = directoriesManager.getMirrorHelperWorkspaceDir();
+        Path workspacePath = directoriesService.getMirrorHelperWorkspaceDir();
         Path tmp = Files.createTempDirectory("mirrorhelper");
         try {
             log.info("Apply workspace");
@@ -139,8 +139,8 @@ public class ApplyWorkspaceCommand {
             log.info("Install lwjgl3 directory");
             lwjglDownloadCommand.lwjglDownload(workspace.getLwjgl3version(), "mirrorhelper-tmp-lwjgl3");
             Path lwjgl3Path = workspacePath.resolve("workdir").resolve("lwjgl3");
-            IOHelper.move(directoriesManager.getUpdatesDir().resolve("mirrorhelper-tmp-lwjgl3"), lwjgl3Path);
-            Files.deleteIfExists(directoriesManager.getUpdatesDir().resolve("mirrorhelper-tmp-lwjgl3"));
+            IOHelper.move(directoriesService.getUpdatesDir().resolve("mirrorhelper-tmp-lwjgl3"), lwjgl3Path);
+            Files.deleteIfExists(directoriesService.getUpdatesDir().resolve("mirrorhelper-tmp-lwjgl3"));
             log.info("Save config");
         } finally {
             IOHelper.deleteDir(tmp, true);

@@ -6,7 +6,7 @@ import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
+import ru.ricardocraft.backend.service.DirectoriesService;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,12 +27,12 @@ import java.util.zip.ZipOutputStream;
 @RequiredArgsConstructor
 public class PatchAuthlibCommand {
 
-    private final DirectoriesManager directoriesManager;
+    private final DirectoriesService directoriesService;
 
     @ShellMethod("[dir] [authlib file] patch client authlib")
     public void patchAuthlib(@ShellOption String patchDirectory,
                              @ShellOption String authlibFile) throws Exception {
-        Path dir = directoriesManager.getUpdatesDir().resolve(patchDirectory);
+        Path dir = directoriesService.getUpdatesDir().resolve(patchDirectory);
         Path originalAuthlib;
         if (Files.isDirectory(dir)) {
             Optional<Path> authlibDir = Files.list(dir.resolve("libraries/com/mojang/authlib")).findFirst();
@@ -51,7 +51,7 @@ public class PatchAuthlibCommand {
         if (Files.notExists(launcherAuthlib)) {
             throw new FileNotFoundException(launcherAuthlib.toString());
         }
-        Path mergedFile = directoriesManager.getTmpDir().resolve("merged.jar");
+        Path mergedFile = directoriesService.getTmpDir().resolve("merged.jar");
         log.info("Merge {} and {} into {}", launcherAuthlib, originalAuthlib, mergedFile);
         try (ZipOutputStream output = new ZipOutputStream(new FileOutputStream(mergedFile.toFile()))) {
             Set<String> files = new HashSet<>();

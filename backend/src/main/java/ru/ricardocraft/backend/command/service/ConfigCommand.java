@@ -7,11 +7,11 @@ import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.ricardocraft.backend.auth.AuthLimiter;
-import ru.ricardocraft.backend.auth.core.AuthCoreProvider;
-import ru.ricardocraft.backend.auth.password.AuthPassword;
-import ru.ricardocraft.backend.auth.password.AuthPlainPassword;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
+import ru.ricardocraft.backend.service.auth.AuthLimiter;
+import ru.ricardocraft.backend.service.auth.core.AuthCoreProvider;
+import ru.ricardocraft.backend.service.auth.password.AuthPassword;
+import ru.ricardocraft.backend.service.auth.password.AuthPlainPassword;
+import ru.ricardocraft.backend.service.DirectoriesService;
 import ru.ricardocraft.backend.properties.config.ProguardConfig;
 import ru.ricardocraft.backend.repository.User;
 
@@ -28,7 +28,7 @@ public class ConfigCommand {
     private final AuthCoreProvider authCoreProvider;
     private final ObjectMapper objectMapper;
     private final ProguardConfig proguardConfig;
-    private final DirectoriesManager directoriesManager;
+    private final DirectoriesService directoriesService;
 
     @ShellMethod("[] Clear authLimiter map")
     public void configAuthLimiterClear() {
@@ -105,7 +105,7 @@ public class ConfigCommand {
     @ShellMethod("[] reset proguard config")
     public void configProGuardClean() throws Exception {
         proguardConfig.prepare(true);
-        Files.deleteIfExists(directoriesManager.getProguardMappingsFile());
+        Files.deleteIfExists(directoriesService.getProguardMappingsFile());
     }
 
     @ShellMethod("[] regenerate proguard dictionary")
@@ -116,6 +116,6 @@ public class ConfigCommand {
     @ShellMethod("[] reset proguard config")
     public void configProGuardReset() throws Exception {
         proguardConfig.prepare(true);
-        Files.deleteIfExists(directoriesManager.getProguardMappingsFile());
+        Files.deleteIfExists(directoriesService.getProguardMappingsFile());
     }
 }

@@ -1,7 +1,7 @@
 package ru.ricardocraft.backend.dto.response.auth;
 
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
-import ru.ricardocraft.backend.base.request.TypeSerializeInterface;
+import ru.ricardocraft.backend.dto.response.TypeSerializeInterface;
 import ru.ricardocraft.backend.dto.AbstractResponse;
 
 import java.util.List;

@@ -2,7 +2,7 @@ package ru.ricardocraft.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
-import ru.ricardocraft.backend.base.request.TypeSerializeInterface;
+import ru.ricardocraft.backend.dto.response.TypeSerializeInterface;
 
 import java.util.UUID;
 

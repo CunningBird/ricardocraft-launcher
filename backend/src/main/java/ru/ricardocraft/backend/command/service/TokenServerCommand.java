@@ -6,11 +6,11 @@ import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import ru.ricardocraft.backend.auth.AuthProviderPair;
-import ru.ricardocraft.backend.auth.AuthProviders;
-import ru.ricardocraft.backend.auth.profiles.ProfileProvider;
-import ru.ricardocraft.backend.manangers.AuthManager;
-import ru.ricardocraft.backend.profiles.ClientProfile;
+import ru.ricardocraft.backend.service.auth.AuthProviderPair;
+import ru.ricardocraft.backend.service.auth.AuthProviders;
+import ru.ricardocraft.backend.service.profiles.ProfileProvider;
+import ru.ricardocraft.backend.service.AuthService;
+import ru.ricardocraft.backend.service.profiles.ClientProfile;
 
 @Slf4j
 @ShellComponent
@@ -18,7 +18,7 @@ import ru.ricardocraft.backend.profiles.ClientProfile;
 @RequiredArgsConstructor
 public class TokenServerCommand {
 
-    private final AuthManager authManager;
+    private final AuthService authService;
     private final ProfileProvider profileProvider;
     private final AuthProviders authProviders;
 
@@ -41,7 +41,7 @@ public class TokenServerCommand {
             log.error("AuthId {} not found", authId);
             return;
         }
-        String token = authManager.newCheckServerToken(profile != null ? profile.getUUID().toString() : profileName, pair.name, publicOnly);
+        String token = authService.newCheckServerToken(profile != null ? profile.getUUID().toString() : profileName, pair.name, publicOnly);
         log.info("Server token {} authId {}: {}", profileName, pair.name, token);
     }
 }

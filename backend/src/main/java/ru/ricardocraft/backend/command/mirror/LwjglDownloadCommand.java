@@ -9,7 +9,7 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.JVMHelper;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
+import ru.ricardocraft.backend.service.DirectoriesService;
 
 import java.io.*;
 import java.net.URI;
@@ -28,12 +28,12 @@ import java.util.zip.ZipInputStream;
 @RequiredArgsConstructor
 public class LwjglDownloadCommand {
 
-    private final DirectoriesManager directoriesManager;
+    private final DirectoriesService directoriesService;
 
     @ShellMethod("[version] [client dir] download lwjgl 3.3.0+")
     public void lwjglDownload(@ShellOption String version,
                               @ShellOption String clientDirectory) throws Exception {
-        Path clientDir = directoriesManager.getUpdatesDir().resolve(clientDirectory);
+        Path clientDir = directoriesService.getUpdatesDir().resolve(clientDirectory);
         Path lwjglDir = clientDir.resolve("libraries").resolve("org").resolve("lwjgl");
         Path natives = clientDir.resolve("natives");
         List<String> components = List.of("lwjgl", "lwjgl-stb", "lwjgl-opengl", "lwjgl-openal", "lwjgl-glfw", "lwjgl-tinyfd", "lwjgl-jemalloc");
