@@ -8,6 +8,7 @@ import ru.ricardocraft.backend.service.AuthService;
 import ru.ricardocraft.backend.repository.User;
 import ru.ricardocraft.backend.controller.auth.AuthController;
 import ru.ricardocraft.backend.controller.Client;
+import ru.ricardocraft.backend.service.controller.auth.AuthRequestService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -30,15 +31,15 @@ public abstract class AuthCoreProvider {
 
     public abstract UserSession getUserSessionByOAuthAccessToken(String accessToken) throws OAuthAccessTokenExpired;
 
-    public abstract AuthService.AuthReport refreshAccessToken(String refreshToken, AuthController.AuthContext context /* may be null */) throws JsonProcessingException;
+    public abstract AuthService.AuthReport refreshAccessToken(String refreshToken, AuthRequestService.AuthContext context /* may be null */) throws JsonProcessingException;
 
-    public void verifyAuth(AuthController.AuthContext context) {
+    public void verifyAuth(AuthRequestService.AuthContext context) {
         // None
     }
 
-    public abstract AuthService.AuthReport authorize(String login, AuthController.AuthContext context /* may be null */, AuthPassword password /* may be null */, boolean minecraftAccess) throws IOException;
+    public abstract AuthService.AuthReport authorize(String login, AuthRequestService.AuthContext context /* may be null */, AuthPassword password /* may be null */, boolean minecraftAccess) throws IOException;
 
-    public AuthService.AuthReport authorize(User user, AuthController.AuthContext context /* may be null */, AuthPassword password /* may be null */, boolean minecraftAccess) throws IOException {
+    public AuthService.AuthReport authorize(User user, AuthRequestService.AuthContext context /* may be null */, AuthPassword password /* may be null */, boolean minecraftAccess) throws IOException {
         return authorize(user.getUsername(), context, password, minecraftAccess);
     }
 

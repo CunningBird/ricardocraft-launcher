@@ -17,6 +17,7 @@ import ru.ricardocraft.backend.properties.HttpServerProperties;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 import ru.ricardocraft.backend.controller.auth.RestoreController;
 import ru.ricardocraft.backend.controller.Client;
+import ru.ricardocraft.backend.service.controller.auth.RestoreRequestService;
 
 import java.util.Base64;
 import java.util.Date;
@@ -96,7 +97,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
                 .compact();
     }
 
-    public static class HardwareInfoTokenVerifier implements RestoreController.ExtendedTokenProvider {
+    public static class HardwareInfoTokenVerifier implements RestoreRequestService.ExtendedTokenProvider {
 
         private final JwtParser parser;
 
@@ -128,7 +129,7 @@ public class AdvancedProtectHandler extends StdProtectHandler implements SecureP
         }
     }
 
-    public static class PublicKeyTokenVerifier implements RestoreController.ExtendedTokenProvider {
+    public static class PublicKeyTokenVerifier implements RestoreRequestService.ExtendedTokenProvider {
 
         private final JwtParser parser;
 

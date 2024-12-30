@@ -16,6 +16,7 @@ import ru.ricardocraft.backend.service.auth.AuthException;
 import ru.ricardocraft.backend.service.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.backend.service.auth.password.AuthCodePassword;
 import ru.ricardocraft.backend.service.auth.password.AuthPassword;
+import ru.ricardocraft.backend.service.controller.auth.AuthRequestService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -60,7 +61,7 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
     }
 
     @Override
-    public AuthService.AuthReport refreshAccessToken(String refreshToken, AuthController.AuthContext context) {
+    public AuthService.AuthReport refreshAccessToken(String refreshToken, AuthRequestService.AuthContext context) {
         try {
             var result = sendMicrosoftOAuthRefreshTokenRequest(refreshToken);
             if (result == null) {
@@ -75,7 +76,7 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
     }
 
     @Override
-    public AuthService.AuthReport authorize(String login, AuthController.AuthContext context, AuthPassword password, boolean minecraftAccess) throws IOException {
+    public AuthService.AuthReport authorize(String login, AuthRequestService.AuthContext context, AuthPassword password, boolean minecraftAccess) throws IOException {
         if (password == null) {
             throw AuthException.wrongPassword();
         }

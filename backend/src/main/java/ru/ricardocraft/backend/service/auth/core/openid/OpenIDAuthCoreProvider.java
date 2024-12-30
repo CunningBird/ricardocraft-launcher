@@ -23,6 +23,7 @@ import ru.ricardocraft.backend.properties.config.OpenIDProperties;
 import ru.ricardocraft.backend.repository.*;
 import ru.ricardocraft.backend.controller.auth.AuthController;
 import ru.ricardocraft.backend.controller.Client;
+import ru.ricardocraft.backend.service.controller.auth.AuthRequestService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -95,7 +96,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public AuthService.AuthReport refreshAccessToken(String oldRefreshToken, AuthController.AuthContext context) throws JsonProcessingException {
+    public AuthService.AuthReport refreshAccessToken(String oldRefreshToken, AuthRequestService.AuthContext context) throws JsonProcessingException {
         var tokens = refreshAccessToken(oldRefreshToken);
         var accessToken = tokens.accessToken();
         var refreshToken = tokens.refreshToken();
@@ -114,7 +115,7 @@ public class OpenIDAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public AuthService.AuthReport authorize(String login, AuthController.AuthContext context, AuthPassword password, boolean minecraftAccess) throws IOException {
+    public AuthService.AuthReport authorize(String login, AuthRequestService.AuthContext context, AuthPassword password, boolean minecraftAccess) throws IOException {
         if (password == null) {
             throw AuthException.wrongPassword();
         }

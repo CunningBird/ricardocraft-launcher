@@ -12,6 +12,7 @@ import ru.ricardocraft.backend.service.AuthService;
 import ru.ricardocraft.backend.repository.User;
 import ru.ricardocraft.backend.controller.auth.AuthController;
 import ru.ricardocraft.backend.controller.Client;
+import ru.ricardocraft.backend.service.controller.auth.AuthRequestService;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -69,12 +70,12 @@ public class MemoryAuthCoreProvider extends AuthCoreProvider {
     }
 
     @Override
-    public AuthService.AuthReport refreshAccessToken(String refreshToken, AuthController.AuthContext context) {
+    public AuthService.AuthReport refreshAccessToken(String refreshToken, AuthRequestService.AuthContext context) {
         return null;
     }
 
     @Override
-    public AuthService.AuthReport authorize(String login, AuthController.AuthContext context, AuthPassword password, boolean minecraftAccess) throws IOException {
+    public AuthService.AuthReport authorize(String login, AuthRequestService.AuthContext context, AuthPassword password, boolean minecraftAccess) throws IOException {
         if (login == null) {
             throw AuthException.userNotFound();
         }

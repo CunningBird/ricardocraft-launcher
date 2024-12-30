@@ -12,10 +12,10 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestTemplate;
 import ru.ricardocraft.backend.base.SizedFile;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.command.mirror.DeDupLibrariesCommand;
-import ru.ricardocraft.backend.command.mirror.LaunchInstallerFabricCommand;
-import ru.ricardocraft.backend.command.mirror.LaunchInstallerQuiltCommand;
-import ru.ricardocraft.backend.command.updates.ProfilesCommand;
+import ru.ricardocraft.backend.service.command.mirror.DeDupLibrariesService;
+import ru.ricardocraft.backend.service.command.mirror.LaunchInstallerFabricService;
+import ru.ricardocraft.backend.service.command.mirror.LaunchInstallerQuiltService;
+import ru.ricardocraft.backend.service.command.updates.ProfilesService;
 import ru.ricardocraft.backend.dto.updates.Version;
 import ru.ricardocraft.backend.dto.updates.VersionType;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
@@ -62,10 +62,10 @@ public class InstallClient {
     private final ProfileProvider profileProvider;
     private final ModrinthAPI modrinthAPI;
     private final CurseforgeAPI curseforgeApi;
-    private final LaunchInstallerFabricCommand launchInstallerFabricCommand;
-    private final LaunchInstallerQuiltCommand launchInstallerQuiltCommand;
-    private final DeDupLibrariesCommand deDupLibrariesCommand;
-    private final ProfilesCommand profilesCommand;
+    private final LaunchInstallerFabricService launchInstallerFabricService;
+    private final LaunchInstallerQuiltService launchInstallerQuiltService;
+    private final DeDupLibrariesService deDupLibrariesService;
+    private final ProfilesService profilesService;
 
     @Autowired
     public InstallClient(LaunchServerProperties properties,
@@ -76,10 +76,10 @@ public class InstallClient {
                          ProfileProvider profileProvider,
                          ModrinthAPI modrinthAPI,
                          CurseforgeAPI curseforgeApi,
-                         LaunchInstallerFabricCommand launchInstallerFabricCommand,
-                         LaunchInstallerQuiltCommand launchInstallerQuiltCommand,
-                         DeDupLibrariesCommand deDupLibrariesCommand,
-                         ProfilesCommand profilesCommand) {
+                         LaunchInstallerFabricService launchInstallerFabricService,
+                         LaunchInstallerQuiltService launchInstallerQuiltService,
+                         DeDupLibrariesService deDupLibrariesService,
+                         ProfilesService profilesService) {
         this.properties = properties;
         this.restTemplate = restTemplate;
         this.directoriesService = directoriesService;
@@ -88,10 +88,10 @@ public class InstallClient {
         this.profileProvider = profileProvider;
         this.modrinthAPI = modrinthAPI;
         this.curseforgeApi = curseforgeApi;
-        this.launchInstallerFabricCommand = launchInstallerFabricCommand;
-        this.launchInstallerQuiltCommand = launchInstallerQuiltCommand;
-        this.deDupLibrariesCommand = deDupLibrariesCommand;
-        this.profilesCommand = profilesCommand;
+        this.launchInstallerFabricService = launchInstallerFabricService;
+        this.launchInstallerQuiltService = launchInstallerQuiltService;
+        this.deDupLibrariesService = deDupLibrariesService;
+        this.profilesService = profilesService;
 
         this.buildInCommands.put("%download", new DownloadCommand(restTemplate));
         this.buildInCommands.put("%findJar", new FindJar());
@@ -160,14 +160,14 @@ public class InstallClient {
         // Apply mod engine
         if (versionType == VersionType.FABRIC) {
             if (properties.getMirror().getWorkspace().getFabricLoaderVersion() == null) {
-                launchInstallerFabricCommand.launchInstallerFabric(
+                launchInstallerFabricService.launchInstallerFabric(
                         version.toString(),
                         name,
                         directoriesService.getMirrorHelperWorkspaceDir().resolve("installers").resolve("fabric-installer.jar").toAbsolutePath().toString(),
                         null
                 );
             } else {
-                launchInstallerFabricCommand.launchInstallerFabric(
+                launchInstallerFabricService.launchInstallerFabric(
                         version.toString(),
                         name,
                         directoriesService.getMirrorHelperWorkspaceDir().resolve("installers").resolve("fabric-installer.jar").toAbsolutePath().toString(),
@@ -177,7 +177,7 @@ public class InstallClient {
             Files.createDirectories(clientPath.resolve("mods"));
             log.info("Fabric installed");
         } else if (versionType == VersionType.QUILT) {
-            launchInstallerQuiltCommand.launchInstallerQuilit(
+            launchInstallerQuiltService.launchInstallerQuilit(
                     version.toString(),
                     name,
                     directoriesService.getMirrorHelperWorkspaceDir().resolve("installers").resolve("quilt-installer.jar").toAbsolutePath().toString()
@@ -246,7 +246,7 @@ public class InstallClient {
                 if (libName.endsWith("@jar")) {
                     libName = libName.substring(0, libName.length() - 4);
                 }
-                LaunchInstallerFabricCommand.NamedURL url = LaunchInstallerFabricCommand.makeURL(libUrl, libName);
+                LaunchInstallerFabricService.NamedURL url = LaunchInstallerFabricService.makeURL(libUrl, libName);
                 Path file = clientPath.resolve("libraries").resolve(url.name);
                 IOHelper.createParentDirs(file);
                 if (Files.exists(file)) {
@@ -336,11 +336,11 @@ public class InstallClient {
             IOHelper.copy(file, targetMod);
             log.info("MultiMods installed");
         }
-        deDupLibrariesCommand.deDupLibraries(clientPath.toAbsolutePath().toString(), false);
+        deDupLibrariesService.deDupLibraries(clientPath.toAbsolutePath().toString(), false);
         log.info("deduplibraries completed");
 
 
-        profilesCommand.profileMake(name, version.toString(), name);
+        profilesService.profileMake(name, version.toString(), name);
         log.info("makeprofile completed");
         if ((versionType == VersionType.FORGE || versionType == VersionType.NEOFORGE) && version.compareTo(ClientProfileVersions.MINECRAFT_1_17) >= 0) {
             ClientProfile profile = profileProvider.getProfile(name);

@@ -3,6 +3,7 @@ package ru.ricardocraft.backend.service.auth;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.controller.auth.AuthController;
+import ru.ricardocraft.backend.service.controller.auth.AuthRequestService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +22,7 @@ public class AuthLimiter {
     public int rateLimit = 3;
     public long rateLimitMillis = SECONDS.toMillis(8);
 
-    public void preAuthHook(AuthController.AuthContext context) throws Exception {
+    public void preAuthHook(AuthRequestService.AuthContext context) throws Exception {
         if (!check(context.ip)) {
             throw new Exception(message);
         }

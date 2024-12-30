@@ -16,11 +16,11 @@ public abstract class AbstractController {
         handler.registerService(requestClass, this);
     }
 
-    abstract public AbstractResponse execute(AbstractRequest rawResponse, WebSocketSession session, Client client) throws Exception;
+    abstract public AbstractResponse execute(AbstractRequest request, WebSocketSession session, Client client) throws Exception;
 
     @SuppressWarnings("unchecked")
-    public <Response extends AbstractRequest> Response castResponse(AbstractRequest response) throws Exception {
-        if (requestClass.isAssignableFrom(response.getClass())) return (Response) response;
-        else throw new Exception("Cannot cast " + response.getClass() + " to " + requestClass.getName());
+    public <Request extends AbstractRequest> Request castRequest(AbstractRequest request) throws Exception {
+        if (requestClass.isAssignableFrom(request.getClass())) return (Request) request;
+        else throw new Exception("Cannot cast " + request.getClass() + " to " + requestClass.getName());
     }
 }

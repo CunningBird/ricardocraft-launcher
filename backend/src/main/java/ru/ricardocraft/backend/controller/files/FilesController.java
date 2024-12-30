@@ -6,8 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.VerifyHelper;
-import ru.ricardocraft.backend.service.DirectoriesService;
 import ru.ricardocraft.backend.properties.HttpServerProperties;
+import ru.ricardocraft.backend.service.DirectoriesService;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,18 +32,10 @@ import java.util.regex.Pattern;
 @Controller
 public class FilesController {
 
-    private final int ARBITARY_SIZE = 512;
-
-    public static final DateTimeFormatter dateFormatter;
-    public static final String READ = "r";
-    public static final int HTTP_CACHE_SECONDS = VerifyHelper.verifyInt(Integer.parseInt(System.getProperty("launcher.fileserver.cachesec", "60")), VerifyHelper.NOT_NEGATIVE, "HttpCache seconds should be positive");
-    private static final boolean OLD_ALGO = Boolean.parseBoolean(System.getProperty("launcher.fileserver.oldalgo", "true"));
+    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US).withZone(ZoneId.of("UTC"));
+    private static final int HTTP_CACHE_SECONDS = VerifyHelper.verifyInt(Integer.parseInt(System.getProperty("launcher.fileserver.cachesec", "60")), VerifyHelper.NOT_NEGATIVE, "HttpCache seconds should be positive");
     private static final ContentType TYPE_PROBE = Arrays.stream(ContentType.values()).filter(e -> e.name().toLowerCase(Locale.US).equals(System.getProperty("launcher.fileserver.typeprobe", "nio"))).findFirst().orElse(ContentType.UNIVERSAL);
     private static final Pattern ALLOWED_FILE_NAME = Pattern.compile("[^-\\._]?[^<>&\\\"]*");
-
-    static {
-        dateFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US).withZone(ZoneId.of("UTC"));
-    }
 
     private final Path base;
     private final boolean fullOut;
@@ -118,11 +110,9 @@ public class FilesController {
             }
         }
 
-        long fileLength = Files.size(file.toPath());
-
         response.resetBuffer();
         response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentLengthLong(fileLength);
+        response.setContentLengthLong(Files.size(file.toPath()));
         setContentTypeHeader(response, file);
         setDateAndCacheHeaders(response, file);
 

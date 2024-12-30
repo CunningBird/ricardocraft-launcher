@@ -16,7 +16,7 @@ public class UnknownController extends AbstractController {
     }
 
     @Override
-    public UpdateResponse execute(AbstractRequest rawResponse, WebSocketSession session, Client client) throws Exception {
+    public UpdateResponse execute(AbstractRequest request, WebSocketSession session, Client client) throws Exception {
         throw new Exception("This type of request is not supported");
     }
 }
