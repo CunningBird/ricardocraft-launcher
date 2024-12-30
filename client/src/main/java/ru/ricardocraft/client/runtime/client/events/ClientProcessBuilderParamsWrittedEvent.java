@@ -1,6 +1,6 @@
 package ru.ricardocraft.client.runtime.client.events;
 
-import ru.ricardocraft.client.base.modules.LauncherModule;
+import ru.ricardocraft.client.modules.LauncherModule;
 import ru.ricardocraft.client.runtime.client.ClientLauncherProcess;
 
 public class ClientProcessBuilderParamsWrittedEvent extends LauncherModule.Event {

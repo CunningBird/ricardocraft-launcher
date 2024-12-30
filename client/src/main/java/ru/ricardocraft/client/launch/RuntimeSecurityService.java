@@ -2,10 +2,10 @@ package ru.ricardocraft.client.launch;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.base.request.RequestService;
-import ru.ricardocraft.client.base.request.secure.GetSecureLevelInfoRequest;
-import ru.ricardocraft.client.base.request.secure.HardwareReportRequest;
-import ru.ricardocraft.client.base.request.secure.VerifySecureLevelKeyRequest;
+import ru.ricardocraft.client.dto.request.RequestService;
+import ru.ricardocraft.client.dto.request.secure.GetSecureLevelInfoRequest;
+import ru.ricardocraft.client.dto.request.secure.HardwareReportRequest;
+import ru.ricardocraft.client.dto.request.secure.VerifySecureLevelKeyRequest;
 import ru.ricardocraft.client.runtime.utils.HWIDProvider;
 import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.utils.helper.CommonHelper;

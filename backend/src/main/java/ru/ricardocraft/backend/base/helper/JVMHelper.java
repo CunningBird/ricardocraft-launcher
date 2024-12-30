@@ -12,7 +12,6 @@ public final class JVMHelper {
     public static final OperatingSystemMXBean OPERATING_SYSTEM_MXBEAN = ManagementFactory.getOperatingSystemMXBean();
     public static final OS OS_TYPE = OS.byName(OPERATING_SYSTEM_MXBEAN.getName());
     public static final Runtime RUNTIME = Runtime.getRuntime();
-    public static final ClassLoader LOADER = ClassLoader.getSystemClassLoader();
 
     static {
         try {

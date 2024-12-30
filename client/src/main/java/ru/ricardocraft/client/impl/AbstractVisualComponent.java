@@ -9,7 +9,7 @@ import javafx.scene.control.ButtonBase;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 import ru.ricardocraft.client.JavaFXApplication;
-import ru.ricardocraft.client.base.request.RequestException;
+import ru.ricardocraft.client.dto.request.RequestException;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.helper.EnFSHelper;
 import ru.ricardocraft.client.helper.LookupHelper;

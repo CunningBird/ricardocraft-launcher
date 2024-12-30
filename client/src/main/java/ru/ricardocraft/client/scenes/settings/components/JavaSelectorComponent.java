@@ -7,7 +7,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Pane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-import ru.ricardocraft.client.base.profiles.ClientProfile;
+import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.service.JavaService;

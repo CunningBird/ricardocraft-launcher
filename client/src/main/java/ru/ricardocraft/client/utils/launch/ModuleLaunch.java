@@ -2,12 +2,11 @@ package ru.ricardocraft.client.utils.launch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.ricardocraft.client.base.profiles.ClientProfile;
-import ru.ricardocraft.client.base.profiles.ClientProfileVersions;
-import ru.ricardocraft.client.base.profiles.optional.actions.OptionalAction;
-import ru.ricardocraft.client.base.profiles.optional.actions.OptionalActionClientArgs;
+import ru.ricardocraft.client.profiles.ClientProfile;
+import ru.ricardocraft.client.profiles.ClientProfileVersions;
+import ru.ricardocraft.client.profiles.optional.actions.OptionalAction;
+import ru.ricardocraft.client.profiles.optional.actions.OptionalActionClientArgs;
 import ru.ricardocraft.client.client.ClientParams;
-import ru.ricardocraft.client.utils.helper.EnvHelper;
 import ru.ricardocraft.client.utils.helper.HackHelper;
 import ru.ricardocraft.client.utils.helper.IOHelper;
 import ru.ricardocraft.client.utils.helper.JVMHelper;

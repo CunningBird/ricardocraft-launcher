@@ -3,7 +3,10 @@ server:
 
 spring:
   application:
-    name: bff
+    name: ricardocraft-backend
+  shell:
+    interactive:
+      enabled: true
 
 launch-server-config:
   projectName: ricardocraft
@@ -104,17 +107,16 @@ directories:
   cacheFile: '.updates-cache'
   root: 'C:\Users\cunningbird\IdeaProjects\ricardocraft-launcher\backend\build\app'
 
-netty:
+http-server:
   fileServerEnabled: true
   ipForwarding: false
   disableWebApiInterface: false
   showHiddenFiles: false
   sendProfileUpdatesEvent: true
   launcherURL: http://localhost:9274/Launcher.jar
-  downloadURL: http://localhost:9274/%dirname%/
+  downloadURL: http://localhost:9274/files/%dirname%/
   launcherEXEURL: http://localhost:9274/Launcher.exe
   address: ws://localhost:9274/api
-  logLevel: DEBUG
   bindings: { }
   performance:
     usingEpoll: false

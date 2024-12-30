@@ -1,7 +1,6 @@
 package ru.ricardocraft.backend.base.helper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -22,9 +21,8 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@Slf4j
 public final class IOHelper {
-
-    private static final Logger logger = LoggerFactory.getLogger(IOHelper.class);
 
     public static final Charset UNICODE_CHARSET = StandardCharsets.UTF_8;
     public static final Charset ASCII_CHARSET = StandardCharsets.US_ASCII;
@@ -60,7 +58,7 @@ public final class IOHelper {
         try {
             closeable.close();
         } catch (Exception exc) {
-            logger.error(exc.getMessage());
+            log.error(exc.getMessage());
         }
     }
 
@@ -105,12 +103,6 @@ public final class IOHelper {
 
     public static String getIP(SocketAddress address) {
         return ((InetSocketAddress) address).getAddress().getHostAddress();
-    }
-
-    public static URL getResourceURL(String name) throws NoSuchFileException {
-        URL url = IOHelper.class.getResource('/' + name);
-        if (url == null) throw new NoSuchFileException(name);
-        return url;
     }
 
     public static boolean isDir(Path path) {
@@ -361,12 +353,6 @@ public final class IOHelper {
     public static long transfer(InputStream input, Path file, boolean append) throws IOException {
         try (OutputStream output = newOutput(file, append)) {
             return transfer(input, output);
-        }
-    }
-
-    public static void transfer(Path file, OutputStream output) throws IOException {
-        try (InputStream input = newInput(file)) {
-            transfer(input, output);
         }
     }
 

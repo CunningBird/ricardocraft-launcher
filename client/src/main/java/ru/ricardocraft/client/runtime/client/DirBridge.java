@@ -1,6 +1,6 @@
 package ru.ricardocraft.client.runtime.client;
 
-import ru.ricardocraft.client.base.Launcher;
+import ru.ricardocraft.client.core.Launcher;
 import ru.ricardocraft.client.utils.helper.IOHelper;
 import ru.ricardocraft.client.utils.helper.JVMHelper;
 import ru.ricardocraft.client.utils.helper.LogHelper;

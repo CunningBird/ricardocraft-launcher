@@ -1,6 +1,6 @@
 package ru.ricardocraft.client.utils.launch;
 
-import ru.ricardocraft.client.base.profiles.ClientProfile;
+import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.client.ClientParams;
 
 import java.nio.file.Path;

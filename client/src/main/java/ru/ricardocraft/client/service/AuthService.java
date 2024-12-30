@@ -1,14 +1,14 @@
 package ru.ricardocraft.client.service;
 
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.base.Launcher;
-import ru.ricardocraft.client.base.events.request.AuthRequestEvent;
-import ru.ricardocraft.client.base.events.request.GetAvailabilityAuthRequestEvent;
-import ru.ricardocraft.client.base.profiles.PlayerProfile;
-import ru.ricardocraft.client.base.request.Request;
-import ru.ricardocraft.client.base.request.auth.AuthRequest;
-import ru.ricardocraft.client.base.request.auth.password.AuthAESPassword;
-import ru.ricardocraft.client.base.request.auth.password.AuthPlainPassword;
+import ru.ricardocraft.client.core.Launcher;
+import ru.ricardocraft.client.dto.response.AuthRequestEvent;
+import ru.ricardocraft.client.dto.response.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.client.profiles.PlayerProfile;
+import ru.ricardocraft.client.dto.request.Request;
+import ru.ricardocraft.client.dto.request.auth.AuthRequest;
+import ru.ricardocraft.client.dto.request.auth.password.AuthAESPassword;
+import ru.ricardocraft.client.dto.request.auth.password.AuthPlainPassword;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.utils.helper.SecurityHelper;

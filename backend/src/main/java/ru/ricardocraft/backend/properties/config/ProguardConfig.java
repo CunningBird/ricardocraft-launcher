@@ -1,14 +1,13 @@
 package ru.ricardocraft.backend.properties.config;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.helper.UnpackHelper;
-import ru.ricardocraft.backend.manangers.DirectoriesManager;
+import ru.ricardocraft.backend.service.DirectoriesService;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 import java.io.IOException;
@@ -17,44 +16,43 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.security.SecureRandom;
 
+@Slf4j
 @Component
 public class ProguardConfig {
-
-    private transient final Logger logger = LogManager.getLogger(ProguardConfig.class);
 
     public final char[] chars = "1aAbBcC2dDeEfF3gGhHiI4jJkKlL5mMnNoO6pPqQrR7sStT8uUvV9wWxX0yYzZ".toCharArray();
 
     private transient final LaunchServerProperties launchServerConfig;
-    private transient final DirectoriesManager directoriesManager;
+    private transient final DirectoriesService directoriesService;
 
     @Autowired
-    public ProguardConfig(LaunchServerProperties launchServerConfig, DirectoriesManager directoriesManager) {
+    public ProguardConfig(LaunchServerProperties launchServerConfig, DirectoriesService directoriesService) {
         this.launchServerConfig = launchServerConfig;
-        this.directoriesManager = directoriesManager;
+        this.directoriesService = directoriesService;
     }
 
     public void prepare(boolean force) {
         try {
-            IOHelper.createParentDirs(directoriesManager.getProguardConfigFile());
+            IOHelper.createParentDirs(directoriesService.getProguardConfigFile());
             genWords(force);
             genConfig(force);
         } catch (IOException e) {
-            logger.error(e);
+            log.error(e.getMessage());
         }
     }
 
     private void genConfig(boolean force) throws IOException {
-        if (IOHelper.exists(directoriesManager.getProguardConfigFile()) && !force) return;
-        Files.deleteIfExists(directoriesManager.getProguardConfigFile());
-        UnpackHelper.unpack(ResourceUtils.getFile("classpath:defaults/proguard.cfg").toURL(), directoriesManager.getProguardConfigFile());
+        if (IOHelper.exists(directoriesService.getProguardConfigFile()) && !force) return;
+        Files.deleteIfExists(directoriesService.getProguardConfigFile());
+        UnpackHelper.unpack(ResourceUtils.getFile("classpath:defaults/proguard.cfg").toURL(), directoriesService.getProguardConfigFile());
     }
 
     public void genWords(boolean force) throws IOException {
-        if (IOHelper.exists(directoriesManager.getProguardWordsFile()) && !force) return;
-        Files.deleteIfExists(directoriesManager.getProguardWordsFile());
+        if (IOHelper.exists(directoriesService.getProguardWordsFile()) && !force) return;
+        Files.deleteIfExists(directoriesService.getProguardWordsFile());
         SecureRandom rand = SecurityHelper.newRandom();
         rand.setSeed(SecureRandom.getSeed(32));
-        try (PrintWriter out = new PrintWriter(new OutputStreamWriter(IOHelper.newOutput(directoriesManager.getProguardWordsFile()), IOHelper.UNICODE_CHARSET))) {
+        try (PrintWriter out = new PrintWriter(new OutputStreamWriter(IOHelper.newOutput(directoriesService.getProguardWordsFile()), IOHelper.UNICODE_CHARSET))) {
             String projectName = launchServerConfig.getProjectName().replaceAll("\\W", "");
             String lowName = projectName.toLowerCase();
             String upName = projectName.toUpperCase();

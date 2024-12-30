@@ -1,6 +1,6 @@
 package ru.ricardocraft.client.utils;
 
-import ru.ricardocraft.client.base.Launcher;
+import ru.ricardocraft.client.core.Launcher;
 import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.core.hasher.HashedDir;
 import ru.ricardocraft.client.core.hasher.HashedEntry;

@@ -1,6 +1,6 @@
 package ru.ricardocraft.client.scenes.login.methods;
 
-import ru.ricardocraft.client.base.events.request.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.client.dto.response.GetAvailabilityAuthRequestEvent;
 import ru.ricardocraft.client.scenes.login.AuthFlow;
 
 import java.util.concurrent.CompletableFuture;

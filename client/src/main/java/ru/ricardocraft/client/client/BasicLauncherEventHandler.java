@@ -1,11 +1,11 @@
 package ru.ricardocraft.client.client;
 
-import ru.ricardocraft.client.base.events.ExtendedTokenRequestEvent;
-import ru.ricardocraft.client.base.events.NotificationEvent;
-import ru.ricardocraft.client.base.events.request.SecurityReportRequestEvent;
-import ru.ricardocraft.client.base.request.Request;
-import ru.ricardocraft.client.base.request.RequestService;
-import ru.ricardocraft.client.base.request.WebSocketEvent;
+import ru.ricardocraft.client.dto.ExtendedTokenRequestEvent;
+import ru.ricardocraft.client.dto.NotificationEvent;
+import ru.ricardocraft.client.dto.response.SecurityReportRequestEvent;
+import ru.ricardocraft.client.dto.request.Request;
+import ru.ricardocraft.client.dto.request.RequestService;
+import ru.ricardocraft.client.dto.request.WebSocketEvent;
 import ru.ricardocraft.client.utils.helper.LogHelper;
 
 public class BasicLauncherEventHandler implements RequestService.EventHandler {

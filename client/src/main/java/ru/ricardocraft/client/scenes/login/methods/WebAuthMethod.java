@@ -1,8 +1,8 @@
 package ru.ricardocraft.client.scenes.login.methods;
 
 import ru.ricardocraft.client.JavaFXApplication;
-import ru.ricardocraft.client.base.request.auth.details.AuthWebViewDetails;
-import ru.ricardocraft.client.base.request.auth.password.AuthCodePassword;
+import ru.ricardocraft.client.dto.request.auth.details.AuthWebViewDetails;
+import ru.ricardocraft.client.dto.request.auth.password.AuthCodePassword;
 import ru.ricardocraft.client.scenes.login.AuthFlow;
 import ru.ricardocraft.client.scenes.login.LoginScene;
 import ru.ricardocraft.client.scenes.login.WebAuthOverlay;
