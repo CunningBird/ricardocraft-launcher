@@ -3,17 +3,21 @@ package ru.ricardocraft.backend.command.mirror;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.client.RestTemplate;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
+import ru.ricardocraft.backend.properties.config.MirrorWorkspaceProperties;
 import ru.ricardocraft.backend.service.DirectoriesService;
 import ru.ricardocraft.backend.service.MirrorService;
-import ru.ricardocraft.backend.properties.config.MirrorWorkspaceProperties;
-import ru.ricardocraft.backend.client.Downloader;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URI;
@@ -32,6 +36,7 @@ import java.util.zip.ZipOutputStream;
 @RequiredArgsConstructor
 public class ApplyWorkspaceCommand {
 
+    private final RestTemplate restTemplate;
     private final DirectoriesService directoriesService;
     private final MirrorService mirrorService;
     private final ObjectMapper objectMapper;
@@ -51,7 +56,14 @@ public class ApplyWorkspaceCommand {
         if (url != null) {
             workspaceFilePath = directoriesService.getMirrorHelperDir().resolve("workspace.json");
             log.info("Download {} to {}", url, workspaceFilePath);
-            Downloader.downloadFile(url, workspaceFilePath, null).getFuture().get();
+
+            File ret = new File(String.valueOf(workspaceFilePath));
+            restTemplate.execute(url, HttpMethod.GET, null, clientHttpResponse -> {
+                FileOutputStream fileIO = new FileOutputStream(ret);
+                StreamUtils.copy(clientHttpResponse.getBody(), fileIO);
+                fileIO.close();
+                return ret;
+            });
         }
         MirrorWorkspaceProperties workspace;
         try (Reader reader = IOHelper.newReader(workspaceFilePath)) {
@@ -83,7 +95,15 @@ public class ApplyWorkspaceCommand {
                 String randomName = SecurityHelper.randomStringAESKey();
                 Path tmpPath = tmp.resolve(randomName);
                 log.info("Download {} to {}", l.getUrl(), tmpPath);
-                Downloader.downloadFile(new URI(l.getUrl()), tmpPath, null).getFuture().get();
+
+                restTemplate.execute(l.getUrl(), HttpMethod.GET, null, clientHttpResponse -> {
+                    File ret = new File(String.valueOf(tmpPath));
+                    FileOutputStream fileIO = new FileOutputStream(ret);
+                    StreamUtils.copy(clientHttpResponse.getBody(), fileIO);
+                    fileIO.close();
+                    return ret;
+                });
+
                 if (l.getPath() != null) {
                     Path lPath = workspacePath.resolve(l.getPath());
                     IOHelper.createParentDirs(lPath);
@@ -134,7 +154,15 @@ public class ApplyWorkspaceCommand {
             for (var e : workspace.getMultiMods().entrySet()) {
                 Path target = workspacePath.resolve("multimods").resolve(e.getKey().concat(".jar"));
                 log.info("Download {} to {}", e.getValue().getUrl(), target);
-                Downloader.downloadFile(new URI(e.getValue().getUrl()), target, null).getFuture().get();
+                IOHelper.createParentDirs(target);
+                restTemplate.execute(e.getValue().getUrl(), HttpMethod.GET, null, clientHttpResponse -> {
+                    File ret = new File(String.valueOf(target));
+                    ret.createNewFile();
+                    FileOutputStream fileIo = new FileOutputStream(ret);
+                    StreamUtils.copy(clientHttpResponse.getBody(), fileIo);
+                    fileIo.close();
+                    return ret;
+                });
             }
             log.info("Install lwjgl3 directory");
             lwjglDownloadCommand.lwjglDownload(workspace.getLwjgl3version(), "mirrorhelper-tmp-lwjgl3");

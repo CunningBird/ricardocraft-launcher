@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.VerifyHelper;
 import ru.ricardocraft.backend.dto.updates.*;
@@ -22,65 +21,35 @@ import java.util.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class ClientProfile implements Comparable<ClientProfile> {
 
-    @LauncherNetworkAPI
     private String title;
-    @LauncherNetworkAPI
     private UUID uuid;
-    @LauncherNetworkAPI
     private Version version;
-    @LauncherNetworkAPI
     private String info;
-    @LauncherNetworkAPI
     private String dir;
-    @LauncherNetworkAPI
     private int sortIndex;
-    @LauncherNetworkAPI
     private String assetIndex;
-    @LauncherNetworkAPI
     private String assetDir;
-    @LauncherNetworkAPI
     private List<String> update;
-    @LauncherNetworkAPI
     private List<String> updateExclusions;
-    @LauncherNetworkAPI
     private List<String> updateVerify;
-    @LauncherNetworkAPI
     private Set<OptionalFile> updateOptional;
-    @LauncherNetworkAPI
     private List<String> jvmArgs;
-    @LauncherNetworkAPI
     private List<String> classPath;
-    @LauncherNetworkAPI
     private List<String> altClassPath;
-    @LauncherNetworkAPI
     private List<String> clientArgs;
-    @LauncherNetworkAPI
     private List<String> compatClasses;
-    @LauncherNetworkAPI
     private List<String> loadNatives;
-    @LauncherNetworkAPI
     private Map<String, String> properties;
-    @LauncherNetworkAPI
     private List<ServerProfile> servers;
-    @LauncherNetworkAPI
     private ClassLoaderConfig classLoaderConfig;
-    @LauncherNetworkAPI
     private List<CompatibilityFlags> flags;
-    @LauncherNetworkAPI
     private int recommendJavaVersion;
-    @LauncherNetworkAPI
     private int minJavaVersion;
-    @LauncherNetworkAPI
     private int maxJavaVersion;
-    @LauncherNetworkAPI
     private ProfileDefaultSettings settings;
-    @LauncherNetworkAPI
     private boolean limited;
-    @LauncherNetworkAPI
     private String mainClass;
-    @LauncherNetworkAPI
     private String mainModule;
-    @LauncherNetworkAPI
     private LaunchOptions.ModuleConf moduleConf;
 
     public ServerProfile getDefaultServerProfile() {

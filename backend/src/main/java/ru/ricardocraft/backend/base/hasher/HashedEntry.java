@@ -1,9 +1,5 @@
 package ru.ricardocraft.backend.base.hasher;
 
-import ru.ricardocraft.backend.base.serialize.EnumSerializer;
-import ru.ricardocraft.backend.base.serialize.HInput;
-import ru.ricardocraft.backend.base.serialize.StreamObject;
-
 import java.io.IOException;
 
 public abstract class HashedEntry extends StreamObject {

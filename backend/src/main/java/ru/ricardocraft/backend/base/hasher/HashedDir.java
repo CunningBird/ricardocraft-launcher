@@ -1,11 +1,7 @@
 package ru.ricardocraft.backend.base.hasher;
 
-import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.base.helper.VerifyHelper;
-import ru.ricardocraft.backend.base.serialize.EnumSerializer;
-import ru.ricardocraft.backend.base.serialize.HInput;
-import ru.ricardocraft.backend.base.serialize.HOutput;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -17,7 +13,6 @@ import java.util.Map.Entry;
 
 public final class HashedDir extends HashedEntry {
 
-    @LauncherNetworkAPI
     private final Map<String, HashedEntry> map = new HashMap<>(32);
 
     public HashedDir() {

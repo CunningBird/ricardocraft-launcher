@@ -1,12 +1,9 @@
 package ru.ricardocraft.backend.base.hasher;
 
 import lombok.Getter;
-import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
 import ru.ricardocraft.backend.base.helper.SecurityHelper.DigestAlgorithm;
 import ru.ricardocraft.backend.base.helper.VerifyHelper;
-import ru.ricardocraft.backend.base.serialize.HInput;
-import ru.ricardocraft.backend.base.serialize.HOutput;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -17,11 +14,8 @@ public final class HashedFile extends HashedEntry {
     public static final DigestAlgorithm DIGEST_ALGO = DigestAlgorithm.SHA1;
 
     // Instance
-    @LauncherNetworkAPI
     public final long size;
-    @LauncherNetworkAPI
     private final byte[] digest;
-
 
     public HashedFile(HInput input) throws IOException {
         this(input.readVarLong(), input.readBoolean() ? input.readByteArray(-DIGEST_ALGO.bytes) : null);

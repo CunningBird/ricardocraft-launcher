@@ -1,38 +1,34 @@
 package ru.ricardocraft.backend.service.mirror.modapi;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 import ru.ricardocraft.backend.dto.Version;
-import ru.ricardocraft.backend.client.HttpRequester;
-import ru.ricardocraft.backend.client.error.ModrinthErrorHandler;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpRequest;
 import java.util.List;
 import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class ModrinthAPI {
     private static final String BASE_URL = "https://api.modrinth.com/v2/";
     private static final String userAgent = "GravitLauncher/%s MirrorHelper/%s".formatted(Version.getVersion().getVersionString(), "1.0.0");
 
-    public final HttpRequester requester;
-
-    @Autowired
-    public ModrinthAPI(HttpRequester requester) {
-        this.requester = requester;
-    }
+    private final RestClient restClient;
 
     @SuppressWarnings("unchecked")
-    public List<ModVersionData> getMod(String slug) throws IOException {
-        TypeReference<List<ModVersionData>> typeToken = new TypeReference<>() {};
-        return (List<ModVersionData>) requester.send(HttpRequest.newBuilder()
-                .GET()
+    public List<ModVersionData> getMod(String slug) {
+        return restClient.get()
                 .uri(URI.create(BASE_URL.concat("project/%s/version".formatted(slug))))
                 .header("User-Agent", userAgent)
-                .build(), new ModrinthErrorHandler<>(typeToken.getClass())).getOrThrow();
+                .retrieve()
+                .onStatus(status -> status.value() < 200 || status.value() >= 300, (request, response) -> {
+                    throw new IOException("statusCode " + response.getStatusCode());
+                })
+                .body(new ParameterizedTypeReference<>() {});
     }
 
     public ModVersionData getModByGameVersion(List<ModVersionData> list, String gameVersion, String loader) {

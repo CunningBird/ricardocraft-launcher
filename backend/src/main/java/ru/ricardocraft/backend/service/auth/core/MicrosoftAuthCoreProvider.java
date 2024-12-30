@@ -1,31 +1,26 @@
 package ru.ricardocraft.backend.service.auth.core;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import ru.ricardocraft.backend.controller.Client;
+import ru.ricardocraft.backend.controller.auth.AuthController;
+import ru.ricardocraft.backend.dto.request.RequestException;
+import ru.ricardocraft.backend.dto.response.auth.GetAvailabilityAuthResponse;
+import ru.ricardocraft.backend.properties.LaunchServerProperties;
+import ru.ricardocraft.backend.properties.config.MicrosoftAuthCoreProviderProperties;
+import ru.ricardocraft.backend.service.AuthService;
 import ru.ricardocraft.backend.service.auth.AuthException;
 import ru.ricardocraft.backend.service.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.backend.service.auth.password.AuthCodePassword;
 import ru.ricardocraft.backend.service.auth.password.AuthPassword;
-import ru.ricardocraft.backend.dto.request.RequestException;
-import ru.ricardocraft.backend.dto.response.auth.GetAvailabilityAuthResponse;
-import ru.ricardocraft.backend.service.AuthService;
-import ru.ricardocraft.backend.properties.LaunchServerProperties;
-import ru.ricardocraft.backend.properties.config.MicrosoftAuthCoreProviderProperties;
-import ru.ricardocraft.backend.controller.auth.AuthController;
-import ru.ricardocraft.backend.controller.Client;
-import ru.ricardocraft.backend.client.HttpRequester;
-import ru.ricardocraft.backend.client.error.BasicJsonHttpErrorHandler;
-import ru.ricardocraft.backend.client.error.MicrosoftErrorHandler;
-import ru.ricardocraft.backend.client.error.XSTSErrorHandler;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -37,16 +32,14 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 @Component
 public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
 
-    private transient final MicrosoftAuthCoreProviderProperties properties;
-    private transient final HttpRequester requester;
+    private final MicrosoftAuthCoreProviderProperties properties;
+    private final RestClient restClient;
 
     @Autowired
-    public MicrosoftAuthCoreProvider(ObjectMapper objectMapper,
-                                     LaunchServerProperties properties,
-                                     HttpRequester requester) {
+    public MicrosoftAuthCoreProvider(ObjectMapper objectMapper, LaunchServerProperties properties, RestClient restClient) {
         super(objectMapper);
         this.properties = properties.getMicrosoftAuthCoreProvider();
-        this.requester = requester;
+        this.restClient = restClient;
     }
 
     @Override
@@ -153,60 +146,57 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
     }
 
     private MicrosoftOAuthTokenResponse sendMicrosoftOAuthTokenRequest(String code) throws IOException {
-        HttpRequest request = HttpRequest.newBuilder()
+        return restClient.get()
                 .uri(makeOAuthTokenRequestURI(code))
-                .GET()
                 .header("Content-Type", "application/x-www-form-urlencoded")
-                .build();
-        var e = requester.send(request, new MicrosoftErrorHandler<>(MicrosoftOAuthTokenResponse.class));
-        return e.getOrThrow();
+                .retrieve()
+                .onStatus(status -> status.value() < 200 || status.value() >= 300, (request, response) -> {
+                    MicrosoftAuthCoreProvider.XSTSError errorText = objectMapper.readValue(response.getBody(), MicrosoftAuthCoreProvider.XSTSError.class);
+                    throw new IOException(errorText.toString());
+                })
+                .body(MicrosoftOAuthTokenResponse.class);
     }
 
     private MicrosoftOAuthTokenResponse sendMicrosoftOAuthRefreshTokenRequest(String refreshToken) throws IOException {
-        HttpRequest request = HttpRequest.newBuilder()
+        return restClient.post()
                 .uri(makeOAuthRefreshTokenRequestURI(refreshToken))
-                .POST(HttpRequest.BodyPublishers.noBody())
                 .header("Content-Type", "application/x-www-form-urlencoded")
-                .build();
-        var e = requester.send(request, new MicrosoftErrorHandler<>(MicrosoftOAuthTokenResponse.class));
-        return e.getOrThrow();
+                .retrieve()
+                .onStatus(status -> status.value() < 200 || status.value() >= 300, (request, response) -> {
+                    MicrosoftAuthCoreProvider.XSTSError errorText = objectMapper.readValue(response.getBody(), MicrosoftAuthCoreProvider.XSTSError.class);
+                    throw new IOException(errorText.toString());
+                })
+                .body(MicrosoftOAuthTokenResponse.class);
     }
 
     private MicrosoftXBoxLiveResponse sendMicrosoftXBoxLiveRequest(String accessToken) throws IOException {
-        HttpRequest request = HttpRequest.newBuilder()
+        return restClient.post()
                 .uri(makeURI("https://user.auth.xboxlive.com/user/authenticate"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
-                .POST(jsonBodyPublisher(new MicrosoftXBoxLiveRequest(accessToken)))
-                .build();
-        var e = requester.send(request, new BasicJsonHttpErrorHandler<>(MicrosoftXBoxLiveResponse.class));
-        return e.getOrThrow();
+                .body(new MicrosoftXBoxLiveRequest(accessToken))
+                .retrieve()
+                .body(MicrosoftXBoxLiveResponse.class);
     }
 
     private MicrosoftXBoxLiveResponse sendMicrosoftXSTSRequest(String xblToken) throws IOException {
-        HttpRequest request = HttpRequest.newBuilder()
+        return restClient.post()
                 .uri(makeURI("https://xsts.auth.xboxlive.com/xsts/authorize"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
-                .POST(jsonBodyPublisher(new MicrosoftXSTSRequest(xblToken)))
-                .build();
-        var e = requester.send(request, new XSTSErrorHandler<>(MicrosoftXBoxLiveResponse.class));
-        return e.getOrThrow();
+                .body(new MicrosoftXSTSRequest(xblToken))
+                .retrieve()
+                .body(MicrosoftXBoxLiveResponse.class);
     }
 
     private MinecraftLoginWithXBoxResponse sendMinecraftLoginWithXBoxRequest(String uhs, String xstsToken) throws IOException {
-        HttpRequest request = HttpRequest.newBuilder()
+        return restClient.post()
                 .uri(makeURI("https://api.minecraftservices.com/authentication/login_with_xbox"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
-                .POST(jsonBodyPublisher(new MinecraftLoginWithXBoxRequest(uhs, xstsToken)))
-                .build();
-        var e = requester.send(request, new BasicJsonHttpErrorHandler<>(MinecraftLoginWithXBoxResponse.class));
-        return e.getOrThrow();
-    }
-
-    public <T> HttpRequest.BodyPublisher jsonBodyPublisher(T obj) throws JsonProcessingException {
-        return HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(obj));
+                .body(new MinecraftLoginWithXBoxRequest(uhs, xstsToken))
+                .retrieve()
+                .body(MinecraftLoginWithXBoxResponse.class);
     }
 
     private URI makeURI(String s) throws IOException {
@@ -233,13 +223,6 @@ public class MicrosoftAuthCoreProvider extends MojangAuthCoreProvider {
                 return "The account is a child (under 18) and cannot proceed unless the account is added to a Family by an adult";
             }
             return "XSTS error: %d".formatted(XErr);
-        }
-    }
-
-    public record MicrosoftError(String error, String error_description, String correlation_id) {
-        @Override
-        public String toString() {
-            return error_description;
         }
     }
 

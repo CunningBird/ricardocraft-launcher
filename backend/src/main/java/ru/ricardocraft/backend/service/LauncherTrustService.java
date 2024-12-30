@@ -1,7 +1,6 @@
 package ru.ricardocraft.backend.service;
 
 import lombok.extern.slf4j.Slf4j;
-import ru.ricardocraft.backend.base.core.LauncherInject;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -25,7 +24,6 @@ public class LauncherTrustService {
     private final X509Certificate[] trustSigners;
     private final List<X509Certificate> trustCache = new ArrayList<>();
 
-    @LauncherInject("launcher.certificatePinning")
     private static boolean isCertificatePinning;
 
     public LauncherTrustService(X509Certificate[] trustSigners) {

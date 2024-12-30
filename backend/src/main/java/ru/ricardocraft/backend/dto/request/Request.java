@@ -2,7 +2,6 @@ package ru.ricardocraft.backend.dto.request;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.dto.response.TypeSerializeInterface;
 import ru.ricardocraft.backend.dto.response.auth.AuthResponse;
 import ru.ricardocraft.backend.dto.response.auth.CurrentUserResponse;
@@ -31,7 +30,6 @@ public abstract class Request<R extends TypeSerializeInterface> implements TypeS
     private static volatile long tokenExpiredTime;
     private static volatile ScheduledExecutorService executorService;
     private static volatile boolean autoRefreshRunning;
-    @LauncherNetworkAPI
     public final UUID requestUUID = UUID.randomUUID();
     private transient final AtomicBoolean started = new AtomicBoolean(false);
 

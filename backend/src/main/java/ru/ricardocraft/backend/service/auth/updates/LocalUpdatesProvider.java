@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.backend.base.hasher.HashedDir;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.base.serialize.HInput;
-import ru.ricardocraft.backend.base.serialize.HOutput;
+import ru.ricardocraft.backend.base.hasher.HInput;
+import ru.ricardocraft.backend.base.hasher.HOutput;
 import ru.ricardocraft.backend.service.DirectoriesService;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
 

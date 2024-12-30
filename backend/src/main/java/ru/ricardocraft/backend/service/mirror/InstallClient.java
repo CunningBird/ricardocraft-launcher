@@ -5,10 +5,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.client.RestTemplate;
+import ru.ricardocraft.backend.base.SizedFile;
 import ru.ricardocraft.backend.base.helper.IOHelper;
-import ru.ricardocraft.backend.client.Downloader;
 import ru.ricardocraft.backend.command.mirror.DeDupLibrariesCommand;
 import ru.ricardocraft.backend.command.mirror.LaunchInstallerFabricCommand;
 import ru.ricardocraft.backend.command.mirror.LaunchInstallerQuiltCommand;
@@ -38,8 +41,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,22 +52,24 @@ import java.util.zip.ZipOutputStream;
 @Component
 public class InstallClient {
 
-    private transient final Map<String, BuildInCommand> buildInCommands = new HashMap<>();
+    private final Map<String, BuildInCommand> buildInCommands = new HashMap<>();
 
-    private final transient LaunchServerProperties properties;
-    private final transient DirectoriesService directoriesService;
-    private final transient UpdatesService updatesService;
-    private final transient ObjectMapper objectMapper;
-    private final transient ProfileProvider profileProvider;
-    private final transient ModrinthAPI modrinthAPI;
-    private final transient CurseforgeAPI curseforgeApi;
-    private final transient LaunchInstallerFabricCommand launchInstallerFabricCommand;
-    private final transient LaunchInstallerQuiltCommand launchInstallerQuiltCommand;
-    private final transient DeDupLibrariesCommand deDupLibrariesCommand;
-    private final transient ProfilesCommand profilesCommand;
+    private final LaunchServerProperties properties;
+    private final RestTemplate restTemplate;
+    private final DirectoriesService directoriesService;
+    private final UpdatesService updatesService;
+    private final ObjectMapper objectMapper;
+    private final ProfileProvider profileProvider;
+    private final ModrinthAPI modrinthAPI;
+    private final CurseforgeAPI curseforgeApi;
+    private final LaunchInstallerFabricCommand launchInstallerFabricCommand;
+    private final LaunchInstallerQuiltCommand launchInstallerQuiltCommand;
+    private final DeDupLibrariesCommand deDupLibrariesCommand;
+    private final ProfilesCommand profilesCommand;
 
     @Autowired
     public InstallClient(LaunchServerProperties properties,
+                         RestTemplate restTemplate,
                          DirectoriesService directoriesService,
                          UpdatesService updatesService,
                          ObjectMapper objectMapper,
@@ -78,6 +81,7 @@ public class InstallClient {
                          DeDupLibrariesCommand deDupLibrariesCommand,
                          ProfilesCommand profilesCommand) {
         this.properties = properties;
+        this.restTemplate = restTemplate;
         this.directoriesService = directoriesService;
         this.updatesService = updatesService;
         this.objectMapper = objectMapper;
@@ -89,7 +93,7 @@ public class InstallClient {
         this.deDupLibrariesCommand = deDupLibrariesCommand;
         this.profilesCommand = profilesCommand;
 
-        this.buildInCommands.put("%download", new DownloadCommand());
+        this.buildInCommands.put("%download", new DownloadCommand(restTemplate));
         this.buildInCommands.put("%findJar", new FindJar());
         this.buildInCommands.put("%fetchManifestValue", new FetchManifestValue());
         this.buildInCommands.put("%if", new If());
@@ -375,18 +379,38 @@ public class InstallClient {
         ClientInfo info = getClient(obj);
         // Download required files
         log.info("Downloading client, it may take some time");
-        ExecutorService e = Executors.newFixedThreadPool(4);
+
         //info.libraries.addAll(info.natives); // Hack
-        List<Downloader.SizedFile> applies = info.libraries.stream()
+        List<SizedFile> applies = info.libraries.stream()
                 .filter(l -> !(l.name.contains("natives")))
-                .map(y -> new Downloader.SizedFile(y.url, y.path, y.size)).collect(Collectors.toList());
-        var downloader = Downloader.downloadList(applies, null, clientDir.resolve("libraries"), null, e, 4);
+                .map(y -> new SizedFile(y.url, y.path, y.size)).collect(Collectors.toList());
+
+//        // TODO multi-thread downloading
+        Collections.shuffle(applies);
+        Path librariesPath = clientDir.resolve("libraries");
+        for (SizedFile file : applies) {
+            Path filePath = librariesPath.resolve(file.filePath);
+            IOHelper.createParentDirs(filePath);
+            try {
+                URI uri = new URI(file.urlPath);
+                File ret = new File(String.valueOf(filePath));
+                ret.createNewFile();
+                log.info("Download apply {}", uri);
+                restTemplate.execute(uri, HttpMethod.GET, null, clientHttpResponse -> {
+                    FileOutputStream fileIO = new FileOutputStream(ret);
+                    StreamUtils.copy(clientHttpResponse.getBody(), fileIO);
+                    fileIO.close();
+                    return ret;
+                });
+            } catch (Exception exception) {
+                log.error("Failed to download {}: Cause {}", file.urlPath != null ? file.urlPath : file.filePath, exception.getMessage());
+            }
+        }
+
         if (info.client != null) {
             IOHelper.transfer(IOHelper.newInput(new URI(info.client.url).toURL()), clientDir.resolve("minecraft.jar"));
         }
         log.info("Downloaded client jar!");
-        downloader.getFuture().get();
-        e.shutdownNow();
         // Finished
         log.info("Client downloaded!");
     }
@@ -434,7 +458,7 @@ public class InstallClient {
         }
     }
 
-    private Path getPathToLauncherAuthlib(Version version) throws FileNotFoundException {
+    private Path getPathToLauncherAuthlib(Version version) {
         if (version.compareTo(ClientProfileVersions.MINECRAFT_1_16_5) < 0)
             return directoriesService.getMirrorHelperWorkspaceDir().resolve("authlib").resolve("LauncherAuthlib1.jar");
         else if (version.compareTo(ClientProfileVersions.MINECRAFT_1_18) < 0)

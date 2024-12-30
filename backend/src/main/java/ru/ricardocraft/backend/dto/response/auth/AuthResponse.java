@@ -1,12 +1,12 @@
 package ru.ricardocraft.backend.dto.response.auth;
 
-import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.dto.AbstractResponse;
 import ru.ricardocraft.backend.service.profiles.PlayerProfile;
 
 import java.util.UUID;
 
 public class AuthResponse extends AbstractResponse {
+
     public static final String TWO_FACTOR_NEED_ERROR_MESSAGE = "auth.require2fa";
     public static final String ONE_FACTOR_NEED_ERROR_MESSAGE_PREFIX = "auth.require.factor.";
     public static final String OAUTH_TOKEN_EXPIRE = "auth.expiretoken";
@@ -14,18 +14,13 @@ public class AuthResponse extends AbstractResponse {
     public static final String USER_NOT_FOUND_ERROR_MESSAGE = "auth.usernotfound";
     public static final String WRONG_PASSWORD_ERROR_MESSAGE = "auth.wrongpassword";
     public static final String ACCOUNT_BLOCKED_ERROR_MESSAGE = "auth.userblocked";
-    @LauncherNetworkAPI
+
     public ClientPermissions permissions;
-    @LauncherNetworkAPI
     public PlayerProfile playerProfile;
-    @LauncherNetworkAPI
     public String accessToken;
-    @LauncherNetworkAPI
     public String protectToken;
-    @LauncherNetworkAPI
     @Deprecated // Always null
     public UUID session;
-    @LauncherNetworkAPI
     public OAuthRequestEvent oauth;
 
     public AuthResponse() {

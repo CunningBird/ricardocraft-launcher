@@ -1,12 +1,14 @@
 package ru.ricardocraft.backend.service.auth.texture;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 import ru.ricardocraft.backend.base.helper.SecurityHelper;
-import ru.ricardocraft.backend.service.profiles.Texture;
 import ru.ricardocraft.backend.properties.LaunchServerProperties;
-import ru.ricardocraft.backend.client.HttpRequester;
+import ru.ricardocraft.backend.service.profiles.Texture;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -15,22 +17,12 @@ import java.util.UUID;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JsonTextureProvider extends TextureProvider {
 
-    private final Map<String, JsonTexture> map = new HashMap<>();
-
-    private final HttpRequester requester;
+    private final RestClient restClient;
     private final RequestTextureProvider requestTextureProvider;
     private final LaunchServerProperties config;
-
-    @Autowired
-    public JsonTextureProvider(RequestTextureProvider requestTextureProvider,
-                               HttpRequester requester,
-                               LaunchServerProperties config) {
-        this.requester = requester;
-        this.requestTextureProvider = requestTextureProvider;
-        this.config = config;
-    }
 
     @Override
     public Texture getCloakTexture(UUID uuid, String username, String client) {
@@ -47,10 +39,19 @@ public class JsonTextureProvider extends TextureProvider {
     @Override
     public Map<String, Texture> getAssets(UUID uuid, String username, String client) {
         try {
-            Map<String, JsonTexture> map = requester.send(requester.get(requestTextureProvider.getTextureURL(
-                    config.getJsonTextureProvider().getUrl(), uuid, username, client), config.getJsonTextureProvider().getBearerToken()), (Class<Map<String, JsonTexture>>) this.map.getClass()).getOrThrow();
+            String textureUrl = requestTextureProvider.getTextureURL(config.getJsonTextureProvider().getUrl(), uuid, username, client);
+            Map<String, JsonTexture> map = restClient.get()
+                    .uri(textureUrl)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .header("Accept", "application/json")
+                    .retrieve()
+                    .onStatus(status -> status.value() < 200 || status.value() >= 300, (request, response) -> {
+                        throw new IOException("statusCode " + response.getStatusCode());
+                    })
+                    .body(new ParameterizedTypeReference<>() {});
+
             return JsonTexture.convertMap(map);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("JsonTextureProvider", e);
             return new HashMap<>();
         }

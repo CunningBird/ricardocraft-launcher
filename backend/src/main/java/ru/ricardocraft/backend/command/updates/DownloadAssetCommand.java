@@ -2,48 +2,65 @@ package ru.ricardocraft.backend.command.updates;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpMethod;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.client.RestTemplate;
+import ru.ricardocraft.backend.base.SizedFile;
 import ru.ricardocraft.backend.base.helper.IOHelper;
 import ru.ricardocraft.backend.dto.updates.MinecraftVersions;
 import ru.ricardocraft.backend.dto.updates.MiniVersion;
 import ru.ricardocraft.backend.service.DirectoriesService;
 import ru.ricardocraft.backend.service.MirrorService;
 import ru.ricardocraft.backend.service.UpdatesService;
-import ru.ricardocraft.backend.client.Downloader;
-import ru.ricardocraft.backend.client.HttpRequester;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.Writer;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @ShellComponent
 @ShellCommandGroup("updates")
-@RequiredArgsConstructor
 public final class DownloadAssetCommand {
 
     private static final String MINECRAFT_VERSIONS_URL = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
     private static final String RESOURCES_DOWNLOAD_URL = "https://resources.download.minecraft.net/";
 
+    private final RestTemplate restTemplate;
     private final DirectoriesService directoriesService;
     private final MirrorService mirrorService;
     private final UpdatesService updatesService;
     private final ObjectMapper objectMapper;
-    private final HttpRequester requester;
+
+    public DownloadAssetCommand(@Qualifier("assetsRestTemplate") RestTemplate restTemplate,
+                                DirectoriesService directoriesService,
+                                MirrorService mirrorService,
+                                UpdatesService updatesService,
+                                ObjectMapper objectMapper) {
+        this.restTemplate = restTemplate;
+        this.directoriesService = directoriesService;
+        this.mirrorService = mirrorService;
+        this.updatesService = updatesService;
+        this.objectMapper = objectMapper;
+    }
 
     @ShellMethod("[version] [dir] (mojang/mirror) Download asset dir")
     public void downloadAsset(@ShellOption String versionName,
@@ -55,7 +72,9 @@ public final class DownloadAssetCommand {
         Path assetDir = directoriesService.getUpdatesAssetsDir();
         if (type.equals("mojang")) {
             log.info("Fetch versions from {}", MINECRAFT_VERSIONS_URL);
-            var versions = requester.send(requester.get(MINECRAFT_VERSIONS_URL, null), MinecraftVersions.class).getOrThrow();
+
+            var versions = Optional.ofNullable(restTemplate.getForEntity(MINECRAFT_VERSIONS_URL, MinecraftVersions.class).getBody()).orElseThrow();
+
             String profileUrl = null;
             for (var e : versions.getVersions()) {
                 if (e.getId().equals(versionName)) {
@@ -68,12 +87,16 @@ public final class DownloadAssetCommand {
                 return;
             }
             log.info("Fetch profile {} from {}", versionName, profileUrl);
-            var profileInfo = requester.send(requester.get(profileUrl, null), MiniVersion.class).getOrThrow();
+
+            var profileInfo = Optional.ofNullable(restTemplate.getForEntity(profileUrl, MiniVersion.class).getBody()).orElseThrow();
+
             String assetsIndexUrl = profileInfo.getAssetIndex().getUrl();
             String assetIndex = profileInfo.getAssetIndex().getId();
             Path indexPath = assetDir.resolve("indexes").resolve(assetIndex + ".json");
             log.info("Fetch asset index {} from {}", assetIndex, assetsIndexUrl);
-            JsonNode assets = requester.send(requester.get(assetsIndexUrl, null), JsonNode.class).getOrThrow();
+
+            String assetsSerialized = Optional.ofNullable(restTemplate.getForEntity(assetsIndexUrl, String.class).getBody()).orElseThrow();
+            JsonNode assets = objectMapper.readTree(assetsSerialized);
 
             try (Writer writer = IOHelper.newWriter(indexPath)) {
                 log.info("Save {}", indexPath);
@@ -84,7 +107,7 @@ public final class DownloadAssetCommand {
                 log.info("Copy {} into {}", indexPath, targetPath);
                 Files.copy(indexPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
             }
-            List<Downloader.SizedFile> toDownload = new ArrayList<>(128);
+            List<SizedFile> toDownload = new ArrayList<>(128);
 
             JsonNode objects = assets.get("objects");
             for (JsonNode e : objects) {
@@ -101,11 +124,10 @@ public final class DownloadAssetCommand {
                         continue;
                     }
                 }
-                toDownload.add(new Downloader.SizedFile(hash, path, size));
+                toDownload.add(new SizedFile(hash, path, size));
             }
             log.info("Download {} files", toDownload.size());
-            Downloader downloader = downloadWithProgressBar(dirName, toDownload, RESOURCES_DOWNLOAD_URL, assetDir);
-            downloader.getFuture().get();
+            downloadWithProgressBar(dirName, toDownload, RESOURCES_DOWNLOAD_URL, assetDir);
         } else {
             // Download required asset
             log.info("Downloading asset, it may take some time");
@@ -117,16 +139,15 @@ public final class DownloadAssetCommand {
         log.info("Asset successfully downloaded: '{}'", dirName);
     }
 
-    private Downloader downloadWithProgressBar(String taskName, List<Downloader.SizedFile> list, String baseUrl, Path targetDir) throws Exception {
+    private void downloadWithProgressBar(String taskName, List<SizedFile> list, String baseUrl, Path targetDir) throws Exception {
         long total = 0;
-        for (Downloader.SizedFile file : list) {
+        for (SizedFile file : list) {
             if (file.size < 0) {
                 continue;
             }
             total += file.size;
         }
         long totalFiles = list.size();
-        AtomicLong current = new AtomicLong(0);
         AtomicLong currentFiles = new AtomicLong(0);
         ProgressBar bar = (new ProgressBarBuilder()).setTaskName(taskName)
                 .setInitialMax(total)
@@ -135,28 +156,42 @@ public final class DownloadAssetCommand {
                 .setUnit("MB", 1024 * 1024)
                 .build();
         bar.setExtraMessage(" [0/%d]".formatted(totalFiles));
-        Downloader downloader = Downloader.downloadList(list, baseUrl, targetDir, new Downloader.DownloadCallback() {
-            @Override
-            public void apply(long fullDiff) {
-                current.addAndGet(fullDiff);
-                bar.stepBy(fullDiff);
-            }
 
-            @Override
-            public void onComplete(Path path) {
+        // TODO multi-thread download
+        Collections.shuffle(list);
+        URI baseUri = baseUrl == null ? null : new URI(baseUrl);
+        for (SizedFile file : list) {
+            Path filePath = targetDir.resolve(file.filePath);
+            IOHelper.createParentDirs(filePath);
+            try {
+                File ret = new File(String.valueOf(filePath));
+                ret.createNewFile();
+                File downloaded = restTemplate.execute(createFileUri(baseUri, file.urlPath), HttpMethod.GET, null, clientHttpResponse -> {
+                    FileOutputStream fileIO = new FileOutputStream(ret);
+                    StreamUtils.copy(clientHttpResponse.getBody(), fileIO);
+                    fileIO.close();
+                    return ret;
+                });
+                assert downloaded != null;
+                bar.stepBy(downloaded.length());
                 bar.setExtraMessage(" [%d/%d]".formatted(currentFiles.incrementAndGet(), totalFiles));
+            } catch (Exception exception) {
+                log.error("Failed to download {}: Cause {}", file.urlPath != null ? file.urlPath : file.filePath, exception.getMessage());
             }
-        }, null, 4);
-        downloader.getFuture().handle((v, e) -> {
-            CompletableFuture<Void> future = new CompletableFuture<>();
-            bar.close();
-            if (e != null) {
-                future.completeExceptionally(e);
-            } else {
-                future.complete(null);
-            }
-            return future;
-        });
-        return downloader;
+        }
+    }
+
+    private URI createFileUri(URI baseUri, String filePath) throws URISyntaxException {
+        if (baseUri != null) {
+            String scheme = baseUri.getScheme();
+            String host = baseUri.getHost();
+            int port = baseUri.getPort();
+            if (port != -1)
+                host = host + ":" + port;
+            String path = baseUri.getPath();
+            return new URI(scheme, host, path + filePath, "", "");
+        } else {
+            return new URI(filePath);
+        }
     }
 }

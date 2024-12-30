@@ -105,12 +105,6 @@ public final class IOHelper {
         return ((InetSocketAddress) address).getAddress().getHostAddress();
     }
 
-    public static URL getResourceURL(String name) throws NoSuchFileException {
-        URL url = IOHelper.class.getResource('/' + name);
-        if (url == null) throw new NoSuchFileException(name);
-        return url;
-    }
-
     public static boolean isDir(Path path) {
         return Files.isDirectory(path, LINK_OPTIONS);
     }
@@ -359,12 +353,6 @@ public final class IOHelper {
     public static long transfer(InputStream input, Path file, boolean append) throws IOException {
         try (OutputStream output = newOutput(file, append)) {
             return transfer(input, output);
-        }
-    }
-
-    public static void transfer(Path file, OutputStream output) throws IOException {
-        try (InputStream input = newInput(file)) {
-            transfer(input, output);
         }
     }
 

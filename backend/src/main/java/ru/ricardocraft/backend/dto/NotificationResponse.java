@@ -1,14 +1,10 @@
 package ru.ricardocraft.backend.dto;
 
-import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
 import ru.ricardocraft.backend.dto.response.TypeSerializeInterface;
 
 public class NotificationResponse implements TypeSerializeInterface {
-    @LauncherNetworkAPI
     public final String head;
-    @LauncherNetworkAPI
     public final String message;
-    @LauncherNetworkAPI
     public final NotificationType icon;
 
     public NotificationResponse(String head, String message) {

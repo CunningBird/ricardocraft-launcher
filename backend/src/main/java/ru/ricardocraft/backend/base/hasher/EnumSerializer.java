@@ -1,4 +1,4 @@
-package ru.ricardocraft.backend.base.serialize;
+package ru.ricardocraft.backend.base.hasher;
 
 import ru.ricardocraft.backend.base.helper.VerifyHelper;
 

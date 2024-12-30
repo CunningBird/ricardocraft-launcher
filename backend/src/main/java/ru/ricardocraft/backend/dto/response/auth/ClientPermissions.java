@@ -1,14 +1,10 @@
 package ru.ricardocraft.backend.dto.response.auth;
 
-import ru.ricardocraft.backend.base.core.LauncherNetworkAPI;
-
 import java.util.*;
 
 public class ClientPermissions {
     public static final ClientPermissions DEFAULT = new ClientPermissions();
-    @LauncherNetworkAPI
     private List<String> roles;
-    @LauncherNetworkAPI
     private List<String> perms;
 
     private transient List<PermissionPattern> available;
