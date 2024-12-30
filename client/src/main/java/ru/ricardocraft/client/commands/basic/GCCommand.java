@@ -2,10 +2,10 @@ package ru.ricardocraft.client.commands.basic;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.utils.command.Command;
-import ru.ricardocraft.client.utils.command.CommandHandler;
-import ru.ricardocraft.client.utils.helper.JVMHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.commands.Command;
+import ru.ricardocraft.client.commands.CommandHandler;
+import ru.ricardocraft.client.helper.JVMHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 @Component
 public class GCCommand extends Command {

@@ -2,7 +2,7 @@ package ru.ricardocraft.client.dto.request.websockets;
 
 import ru.ricardocraft.client.core.Downloader;
 import ru.ricardocraft.client.core.LauncherInject;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.IOException;
 import java.net.URI;

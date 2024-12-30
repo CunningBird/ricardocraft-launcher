@@ -1,4 +1,4 @@
-package ru.ricardocraft.client.utils.helper;
+package ru.ricardocraft.client.helper;
 
 import org.fusesource.jansi.Ansi;
 import ru.ricardocraft.client.utils.Version;

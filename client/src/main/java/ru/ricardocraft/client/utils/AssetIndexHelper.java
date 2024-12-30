@@ -4,7 +4,7 @@ import ru.ricardocraft.client.core.Launcher;
 import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.core.hasher.HashedDir;
 import ru.ricardocraft.client.core.hasher.HashedEntry;
-import ru.ricardocraft.client.utils.helper.IOHelper;
+import ru.ricardocraft.client.helper.IOHelper;
 
 import java.io.IOException;
 import java.io.Reader;

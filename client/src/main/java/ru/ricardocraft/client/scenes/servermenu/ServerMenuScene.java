@@ -25,7 +25,7 @@ import ru.ricardocraft.client.scenes.settings.GlobalSettingsScene;
 import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.service.PingService;
-import ru.ricardocraft.client.utils.helper.CommonHelper;
+import ru.ricardocraft.client.helper.CommonHelper;
 
 import java.io.IOException;
 import java.util.*;

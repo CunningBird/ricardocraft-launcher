@@ -2,9 +2,7 @@ package ru.ricardocraft.client.commands;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.utils.command.Command;
-import ru.ricardocraft.client.utils.command.CommandHandler;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.security.interfaces.ECPublicKey;
 import java.util.Base64;

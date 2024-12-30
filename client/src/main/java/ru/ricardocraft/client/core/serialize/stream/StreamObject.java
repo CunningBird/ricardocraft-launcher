@@ -1,7 +1,7 @@
 package ru.ricardocraft.client.core.serialize.stream;
 
 import ru.ricardocraft.client.core.serialize.HOutput;
-import ru.ricardocraft.client.utils.helper.IOHelper;
+import ru.ricardocraft.client.helper.IOHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

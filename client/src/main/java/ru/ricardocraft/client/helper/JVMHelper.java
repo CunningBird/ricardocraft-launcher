@@ -1,4 +1,4 @@
-package ru.ricardocraft.client.utils.helper;
+package ru.ricardocraft.client.helper;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;

@@ -4,7 +4,7 @@ import ru.ricardocraft.client.dto.response.CheckServerRequestEvent;
 import ru.ricardocraft.client.dto.request.Request;
 import ru.ricardocraft.client.dto.request.websockets.WebSocketRequest;
 import ru.ricardocraft.client.core.LauncherNetworkAPI;
-import ru.ricardocraft.client.utils.helper.VerifyHelper;
+import ru.ricardocraft.client.helper.VerifyHelper;
 
 public final class CheckServerRequest extends Request<CheckServerRequestEvent> implements WebSocketRequest {
     @LauncherNetworkAPI

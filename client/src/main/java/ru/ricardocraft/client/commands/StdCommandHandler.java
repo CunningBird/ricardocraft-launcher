@@ -1,9 +1,9 @@
-package ru.ricardocraft.client.utils.command;
+package ru.ricardocraft.client.commands;
 
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.utils.helper.CommonHelper;
-import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.JVMHelper;
+import ru.ricardocraft.client.helper.CommonHelper;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.JVMHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;

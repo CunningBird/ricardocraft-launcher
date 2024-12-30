@@ -8,7 +8,7 @@ import ru.ricardocraft.client.runtime.client.DirBridge;
 import ru.ricardocraft.client.runtime.client.UserSettings;
 import ru.ricardocraft.client.service.JavaService;
 import ru.ricardocraft.client.utils.SystemTheme;
-import ru.ricardocraft.client.utils.helper.JavaHelper;
+import ru.ricardocraft.client.helper.JavaHelper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

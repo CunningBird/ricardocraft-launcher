@@ -8,7 +8,7 @@ import ru.ricardocraft.client.dto.request.auth.RestoreRequest;
 import ru.ricardocraft.client.dto.request.websockets.StdWebSocketService;
 import ru.ricardocraft.client.dto.request.websockets.WebSocketRequest;
 import ru.ricardocraft.client.core.LauncherNetworkAPI;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

@@ -13,10 +13,4 @@ public class LauncherRequest extends AbstractRequest {
 
     public String secureHash;
     public String secureSalt;
-
-    @Override
-    public ThreadSafeStatus getThreadSafeStatus() {
-        return ThreadSafeStatus.READ_WRITE;
-    }
-
 }

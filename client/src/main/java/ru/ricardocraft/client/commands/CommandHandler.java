@@ -1,7 +1,7 @@
-package ru.ricardocraft.client.utils.command;
+package ru.ricardocraft.client.commands;
 
-import ru.ricardocraft.client.utils.helper.CommonHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.CommonHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;

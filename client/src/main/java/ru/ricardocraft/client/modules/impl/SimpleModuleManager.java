@@ -2,8 +2,8 @@ package ru.ricardocraft.client.modules.impl;
 
 import ru.ricardocraft.client.core.LauncherTrustManager;
 import ru.ricardocraft.client.modules.*;
-import ru.ricardocraft.client.utils.helper.JVMHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.JVMHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.nio.file.Path;
 import java.security.cert.X509Certificate;

@@ -14,7 +14,7 @@ import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.overlays.AbstractOverlay;
 import ru.ricardocraft.client.scenes.login.methods.AbstractAuthMethod;
 import ru.ricardocraft.client.service.LaunchService;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;

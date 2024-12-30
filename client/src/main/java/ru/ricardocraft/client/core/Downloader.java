@@ -1,7 +1,7 @@
 package ru.ricardocraft.client.core;
 
-import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;

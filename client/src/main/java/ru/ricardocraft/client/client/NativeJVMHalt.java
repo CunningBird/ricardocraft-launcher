@@ -1,6 +1,6 @@
 package ru.ricardocraft.client.client;
 
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.lang.reflect.Method;
 

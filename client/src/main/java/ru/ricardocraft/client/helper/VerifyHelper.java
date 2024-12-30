@@ -1,4 +1,4 @@
-package ru.ricardocraft.client.utils.helper;
+package ru.ricardocraft.client.helper;
 
 import java.util.Map;
 import java.util.Objects;

@@ -14,7 +14,7 @@ import ru.ricardocraft.client.scenes.login.LoginAuthButtonComponent;
 import ru.ricardocraft.client.scenes.login.LoginScene;
 import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.service.LaunchService;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;
 

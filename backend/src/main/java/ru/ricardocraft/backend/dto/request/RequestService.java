@@ -7,7 +7,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public interface RequestService {
+
     <T extends TypeSerializeInterface> CompletableFuture<T> request(Request<T> request) throws IOException;
+
     void open() throws Exception;
 
     void registerEventHandler(EventHandler handler);

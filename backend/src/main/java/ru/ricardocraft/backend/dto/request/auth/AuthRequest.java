@@ -16,9 +16,4 @@ public class AuthRequest extends AbstractRequest {
         CLIENT,
         API
     }
-
-    @Override
-    public ThreadSafeStatus getThreadSafeStatus() {
-        return ThreadSafeStatus.READ_WRITE;
-    }
 }

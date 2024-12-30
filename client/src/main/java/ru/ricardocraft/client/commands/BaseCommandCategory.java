@@ -1,7 +1,7 @@
-package ru.ricardocraft.client.utils.command;
+package ru.ricardocraft.client.commands;
 
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.utils.helper.VerifyHelper;
+import ru.ricardocraft.client.helper.VerifyHelper;
 
 import java.util.Map;
 import java.util.Objects;

@@ -69,10 +69,6 @@ public abstract class AbstractRequest {
     public transient UUID connectUUID;
     public transient String ip;
 
-    public ThreadSafeStatus getThreadSafeStatus() {
-        return ThreadSafeStatus.READ;
-    }
-
     public enum ThreadSafeStatus {
         NONE, READ, READ_WRITE
     }

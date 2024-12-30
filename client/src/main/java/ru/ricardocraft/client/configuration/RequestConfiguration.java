@@ -22,8 +22,8 @@ import ru.ricardocraft.client.impl.GuiEventHandler;
 import ru.ricardocraft.client.runtime.client.DirBridge;
 import ru.ricardocraft.client.runtime.managers.SettingsManager;
 import ru.ricardocraft.client.service.AuthService;
-import ru.ricardocraft.client.utils.helper.LogHelper;
-import ru.ricardocraft.client.utils.helper.SecurityHelper;
+import ru.ricardocraft.client.helper.LogHelper;
+import ru.ricardocraft.client.helper.SecurityHelper;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;

@@ -1,4 +1,4 @@
-package ru.ricardocraft.client.utils.helper;
+package ru.ricardocraft.client.helper;
 
 import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.utils.logging.LogHelperAppender;

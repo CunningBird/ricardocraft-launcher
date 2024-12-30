@@ -1,7 +1,7 @@
 package ru.ricardocraft.client.utils;
 
 import ru.ricardocraft.client.helper.enfs.dir.FileEntry;
-import ru.ricardocraft.client.utils.helper.SecurityHelper;
+import ru.ricardocraft.client.helper.SecurityHelper;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;

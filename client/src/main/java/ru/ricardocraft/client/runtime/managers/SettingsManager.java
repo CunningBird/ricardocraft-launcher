@@ -18,9 +18,9 @@ import ru.ricardocraft.client.runtime.NewLauncherSettings;
 import ru.ricardocraft.client.runtime.client.DirBridge;
 import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.service.JavaService;
-import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.JavaHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.JavaHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.*;
 import java.lang.reflect.Type;

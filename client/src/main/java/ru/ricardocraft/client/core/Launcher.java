@@ -5,8 +5,8 @@ import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.core.managers.GsonManager;
 import ru.ricardocraft.client.core.serialize.HInput;
 import ru.ricardocraft.client.launch.DebugLauncherTrustManager;
-import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.IOException;
 import java.net.URL;

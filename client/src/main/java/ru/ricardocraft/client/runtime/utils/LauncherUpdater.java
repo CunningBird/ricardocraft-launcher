@@ -3,9 +3,9 @@ package ru.ricardocraft.client.runtime.utils;
 import ru.ricardocraft.client.dto.request.update.LauncherRequest;
 import ru.ricardocraft.client.core.LauncherInject;
 import ru.ricardocraft.client.scenes.login.LoginScene;
-import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
-import ru.ricardocraft.client.utils.helper.SecurityHelper;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.LogHelper;
+import ru.ricardocraft.client.helper.SecurityHelper;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;

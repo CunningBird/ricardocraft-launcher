@@ -1,7 +1,7 @@
 package ru.ricardocraft.client.profiles.optional.actions;
 
 import ru.ricardocraft.client.core.hasher.HashedDir;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.Map;
 

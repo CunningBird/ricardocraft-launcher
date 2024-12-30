@@ -17,9 +17,9 @@ import ru.ricardocraft.client.service.JavaService;
 import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.service.OfflineService;
 import ru.ricardocraft.client.stage.PrimaryStage;
-import ru.ricardocraft.client.utils.helper.EnvHelper;
-import ru.ricardocraft.client.utils.helper.JVMHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.EnvHelper;
+import ru.ricardocraft.client.helper.JVMHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;

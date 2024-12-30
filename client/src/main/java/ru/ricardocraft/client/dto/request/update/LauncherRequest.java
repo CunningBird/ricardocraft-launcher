@@ -7,9 +7,9 @@ import ru.ricardocraft.client.dto.request.RequestService;
 import ru.ricardocraft.client.dto.request.websockets.WebSocketRequest;
 import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.core.LauncherNetworkAPI;
-import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
-import ru.ricardocraft.client.utils.helper.SecurityHelper;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.LogHelper;
+import ru.ricardocraft.client.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;

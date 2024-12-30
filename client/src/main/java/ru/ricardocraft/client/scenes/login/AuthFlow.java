@@ -18,7 +18,7 @@ import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.scenes.login.methods.*;
 import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.service.LaunchService;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;

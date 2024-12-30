@@ -6,7 +6,7 @@ import ru.ricardocraft.client.dto.request.auth.password.AuthCodePassword;
 import ru.ricardocraft.client.scenes.login.AuthFlow;
 import ru.ricardocraft.client.scenes.login.LoginScene;
 import ru.ricardocraft.client.scenes.login.WebAuthOverlay;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;
 

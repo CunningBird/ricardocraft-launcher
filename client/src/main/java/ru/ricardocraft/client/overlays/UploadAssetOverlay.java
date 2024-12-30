@@ -19,8 +19,8 @@ import ru.ricardocraft.client.launch.SkinManager;
 import ru.ricardocraft.client.scenes.interfaces.SceneSupportUserBlock;
 import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.service.LaunchService;
-import ru.ricardocraft.client.utils.helper.LogHelper;
-import ru.ricardocraft.client.utils.helper.SecurityHelper;
+import ru.ricardocraft.client.helper.LogHelper;
+import ru.ricardocraft.client.helper.SecurityHelper;
 
 import java.io.*;
 import java.net.URI;

@@ -1,6 +1,6 @@
 package ru.ricardocraft.client.utils;
 
-import ru.ricardocraft.client.utils.helper.VerifyHelper;
+import ru.ricardocraft.client.helper.VerifyHelper;
 
 import java.util.Map;
 import java.util.Objects;

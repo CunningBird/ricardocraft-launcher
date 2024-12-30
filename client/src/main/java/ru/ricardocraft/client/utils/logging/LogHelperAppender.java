@@ -1,6 +1,6 @@
 package ru.ricardocraft.client.utils.logging;
 
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.function.Supplier;
 

@@ -1,7 +1,7 @@
-package ru.ricardocraft.client.utils.helper;
+package ru.ricardocraft.client.helper;
 
 import com.google.gson.*;
-import ru.ricardocraft.client.utils.command.CommandException;
+import ru.ricardocraft.client.commands.CommandException;
 
 import java.lang.reflect.Type;
 import java.util.*;

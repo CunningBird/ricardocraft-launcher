@@ -1,4 +1,4 @@
-package ru.ricardocraft.client.utils.command;
+package ru.ricardocraft.client.commands;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

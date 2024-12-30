@@ -5,9 +5,9 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.runtime.client.DirBridge;
-import ru.ricardocraft.client.utils.helper.JVMHelper;
-import ru.ricardocraft.client.utils.helper.JavaHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.JVMHelper;
+import ru.ricardocraft.client.helper.JavaHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.nio.file.Path;
 import java.util.Collections;

@@ -26,27 +26,6 @@ public class AuthResponse extends AbstractResponse {
     public AuthResponse() {
     }
 
-    public AuthResponse(PlayerProfile pp, String accessToken, ClientPermissions permissions) {
-        this.playerProfile = pp;
-        this.accessToken = accessToken;
-        this.permissions = permissions;
-    }
-
-    public AuthResponse(ClientPermissions permissions, PlayerProfile playerProfile, String accessToken, String protectToken) {
-        this.permissions = permissions;
-        this.playerProfile = playerProfile;
-        this.accessToken = accessToken;
-        this.protectToken = protectToken;
-    }
-
-    public AuthResponse(ClientPermissions permissions, PlayerProfile playerProfile, String accessToken, String protectToken, UUID session) {
-        this.permissions = permissions;
-        this.playerProfile = playerProfile;
-        this.accessToken = accessToken;
-        this.protectToken = protectToken;
-        this.session = session;
-    }
-
     public AuthResponse(ClientPermissions permissions, PlayerProfile playerProfile, String accessToken, String protectToken, UUID session, OAuthRequestEvent oauth) {
         this.permissions = permissions;
         this.playerProfile = playerProfile;

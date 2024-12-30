@@ -5,9 +5,9 @@ import ru.ricardocraft.client.profiles.ClientProfileVersions;
 import ru.ricardocraft.client.profiles.optional.actions.OptionalAction;
 import ru.ricardocraft.client.profiles.optional.actions.OptionalActionClientArgs;
 import ru.ricardocraft.client.client.ClientParams;
-import ru.ricardocraft.client.utils.helper.HackHelper;
-import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.JVMHelper;
+import ru.ricardocraft.client.helper.HackHelper;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.JVMHelper;
 
 import java.io.IOException;
 import java.io.InputStream;

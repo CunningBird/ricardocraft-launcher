@@ -1,4 +1,4 @@
-package ru.ricardocraft.client.utils.helper;
+package ru.ricardocraft.client.helper;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;

@@ -9,7 +9,7 @@ import ru.ricardocraft.client.config.DesignConstants;
 import ru.ricardocraft.client.helper.EnFSHelper;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;
 import ru.ricardocraft.client.impl.GuiObjectsContainer;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.IOException;
 

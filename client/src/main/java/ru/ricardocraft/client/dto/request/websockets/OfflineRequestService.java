@@ -5,7 +5,7 @@ import ru.ricardocraft.client.dto.request.Request;
 import ru.ricardocraft.client.dto.request.RequestException;
 import ru.ricardocraft.client.dto.request.RequestService;
 import ru.ricardocraft.client.dto.request.WebSocketEvent;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.HashSet;
 import java.util.Map;

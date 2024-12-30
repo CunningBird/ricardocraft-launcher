@@ -7,9 +7,9 @@ import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.profiles.ClientProfileVersions;
 import ru.ricardocraft.client.core.serialize.HInput;
 import ru.ricardocraft.client.core.serialize.HOutput;
-import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
-import ru.ricardocraft.client.utils.helper.VerifyHelper;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.LogHelper;
+import ru.ricardocraft.client.helper.VerifyHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -17,7 +17,7 @@ import ru.ricardocraft.client.scenes.serverinfo.ServerInfoScene;
 import ru.ricardocraft.client.scenes.servermenu.ServerMenuScene;
 import ru.ricardocraft.client.scenes.settings.SettingsScene;
 import ru.ricardocraft.client.service.AuthService;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.UUID;
 

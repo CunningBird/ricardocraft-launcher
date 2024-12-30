@@ -2,7 +2,7 @@ package ru.ricardocraft.client.profiles.optional.triggers;
 
 import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.profiles.PlayerProfile;
-import ru.ricardocraft.client.utils.helper.JavaHelper;
+import ru.ricardocraft.client.helper.JavaHelper;
 
 public interface OptionalTriggerContext {
     ClientProfile getProfile();

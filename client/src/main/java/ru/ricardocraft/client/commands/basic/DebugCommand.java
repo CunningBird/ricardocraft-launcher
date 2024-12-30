@@ -1,7 +1,7 @@
 package ru.ricardocraft.client.commands.basic;
 
-import ru.ricardocraft.client.utils.command.Command;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.commands.Command;
+import ru.ricardocraft.client.helper.LogHelper;
 
 public class DebugCommand extends Command {
 

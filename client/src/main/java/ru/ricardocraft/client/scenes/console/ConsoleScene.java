@@ -14,8 +14,8 @@ import ru.ricardocraft.client.runtime.managers.SettingsManager;
 import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.service.LaunchService;
-import ru.ricardocraft.client.utils.command.CommandHandler;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.commands.CommandHandler;
+import ru.ricardocraft.client.helper.LogHelper;
 
 @Component
 @Scope("prototype")

@@ -1,9 +1,9 @@
 package ru.ricardocraft.client.runtime.client;
 
 import ru.ricardocraft.client.core.Launcher;
-import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.JVMHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.JVMHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -5,9 +5,9 @@ import ru.ricardocraft.client.core.hasher.HashedDir;
 import ru.ricardocraft.client.core.hasher.HashedEntry;
 import ru.ricardocraft.client.core.hasher.HashedFile;
 import ru.ricardocraft.client.runtime.managers.SettingsManager;
-import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.JVMHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.JVMHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.*;

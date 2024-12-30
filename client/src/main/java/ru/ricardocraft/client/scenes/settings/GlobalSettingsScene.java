@@ -21,8 +21,8 @@ import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.service.JavaService;
 import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.stage.ConsoleStage;
-import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.File;
 import java.io.IOException;

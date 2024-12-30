@@ -1,4 +1,4 @@
-package ru.ricardocraft.client.utils.command;
+package ru.ricardocraft.client.commands;
 
 public final class CommandException extends Exception {
     private static final long serialVersionUID = -6588814993972117772L;

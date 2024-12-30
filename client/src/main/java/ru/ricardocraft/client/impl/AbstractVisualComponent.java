@@ -15,7 +15,7 @@ import ru.ricardocraft.client.helper.EnFSHelper;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.stage.AbstractStage;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.IOException;
 import java.net.URL;

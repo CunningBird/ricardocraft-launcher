@@ -11,7 +11,7 @@ import ru.ricardocraft.client.dto.request.auth.password.AuthAESPassword;
 import ru.ricardocraft.client.dto.request.auth.password.AuthPlainPassword;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.config.LauncherConfig;
-import ru.ricardocraft.client.utils.helper.SecurityHelper;
+import ru.ricardocraft.client.helper.SecurityHelper;
 
 @Component
 public class AuthService {

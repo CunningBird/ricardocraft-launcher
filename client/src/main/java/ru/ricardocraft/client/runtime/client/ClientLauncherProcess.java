@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.core.Launcher;
+import ru.ricardocraft.client.helper.*;
 import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.profiles.ClientProfileVersions;
 import ru.ricardocraft.client.profiles.PlayerProfile;
@@ -22,7 +23,6 @@ import ru.ricardocraft.client.launch.RuntimeModuleManager;
 import ru.ricardocraft.client.runtime.client.events.ClientProcessBuilderParamsWrittedEvent;
 import ru.ricardocraft.client.runtime.managers.SettingsManager;
 import ru.ricardocraft.client.utils.DirWatcher;
-import ru.ricardocraft.client.utils.helper.*;
 import ru.ricardocraft.client.utils.launch.*;
 
 import javax.crypto.CipherOutputStream;

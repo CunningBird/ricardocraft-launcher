@@ -15,7 +15,7 @@ import ru.ricardocraft.client.impl.AbstractVisualComponent;
 import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.service.PingService;
 import ru.ricardocraft.client.utils.JavaFxUtils;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicLong;

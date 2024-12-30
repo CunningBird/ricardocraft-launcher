@@ -25,7 +25,7 @@ import ru.ricardocraft.client.service.JavaService;
 import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.service.PingService;
 import ru.ricardocraft.client.utils.SystemMemory;
-import ru.ricardocraft.client.utils.helper.JVMHelper;
+import ru.ricardocraft.client.helper.JVMHelper;
 
 import java.text.MessageFormat;
 

@@ -15,11 +15,6 @@ public class GetAvailabilityAuthResponse extends AbstractResponse {
         this.features = ServerFeature.FEATURE_SUPPORT.val;
     }
 
-    public GetAvailabilityAuthResponse(List<AuthAvailability> list, long features) {
-        this.list = list;
-        this.features = features;
-    }
-
     @Override
     public String getType() {
         return "getAvailabilityAuth";

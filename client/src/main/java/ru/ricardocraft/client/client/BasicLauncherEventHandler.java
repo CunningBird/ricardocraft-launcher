@@ -6,7 +6,7 @@ import ru.ricardocraft.client.dto.response.SecurityReportRequestEvent;
 import ru.ricardocraft.client.dto.request.Request;
 import ru.ricardocraft.client.dto.request.RequestService;
 import ru.ricardocraft.client.dto.request.WebSocketEvent;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 public class BasicLauncherEventHandler implements RequestService.EventHandler {
 

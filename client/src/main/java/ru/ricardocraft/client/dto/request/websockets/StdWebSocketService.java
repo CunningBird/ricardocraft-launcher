@@ -6,8 +6,8 @@ import ru.ricardocraft.client.dto.request.Request;
 import ru.ricardocraft.client.dto.request.RequestException;
 import ru.ricardocraft.client.dto.request.RequestService;
 import ru.ricardocraft.client.dto.request.WebSocketEvent;
-import ru.ricardocraft.client.utils.helper.JVMHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.JVMHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;

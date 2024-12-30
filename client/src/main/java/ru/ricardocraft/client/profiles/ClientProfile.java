@@ -6,8 +6,8 @@ import ru.ricardocraft.client.profiles.optional.OptionalFile;
 import ru.ricardocraft.client.profiles.optional.triggers.OptionalTrigger;
 import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.core.hasher.FileNameMatcher;
-import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.VerifyHelper;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.VerifyHelper;
 import ru.ricardocraft.client.utils.launch.LaunchOptions;
 
 import java.lang.reflect.Type;

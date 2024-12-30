@@ -3,8 +3,8 @@ package ru.ricardocraft.client.impl;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import ru.ricardocraft.client.helper.EnFSHelper;
-import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.IOException;
 import java.io.InputStream;

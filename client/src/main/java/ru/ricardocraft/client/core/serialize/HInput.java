@@ -1,6 +1,6 @@
 package ru.ricardocraft.client.core.serialize;
 
-import ru.ricardocraft.client.utils.helper.IOHelper;
+import ru.ricardocraft.client.helper.IOHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;

@@ -2,8 +2,8 @@ package ru.ricardocraft.client.utils.logging;
 
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
-import ru.ricardocraft.client.utils.helper.FormatHelper;
-import ru.ricardocraft.client.utils.helper.IOHelper;
+import ru.ricardocraft.client.helper.FormatHelper;
+import ru.ricardocraft.client.helper.IOHelper;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-import static ru.ricardocraft.client.utils.helper.LogHelper.*;
+import static ru.ricardocraft.client.helper.LogHelper.*;
 
 public class SimpleLogHelperImpl implements LogHelperAppender {
 

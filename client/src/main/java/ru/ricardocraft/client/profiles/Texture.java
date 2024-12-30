@@ -2,8 +2,8 @@ package ru.ricardocraft.client.profiles;
 
 import ru.ricardocraft.client.core.serialize.HOutput;
 import ru.ricardocraft.client.core.serialize.stream.StreamObject;
-import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.SecurityHelper;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.util.Arrays;

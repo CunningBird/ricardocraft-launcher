@@ -1,4 +1,4 @@
-package ru.ricardocraft.client.utils.command;
+package ru.ricardocraft.client.commands;
 
 import java.util.Arrays;
 import java.util.HashMap;

@@ -9,10 +9,10 @@ import ru.ricardocraft.client.core.LauncherTrustManager;
 import ru.ricardocraft.client.core.serialize.HInput;
 import ru.ricardocraft.client.core.serialize.HOutput;
 import ru.ricardocraft.client.core.serialize.stream.StreamObject;
-import ru.ricardocraft.client.utils.helper.JVMHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
-import ru.ricardocraft.client.utils.helper.SecurityHelper;
-import ru.ricardocraft.client.utils.helper.VerifyHelper;
+import ru.ricardocraft.client.helper.JVMHelper;
+import ru.ricardocraft.client.helper.LogHelper;
+import ru.ricardocraft.client.helper.SecurityHelper;
+import ru.ricardocraft.client.helper.VerifyHelper;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;

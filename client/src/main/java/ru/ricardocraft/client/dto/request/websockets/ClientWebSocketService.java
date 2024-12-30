@@ -15,7 +15,7 @@ import ru.ricardocraft.client.core.hasher.HashedEntry;
 import ru.ricardocraft.client.core.hasher.HashedEntryAdapter;
 import ru.ricardocraft.client.utils.ProviderMap;
 import ru.ricardocraft.client.utils.UniversalJsonAdapter;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

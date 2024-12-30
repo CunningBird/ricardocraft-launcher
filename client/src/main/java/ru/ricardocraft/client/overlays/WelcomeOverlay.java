@@ -13,7 +13,7 @@ import ru.ricardocraft.client.launch.SkinManager;
 import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.utils.JavaFxUtils;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 @Component
 @Scope("prototype")

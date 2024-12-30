@@ -8,9 +8,9 @@ import ru.ricardocraft.client.dto.request.secure.HardwareReportRequest;
 import ru.ricardocraft.client.dto.request.secure.VerifySecureLevelKeyRequest;
 import ru.ricardocraft.client.runtime.utils.HWIDProvider;
 import ru.ricardocraft.client.service.LaunchService;
-import ru.ricardocraft.client.utils.helper.CommonHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
-import ru.ricardocraft.client.utils.helper.SecurityHelper;
+import ru.ricardocraft.client.helper.CommonHelper;
+import ru.ricardocraft.client.helper.LogHelper;
+import ru.ricardocraft.client.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.security.interfaces.ECPrivateKey;

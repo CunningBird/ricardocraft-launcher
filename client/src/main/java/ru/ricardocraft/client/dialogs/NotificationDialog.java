@@ -8,7 +8,7 @@ import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.helper.PositionHelper;
 import ru.ricardocraft.client.service.LaunchService;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.HashMap;
 import java.util.LinkedList;

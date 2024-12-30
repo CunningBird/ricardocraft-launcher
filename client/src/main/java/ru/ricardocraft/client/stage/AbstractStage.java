@@ -15,7 +15,7 @@ import javafx.stage.StageStyle;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;
 import ru.ricardocraft.client.impl.GuiObjectsContainer;
 import ru.ricardocraft.client.utils.JavaFxUtils;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.IOException;
 import java.util.LinkedList;

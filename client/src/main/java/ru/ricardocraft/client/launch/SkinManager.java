@@ -5,7 +5,7 @@ import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.core.Downloader;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

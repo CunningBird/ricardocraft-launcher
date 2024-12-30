@@ -14,7 +14,7 @@ import ru.ricardocraft.client.launch.RuntimeModuleManager;
 import ru.ricardocraft.client.runtime.client.UserSettings;
 import ru.ricardocraft.client.utils.ProviderMap;
 import ru.ricardocraft.client.utils.UniversalJsonAdapter;
-import ru.ricardocraft.client.utils.helper.CommonHelper;
+import ru.ricardocraft.client.helper.CommonHelper;
 
 @Component
 public class GsonManager {

@@ -13,8 +13,8 @@ import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.utils.Version;
-import ru.ricardocraft.client.utils.helper.JVMHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.JVMHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.EOFException;
 

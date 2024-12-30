@@ -33,7 +33,7 @@ import ru.ricardocraft.client.scenes.servermenu.ServerMenuScene;
 import ru.ricardocraft.client.scenes.settings.GlobalSettingsScene;
 import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.service.LaunchService;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.net.URI;
 import java.nio.file.Path;

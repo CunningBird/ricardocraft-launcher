@@ -3,11 +3,11 @@ package ru.ricardocraft.client.commands.basic;
 import org.fusesource.jansi.Ansi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.utils.command.Category;
-import ru.ricardocraft.client.utils.command.Command;
-import ru.ricardocraft.client.utils.command.CommandException;
-import ru.ricardocraft.client.utils.command.CommandHandler;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.commands.Category;
+import ru.ricardocraft.client.commands.Command;
+import ru.ricardocraft.client.commands.CommandException;
+import ru.ricardocraft.client.commands.CommandHandler;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.Arrays;
 import java.util.Map.Entry;

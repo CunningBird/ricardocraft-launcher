@@ -5,9 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.modules.LauncherModule;
 import ru.ricardocraft.client.modules.LauncherModuleInfo;
 import ru.ricardocraft.client.launch.RuntimeModuleManager;
-import ru.ricardocraft.client.utils.command.Command;
-import ru.ricardocraft.client.utils.command.CommandHandler;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 @Component
 public class ModulesCommand extends Command {

@@ -17,8 +17,8 @@ import ru.ricardocraft.client.core.hasher.HashedFile;
 import ru.ricardocraft.client.impl.ContextHelper;
 import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.utils.AssetIndexHelper;
-import ru.ricardocraft.client.utils.helper.IOHelper;
-import ru.ricardocraft.client.utils.helper.LogHelper;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;
