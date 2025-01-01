@@ -28,9 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class Downloader {
-    @LauncherInject("launcher.certificatePinning")
     private static boolean isCertificatePinning;
-    @LauncherInject("launcher.noHttp2")
     private static boolean isNoHttp2;
     private static volatile SSLSocketFactory sslSocketFactory;
     private static volatile SSLContext sslContext;

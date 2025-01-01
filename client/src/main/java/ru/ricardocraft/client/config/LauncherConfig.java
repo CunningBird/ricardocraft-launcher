@@ -1,10 +1,6 @@
 package ru.ricardocraft.client.config;
 
 import ru.ricardocraft.client.core.Launcher;
-import ru.ricardocraft.client.modules.LauncherModule;
-import ru.ricardocraft.client.modules.LauncherModulesManager;
-import ru.ricardocraft.client.core.LauncherInject;
-import ru.ricardocraft.client.core.LauncherInjectionConstructor;
 import ru.ricardocraft.client.core.LauncherTrustManager;
 import ru.ricardocraft.client.core.serialize.HInput;
 import ru.ricardocraft.client.core.serialize.HOutput;
@@ -13,6 +9,8 @@ import ru.ricardocraft.client.helper.JVMHelper;
 import ru.ricardocraft.client.helper.LogHelper;
 import ru.ricardocraft.client.helper.SecurityHelper;
 import ru.ricardocraft.client.helper.VerifyHelper;
+import ru.ricardocraft.client.modules.LauncherModule;
+import ru.ricardocraft.client.modules.LauncherModulesManager;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -24,45 +22,29 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
 public final class LauncherConfig extends StreamObject {
-    @LauncherInject("launchercore.certificates")
     private static final List<byte[]> secureConfigCertificates = new ArrayList<>();
-    @LauncherInject("launcher.legacymodules")
     private static final List<Class<?>> modulesClasses = new ArrayList<>();
     private static final MethodType VOID_TYPE = MethodType.methodType(void.class);
-    @LauncherInject("launcher.projectName")
     public final String projectName;
-    @LauncherInject("launcher.port")
     public final int clientPort;
     public final LauncherTrustManager trustManager;
     public final ECPublicKey ecdsaPublicKey;
     public final RSAPublicKey rsaPublicKey;
     public final Map<String, byte[]> runtime;
-    @LauncherInject("runtimeconfig.secureCheckHash")
     public final String secureCheckHash;
-    @LauncherInject("runtimeconfig.secureCheckSalt")
     public final String secureCheckSalt;
-    @LauncherInject("runtimeconfig.passwordEncryptKey")
     public final String passwordEncryptKey;
-    @LauncherInject("runtimeconfig.runtimeEncryptKey")
     public final String runtimeEncryptKey;
-    @LauncherInject("launcher.address")
     public final String address;
-    @LauncherInject("runtimeconfig.secretKeyClient")
     public String secretKeyClient;
-    @LauncherInject("runtimeconfig.unlockSecret")
     public String unlockSecret;
-    @LauncherInject("launchercore.env")
     public LauncherEnvironment environment;
-    @LauncherInject("runtimeconfig.buildNumber")
     public long buildNumber;
 
     private static class ModernModulesClass {
-        @LauncherInject("launcher.modules")
         private static final List<Class<?>> modulesClasses = new ArrayList<>();
     }
 
-
-    @LauncherInjectionConstructor
     public LauncherConfig(HInput input) throws IOException, InvalidKeySpecException {
         ecdsaPublicKey = SecurityHelper.toPublicECDSAKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));
         rsaPublicKey = SecurityHelper.toPublicRSAKey(input.readByteArray(SecurityHelper.CRYPTO_MAX_LENGTH));

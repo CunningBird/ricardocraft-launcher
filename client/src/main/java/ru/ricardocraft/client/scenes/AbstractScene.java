@@ -7,7 +7,7 @@ import javafx.scene.control.ButtonBase;
 import javafx.scene.layout.Pane;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.dto.request.Request;
-import ru.ricardocraft.client.dto.request.WebSocketEvent;
+import ru.ricardocraft.client.dto.response.WebSocketEvent;
 import ru.ricardocraft.client.dto.request.auth.ExitRequest;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.config.LauncherConfig;

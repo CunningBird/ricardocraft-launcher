@@ -1,17 +1,13 @@
 package ru.ricardocraft.client.dto.response;
 
-import ru.ricardocraft.client.dto.RequestEvent;
-import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.core.hasher.HashedDir;
+import ru.ricardocraft.client.dto.RequestEvent;
 
 public class UpdateRequestEvent extends RequestEvent {
-    @LauncherNetworkAPI
+
     public final HashedDir hdir;
-    @LauncherNetworkAPI
     public final boolean zip;
-    @LauncherNetworkAPI
     public String url;
-    @LauncherNetworkAPI
     public boolean fullDownload;
 
     public UpdateRequestEvent(HashedDir hdir) {

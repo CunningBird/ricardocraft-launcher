@@ -1,13 +1,13 @@
 package ru.ricardocraft.client.dto.request;
 
+import ru.ricardocraft.client.dto.request.auth.RefreshTokenRequest;
+import ru.ricardocraft.client.dto.request.auth.RestoreRequest;
+import ru.ricardocraft.client.dto.response.WebSocketEvent;
+import ru.ricardocraft.client.websockets.StdWebSocketService;
+import ru.ricardocraft.client.websockets.WebSocketRequest;
 import ru.ricardocraft.client.dto.response.AuthRequestEvent;
 import ru.ricardocraft.client.dto.response.RefreshTokenRequestEvent;
 import ru.ricardocraft.client.dto.response.RestoreRequestEvent;
-import ru.ricardocraft.client.dto.request.auth.RefreshTokenRequest;
-import ru.ricardocraft.client.dto.request.auth.RestoreRequest;
-import ru.ricardocraft.client.dto.request.websockets.StdWebSocketService;
-import ru.ricardocraft.client.dto.request.websockets.WebSocketRequest;
-import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.*;
@@ -29,7 +29,7 @@ public abstract class Request<R extends WebSocketEvent> implements WebSocketRequ
     private static volatile long tokenExpiredTime;
     private static volatile ScheduledExecutorService executorService;
     private static volatile boolean autoRefreshRunning;
-    @LauncherNetworkAPI
+
     public final UUID requestUUID = UUID.randomUUID();
     private transient final AtomicBoolean started = new AtomicBoolean(false);
 

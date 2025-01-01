@@ -1,7 +1,6 @@
 package ru.ricardocraft.client.utils;
 
 import ru.ricardocraft.client.core.Launcher;
-import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.core.hasher.HashedDir;
 import ru.ricardocraft.client.core.hasher.HashedEntry;
 import ru.ricardocraft.client.helper.IOHelper;
@@ -50,16 +49,12 @@ public class AssetIndexHelper {
     }
 
     public static class AssetIndex {
-        @LauncherNetworkAPI
         public boolean virtual;
-        @LauncherNetworkAPI
         public Map<String, AssetIndexObject> objects;
     }
 
     public static class AssetIndexObject {
-        @LauncherNetworkAPI
         public String hash;
-        @LauncherNetworkAPI
         public long size;
     }
 }

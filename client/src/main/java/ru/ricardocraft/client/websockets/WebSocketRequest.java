@@ -1,4 +1,4 @@
-package ru.ricardocraft.client.dto.request.websockets;
+package ru.ricardocraft.client.websockets;
 
 import ru.ricardocraft.client.utils.TypeSerializeInterface;
 

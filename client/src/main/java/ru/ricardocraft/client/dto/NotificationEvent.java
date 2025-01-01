@@ -1,14 +1,11 @@
 package ru.ricardocraft.client.dto;
 
-import ru.ricardocraft.client.dto.request.WebSocketEvent;
-import ru.ricardocraft.client.core.LauncherNetworkAPI;
+import ru.ricardocraft.client.dto.response.WebSocketEvent;
 
 public class NotificationEvent implements WebSocketEvent {
-    @LauncherNetworkAPI
+
     public final String head;
-    @LauncherNetworkAPI
     public final String message;
-    @LauncherNetworkAPI
     public final NotificationType icon;
 
     public NotificationEvent(String head, String message) {

@@ -3,24 +3,23 @@ package ru.ricardocraft.client.runtime.managers;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.ricardocraft.client.config.GuiModuleConfig;
+import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.core.Launcher;
+import ru.ricardocraft.client.core.managers.GsonManager;
 import ru.ricardocraft.client.dto.response.ProfilesRequestEvent;
+import ru.ricardocraft.client.helper.IOHelper;
+import ru.ricardocraft.client.helper.JavaHelper;
+import ru.ricardocraft.client.helper.LogHelper;
 import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.profiles.optional.OptionalFile;
 import ru.ricardocraft.client.profiles.optional.OptionalView;
 import ru.ricardocraft.client.profiles.optional.triggers.OptionalTrigger;
 import ru.ricardocraft.client.profiles.optional.triggers.OptionalTriggerContext;
-import ru.ricardocraft.client.config.GuiModuleConfig;
-import ru.ricardocraft.client.config.RuntimeSettings;
-import ru.ricardocraft.client.core.LauncherNetworkAPI;
-import ru.ricardocraft.client.core.managers.GsonManager;
 import ru.ricardocraft.client.runtime.NewLauncherSettings;
 import ru.ricardocraft.client.runtime.client.DirBridge;
 import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.service.JavaService;
-import ru.ricardocraft.client.helper.IOHelper;
-import ru.ricardocraft.client.helper.JavaHelper;
-import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -302,11 +301,8 @@ public class SettingsManager {
     }
 
     public static class OptionalListEntryPair {
-        @LauncherNetworkAPI
         public String name;
-        @LauncherNetworkAPI
         public boolean mark;
-        @LauncherNetworkAPI
         public OptionalView.OptionalFileInstallInfo installInfo;
 
         public OptionalListEntryPair(OptionalFile optionalFile, boolean enabled,
@@ -318,11 +314,8 @@ public class SettingsManager {
     }
 
     public static class OptionalListEntry {
-        @LauncherNetworkAPI
         public List<SettingsManager.OptionalListEntryPair> enabled = new LinkedList<>();
-        @LauncherNetworkAPI
         public String name;
-        @LauncherNetworkAPI
         public UUID profileUUID;
 
         @Override

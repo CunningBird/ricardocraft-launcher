@@ -3,7 +3,7 @@ package ru.ricardocraft.client.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.dto.request.Request;
-import ru.ricardocraft.client.dto.request.websockets.OfflineRequestService;
+import ru.ricardocraft.client.websockets.OfflineRequestService;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.runtime.managers.SettingsManager;

@@ -1,16 +1,14 @@
 package ru.ricardocraft.client.dto.response;
 
 import ru.ricardocraft.client.dto.RequestEvent;
-import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.utils.TypeSerializeInterface;
 
 import java.util.List;
 import java.util.Set;
 
 public class GetAvailabilityAuthRequestEvent extends RequestEvent {
-    @LauncherNetworkAPI
+
     public final List<AuthAvailability> list;
-    @LauncherNetworkAPI
     public final long features;
 
     public GetAvailabilityAuthRequestEvent(List<AuthAvailability> list) {
@@ -42,14 +40,10 @@ public class GetAvailabilityAuthRequestEvent extends RequestEvent {
 
     public static class AuthAvailability {
         public final List<AuthAvailabilityDetails> details;
-        @LauncherNetworkAPI
         public String name;
-        @LauncherNetworkAPI
         public String displayName;
 
-        @LauncherNetworkAPI
         public boolean visible;
-        @LauncherNetworkAPI
         public Set<String> features;
 
         public AuthAvailability(List<AuthAvailabilityDetails> details, String name, String displayName, boolean visible, Set<String> features) {

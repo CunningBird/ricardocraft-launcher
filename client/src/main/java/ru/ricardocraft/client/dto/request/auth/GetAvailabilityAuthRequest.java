@@ -6,7 +6,7 @@ import ru.ricardocraft.client.dto.request.auth.details.AuthLoginOnlyDetails;
 import ru.ricardocraft.client.dto.request.auth.details.AuthPasswordDetails;
 import ru.ricardocraft.client.dto.request.auth.details.AuthTotpDetails;
 import ru.ricardocraft.client.dto.request.auth.details.AuthWebViewDetails;
-import ru.ricardocraft.client.dto.request.websockets.WebSocketRequest;
+import ru.ricardocraft.client.websockets.WebSocketRequest;
 import ru.ricardocraft.client.utils.ProviderMap;
 
 public class GetAvailabilityAuthRequest extends Request<GetAvailabilityAuthRequestEvent> implements WebSocketRequest {

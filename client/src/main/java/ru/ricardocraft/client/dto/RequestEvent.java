@@ -1,7 +1,6 @@
 package ru.ricardocraft.client.dto;
 
-import ru.ricardocraft.client.dto.request.WebSocketEvent;
-import ru.ricardocraft.client.core.LauncherNetworkAPI;
+import ru.ricardocraft.client.dto.response.WebSocketEvent;
 
 import java.util.UUID;
 
@@ -13,6 +12,5 @@ public abstract class RequestEvent implements WebSocketEvent {
     /**
      * UUID sent in request
      */
-    @LauncherNetworkAPI
     public UUID requestUUID;
 }

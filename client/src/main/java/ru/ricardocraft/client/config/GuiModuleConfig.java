@@ -1,38 +1,22 @@
 package ru.ricardocraft.client.config;
 
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.core.LauncherInject;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
 public class GuiModuleConfig {
-
-    @LauncherInject(value = "modules.javaruntime.createaccounturl")
     public String createAccountURL;
-    @LauncherInject(value = "modules.javaruntime.forgotpassurl")
     public String forgotPassURL;
-    @LauncherInject(value = "modules.javaruntime.hastebinserver")
     public String hastebinServer;
-    @LauncherInject(value = "modules.javaruntime.forcedownloadjava")
     public boolean forceDownloadJava;
-    @LauncherInject(value = "modules.javaruntime.javalist")
     public Map<String, String> javaList;
-    @LauncherInject(value = "modules.javaruntime.lazy")
     public boolean lazy;
-    @LauncherInject(value = "modules.javaruntime.disableofflinemode")
     public boolean disableOfflineMode;
-    @LauncherInject(value = "modules.javaruntime.disabledebugpermissions")
     public boolean disableDebugPermissions;
-
-    @LauncherInject(value = "modules.javaruntime.autoauth")
     public boolean autoAuth;
-
-    @LauncherInject(value = "modules.javaruntime.locale")
     public String locale;
-
-    @LauncherInject(value = "modules.javaruntime.downloadthreads")
     public int downloadThreads = 4;
 
     public static Object getDefault() {

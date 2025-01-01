@@ -1,6 +1,5 @@
 package ru.ricardocraft.client.helper;
 
-import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.utils.logging.LogHelperAppender;
 import ru.ricardocraft.client.utils.logging.SimpleLogHelperImpl;
 import ru.ricardocraft.client.utils.logging.Slf4jLogHelperImpl;
@@ -154,12 +153,7 @@ public final class LogHelper {
         warning(String.format(format, args));
     }
 
-    public enum OutputTypes {
-        @LauncherNetworkAPI
-        PLAIN,
-        @LauncherNetworkAPI
-        JANSI,
-    }
+    public enum OutputTypes {PLAIN, JANSI,}
 
     public enum Level {
         DEV("DEV"), DEBUG("DEBUG"), INFO("INFO"), WARNING("WARN"), ERROR("ERROR");

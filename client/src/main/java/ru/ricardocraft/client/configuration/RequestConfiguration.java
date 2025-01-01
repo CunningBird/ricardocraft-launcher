@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import ru.ricardocraft.client.core.ClientPermissions;
 import ru.ricardocraft.client.dto.response.AuthRequestEvent;
 import ru.ricardocraft.client.dto.response.ProfilesRequestEvent;
+import ru.ricardocraft.client.helper.JVMHelper;
 import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.profiles.PlayerProfile;
 import ru.ricardocraft.client.dto.request.Request;
@@ -13,8 +14,8 @@ import ru.ricardocraft.client.dto.request.RequestService;
 import ru.ricardocraft.client.dto.request.auth.AuthRequest;
 import ru.ricardocraft.client.dto.request.auth.password.AuthOAuthPassword;
 import ru.ricardocraft.client.dto.request.update.ProfilesRequest;
-import ru.ricardocraft.client.dto.request.websockets.OfflineRequestService;
-import ru.ricardocraft.client.dto.request.websockets.StdWebSocketService;
+import ru.ricardocraft.client.websockets.OfflineRequestService;
+import ru.ricardocraft.client.websockets.StdWebSocketService;
 import ru.ricardocraft.client.client.BasicLauncherEventHandler;
 import ru.ricardocraft.client.client.ClientLauncherMethods;
 import ru.ricardocraft.client.config.LauncherConfig;
@@ -30,22 +31,34 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Configuration
 public class RequestConfiguration {
 
     @Bean
-    public RequestService requestService(LauncherConfig config,
-                                         SettingsManager settingsManager,
-                                         AuthService authService) {
+    public RequestService requestService(LauncherConfig config, SettingsManager settingsManager, AuthService authService) {
         RequestService requestService;
         if (!Request.isAvailable()) {
             String address = config.address;
             LogHelper.debug("Start async connection to %s", address);
             RequestService service;
             try {
-                service = StdWebSocketService.initWebSockets(address).get();
+                StdWebSocketService stdWebSocketService = new StdWebSocketService(address);
+                CompletableFuture<StdWebSocketService> future = new CompletableFuture<>();
+                stdWebSocketService.openAsync(() -> {
+                    future.complete(stdWebSocketService);
+                    JVMHelper.RUNTIME.addShutdownHook(new Thread(() -> {
+                        try {
+                            stdWebSocketService.close();
+                        } catch (InterruptedException e) {
+                            LogHelper.error(e);
+                        }
+                    }));
+                }, future::completeExceptionally);
+
+                service = future.get();
             } catch (Throwable e) {
                 if (LogHelper.isDebugEnabled()) {
                     LogHelper.error(e);

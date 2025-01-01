@@ -8,7 +8,7 @@ import ru.ricardocraft.client.dto.request.management.FeaturesRequest;
 import ru.ricardocraft.client.dto.request.secure.GetSecureLevelInfoRequest;
 import ru.ricardocraft.client.dto.request.secure.SecurityReportRequest;
 import ru.ricardocraft.client.dto.request.update.LauncherRequest;
-import ru.ricardocraft.client.dto.request.websockets.OfflineRequestService;
+import ru.ricardocraft.client.websockets.OfflineRequestService;
 
 import java.util.ArrayList;
 import java.util.HashSet;

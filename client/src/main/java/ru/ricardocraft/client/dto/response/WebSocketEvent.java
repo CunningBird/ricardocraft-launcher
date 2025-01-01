@@ -1,4 +1,4 @@
-package ru.ricardocraft.client.dto.request;
+package ru.ricardocraft.client.dto.response;
 
 import ru.ricardocraft.client.utils.TypeSerializeInterface;
 

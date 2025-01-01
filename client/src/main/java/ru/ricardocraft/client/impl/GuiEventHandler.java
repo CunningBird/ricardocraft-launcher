@@ -7,7 +7,7 @@ import ru.ricardocraft.client.dto.response.AuthRequestEvent;
 import ru.ricardocraft.client.dto.response.ProfilesRequestEvent;
 import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.dto.request.RequestService;
-import ru.ricardocraft.client.dto.request.WebSocketEvent;
+import ru.ricardocraft.client.dto.response.WebSocketEvent;
 import ru.ricardocraft.client.runtime.managers.SettingsManager;
 import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.scenes.login.AuthFlow;

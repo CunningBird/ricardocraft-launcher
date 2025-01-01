@@ -14,7 +14,7 @@ import ru.ricardocraft.client.dto.response.AuthRequestEvent;
 import ru.ricardocraft.client.dto.response.GetAvailabilityAuthRequestEvent;
 import ru.ricardocraft.client.profiles.Texture;
 import ru.ricardocraft.client.dto.request.Request;
-import ru.ricardocraft.client.dto.request.WebSocketEvent;
+import ru.ricardocraft.client.dto.response.WebSocketEvent;
 import ru.ricardocraft.client.dto.request.auth.GetAvailabilityAuthRequest;
 import ru.ricardocraft.client.dto.request.update.LauncherRequest;
 import ru.ricardocraft.client.dto.request.update.ProfilesRequest;

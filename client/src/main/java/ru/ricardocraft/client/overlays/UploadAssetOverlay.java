@@ -6,21 +6,20 @@ import javafx.stage.FileChooser;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.core.Launcher;
-import ru.ricardocraft.client.dto.response.AssetUploadInfoRequestEvent;
-import ru.ricardocraft.client.profiles.Texture;
 import ru.ricardocraft.client.dto.request.Request;
 import ru.ricardocraft.client.dto.request.RequestException;
 import ru.ricardocraft.client.dto.request.cabinet.GetAssetUploadUrl;
-import ru.ricardocraft.client.config.GuiModuleConfig;
-import ru.ricardocraft.client.core.LauncherNetworkAPI;
+import ru.ricardocraft.client.dto.response.AssetUploadInfoRequestEvent;
+import ru.ricardocraft.client.helper.LogHelper;
 import ru.ricardocraft.client.helper.LookupHelper;
+import ru.ricardocraft.client.helper.SecurityHelper;
 import ru.ricardocraft.client.launch.SkinManager;
+import ru.ricardocraft.client.profiles.Texture;
 import ru.ricardocraft.client.scenes.interfaces.SceneSupportUserBlock;
 import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.service.LaunchService;
-import ru.ricardocraft.client.helper.LogHelper;
-import ru.ricardocraft.client.helper.SecurityHelper;
 
 import java.io.*;
 import java.net.URI;
@@ -34,8 +33,9 @@ import java.util.Map;
 @Component
 @Scope("prototype")
 public class UploadAssetOverlay extends CenterOverlay {
-    private static final HttpClient client = HttpClient.newBuilder()
-            .build();
+
+    private static final HttpClient client = HttpClient.newBuilder().build();
+
     private Button uploadSkin;
     private Button uploadCape;
     private CheckBox useSlim;
@@ -172,7 +172,6 @@ public class UploadAssetOverlay extends CenterOverlay {
     }
 
     public static final class AssetOptions {
-        @LauncherNetworkAPI
         private final boolean modelSlim;
 
         public AssetOptions(boolean modelSlim) {
@@ -185,12 +184,11 @@ public class UploadAssetOverlay extends CenterOverlay {
 
     }
 
-    public record UploadError(@LauncherNetworkAPI String error) {
+    public record UploadError(String error) {
 
     }
 
-    public record UserTexture(@LauncherNetworkAPI String url, @LauncherNetworkAPI String digest,
-                              @LauncherNetworkAPI Map<String, String> metadata) {
+    public record UserTexture(String url, String digest, Map<String, String> metadata) {
 
         Texture toLauncherTexture() {
             return new Texture(url, SecurityHelper.fromHex(digest), metadata);

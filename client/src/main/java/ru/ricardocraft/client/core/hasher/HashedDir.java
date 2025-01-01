@@ -1,6 +1,5 @@
 package ru.ricardocraft.client.core.hasher;
 
-import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.core.serialize.HInput;
 import ru.ricardocraft.client.core.serialize.HOutput;
 import ru.ricardocraft.client.core.serialize.stream.EnumSerializer;
@@ -16,7 +15,6 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public final class HashedDir extends HashedEntry {
-    @LauncherNetworkAPI
     private final Map<String, HashedEntry> map = new HashMap<>(32);
 
     public HashedDir() {

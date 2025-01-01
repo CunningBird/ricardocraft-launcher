@@ -1,14 +1,13 @@
 package ru.ricardocraft.client.config;
 
-import ru.ricardocraft.client.dto.response.GetAvailabilityAuthRequestEvent;
-import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.dto.request.auth.AuthRequest;
-import ru.ricardocraft.client.core.LauncherNetworkAPI;
+import ru.ricardocraft.client.dto.response.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.client.helper.JavaHelper;
+import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.runtime.client.DirBridge;
 import ru.ricardocraft.client.runtime.client.UserSettings;
 import ru.ricardocraft.client.service.JavaService;
 import ru.ricardocraft.client.utils.SystemTheme;
-import ru.ricardocraft.client.helper.JavaHelper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,33 +19,19 @@ import java.util.UUID;
 public class RuntimeSettings extends UserSettings {
     public static final LAUNCHER_LOCALE DEFAULT_LOCALE = LAUNCHER_LOCALE.RUSSIAN;
     public transient Path updatesDir;
-    @LauncherNetworkAPI
     public String login;
-    @LauncherNetworkAPI
     public AuthRequest.AuthPasswordInterface password;
-    @LauncherNetworkAPI
     public boolean autoAuth;
-    @LauncherNetworkAPI
     public GetAvailabilityAuthRequestEvent.AuthAvailability lastAuth;
-    @LauncherNetworkAPI
     public String updatesDirPath;
-    @LauncherNetworkAPI
     public UUID lastProfile;
-    @LauncherNetworkAPI
     public volatile LAUNCHER_LOCALE locale;
-    @LauncherNetworkAPI
     public String oauthAccessToken;
-    @LauncherNetworkAPI
     public String oauthRefreshToken;
-    @LauncherNetworkAPI
     public long oauthExpire;
-    @LauncherNetworkAPI
     public volatile LAUNCHER_THEME theme = LAUNCHER_THEME.COMMON;
-    @LauncherNetworkAPI
     public Map<UUID, ProfileSettings> profileSettings = new HashMap<>();
-    @LauncherNetworkAPI
     public List<ClientProfile> profiles;
-    @LauncherNetworkAPI
     public GlobalSettings globalSettings = new GlobalSettings();
 
     public static RuntimeSettings getDefault(GuiModuleConfig config) {
@@ -69,11 +54,11 @@ public class RuntimeSettings extends UserSettings {
     }
 
     public enum LAUNCHER_LOCALE {
-        @LauncherNetworkAPI RUSSIAN("ru", "Русский"),
-        @LauncherNetworkAPI BELARUSIAN("be", "Беларуская"),
-        @LauncherNetworkAPI UKRAINIAN("uk", "Українська"),
-        @LauncherNetworkAPI POLISH("pl", "Polska"),
-        @LauncherNetworkAPI ENGLISH("en", "English");
+        RUSSIAN("ru", "Русский"),
+        BELARUSIAN("be", "Беларуская"),
+        UKRAINIAN("uk", "Українська"),
+        POLISH("pl", "Polska"),
+        ENGLISH("en", "English");
         public final String name;
         public final String displayName;
 
@@ -84,8 +69,8 @@ public class RuntimeSettings extends UserSettings {
     }
 
     public enum LAUNCHER_THEME {
-        @LauncherNetworkAPI COMMON(null, "default"),
-        @LauncherNetworkAPI DARK("dark", "dark");
+        COMMON(null, "default"),
+        DARK("dark", "dark");
         public final String name;
         public final String displayName;
 
@@ -96,21 +81,13 @@ public class RuntimeSettings extends UserSettings {
     }
 
     public static class ProfileSettings {
-        @LauncherNetworkAPI
         public int ram;
-        @LauncherNetworkAPI
         public boolean debug;
-        @LauncherNetworkAPI
         public boolean fullScreen;
-        @LauncherNetworkAPI
         public boolean autoEnter;
-        @LauncherNetworkAPI
         public String javaPath;
-        @LauncherNetworkAPI
         public boolean waylandSupport;
-        @LauncherNetworkAPI
         public boolean debugSkipUpdate;
-        @LauncherNetworkAPI
         public boolean debugSkipFileMonitor;
 
         public static ProfileSettings getDefault(JavaService javaService, ClientProfile profile) {
@@ -169,9 +146,7 @@ public class RuntimeSettings extends UserSettings {
     }
 
     public static class GlobalSettings {
-        @LauncherNetworkAPI
         public boolean prismVSync = true;
-        @LauncherNetworkAPI
         public boolean debugAllClients = false;
     }
 }

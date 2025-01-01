@@ -1,24 +1,19 @@
 package ru.ricardocraft.client.dto.request.auth;
 
-import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.dto.request.Request;
 import ru.ricardocraft.client.dto.request.auth.password.*;
-import ru.ricardocraft.client.dto.request.websockets.WebSocketRequest;
+import ru.ricardocraft.client.websockets.WebSocketRequest;
 import ru.ricardocraft.client.dto.response.AuthRequestEvent;
 import ru.ricardocraft.client.utils.ProviderMap;
 
 public final class AuthRequest extends Request<AuthRequestEvent> implements WebSocketRequest {
     public static final ProviderMap<AuthPasswordInterface> providers = new ProviderMap<>();
     private static boolean registerProviders = false;
-    @LauncherNetworkAPI
+
     public final String login;
-    @LauncherNetworkAPI
     public final AuthPasswordInterface password;
-    @LauncherNetworkAPI
     public final String auth_id;
-    @LauncherNetworkAPI
     public final boolean getSession;
-    @LauncherNetworkAPI
     public final ConnectTypes authType;
 
     public AuthRequest(String login, String password, String auth_id, ConnectTypes authType) {
@@ -57,12 +52,7 @@ public final class AuthRequest extends Request<AuthRequestEvent> implements WebS
         return "auth";
     }
 
-    public enum ConnectTypes {
-        @LauncherNetworkAPI
-        CLIENT,
-        @LauncherNetworkAPI
-        API
-    }
+    public enum ConnectTypes {CLIENT, API}
 
     public interface AuthPasswordInterface {
         boolean check();

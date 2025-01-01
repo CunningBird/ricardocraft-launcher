@@ -12,7 +12,6 @@ import ru.ricardocraft.backend.properties.LaunchServerProperties;
 
 @Slf4j
 @EnableScheduling
-@EnableWebSocket
 @SpringBootApplication
 @EnableConfigurationProperties({LaunchServerProperties.class, HttpServerProperties.class, DirectoriesProperties.class})
 public class BackendApplication {

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.dto.request.Request;
 import ru.ricardocraft.client.dto.request.RequestService;
-import ru.ricardocraft.client.dto.request.WebSocketEvent;
+import ru.ricardocraft.client.dto.response.WebSocketEvent;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.impl.ContextHelper;
@@ -56,13 +56,20 @@ public class ProcessingOverlay extends AbstractOverlay {
         description.setText(e.toString());
     }
 
-    public final <T extends WebSocketEvent> void processRequest(AbstractStage stage, String message, Request<T> request,
-                                                                Consumer<T> onSuccess, EventHandler<ActionEvent> onError) {
+    public final <T extends WebSocketEvent> void processRequest(AbstractStage stage,
+                                                                String message,
+                                                                Request<T> request,
+                                                                Consumer<T> onSuccess,
+                                                                EventHandler<ActionEvent> onError) {
         processRequest(stage, message, request, onSuccess, null, onError);
     }
 
-    public final <T extends WebSocketEvent> void processRequest(AbstractStage stage, String message, Request<T> request,
-                                                                Consumer<T> onSuccess, Consumer<Throwable> onException, EventHandler<ActionEvent> onError) {
+    public final <T extends WebSocketEvent> void processRequest(AbstractStage stage,
+                                                                String message,
+                                                                Request<T> request,
+                                                                Consumer<T> onSuccess,
+                                                                Consumer<Throwable> onException,
+                                                                EventHandler<ActionEvent> onError) {
         try {
             show(stage, (e) -> {
                 try {

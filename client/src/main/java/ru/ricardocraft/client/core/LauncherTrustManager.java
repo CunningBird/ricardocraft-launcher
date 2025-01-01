@@ -21,8 +21,6 @@ import java.util.*;
 public class LauncherTrustManager {
     private final X509Certificate[] trustSigners;
     private final List<X509Certificate> trustCache = new ArrayList<>();
-
-    @LauncherInject("launcher.certificatePinning")
     private static boolean isCertificatePinning;
 
     public LauncherTrustManager(X509Certificate[] trustSigners) {

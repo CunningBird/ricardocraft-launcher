@@ -1,10 +1,10 @@
-package ru.ricardocraft.client.dto.request.websockets;
+package ru.ricardocraft.client.websockets;
 
 import ru.ricardocraft.client.core.Launcher;
 import ru.ricardocraft.client.dto.request.Request;
 import ru.ricardocraft.client.dto.request.RequestException;
 import ru.ricardocraft.client.dto.request.RequestService;
-import ru.ricardocraft.client.dto.request.WebSocketEvent;
+import ru.ricardocraft.client.dto.response.WebSocketEvent;
 import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.HashSet;

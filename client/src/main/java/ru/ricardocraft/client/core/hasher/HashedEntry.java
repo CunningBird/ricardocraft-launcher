@@ -1,6 +1,5 @@
 package ru.ricardocraft.client.core.hasher;
 
-import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.core.serialize.HInput;
 import ru.ricardocraft.client.core.serialize.stream.EnumSerializer;
 import ru.ricardocraft.client.core.serialize.stream.StreamObject;
@@ -9,7 +8,6 @@ import java.io.IOException;
 
 public abstract class HashedEntry extends StreamObject {
 
-    @LauncherNetworkAPI
     public boolean flag; // For external usage
 
     public abstract Type getType();

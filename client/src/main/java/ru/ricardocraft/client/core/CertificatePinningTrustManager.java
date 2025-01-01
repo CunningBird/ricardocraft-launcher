@@ -15,7 +15,6 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 
 public final class CertificatePinningTrustManager {
-    @LauncherInject("launchercore.certificates")
     private static List<byte[]> secureConfigCertificates;
     private static X509Certificate[] certs = null;
     private volatile static TrustManagerFactory INSTANCE;

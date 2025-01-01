@@ -1,6 +1,5 @@
 package ru.ricardocraft.client.core.hasher;
 
-import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.core.serialize.HInput;
 import ru.ricardocraft.client.core.serialize.HOutput;
 import ru.ricardocraft.client.helper.IOHelper;
@@ -16,9 +15,7 @@ public final class HashedFile extends HashedEntry {
     public static final DigestAlgorithm DIGEST_ALGO = DigestAlgorithm.SHA1;
 
     // Instance
-    @LauncherNetworkAPI
     public final long size;
-    @LauncherNetworkAPI
     private final byte[] digest;
 
 

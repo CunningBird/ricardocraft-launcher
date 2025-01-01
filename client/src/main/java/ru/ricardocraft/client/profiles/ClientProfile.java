@@ -1,13 +1,12 @@
 package ru.ricardocraft.client.profiles;
 
 import com.google.gson.*;
-import ru.ricardocraft.client.profiles.optional.OptionalDepend;
-import ru.ricardocraft.client.profiles.optional.OptionalFile;
-import ru.ricardocraft.client.profiles.optional.triggers.OptionalTrigger;
-import ru.ricardocraft.client.core.LauncherNetworkAPI;
 import ru.ricardocraft.client.core.hasher.FileNameMatcher;
 import ru.ricardocraft.client.helper.IOHelper;
 import ru.ricardocraft.client.helper.VerifyHelper;
+import ru.ricardocraft.client.profiles.optional.OptionalDepend;
+import ru.ricardocraft.client.profiles.optional.OptionalFile;
+import ru.ricardocraft.client.profiles.optional.triggers.OptionalTrigger;
 import ru.ricardocraft.client.utils.launch.LaunchOptions;
 
 import java.lang.reflect.Type;
@@ -17,68 +16,39 @@ import java.util.*;
 public final class ClientProfile implements Comparable<ClientProfile> {
     private static final FileNameMatcher ASSET_MATCHER = new FileNameMatcher(
             new String[0], new String[]{"indexes", "objects"}, new String[0]);
-    @LauncherNetworkAPI
+
     private String title;
-    @LauncherNetworkAPI
     private UUID uuid;
-    @LauncherNetworkAPI
     private Version version;
-    @LauncherNetworkAPI
     private String info;
-    @LauncherNetworkAPI
     private String dir;
-    @LauncherNetworkAPI
     private int sortIndex;
-    @LauncherNetworkAPI
     private String assetIndex;
-    @LauncherNetworkAPI
     private String assetDir;
     //  Updater and client watch service
-    @LauncherNetworkAPI
     private List<String> update;
-    @LauncherNetworkAPI
     private List<String> updateExclusions;
-    @LauncherNetworkAPI
     private List<String> updateVerify;
-    @LauncherNetworkAPI
     private Set<OptionalFile> updateOptional;
-    @LauncherNetworkAPI
     private List<String> jvmArgs;
-    @LauncherNetworkAPI
     private List<String> classPath;
-    @LauncherNetworkAPI
     private List<String> altClassPath;
-    @LauncherNetworkAPI
     private List<String> clientArgs;
-    @LauncherNetworkAPI
     private List<String> compatClasses;
-    @LauncherNetworkAPI
     private List<String> loadNatives;
-    @LauncherNetworkAPI
     private Map<String, String> properties;
-    @LauncherNetworkAPI
     private List<ServerProfile> servers;
-    @LauncherNetworkAPI
     private ClassLoaderConfig classLoaderConfig;
 
-    @LauncherNetworkAPI
     private List<CompatibilityFlags> flags;
-    @LauncherNetworkAPI
     private int recommendJavaVersion = 8;
-    @LauncherNetworkAPI
     private int minJavaVersion = 8;
-    @LauncherNetworkAPI
     private int maxJavaVersion = 999;
-    @LauncherNetworkAPI
     private ProfileDefaultSettings settings;
-    @LauncherNetworkAPI
     private boolean limited;
     // Client launcher
-    @LauncherNetworkAPI
     private String mainClass;
-    @LauncherNetworkAPI
     private String mainModule;
-    @LauncherNetworkAPI
     private LaunchOptions.ModuleConf moduleConf;
 
     public ClientProfile(String title,
