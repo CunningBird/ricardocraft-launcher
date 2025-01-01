@@ -290,10 +290,10 @@ public class LoginScene extends AbstractScene {
                                 errorHandle(ex);
                             }
                         }
-                        if (application.getCurrentScene() instanceof LoginScene loginScene) {
+                        if (application.gui.getCurrentScene() instanceof LoginScene loginScene) {
                             loginScene.authFlow.isLoginStarted = false;
                         }
-                        application.setMainScene(getServerMenuScene());
+                        application.gui.setMainScene(getServerMenuScene());
                     });
                 }, null);
     }

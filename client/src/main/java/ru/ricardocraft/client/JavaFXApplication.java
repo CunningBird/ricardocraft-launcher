@@ -8,12 +8,9 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import ru.ricardocraft.client.core.Launcher;
 import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.core.LauncherTrustManager;
-import ru.ricardocraft.client.impl.BackgroundComponent;
 import ru.ricardocraft.client.impl.GuiObjectsContainer;
 import ru.ricardocraft.client.runtime.client.DirBridge;
 import ru.ricardocraft.client.runtime.managers.SettingsManager;
-import ru.ricardocraft.client.scenes.AbstractScene;
-import ru.ricardocraft.client.service.JavaService;
 import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.service.OfflineService;
 import ru.ricardocraft.client.stage.PrimaryStage;
@@ -34,9 +31,7 @@ public class JavaFXApplication extends Application {
     private static final AtomicReference<JavaFXApplication> INSTANCE = new AtomicReference<>();
 
     public GuiObjectsContainer gui;
-
     private SettingsManager settingsManager;
-    private PrimaryStage mainStage;
 
     public JavaFXApplication() {
         INSTANCE.set(this);
@@ -48,18 +43,6 @@ public class JavaFXApplication extends Application {
 
     public static void main(String[] args) {
         launch(args);
-    }
-
-    public AbstractScene getCurrentScene() {
-        return (AbstractScene) mainStage.getVisualComponent();
-    }
-
-    public PrimaryStage getMainStage() {
-        return mainStage;
-    }
-
-    public void setMainScene(AbstractScene scene) throws Exception {
-        mainStage.setScene(scene, true);
     }
 
     public void openURL(String url) {
@@ -80,12 +63,13 @@ public class JavaFXApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        ApplicationContext context = new AnnotationConfigApplicationContext("ru.ricardocraft.client");
-        LauncherConfig config = context.getBean(LauncherConfig.class);
-
-//        JVMHelper.checkStackTrace(JavaFXApplication.class); // TODO enable this
-
+        //        JVMHelper.checkStackTrace(JavaFXApplication.class); // TODO enable this
         JVMHelper.verifySystemProperties(Launcher.class, true);
+
+        ApplicationContext context = new AnnotationConfigApplicationContext("ru.ricardocraft.client");
+        settingsManager = context.getBean(SettingsManager.class);
+
+        LauncherConfig config = context.getBean(LauncherConfig.class);
         LauncherTrustManager trustManager = config.trustManager;
         if (trustManager == null) return;
         X509Certificate[] certificates = JVMHelper.getCertificates(JavaFXApplication.class.getClassLoader().getClass());
@@ -119,8 +103,6 @@ public class JavaFXApplication extends Application {
 //        constructor.setAccessible(true);
 //        hackLookup = constructor.newInstance(JavaFXApplication.class, null, value);
 
-        settingsManager = context.getBean(SettingsManager.class);
-
         LaunchService launchService = context.getBean(LaunchService.class);
         OfflineService offlineService = context.getBean(OfflineService.class);
 
@@ -136,15 +118,7 @@ public class JavaFXApplication extends Application {
         }
 
         gui = context.getBean(GuiObjectsContainer.class);
-        mainStage = gui.createPrimaryStage(stage);
-
-        gui.init();
-        mainStage.setScene(gui.getByName("login"), true);
-
-        BackgroundComponent backgroundComponent = (BackgroundComponent) gui.getByName("background");
-        backgroundComponent.init();
-        mainStage.pushBackground(backgroundComponent);
-        mainStage.show();
+        gui.setupPrimaryStage(stage);
 
         if (offlineService.isOfflineMode()) {
             launchService.createNotification(

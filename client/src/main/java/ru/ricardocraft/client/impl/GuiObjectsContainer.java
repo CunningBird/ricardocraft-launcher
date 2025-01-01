@@ -10,6 +10,7 @@ import ru.ricardocraft.client.overlays.ProcessingOverlay;
 import ru.ricardocraft.client.overlays.UploadAssetOverlay;
 import ru.ricardocraft.client.overlays.WelcomeOverlay;
 import ru.ricardocraft.client.runtime.managers.SettingsManager;
+import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.scenes.console.ConsoleScene;
 import ru.ricardocraft.client.scenes.debug.DebugScene;
 import ru.ricardocraft.client.scenes.internal.BrowserScene;
@@ -36,6 +37,8 @@ public class GuiObjectsContainer {
 
     private final LauncherConfig config;
     private final SettingsManager settingsManager;
+
+    private PrimaryStage mainStage;
 
     private final ObjectFactory<WebAuthOverlay> webAuthOverlayObjectFactory;
     private final ObjectFactory<BackgroundComponent> backgroundComponentObjectFactory;
@@ -112,8 +115,26 @@ public class GuiObjectsContainer {
         registerComponent(browserSceneObjectFactory.getObject());
     }
 
-    public PrimaryStage createPrimaryStage(Stage stage) {
-        return new PrimaryStage(this, stage, "%s Launcher".formatted(config.projectName));
+    public void setupPrimaryStage(Stage stage) throws Exception {
+        mainStage = new PrimaryStage(this, stage, "%s Launcher".formatted(config.projectName));
+        init();
+        mainStage.setScene(getByName("login"), true);
+        BackgroundComponent backgroundComponent = (BackgroundComponent) getByName("background");
+        backgroundComponent.init();
+        mainStage.pushBackground(backgroundComponent);
+        mainStage.show();
+    }
+
+    public AbstractScene getCurrentScene() {
+        return (AbstractScene) mainStage.getVisualComponent();
+    }
+
+    public PrimaryStage getMainStage() {
+        return mainStage;
+    }
+
+    public void setMainScene(AbstractScene scene) throws Exception {
+        mainStage.setScene(scene, true);
     }
 
     public Collection<AbstractVisualComponent> getComponents() {
@@ -121,19 +142,19 @@ public class GuiObjectsContainer {
     }
 
     public void reload() throws Exception {
-        String sceneName = application.getCurrentScene().getName();
+        String sceneName = application.gui.getCurrentScene().getName();
         ContextHelper.runInFxThreadStatic(() -> {
-            application.getMainStage().setScene(null, false);
+            getMainStage().setScene(null, false);
             BackgroundComponent backgroundComponent = (BackgroundComponent) getByName("background");
-            application.getMainStage().pullBackground(backgroundComponent);
+            getMainStage().pullBackground(backgroundComponent);
             resetDirectory(config, settingsManager.getRuntimeSettings());
             components.clear();
-            application.getMainStage().resetStyles();
+            getMainStage().resetStyles();
             init();
-            application.getMainStage().pushBackground(backgroundComponent);
+            getMainStage().pushBackground(backgroundComponent);
             for (AbstractVisualComponent s : components.values()) {
                 if (sceneName.equals(s.getName())) {
-                    application.getMainStage().setScene(s, false);
+                    getMainStage().setScene(s, false);
                 }
             }
         }).get();

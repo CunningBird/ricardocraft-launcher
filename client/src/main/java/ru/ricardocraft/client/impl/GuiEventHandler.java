@@ -41,13 +41,13 @@ public class GuiEventHandler implements RequestService.EventHandler {
         }
         try {
             if (event instanceof AuthRequestEvent authRequestEvent) {
-                boolean isNextScene = application.getCurrentScene() instanceof LoginScene; //TODO: FIX
+                boolean isNextScene = application.gui.getCurrentScene() instanceof LoginScene; //TODO: FIX
                 LogHelper.dev("Receive auth event. Send next scene %s", isNextScene ? "true" : "false");
                 authService.setAuthResult(null, authRequestEvent);
                 if (isNextScene) {
                     Platform.runLater(() -> {
                         try {
-                            ((LoginScene) application.getCurrentScene()).onSuccessLogin(
+                            ((LoginScene) application.gui.getCurrentScene()).onSuccessLogin(
                                     new AuthFlow.SuccessAuth(authRequestEvent,
                                                              authRequestEvent.playerProfile != null ? authRequestEvent.playerProfile.username : null,
                                                              null));
@@ -68,7 +68,7 @@ public class GuiEventHandler implements RequestService.EventHandler {
                         }
                     }
                 }
-                AbstractScene scene = application.getCurrentScene();
+                AbstractScene scene = application.gui.getCurrentScene();
                 if (scene instanceof ServerMenuScene
                         || scene instanceof ServerInfoScene
                         || scene instanceof SettingsScene | scene instanceof OptionsScene) {

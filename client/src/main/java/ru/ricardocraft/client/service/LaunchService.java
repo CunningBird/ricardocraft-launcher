@@ -82,10 +82,10 @@ public class LaunchService {
 
     public void createNotification(String head, String message) {
         NotificationDialog dialog = new NotificationDialog(application, head, message, guiModuleConfig, this);
-        if (application.getCurrentScene() != null) {
-            AbstractStage stage = application.getMainStage();
+        if (application.gui.getCurrentScene() != null) {
+            AbstractStage stage = application.gui.getMainStage();
             if (stage == null)
-                throw new NullPointerException("Try show launcher notification in application.getMainStage() == null");
+                throw new NullPointerException("Try show launcher notification in application.gui.getMainStage() == null");
             ContextHelper.runInFxThreadStatic(() -> {
                 dialog.init();
                 stage.pushNotification(dialog.getFxmlRootPrivate());
@@ -120,9 +120,9 @@ public class LaunchService {
 
     public void showAbstractDialog(AbstractDialog dialog, String header, boolean isLauncher) {
         if (isLauncher) {
-            AbstractScene scene = application.getCurrentScene();
+            AbstractScene scene = application.gui.getCurrentScene();
             if (scene == null)
-                throw new NullPointerException("Try show launcher dialog in application.getCurrentScene() == null");
+                throw new NullPointerException("Try show launcher dialog in application.gui.getCurrentScene() == null");
             ContextHelper.runInFxThreadStatic(() -> initDialogInScene(scene, dialog));
         } else {
             AtomicReference<DialogStage> stage = new AtomicReference<>(null);
@@ -296,7 +296,7 @@ public class LaunchService {
     }
 
     public CompletableFuture<ClientInstance> launchClient() {
-        AbstractStage stage = application.getMainStage();
+        AbstractStage stage = application.gui.getMainStage();
 
         ClientProfile profile = settingsManager.getProfile();
         if (profile == null) throw new NullPointerException("profilesService.getProfile() is null");

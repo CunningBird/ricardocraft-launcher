@@ -88,7 +88,7 @@ public class GlobalSettingsScene extends BaseSettingsScene {
             DirectoryChooser directoryChooser = new DirectoryChooser();
             directoryChooser.setTitle(launchService.getTranslation("runtime.scenes.settings.dirTitle"));
             directoryChooser.setInitialDirectory(DirBridge.dir.toFile());
-            File choose = directoryChooser.showDialog(application.getMainStage().getStage());
+            File choose = directoryChooser.showDialog(application.gui.getMainStage().getStage());
             if (choose == null) return;
             Path newDir = choose.toPath().toAbsolutePath();
             try {

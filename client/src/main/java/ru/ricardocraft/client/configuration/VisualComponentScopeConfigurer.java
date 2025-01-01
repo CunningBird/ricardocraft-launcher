@@ -65,7 +65,7 @@
 //    }
 //
 //    public void reload() throws Exception {
-//        String sceneName = application.getCurrentScene().getName();
+//        String sceneName = application.gui.getCurrentScene().getName();
 //        ContextHelper.runInFxThreadStatic(() -> {
 //            application.getMainStage().setScene(null, false);
 //            BackgroundComponent backgroundComponent = (BackgroundComponent) getByName("background");
