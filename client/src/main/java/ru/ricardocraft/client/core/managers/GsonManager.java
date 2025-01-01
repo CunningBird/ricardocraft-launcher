@@ -4,17 +4,17 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.core.Launcher;
-import ru.ricardocraft.client.modules.events.PreGsonPhase;
-import ru.ricardocraft.client.dto.request.websockets.ClientWebSocketService;
 import ru.ricardocraft.client.config.RuntimeSettings;
+import ru.ricardocraft.client.core.Launcher;
 import ru.ricardocraft.client.core.hasher.HashedEntry;
 import ru.ricardocraft.client.core.hasher.HashedEntryAdapter;
+import ru.ricardocraft.client.dto.request.websockets.StdWebSocketService;
+import ru.ricardocraft.client.helper.CommonHelper;
 import ru.ricardocraft.client.launch.RuntimeModuleManager;
+import ru.ricardocraft.client.modules.events.PreGsonPhase;
 import ru.ricardocraft.client.runtime.client.UserSettings;
 import ru.ricardocraft.client.utils.ProviderMap;
 import ru.ricardocraft.client.utils.UniversalJsonAdapter;
-import ru.ricardocraft.client.helper.CommonHelper;
 
 @Component
 public class GsonManager {
@@ -46,7 +46,7 @@ public class GsonManager {
     public void registerAdapters(GsonBuilder builder) {
         builder.registerTypeAdapter(HashedEntry.class, new HashedEntryAdapter());
         builder.registerTypeAdapter(UserSettings.class, new UniversalJsonAdapter<>(providers));
-        ClientWebSocketService.appendTypeAdapters(builder);
+        StdWebSocketService.appendTypeAdapters(builder);
         moduleManager.invokeEvent(new PreGsonPhase(builder));
     }
 }

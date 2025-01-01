@@ -72,12 +72,20 @@ public abstract class AbstractScene extends AbstractVisualComponent {
 
     protected final <T extends WebSocketEvent> void processRequest(String message, Request<T> request,
                                                                    Consumer<T> onSuccess, EventHandler<ActionEvent> onError) {
-        ((ProcessingOverlay) application.gui.getByName("processing")).processRequest(currentStage, message, request, onSuccess, onError);
+        getProcessingOverlay().processRequest(currentStage, message, request, onSuccess, onError);
     }
 
     protected final <T extends WebSocketEvent> void processRequest(String message, Request<T> request,
                                                                    Consumer<T> onSuccess, Consumer<Throwable> onException, EventHandler<ActionEvent> onError) {
-        ((ProcessingOverlay) application.gui.getByName("processing")).processRequest(currentStage, message, request, onSuccess, onException, onError);
+        getProcessingOverlay().processRequest(currentStage, message, request, onSuccess, onException, onError);
+    }
+
+    protected ProcessingOverlay getProcessingOverlay() {
+        return (ProcessingOverlay) application.gui.getByName("processing");
+    }
+
+    protected LoginScene getLoginScene() {
+        return (LoginScene) application.gui.getByName("login");
     }
 
     protected void sceneBaseInit() {
@@ -95,7 +103,7 @@ public abstract class AbstractScene extends AbstractVisualComponent {
                 (event) -> {
                     // Exit to main menu
                     ContextHelper.runInFxThreadStatic(() -> {
-                        LoginScene loginScene = (LoginScene) application.gui.getByName("login");
+                        LoginScene loginScene = getLoginScene();
                         loginScene.clearPassword();
                         loginScene.reset();
                         try {

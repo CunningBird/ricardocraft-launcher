@@ -63,10 +63,7 @@ public class UserBlock {
                 h.setOnAction((a) -> sceneAccessor.processRequest(
                         launchService.getTranslation("runtime.overlay.processing.text.uploadassetinfo"),
                         new AssetUploadInfoRequest(),
-                        (info) -> sceneAccessor.runInFxThread(
-                                () -> sceneAccessor.showOverlay((UploadAssetOverlay) application.gui.getByName("uploadasset"),
-                                        (f) -> ((UploadAssetOverlay) application.gui.getByName("uploadasset")).onAssetUploadInfo(info))
-                        ),
+                        (info) -> sceneAccessor.runInFxThread(() -> sceneAccessor.showOverlay(getUploadAsset(), (f) -> getUploadAsset().onAssetUploadInfo(info))),
                         sceneAccessor::errorHandle, (e) -> {
                         })
                 );
@@ -79,5 +76,9 @@ public class UserBlock {
             return;
         }
         JavaFxUtils.putAvatarToImageView(skinManager, authService.getUsername(), avatar);
+    }
+
+    protected UploadAssetOverlay getUploadAsset() {
+        return (UploadAssetOverlay) application.gui.getByName("uploadasset");
     }
 }

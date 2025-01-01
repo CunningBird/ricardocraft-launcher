@@ -66,7 +66,7 @@ public class OptionsScene extends AbstractScene implements SceneSupportUserBlock
         serverButton.enableSaveButton(null, (e) -> {
             try {
                 settingsManager.setOptionalView(profile, optionsTab.getOptionalView());
-                switchScene((ServerInfoScene) application.gui.getByName("serverinfo"));
+                switchScene(getServerInfoScene());
             } catch (Exception exception) {
                 errorHandle(exception);
             }
@@ -86,6 +86,10 @@ public class OptionsScene extends AbstractScene implements SceneSupportUserBlock
         }));
         optionsTab.addProfileOptionals(settingsManager.getOptionalView());
         userBlock.reset();
+    }
+
+    protected ServerInfoScene getServerInfoScene() {
+        return (ServerInfoScene) application.gui.getByName("serverinfo");
     }
 
     @Override

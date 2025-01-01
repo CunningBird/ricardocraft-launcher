@@ -60,7 +60,7 @@ public class ServerMenuScene extends AbstractScene implements SceneSupportUserBl
         this.userBlock = new UserBlock(layout, authService, skinManager, launchService, new SceneAccessor());
         LookupHelper.<ButtonBase>lookup(header, "#controls", "#settings").setOnAction((e) -> {
             try {
-                switchScene((GlobalSettingsScene) application.gui.getByName("globalsettings"));
+                switchScene(getGlobalSettingsScene());
             } catch (Exception exception) {
                 errorHandle(exception);
             }
@@ -73,6 +73,10 @@ public class ServerMenuScene extends AbstractScene implements SceneSupportUserBl
         });
         reset();
         isResetOnShow = true;
+    }
+
+    protected GlobalSettingsScene getGlobalSettingsScene() {
+        return (GlobalSettingsScene) application.gui.getByName("globalsettings");
     }
 
     static class ServerButtonCache {
@@ -112,7 +116,7 @@ public class ServerMenuScene extends AbstractScene implements SceneSupportUserBl
                 if (!event.getButton().equals(MouseButton.PRIMARY)) return;
                 changeServer(profile);
                 try {
-                    ServerInfoScene serverInfoScene = (ServerInfoScene) application.gui.getByName("serverinfo");
+                    ServerInfoScene serverInfoScene = getServerInfoScene();
                     switchScene(serverInfoScene);
                     serverInfoScene.reset();
                 } catch (Exception e) {
@@ -137,6 +141,10 @@ public class ServerMenuScene extends AbstractScene implements SceneSupportUserBl
             }
         }).start();
         userBlock.reset();
+    }
+
+    protected ServerInfoScene getServerInfoScene() {
+        return (ServerInfoScene) application.gui.getByName("serverinfo");
     }
 
     @Override

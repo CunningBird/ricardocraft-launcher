@@ -30,15 +30,12 @@ import static ru.ricardocraft.client.runtime.utils.LauncherUpdater.launcherBefor
 
 public class JavaFXApplication extends Application {
 
-    private static MethodHandles.Lookup hackLookup;
+    private MethodHandles.Lookup hackLookup;
     private static final AtomicReference<JavaFXApplication> INSTANCE = new AtomicReference<>();
 
-    public SettingsManager settingsManager;
-    public JavaService javaService;
-    public OfflineService offlineService;
-    public LaunchService launchService;
-
     public GuiObjectsContainer gui;
+
+    private SettingsManager settingsManager;
     private PrimaryStage mainStage;
 
     public JavaFXApplication() {
@@ -123,9 +120,9 @@ public class JavaFXApplication extends Application {
 //        hackLookup = constructor.newInstance(JavaFXApplication.class, null, value);
 
         settingsManager = context.getBean(SettingsManager.class);
-        launchService = context.getBean(LaunchService.class);
-        javaService = context.getBean(JavaService.class);
-        offlineService = context.getBean(OfflineService.class);
+
+        LaunchService launchService = context.getBean(LaunchService.class);
+        OfflineService offlineService = context.getBean(OfflineService.class);
 
         if (offlineService.isOfflineMode() && !offlineService.isAvailableOfflineMode()) {
             launchService.showDialog(

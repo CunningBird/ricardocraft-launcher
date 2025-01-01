@@ -15,6 +15,7 @@ import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.runtime.client.DirBridge;
 import ru.ricardocraft.client.runtime.managers.SettingsManager;
+import ru.ricardocraft.client.scenes.console.ConsoleScene;
 import ru.ricardocraft.client.scenes.settings.components.LanguageConverter;
 import ru.ricardocraft.client.scenes.settings.components.ThemeConverter;
 import ru.ricardocraft.client.service.AuthService;
@@ -70,7 +71,7 @@ public class GlobalSettingsScene extends BaseSettingsScene {
         LookupHelper.<ButtonBase>lookup(header, "#controls", "#console").setOnAction((e) -> {
             try {
                 if (consoleStage.isNullScene())
-                    consoleStage.setScene(application.gui.getByName("console"), true);
+                    consoleStage.setScene(getConsoleScene(), true);
                 consoleStage.show();
             } catch (Exception ex) {
                 errorHandle(ex);
@@ -131,6 +132,10 @@ public class GlobalSettingsScene extends BaseSettingsScene {
             }
         }));
         reset();
+    }
+
+    protected ConsoleScene getConsoleScene() {
+        return (ConsoleScene) application.gui.getByName("console");
     }
 
     @Override

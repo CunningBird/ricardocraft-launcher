@@ -29,6 +29,7 @@ import ru.ricardocraft.client.overlays.WelcomeOverlay;
 import ru.ricardocraft.client.runtime.managers.SettingsManager;
 import ru.ricardocraft.client.runtime.utils.LauncherUpdater;
 import ru.ricardocraft.client.scenes.AbstractScene;
+import ru.ricardocraft.client.scenes.options.OptionsScene;
 import ru.ricardocraft.client.scenes.servermenu.ServerMenuScene;
 import ru.ricardocraft.client.scenes.settings.GlobalSettingsScene;
 import ru.ricardocraft.client.service.AuthService;
@@ -83,7 +84,7 @@ public class LoginScene extends AbstractScene {
     public void doInit() {
         LookupHelper.<ButtonBase>lookup(header, "#controls", "#settings").setOnAction((e) -> {
             try {
-                switchScene((GlobalSettingsScene) application.gui.getByName("globalsettings"));
+                switchScene(getGlobalSettingsScene());
             } catch (Exception exception) {
                 errorHandle(exception);
             }
@@ -112,6 +113,10 @@ public class LoginScene extends AbstractScene {
         authList.setOnAction((e) -> changeAuthAvailability(authList.getSelectionModel().getSelectedItem()));
         authFlow.prepare();
         // Verify Launcher
+    }
+
+    protected GlobalSettingsScene getGlobalSettingsScene() {
+        return (GlobalSettingsScene) application.gui.getByName("globalsettings");
     }
 
     @Override
@@ -250,13 +255,25 @@ public class LoginScene extends AbstractScene {
             }
         }
         contextHelper.runInFxThread(() -> {
-            WelcomeOverlay welcomeOverlay = (WelcomeOverlay) application.gui.getByName("welcome");
+            WelcomeOverlay welcomeOverlay = geWelcomeOverlay();
 
             if (welcomeOverlay.isInit()) {
                 welcomeOverlay.reset();
             }
             showOverlay(welcomeOverlay, (e) -> welcomeOverlay.hide(2000, (f) -> onGetProfiles()));
         });
+    }
+
+    protected WelcomeOverlay geWelcomeOverlay() {
+        return (WelcomeOverlay) application.gui.getByName("welcome");
+    }
+
+    protected OptionsScene getOptionsScene() {
+        return (OptionsScene) application.gui.getByName("options");
+    }
+
+    protected ServerMenuScene getServerMenuScene() {
+        return (ServerMenuScene) application.gui.getByName("serverMenu");
     }
 
     public void onGetProfiles() {
@@ -266,7 +283,7 @@ public class LoginScene extends AbstractScene {
                     runtimeSettings.profiles = profiles.profiles;
                     contextHelper.runInFxThread(() -> {
                         securityService.startRequest();
-                        if (application.gui.getByName("options") != null) {
+                        if (getOptionsScene() != null) {
                             try {
                                 settingsManager.loadAll();
                             } catch (Throwable ex) {
@@ -276,7 +293,7 @@ public class LoginScene extends AbstractScene {
                         if (application.getCurrentScene() instanceof LoginScene loginScene) {
                             loginScene.authFlow.isLoginStarted = false;
                         }
-                        application.setMainScene((ServerMenuScene) application.gui.getByName("serverMenu"));
+                        application.setMainScene(getServerMenuScene());
                     });
                 }, null);
     }

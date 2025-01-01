@@ -190,7 +190,7 @@ public class LaunchService {
         Consumer<HashedDir> next = (assetHDir) -> {
             Path targetClient = DirBridge.dirUpdates.resolve(profile.getDir());
             LogHelper.info("Start update to %s", targetClient.toString());
-            ((UpdateScene) application.gui.getByName("update")).sendUpdateRequest(profile.getDir(), targetClient,
+            getUpdateScene().sendUpdateRequest(profile.getDir(), targetClient,
                     profile.getClientUpdateMatcher(), true,
                     settingsManager.getOptionalView(), true, testUpdate,
                     (clientHDir) -> {
@@ -212,7 +212,7 @@ public class LaunchService {
                         }
                     });
         };
-        UpdateScene updateScene = (UpdateScene) application.gui.getByName("update");
+        UpdateScene updateScene = getUpdateScene();
         if (profile.getVersion().compareTo(ClientProfileVersions.MINECRAFT_1_6_4) <= 0) {
             updateScene.sendUpdateRequest(profile.getAssetDir(), target,
                     profile.getAssetUpdateMatcher(), true, null, false, testUpdate, next);
@@ -221,6 +221,10 @@ public class LaunchService {
                     profile.getAssetUpdateMatcher(), true,
                     profile.getAssetIndex(), testUpdate, next);
         }
+    }
+
+    protected UpdateScene getUpdateScene() {
+        return (UpdateScene) application.gui.getByName("update");
     }
 
     private ClientInstance doLaunchClient(Path assetDir,
@@ -297,9 +301,9 @@ public class LaunchService {
         ClientProfile profile = settingsManager.getProfile();
         if (profile == null) throw new NullPointerException("profilesService.getProfile() is null");
         CompletableFuture<ClientInstance> future = new CompletableFuture<>();
-        ((ProcessingOverlay) application.gui.getByName("processing")).processRequest(stage, getTranslation("runtime.overlay.processing.text.setprofile"),
+        getProcessingOverlay().processRequest(stage, getTranslation("runtime.overlay.processing.text.setprofile"),
                 new SetProfileRequest(profile), (result) -> ContextHelper.runInFxThreadStatic(() -> {
-                    UpdateScene updateScene = (UpdateScene) application.gui.getByName("update");
+                    UpdateScene updateScene = getUpdateScene();
                     RuntimeSettings.ProfileSettings profileSettings = settingsManager.getProfileSettings();
                     JavaHelper.JavaVersion javaVersion = null;
                     for (JavaHelper.JavaVersion v : javaService.javaVersions) {
@@ -364,6 +368,10 @@ public class LaunchService {
                     }
                 }), future::completeExceptionally, null);
         return future;
+    }
+
+    protected ProcessingOverlay getProcessingOverlay() {
+        return (ProcessingOverlay) application.gui.getByName("processing");
     }
 
     public static class ClientInstance {

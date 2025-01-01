@@ -92,7 +92,7 @@ public class UploadAssetOverlay extends CenterOverlay {
         if (file == null) {
             return;
         }
-        ((ProcessingOverlay) application.gui.getByName("processing")).processRequest(currentStage, launchService.getTranslation("runtime.overlay.processing.text.uploadasset"), new GetAssetUploadUrl(name), (e) -> {
+        getProcessingOverlay().processRequest(currentStage, launchService.getTranslation("runtime.overlay.processing.text.uploadasset"), new GetAssetUploadUrl(name), (e) -> {
             String accessToken = e.token == null ? Request.getAccessToken() : e.token.accessToken;
             String boundary = SecurityHelper.toHex(SecurityHelper.randomBytes(32));
             String jsonOptions = options != null ? Launcher.gsonManager.gson.toJson(options) : "{}";
@@ -165,6 +165,10 @@ public class UploadAssetOverlay extends CenterOverlay {
             }
         }, this::errorHandle, (e) -> {
         });
+    }
+
+    protected ProcessingOverlay getProcessingOverlay() {
+        return (ProcessingOverlay) application.gui.getByName("processing");
     }
 
     public static final class AssetOptions {

@@ -12,14 +12,19 @@ import java.util.concurrent.CompletableFuture;
 
 public class WebAuthMethod extends AbstractAuthMethod<AuthWebViewDetails> {
 
+    private final JavaFXApplication application;
     private final WebAuthOverlay overlay;
     private final LoginScene.LoginSceneAccessor accessor;
 
     public WebAuthMethod(LoginScene.LoginSceneAccessor accessor) {
-        JavaFXApplication application = accessor.getApplication();
+        application = accessor.getApplication();
 
         this.accessor = accessor;
-        this.overlay = (WebAuthOverlay) application.gui.getByName("webView");
+        this.overlay = getWebAuthOverlay();
+    }
+
+    protected WebAuthOverlay getWebAuthOverlay() {
+        return (WebAuthOverlay) application.gui.getByName("webView");
     }
 
     @Override

@@ -65,7 +65,7 @@ public class ServerInfoScene extends AbstractScene implements SceneSupportUserBl
         LookupHelper.<ButtonBase>lookup(header, "#controls", "#clientSettings").setOnAction((e) -> {
             try {
                 if (settingsManager.getProfile() == null) return;
-                OptionsScene optionsScene = (OptionsScene) application.gui.getByName("options");
+                OptionsScene optionsScene = getOptionsScene();
                 switchScene(optionsScene);
                 optionsScene.reset();
             } catch (Exception ex) {
@@ -74,7 +74,7 @@ public class ServerInfoScene extends AbstractScene implements SceneSupportUserBl
         });
         LookupHelper.<ButtonBase>lookup(header, "#controls", "#settings").setOnAction((e) -> {
             try {
-                SettingsScene settingsScene = (SettingsScene) application.gui.getByName("settings");
+                SettingsScene settingsScene = getSettingsScene();
                 switchScene(settingsScene);
                 settingsScene.reset();
             } catch (Exception exception) {
@@ -107,12 +107,24 @@ public class ServerInfoScene extends AbstractScene implements SceneSupportUserBl
         this.userBlock.reset();
     }
 
+    protected OptionsScene getOptionsScene() {
+        return (OptionsScene) application.gui.getByName("options");
+    }
+
+    protected SettingsScene getSettingsScene() {
+        return (SettingsScene) application.gui.getByName("settings");
+    }
+
+    protected DebugScene getDebugScene() {
+        return (DebugScene) application.gui.getByName("debug");
+    }
+
     private void runClient() {
         launchService.launchClient().thenAccept((clientInstance -> {
             if (settingsManager.getRuntimeSettings().globalSettings.debugAllClients || clientInstance.getSettings().debug) {
                 contextHelper.runInFxThread(() -> {
                     try {
-                        DebugScene debugScene = (DebugScene) application.gui.getByName("debug");
+                        DebugScene debugScene = getDebugScene();
                         switchScene(debugScene);
                         debugScene.onClientInstance(clientInstance);
                     } catch (Exception ex) {
