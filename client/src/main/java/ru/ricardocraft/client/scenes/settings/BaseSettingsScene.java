@@ -22,13 +22,12 @@ public abstract class BaseSettingsScene extends AbstractScene {
     protected Pane settingsList;
 
     public BaseSettingsScene(String fxmlPath,
-                             JavaFXApplication application,
                              LauncherConfig config,
                              GuiModuleConfig guiModuleConfig,
                              AuthService authService,
                              LaunchService launchService,
                              SettingsManager settingsManager) {
-        super(fxmlPath, application, config, guiModuleConfig, authService, launchService, settingsManager);
+        super(fxmlPath, config, guiModuleConfig, authService, launchService, settingsManager);
     }
 
     @Override

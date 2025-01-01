@@ -32,7 +32,7 @@ public class LoginAndPasswordAuthMethod extends AbstractAuthMethod<AuthPasswordD
         this.accessor = accessor;
         this.runtimeSettings = runtimeSettings;
         this.launchService = launchService;
-        this.overlay = new LoginAndPasswordOverlay(accessor.getApplication(), guiModuleConfig, authService, launchService);
+        this.overlay = new LoginAndPasswordOverlay(guiModuleConfig, authService, launchService);
     }
 
     @Override
@@ -103,11 +103,8 @@ public class LoginAndPasswordAuthMethod extends AbstractAuthMethod<AuthPasswordD
 
         private final AuthService authService;
 
-        public LoginAndPasswordOverlay(JavaFXApplication application,
-                                       GuiModuleConfig guiModuleConfig,
-                                       AuthService authService,
-                                       LaunchService launchService) {
-            super("scenes/login/methods/loginpassword.fxml", application, guiModuleConfig, launchService);
+        public LoginAndPasswordOverlay(GuiModuleConfig guiModuleConfig, AuthService authService, LaunchService launchService) {
+            super("scenes/login/methods/loginpassword.fxml", guiModuleConfig, launchService);
             this.authService = authService;
         }
 

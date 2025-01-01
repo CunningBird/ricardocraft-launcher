@@ -20,8 +20,7 @@ public class TotpAuthMethod extends AbstractAuthMethod<AuthTotpDetails> {
 
     public TotpAuthMethod(LoginScene.LoginSceneAccessor accessor, GuiModuleConfig guiModuleConfig, LaunchService launchService) {
         this.accessor = accessor;
-        this.overlay = new TotpOverlay(accessor.getApplication(), guiModuleConfig, launchService);
-        this.overlay.accessor = accessor;
+        this.overlay = new TotpOverlay(guiModuleConfig, launchService);
     }
 
     @Override
@@ -85,13 +84,10 @@ public class TotpAuthMethod extends AbstractAuthMethod<AuthTotpDetails> {
         private static final UserAuthCanceledException USER_AUTH_CANCELED_EXCEPTION = new UserAuthCanceledException();
         private TextField totpField;
         private CompletableFuture<AuthFlow.LoginAndPasswordResult> future;
-        private LoginScene.LoginSceneAccessor accessor;
         private int maxLength;
 
-        public TotpOverlay(JavaFXApplication application,
-                           GuiModuleConfig guiModuleConfig,
-                           LaunchService launchService) {
-            super("scenes/login/methods/totp.fxml", application, guiModuleConfig, launchService);
+        public TotpOverlay(GuiModuleConfig guiModuleConfig, LaunchService launchService) {
+            super("scenes/login/methods/totp.fxml", guiModuleConfig, launchService);
         }
 
         @Override

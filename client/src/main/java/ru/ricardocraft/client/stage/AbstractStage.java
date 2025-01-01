@@ -12,8 +12,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;
-import ru.ricardocraft.client.impl.GuiObjectsContainer;
+import ru.ricardocraft.client.configuration.GuiObjectsContainer;
 import ru.ricardocraft.client.utils.JavaFxUtils;
 import ru.ricardocraft.client.helper.LogHelper;
 
@@ -24,7 +25,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class AbstractStage {
-    protected final GuiObjectsContainer guiObjectsContainer;
     public final Stage stage;
     protected final Scene scene;
     protected final StackPane stackPane;
@@ -37,14 +37,15 @@ public abstract class AbstractStage {
     protected final AtomicInteger scenePosition = new AtomicInteger(0);
     protected List<String> sceneFlow = new LinkedList<>();
 
-    protected AbstractStage(GuiObjectsContainer guiObjectsContainer, Stage stage) {
-        this.guiObjectsContainer = guiObjectsContainer;
+    protected AbstractStage(Stage stage) {
         this.stage = stage;
         this.stackPane = new StackPane();
         this.scene = new Scene(stackPane);
         this.stage.setScene(scene);
         resetStyles();
     }
+
+    abstract protected AbstractVisualComponent getByName(String name);
 
     protected void setClipRadius(double width, double height) {
         Rectangle rect = new Rectangle(stackPane.getPrefWidth(), stackPane.getPrefHeight());
@@ -127,7 +128,7 @@ public abstract class AbstractStage {
         AbstractVisualComponent component;
         do {
             String name = sceneFlow.get(sceneFlow.size() - 2);
-            component = guiObjectsContainer.getByName(name);
+            component = getByName(name);
             if(component == null) {
                 return;
             }

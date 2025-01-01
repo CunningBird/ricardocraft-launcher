@@ -8,6 +8,7 @@ import javafx.stage.DirectoryChooser;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.impl.AbstractVisualComponent;
 import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.config.LauncherConfig;
@@ -24,6 +25,7 @@ import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.stage.ConsoleStage;
 import ru.ricardocraft.client.helper.IOHelper;
 import ru.ricardocraft.client.helper.LogHelper;
+import ru.ricardocraft.client.stage.PrimaryStage;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,9 +34,7 @@ import java.util.Objects;
 
 import static ru.ricardocraft.client.helper.EnFSHelper.isThemeSupport;
 
-@Component
-@Scope("prototype")
-public class GlobalSettingsScene extends BaseSettingsScene {
+public abstract class GlobalSettingsScene extends BaseSettingsScene {
 
     private final RuntimeSettings runtimeSettings;
     private final SettingsManager settingsManager;
@@ -48,13 +48,28 @@ public class GlobalSettingsScene extends BaseSettingsScene {
                                AuthService authService,
                                LaunchService launchService,
                                JavaService javaService) {
-        super("scenes/settings/globalsettings.fxml", JavaFXApplication.getInstance(), config, guiModuleConfig, authService, launchService, settingsManager);
+        super("scenes/settings/globalsettings.fxml", config, guiModuleConfig, authService, launchService, settingsManager);
         this.runtimeSettings = settingsManager.getRuntimeSettings();
         this.settingsManager = settingsManager;
         this.javaService = javaService;
 
-        consoleStage = new ConsoleStage(application, config);
+        consoleStage = new ConsoleStage(config) {
+            @Override
+            protected AbstractVisualComponent getByName(String name) {
+                return GlobalSettingsScene.this.getByName(name);
+            }
+        };
     }
+
+    abstract protected ConsoleScene getConsoleScene();
+
+    abstract protected PrimaryStage getMainStage();
+
+    abstract protected AbstractVisualComponent getByName(String name);
+
+    abstract protected void reload() throws Exception;
+
+    abstract protected void openUrl(String url);
 
     @Override
     public String getName() {
@@ -65,8 +80,8 @@ public class GlobalSettingsScene extends BaseSettingsScene {
     protected void doInit() {
         super.doInit();
 
-        registerLanguageSelectorComponent(application, componentList);
-        registerThemeSelectorComponent(application, componentList);
+        registerLanguageSelectorComponent(componentList);
+        registerThemeSelectorComponent(componentList);
 
         LookupHelper.<ButtonBase>lookup(header, "#controls", "#console").setOnAction((e) -> {
             try {
@@ -83,12 +98,12 @@ public class GlobalSettingsScene extends BaseSettingsScene {
         if (updateDirLink.getTooltip() != null) {
             updateDirLink.getTooltip().setText(directoryUpdates);
         }
-        updateDirLink.setOnAction((e) -> application.openURL(directoryUpdates));
+        updateDirLink.setOnAction((e) -> openUrl(directoryUpdates));
         LookupHelper.<ButtonBase>lookup(componentList, "#changeDir").setOnAction((e) -> {
             DirectoryChooser directoryChooser = new DirectoryChooser();
             directoryChooser.setTitle(launchService.getTranslation("runtime.scenes.settings.dirTitle"));
             directoryChooser.setInitialDirectory(DirBridge.dir.toFile());
-            File choose = directoryChooser.showDialog(application.gui.getMainStage().getStage());
+            File choose = directoryChooser.showDialog(getMainStage().getStage());
             if (choose == null) return;
             Path newDir = choose.toPath().toAbsolutePath();
             try {
@@ -134,10 +149,6 @@ public class GlobalSettingsScene extends BaseSettingsScene {
         reset();
     }
 
-    protected ConsoleScene getConsoleScene() {
-        return (ConsoleScene) application.gui.getByName("console");
-    }
-
     @Override
     public void reset() {
         super.reset();
@@ -146,7 +157,7 @@ public class GlobalSettingsScene extends BaseSettingsScene {
         add("DebugAllClients", settings.debugAllClients, (value) -> settings.debugAllClients = value, false);
     }
 
-    private void registerThemeSelectorComponent(JavaFXApplication application, Pane layout) {
+    private void registerThemeSelectorComponent(Pane layout) {
         RuntimeSettings runtimeSettings = settingsManager.getRuntimeSettings();
         ComboBox<RuntimeSettings.LAUNCHER_THEME> comboBox = LookupHelper.lookup(layout, "#themeCombo");
         comboBox.getItems().clear();
@@ -167,14 +178,14 @@ public class GlobalSettingsScene extends BaseSettingsScene {
             if (theme == runtimeSettings.theme) return;
             runtimeSettings.theme = theme;
             try {
-                application.gui.reload();
+                reload();
             } catch (Exception ex) {
                 LogHelper.error(ex);
             }
         });
     }
 
-    private void registerLanguageSelectorComponent(JavaFXApplication application, Pane layout) {
+    private void registerLanguageSelectorComponent(Pane layout) {
         ComboBox<RuntimeSettings.LAUNCHER_LOCALE> comboBox = LookupHelper.lookup(layout, "#languageCombo");
         comboBox.getItems().clear();
         comboBox.setConverter(new LanguageConverter(launchService));
@@ -189,7 +200,7 @@ public class GlobalSettingsScene extends BaseSettingsScene {
             try {
                 launchService.updateLocaleResources(locale.name);
                 settingsManager.getRuntimeSettings().locale = locale;
-                application.gui.reload();
+                reload();
             } catch (Exception ex) {
                 LogHelper.error(ex);
             }

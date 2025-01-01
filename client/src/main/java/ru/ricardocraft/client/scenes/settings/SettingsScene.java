@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import oshi.SystemInfo;
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.overlays.UploadAssetOverlay;
 import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.components.ServerButton;
 import ru.ricardocraft.client.components.UserBlock;
@@ -29,9 +30,7 @@ import ru.ricardocraft.client.helper.JVMHelper;
 
 import java.text.MessageFormat;
 
-@Component
-@Scope("prototype")
-public class SettingsScene extends BaseSettingsScene implements SceneSupportUserBlock {
+public abstract class SettingsScene extends BaseSettingsScene implements SceneSupportUserBlock {
 
     private final static long MAX_JAVA_MEMORY_X64 = 32 * 1024;
     private final static long MAX_JAVA_MEMORY_X32 = 1536;
@@ -55,7 +54,7 @@ public class SettingsScene extends BaseSettingsScene implements SceneSupportUser
                          LaunchService launchService,
                          JavaService javaService,
                          PingService pingService) {
-        super("scenes/settings/settings.fxml", JavaFXApplication.getInstance(), config, guiModuleConfig, authService, launchService, settingsManager);
+        super("scenes/settings/settings.fxml", config, guiModuleConfig, authService, launchService, settingsManager);
         this.guiModuleConfig = guiModuleConfig;
         this.settingsManager = settingsManager;
         this.javaService = javaService;
@@ -63,10 +62,17 @@ public class SettingsScene extends BaseSettingsScene implements SceneSupportUser
         this.pingService = pingService;
     }
 
+    abstract protected UploadAssetOverlay getUploadAsset();
+
     @Override
     protected void doInit() {
         super.doInit();
-        this.userBlock = new UserBlock(layout, authService, skinManager, launchService, new SceneAccessor());
+        this.userBlock = new UserBlock(layout, authService, skinManager, launchService, new SceneAccessor()) {
+            @Override
+            protected UploadAssetOverlay getUploadAsset() {
+                return SettingsScene.this.getUploadAsset();
+            }
+        };
 
         ramSlider = LookupHelper.lookup(componentList, "#ramSlider");
         ramLabel = LookupHelper.lookup(componentList, "#ramLabel");
@@ -111,14 +117,6 @@ public class SettingsScene extends BaseSettingsScene implements SceneSupportUser
         reset();
     }
 
-    private long getJavaMaxMemory() {
-        if (javaService.isArchAvailable(JVMHelper.ARCH.X86_64) || javaService.isArchAvailable(
-                JVMHelper.ARCH.ARM64)) {
-            return MAX_JAVA_MEMORY_X64;
-        }
-        return MAX_JAVA_MEMORY_X32;
-    }
-
     @Override
     public void reset() {
         super.reset();
@@ -135,7 +133,6 @@ public class SettingsScene extends BaseSettingsScene implements SceneSupportUser
         serverButtonContainer.getChildren().clear();
         ClientProfile profile = settingsManager.getProfile();
         ServerButton serverButton = ServerButton.createServerButton(
-                application,
                 guiModuleConfig,
                 launchService,
                 pingService,
@@ -177,6 +174,14 @@ public class SettingsScene extends BaseSettingsScene implements SceneSupportUser
     @Override
     public String getName() {
         return "settings";
+    }
+
+    private long getJavaMaxMemory() {
+        if (javaService.isArchAvailable(JVMHelper.ARCH.X86_64) || javaService.isArchAvailable(
+                JVMHelper.ARCH.ARM64)) {
+            return MAX_JAVA_MEMORY_X64;
+        }
+        return MAX_JAVA_MEMORY_X32;
     }
 
     public void updateRamLabel() {

@@ -17,9 +17,7 @@ import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.commands.CommandHandler;
 import ru.ricardocraft.client.helper.LogHelper;
 
-@Component
-@Scope("prototype")
-public class ConsoleScene extends AbstractScene {
+public abstract class ConsoleScene extends AbstractScene {
     private static final long MAX_LENGTH = 16384;
     private static final int REMOVE_LENGTH = 1024;
     private TextField commandLine;
@@ -33,7 +31,7 @@ public class ConsoleScene extends AbstractScene {
                         LaunchService launchService,
                         CommandHandler commandHandler,
                         SettingsManager settingsManager) {
-        super("scenes/console/console.fxml", JavaFXApplication.getInstance(), config, guiModuleConfig, authService, launchService, settingsManager);
+        super("scenes/console/console.fxml", config, guiModuleConfig, authService, launchService, settingsManager);
         this.commandHandler = commandHandler;
     }
 

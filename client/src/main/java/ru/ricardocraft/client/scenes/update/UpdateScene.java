@@ -22,9 +22,7 @@ import java.nio.file.Path;
 import java.util.concurrent.CompletionException;
 import java.util.function.Consumer;
 
-@Component
-@Scope("prototype")
-public class UpdateScene extends AbstractScene {
+public abstract class UpdateScene extends AbstractScene {
     private ProgressBar progressBar;
     private Label speed;
     private Label volume;
@@ -46,7 +44,7 @@ public class UpdateScene extends AbstractScene {
                        AuthService authService,
                        LaunchService launchService,
                        SettingsManager settingsManager) {
-        super("scenes/update/update.fxml", JavaFXApplication.getInstance(), config, guiModuleConfig, authService, launchService, settingsManager);
+        super("scenes/update/update.fxml", config, guiModuleConfig, authService, launchService, settingsManager);
         this.guiModuleConfig = guiModuleConfig;
         this.service = service;
     }
@@ -85,26 +83,6 @@ public class UpdateScene extends AbstractScene {
         });
     }
 
-    private void onUpdateStatus(DownloadStatus newStatus) {
-        this.downloadStatus = newStatus;
-        LogHelper.debug("Update download status: %s", newStatus.toString());
-    }
-
-    public void sendUpdateAssetRequest(String dirName, Path dir, FileNameMatcher matcher, boolean digest,
-                                       String assetIndex, boolean test, Consumer<HashedDir> onSuccess) {
-        downloader.sendUpdateAssetRequest(dirName, dir, matcher, digest, assetIndex, test, onSuccess);
-    }
-
-    public void sendUpdateRequest(String dirName, Path dir, FileNameMatcher matcher, boolean digest, OptionalView view,
-                                  boolean optionalsEnabled, boolean test, Consumer<HashedDir> onSuccess) {
-        downloader.sendUpdateRequest(dirName, dir, matcher, digest, view, optionalsEnabled, test, onSuccess);
-    }
-
-    public void addLog(String string) {
-        LogHelper.dev("Update event %s", string);
-        logOutput.appendText(string.concat("\n"));
-    }
-
     @Override
     public void reset() {
         progressBar.progressProperty().setValue(0);
@@ -136,6 +114,26 @@ public class UpdateScene extends AbstractScene {
     @Override
     public String getName() {
         return "update";
+    }
+
+    private void onUpdateStatus(DownloadStatus newStatus) {
+        this.downloadStatus = newStatus;
+        LogHelper.debug("Update download status: %s", newStatus.toString());
+    }
+
+    public void sendUpdateAssetRequest(String dirName, Path dir, FileNameMatcher matcher, boolean digest,
+                                       String assetIndex, boolean test, Consumer<HashedDir> onSuccess) {
+        downloader.sendUpdateAssetRequest(dirName, dir, matcher, digest, assetIndex, test, onSuccess);
+    }
+
+    public void sendUpdateRequest(String dirName, Path dir, FileNameMatcher matcher, boolean digest, OptionalView view,
+                                  boolean optionalsEnabled, boolean test, Consumer<HashedDir> onSuccess) {
+        downloader.sendUpdateRequest(dirName, dir, matcher, digest, view, optionalsEnabled, test, onSuccess);
+    }
+
+    public void addLog(String string) {
+        LogHelper.dev("Update event %s", string);
+        logOutput.appendText(string.concat("\n"));
     }
 
     public enum DownloadStatus {

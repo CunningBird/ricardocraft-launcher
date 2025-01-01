@@ -15,9 +15,7 @@ import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.service.LaunchService;
 
-@Component
-@Scope("prototype")
-public class BrowserScene extends AbstractScene {
+public abstract class BrowserScene extends AbstractScene {
     private TextField address;
     private Button browseButton;
     private StackPane stackPane;
@@ -28,7 +26,7 @@ public class BrowserScene extends AbstractScene {
                         AuthService authService,
                         LaunchService launchService,
                         SettingsManager settingsManager) {
-        super("scenes/internal/browser/browser.fxml", JavaFXApplication.getInstance(), config, guiModuleConfig, authService, launchService, settingsManager);
+        super("scenes/internal/browser/browser.fxml", config, guiModuleConfig, authService, launchService, settingsManager);
     }
 
     @Override

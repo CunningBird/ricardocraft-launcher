@@ -15,8 +15,6 @@ import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.utils.JavaFxUtils;
 import ru.ricardocraft.client.helper.LogHelper;
 
-@Component
-@Scope("prototype")
 public class WelcomeOverlay extends AbstractOverlay {
     private Image originalImage;
 
@@ -27,7 +25,7 @@ public class WelcomeOverlay extends AbstractOverlay {
                           AuthService authService,
                           SkinManager skinManager,
                           LaunchService launchService) {
-        super("overlay/welcome/welcome.fxml", JavaFXApplication.getInstance(), guiModuleConfig, launchService);
+        super("overlay/welcome/welcome.fxml", guiModuleConfig, launchService);
         this.authService = authService;
         this.skinManager = skinManager;
     }

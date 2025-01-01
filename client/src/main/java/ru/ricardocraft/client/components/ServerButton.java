@@ -32,25 +32,23 @@ public class ServerButton extends AbstractVisualComponent {
 
     private final PingService pingService;
 
-    protected ServerButton(JavaFXApplication application,
-                           GuiModuleConfig guiModuleConfig,
+    protected ServerButton(GuiModuleConfig guiModuleConfig,
                            LaunchService launchService,
                            PingService pingService,
                            ClientProfile profile) {
-        super(getServerButtonFxml(application, profile), application, guiModuleConfig, launchService);
+        super(getServerButtonFxml(profile), guiModuleConfig, launchService);
         this.profile = profile;
         this.pingService = pingService;
     }
 
-    public static ServerButton createServerButton(JavaFXApplication application,
-                                                  GuiModuleConfig guiModuleConfig,
+    public static ServerButton createServerButton(GuiModuleConfig guiModuleConfig,
                                                   LaunchService launchService,
                                                   PingService pingService,
                                                   ClientProfile profile) {
-        return new ServerButton(application, guiModuleConfig, launchService, pingService, profile);
+        return new ServerButton(guiModuleConfig, launchService, pingService, profile);
     }
 
-    private static String getServerButtonFxml(JavaFXApplication application, ClientProfile profile) {
+    private static String getServerButtonFxml(ClientProfile profile) {
         String customFxml = String.format(SERVER_BUTTON_CUSTOM_FXML, profile.getUUID().toString());
         URL fxml = tryResource(customFxml);
         if (fxml != null) {

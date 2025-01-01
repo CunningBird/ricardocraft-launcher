@@ -9,6 +9,7 @@ import javafx.scene.layout.Pane;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.overlays.UploadAssetOverlay;
 import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.components.ServerButton;
 import ru.ricardocraft.client.components.UserBlock;
@@ -27,9 +28,7 @@ import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.service.PingService;
 import ru.ricardocraft.client.helper.LogHelper;
 
-@Component
-@Scope("prototype")
-public class ServerInfoScene extends AbstractScene implements SceneSupportUserBlock {
+public abstract class ServerInfoScene extends AbstractScene implements SceneSupportUserBlock {
     private UserBlock userBlock;
 
     private final GuiModuleConfig guiModuleConfig;
@@ -44,16 +43,29 @@ public class ServerInfoScene extends AbstractScene implements SceneSupportUserBl
                            SkinManager skinManager,
                            LaunchService launchService,
                            PingService pingService) {
-        super("scenes/serverinfo/serverinfo.fxml", JavaFXApplication.getInstance(), config, guiModuleConfig, authService, launchService, settingsManager);
+        super("scenes/serverinfo/serverinfo.fxml", config, guiModuleConfig, authService, launchService, settingsManager);
         this.guiModuleConfig = guiModuleConfig;
         this.settingsManager = settingsManager;
         this.skinManager = skinManager;
         this.pingService = pingService;
     }
 
+    abstract protected OptionsScene getOptionsScene();
+
+    abstract protected SettingsScene getSettingsScene();
+
+    abstract protected DebugScene getDebugScene();
+
+    abstract protected UploadAssetOverlay getUploadAsset();
+
     @Override
     protected void doInit() {
-        this.userBlock = new UserBlock(layout, authService, skinManager, launchService, new SceneAccessor());
+        this.userBlock = new UserBlock(layout, authService, skinManager, launchService, new SceneAccessor()) {
+            @Override
+            protected UploadAssetOverlay getUploadAsset() {
+                return ServerInfoScene.this.getUploadAsset();
+            }
+        };
         LookupHelper.<Button>lookup(layout, "#back").setOnAction((e) -> {
             try {
                 switchToBackScene();
@@ -95,7 +107,6 @@ public class ServerInfoScene extends AbstractScene implements SceneSupportUserBl
         Pane serverButtonContainer = LookupHelper.lookup(layout, "#serverButton");
         serverButtonContainer.getChildren().clear();
         ServerButton serverButton = ServerButton.createServerButton(
-                application,
                 guiModuleConfig,
                 launchService,
                 pingService,
@@ -107,16 +118,14 @@ public class ServerInfoScene extends AbstractScene implements SceneSupportUserBl
         this.userBlock.reset();
     }
 
-    protected OptionsScene getOptionsScene() {
-        return (OptionsScene) application.gui.getByName("options");
+    @Override
+    public String getName() {
+        return "serverinfo";
     }
 
-    protected SettingsScene getSettingsScene() {
-        return (SettingsScene) application.gui.getByName("settings");
-    }
-
-    protected DebugScene getDebugScene() {
-        return (DebugScene) application.gui.getByName("debug");
+    @Override
+    public UserBlock getUserBlock() {
+        return userBlock;
     }
 
     private void runClient() {
@@ -145,15 +154,5 @@ public class ServerInfoScene extends AbstractScene implements SceneSupportUserBl
             contextHelper.runInFxThread(() -> errorHandle(ex));
             return null;
         });
-    }
-
-    @Override
-    public String getName() {
-        return "serverinfo";
-    }
-
-    @Override
-    public UserBlock getUserBlock() {
-        return userBlock;
     }
 }

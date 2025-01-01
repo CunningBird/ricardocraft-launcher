@@ -1,7 +1,7 @@
 package ru.ricardocraft.client.scenes.login;
 
-import ru.ricardocraft.client.dto.response.AuthRequestEvent;
-import ru.ricardocraft.client.dto.response.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.client.config.GuiModuleConfig;
+import ru.ricardocraft.client.config.RuntimeSettings;
 import ru.ricardocraft.client.dto.request.Request;
 import ru.ricardocraft.client.dto.request.RequestException;
 import ru.ricardocraft.client.dto.request.auth.AuthRequest;
@@ -13,12 +13,12 @@ import ru.ricardocraft.client.dto.request.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.client.dto.request.auth.password.Auth2FAPassword;
 import ru.ricardocraft.client.dto.request.auth.password.AuthMultiPassword;
 import ru.ricardocraft.client.dto.request.auth.password.AuthOAuthPassword;
-import ru.ricardocraft.client.config.GuiModuleConfig;
-import ru.ricardocraft.client.config.RuntimeSettings;
+import ru.ricardocraft.client.dto.response.AuthRequestEvent;
+import ru.ricardocraft.client.dto.response.GetAvailabilityAuthRequestEvent;
+import ru.ricardocraft.client.helper.LogHelper;
 import ru.ricardocraft.client.scenes.login.methods.*;
 import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.service.LaunchService;
-import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-public class AuthFlow {
+public abstract class AuthFlow {
     public Map<Class<? extends GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails>, AbstractAuthMethod<? extends GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails>> authMethods = new HashMap<>(
             8);
     private final LoginScene.LoginSceneAccessor accessor;
@@ -54,10 +54,17 @@ public class AuthFlow {
         this.launchService = launchService;
         this.authService = authService;
         authMethods.put(AuthPasswordDetails.class, new LoginAndPasswordAuthMethod(accessor, runtimeSettings, guiModuleConfig, authService, launchService));
-        authMethods.put(AuthWebViewDetails.class, new WebAuthMethod(accessor));
+        authMethods.put(AuthWebViewDetails.class, new WebAuthMethod(accessor) {
+            @Override
+            protected WebAuthOverlay getWebAuthOverlay() {
+                return AuthFlow.this.getWebAuthOverlay();
+            }
+        });
         authMethods.put(AuthTotpDetails.class, new TotpAuthMethod(accessor, guiModuleConfig, launchService));
         authMethods.put(AuthLoginOnlyDetails.class, new LoginOnlyAuthMethod(accessor, runtimeSettings, guiModuleConfig, launchService));
     }
+
+    abstract protected WebAuthOverlay getWebAuthOverlay();
 
     public void init(GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
         this.authAvailability = authAvailability;

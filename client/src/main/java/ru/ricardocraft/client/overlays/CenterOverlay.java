@@ -12,11 +12,8 @@ import ru.ricardocraft.client.service.LaunchService;
 public abstract class CenterOverlay extends AbstractOverlay {
     private volatile Pane overrideFxmlRoot;
 
-    public CenterOverlay(String fxmlPath,
-                         JavaFXApplication application,
-                         GuiModuleConfig guiModuleConfig,
-                         LaunchService launchService) {
-        super(fxmlPath, application, guiModuleConfig, launchService);
+    public CenterOverlay(String fxmlPath, GuiModuleConfig guiModuleConfig, LaunchService launchService) {
+        super(fxmlPath, guiModuleConfig, launchService);
     }
 
     @Override

@@ -25,10 +25,7 @@ import java.util.concurrent.ExecutionException;
 
 public abstract class AbstractVisualComponent {
 
-    protected final JavaFXApplication application;
-
     protected final LaunchService launchService;
-
     private final String sysFxmlPath;
     protected final ContextHelper contextHelper;
     protected final FXExecutorService fxExecutor;
@@ -40,11 +37,7 @@ public abstract class AbstractVisualComponent {
     boolean isPostInit;
     public boolean isResetOnShow = false;
 
-    protected AbstractVisualComponent(String fxmlPath,
-                                      JavaFXApplication application,
-                                      GuiModuleConfig guiModuleConfig,
-                                      LaunchService launchService) {
-        this.application = application;
+    protected AbstractVisualComponent(String fxmlPath, GuiModuleConfig guiModuleConfig, LaunchService launchService) {
         this.launchService = launchService;
         this.sysFxmlPath = fxmlPath;
         this.contextHelper = new ContextHelper(this);

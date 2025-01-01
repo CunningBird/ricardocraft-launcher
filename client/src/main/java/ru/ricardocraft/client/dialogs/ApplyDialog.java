@@ -18,15 +18,14 @@ public class ApplyDialog extends AbstractDialog {
     private Label textHeader;
     private Label textDescription;
 
-    public ApplyDialog(JavaFXApplication application,
-                       String header,
+    public ApplyDialog(String header,
                        String text,
                        Runnable onAccept,
                        Runnable onDeny,
                        Runnable onClose,
                        GuiModuleConfig guiModuleConfig,
                        LaunchService launchService) {
-        super("dialogs/apply/dialog.fxml", application, guiModuleConfig, launchService);
+        super("dialogs/apply/dialog.fxml", guiModuleConfig, launchService);
         this.header = header;
         this.text = text;
         this.onAccept = onAccept;

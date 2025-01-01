@@ -18,9 +18,7 @@ import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.EOFException;
 
-@Component
-@Scope("prototype")
-public class DebugScene extends AbstractScene {
+public abstract class DebugScene extends AbstractScene {
     private ProcessLogOutput processLogOutput;
     private LaunchService.ClientInstance clientInstance;
 
@@ -29,7 +27,7 @@ public class DebugScene extends AbstractScene {
                       AuthService authService,
                       LaunchService launchService,
                       SettingsManager settingsManager) {
-        super("scenes/debug/debug.fxml", JavaFXApplication.getInstance(), config, guiModuleConfig, authService, launchService, settingsManager);
+        super("scenes/debug/debug.fxml", config, guiModuleConfig, authService, launchService, settingsManager);
         this.isResetOnShow = true;
     }
 
@@ -54,10 +52,21 @@ public class DebugScene extends AbstractScene {
         });
     }
 
-
     @Override
     public void reset() {
         processLogOutput.clear();
+    }
+
+    @Override
+    public void errorHandle(Throwable e) {
+        if (!(e instanceof EOFException)) {
+            if (LogHelper.isDebugEnabled()) processLogOutput.append(e.toString());
+        }
+    }
+
+    @Override
+    public String getName() {
+        return "debug";
     }
 
     public void onClientInstance(LaunchService.ClientInstance clientInstance) {
@@ -75,18 +84,6 @@ public class DebugScene extends AbstractScene {
 
     public void append(String text) {
         processLogOutput.append(text);
-    }
-
-    @Override
-    public void errorHandle(Throwable e) {
-        if (!(e instanceof EOFException)) {
-            if (LogHelper.isDebugEnabled()) processLogOutput.append(e.toString());
-        }
-    }
-
-    @Override
-    public String getName() {
-        return "debug";
     }
 
     private String getMiniLauncherInfo() {

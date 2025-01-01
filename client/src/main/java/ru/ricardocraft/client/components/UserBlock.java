@@ -18,9 +18,8 @@ import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.utils.JavaFxUtils;
 import ru.ricardocraft.client.helper.LogHelper;
 
-public class UserBlock {
+public abstract class UserBlock {
 
-    private final JavaFXApplication application;
     private final AuthService authService;
     private final SkinManager skinManager;
     private final LaunchService launchService;
@@ -31,7 +30,6 @@ public class UserBlock {
     private final Image originalAvatarImage;
 
     public UserBlock(Pane layout, AuthService authService, SkinManager skinManager, LaunchService launchService, AbstractScene.SceneAccessor sceneAccessor) {
-        this.application = sceneAccessor.getApplication();
         this.authService = authService;
         this.layout = layout;
         this.sceneAccessor = sceneAccessor;
@@ -78,7 +76,5 @@ public class UserBlock {
         JavaFxUtils.putAvatarToImageView(skinManager, authService.getUsername(), avatar);
     }
 
-    protected UploadAssetOverlay getUploadAsset() {
-        return (UploadAssetOverlay) application.gui.getByName("uploadasset");
-    }
+    abstract protected UploadAssetOverlay getUploadAsset();
 }

@@ -2,17 +2,16 @@ package ru.ricardocraft.client.scenes.options;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.JavaFXApplication;
-import ru.ricardocraft.client.profiles.ClientProfile;
-import ru.ricardocraft.client.profiles.optional.OptionalView;
 import ru.ricardocraft.client.components.ServerButton;
 import ru.ricardocraft.client.components.UserBlock;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.launch.SkinManager;
+import ru.ricardocraft.client.overlays.UploadAssetOverlay;
+import ru.ricardocraft.client.profiles.ClientProfile;
+import ru.ricardocraft.client.profiles.optional.OptionalView;
 import ru.ricardocraft.client.runtime.managers.SettingsManager;
 import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.scenes.interfaces.SceneSupportUserBlock;
@@ -21,9 +20,7 @@ import ru.ricardocraft.client.service.AuthService;
 import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.service.PingService;
 
-@Component
-@Scope("prototype")
-public class OptionsScene extends AbstractScene implements SceneSupportUserBlock {
+public abstract class OptionsScene extends AbstractScene implements SceneSupportUserBlock {
     private OptionsTab optionsTab;
     private UserBlock userBlock;
 
@@ -38,15 +35,24 @@ public class OptionsScene extends AbstractScene implements SceneSupportUserBlock
                         LaunchService launchService,
                         PingService pingService,
                         SettingsManager settingsManager) {
-        super("scenes/options/options.fxml", JavaFXApplication.getInstance(), config, guiModuleConfig, authService, launchService, settingsManager);
+        super("scenes/options/options.fxml", config, guiModuleConfig, authService, launchService, settingsManager);
         this.guiModuleConfig = guiModuleConfig;
         this.pingService = pingService;
         this.skinManager = skinManager;
     }
 
+    abstract protected ServerInfoScene getServerInfoScene();
+
+    abstract protected UploadAssetOverlay getUploadAsset();
+
     @Override
     protected void doInit() {
-        this.userBlock = new UserBlock(layout, authService, skinManager, launchService, new SceneAccessor());
+        this.userBlock = new UserBlock(layout, authService, skinManager, launchService, new SceneAccessor()) {
+            @Override
+            protected UploadAssetOverlay getUploadAsset() {
+                return OptionsScene.this.getUploadAsset();
+            }
+        };
         optionsTab = new OptionsTab(launchService, LookupHelper.lookup(layout, "#tabPane"));
     }
 
@@ -56,7 +62,6 @@ public class OptionsScene extends AbstractScene implements SceneSupportUserBlock
         serverButtonContainer.getChildren().clear();
         ClientProfile profile = settingsManager.getProfile();
         ServerButton serverButton = ServerButton.createServerButton(
-                application,
                 guiModuleConfig,
                 launchService,
                 pingService,
@@ -86,10 +91,6 @@ public class OptionsScene extends AbstractScene implements SceneSupportUserBlock
         }));
         optionsTab.addProfileOptionals(settingsManager.getOptionalView());
         userBlock.reset();
-    }
-
-    protected ServerInfoScene getServerInfoScene() {
-        return (ServerInfoScene) application.gui.getByName("serverinfo");
     }
 
     @Override

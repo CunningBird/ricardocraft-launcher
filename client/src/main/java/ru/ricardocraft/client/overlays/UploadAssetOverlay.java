@@ -15,6 +15,7 @@ import ru.ricardocraft.client.dto.response.AssetUploadInfoRequestEvent;
 import ru.ricardocraft.client.helper.LogHelper;
 import ru.ricardocraft.client.helper.LookupHelper;
 import ru.ricardocraft.client.helper.SecurityHelper;
+import ru.ricardocraft.client.impl.AbstractVisualComponent;
 import ru.ricardocraft.client.launch.SkinManager;
 import ru.ricardocraft.client.profiles.Texture;
 import ru.ricardocraft.client.scenes.interfaces.SceneSupportUserBlock;
@@ -28,11 +29,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Map;
 
-@Component
-@Scope("prototype")
-public class UploadAssetOverlay extends CenterOverlay {
+public abstract class UploadAssetOverlay extends CenterOverlay {
 
     private static final HttpClient client = HttpClient.newBuilder().build();
 
@@ -48,10 +48,14 @@ public class UploadAssetOverlay extends CenterOverlay {
                               AuthService authService,
                               SkinManager skinManager,
                               LaunchService launchService) {
-        super("overlay/uploadasset/uploadasset.fxml", JavaFXApplication.getInstance(), guiModuleConfig, launchService);
+        super("overlay/uploadasset/uploadasset.fxml", guiModuleConfig, launchService);
         this.authService = authService;
         this.skinManager = skinManager;
     }
+
+    abstract protected ProcessingOverlay getProcessingOverlay();
+
+    abstract protected Collection<AbstractVisualComponent> getComponents();
 
     @Override
     public String getName() {
@@ -138,7 +142,7 @@ public class UploadAssetOverlay extends CenterOverlay {
                             URI skinUrl = new URI(texture.url);
                             if ("SKIN".equals(name)) {
                                 skinManager.addOrReplaceSkin(authService.getUsername(), skinUrl);
-                                for (var scene : application.gui.getComponents()) {
+                                for (var scene : getComponents()) {
                                     if (scene.isInit() && scene instanceof SceneSupportUserBlock supportUserBlock) {
                                         supportUserBlock.getUserBlock().resetAvatar();
                                     }
@@ -165,10 +169,6 @@ public class UploadAssetOverlay extends CenterOverlay {
             }
         }, this::errorHandle, (e) -> {
         });
-    }
-
-    protected ProcessingOverlay getProcessingOverlay() {
-        return (ProcessingOverlay) application.gui.getByName("processing");
     }
 
     public static final class AssetOptions {

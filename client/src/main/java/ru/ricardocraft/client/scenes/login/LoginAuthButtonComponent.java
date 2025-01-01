@@ -6,7 +6,6 @@ import javafx.scene.control.Button;
 import ru.ricardocraft.client.JavaFXApplication;
 
 public class LoginAuthButtonComponent {
-    private final JavaFXApplication application;
     private final Button button;
     private AuthButtonState state = AuthButtonState.UNACTIVE;
     private String originalText;
@@ -24,9 +23,7 @@ public class LoginAuthButtonComponent {
         }
     }
 
-    public LoginAuthButtonComponent(Button authButton, JavaFXApplication application,
-            EventHandler<ActionEvent> eventHandler) {
-        this.application = application;
+    public LoginAuthButtonComponent(Button authButton, EventHandler<ActionEvent> eventHandler) {
         this.button = authButton;
         this.button.setOnAction(eventHandler);
         this.originalText = button.getText();

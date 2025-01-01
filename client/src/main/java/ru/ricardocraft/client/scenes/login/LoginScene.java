@@ -41,9 +41,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
 
-@Component
-@Scope("prototype")
-public class LoginScene extends AbstractScene {
+public abstract class LoginScene extends AbstractScene {
 
     public static volatile Path updatePath;
 
@@ -70,15 +68,36 @@ public class LoginScene extends AbstractScene {
                       SkinManager skinManager,
                       LaunchService launchService,
                       RuntimeSecurityService securityService) {
-        super("scenes/login/login.fxml", JavaFXApplication.getInstance(), config, guiModuleConfig, authService, launchService, settingsManager);
+        super("scenes/login/login.fxml", config, guiModuleConfig, authService, launchService, settingsManager);
         this.config = config;
         this.guiModuleConfig = guiModuleConfig;
         this.skinManager = skinManager;
         this.securityService = securityService;
         LoginSceneAccessor accessor = new LoginSceneAccessor();
         this.runtimeSettings = settingsManager.getRuntimeSettings();
-        this.authFlow = new AuthFlow(accessor, this::onSuccessLogin, runtimeSettings, guiModuleConfig, authService, launchService);
+        this.authFlow = new AuthFlow(accessor, this::onSuccessLogin, runtimeSettings, guiModuleConfig, authService, launchService) {
+            @Override
+            protected WebAuthOverlay getWebAuthOverlay() {
+                return LoginScene.this.getWebAuthOverlay();
+            }
+        };
     }
+
+    abstract protected GlobalSettingsScene getGlobalSettingsScene();
+
+    abstract protected WelcomeOverlay geWelcomeOverlay();
+
+    abstract protected OptionsScene getOptionsScene();
+
+    abstract protected ServerMenuScene getServerMenuScene();
+
+    abstract protected WebAuthOverlay getWebAuthOverlay();
+
+    abstract protected AbstractScene getCurrentScene();
+
+    abstract protected void setMainScene(AbstractScene scene) throws Exception;
+
+    abstract protected void openUrl(String url);
 
     @Override
     public void doInit() {
@@ -89,8 +108,7 @@ public class LoginScene extends AbstractScene {
                 errorHandle(exception);
             }
         });
-        authButton = new LoginAuthButtonComponent(LookupHelper.lookup(layout, "#authButton"), application,
-                (e) -> contextHelper.runCallback(authFlow::loginWithGui));
+        authButton = new LoginAuthButtonComponent(LookupHelper.lookup(layout, "#authButton"), (e) -> contextHelper.runCallback(authFlow::loginWithGui));
         savePasswordCheckBox = LookupHelper.lookup(layout, "#savePassword");
         if (runtimeSettings.password != null || runtimeSettings.oauthAccessToken != null) {
             LookupHelper.<CheckBox>lookup(layout, "#savePassword").setSelected(true);
@@ -101,12 +119,12 @@ public class LoginScene extends AbstractScene {
         content = LookupHelper.lookup(layout, "#content");
         if (guiModuleConfig.createAccountURL != null) {
             LookupHelper.<Text>lookup(header, "#createAccount")
-                    .setOnMouseClicked((e) -> application.openURL(guiModuleConfig.createAccountURL));
+                    .setOnMouseClicked((e) -> openUrl(guiModuleConfig.createAccountURL));
         }
 
         if (guiModuleConfig.forgotPassURL != null) {
             LookupHelper.<Text>lookup(header, "#forgotPass")
-                    .setOnMouseClicked((e) -> application.openURL(guiModuleConfig.forgotPassURL));
+                    .setOnMouseClicked((e) -> openUrl(guiModuleConfig.forgotPassURL));
         }
         authList = LookupHelper.lookup(layout, "#authList");
         authList.setConverter(new AuthAvailabilityStringConverter());
@@ -115,13 +133,25 @@ public class LoginScene extends AbstractScene {
         // Verify Launcher
     }
 
-    protected GlobalSettingsScene getGlobalSettingsScene() {
-        return (GlobalSettingsScene) application.gui.getByName("globalsettings");
-    }
-
     @Override
     protected void doPostInit() {
         launcherRequest();
+    }
+
+    @Override
+    public void errorHandle(Throwable e) {
+        super.errorHandle(e);
+        contextHelper.runInFxThread(() -> authButton.setState(LoginAuthButtonComponent.AuthButtonState.ERROR));
+    }
+
+    @Override
+    public void reset() {
+        authFlow.reset();
+    }
+
+    @Override
+    public String getName() {
+        return "login";
     }
 
     private void launcherRequest() {
@@ -207,22 +237,6 @@ public class LoginScene extends AbstractScene {
     }
 
 
-    @Override
-    public void errorHandle(Throwable e) {
-        super.errorHandle(e);
-        contextHelper.runInFxThread(() -> authButton.setState(LoginAuthButtonComponent.AuthButtonState.ERROR));
-    }
-
-    @Override
-    public void reset() {
-        authFlow.reset();
-    }
-
-    @Override
-    public String getName() {
-        return "login";
-    }
-
     public void onSuccessLogin(AuthFlow.SuccessAuth successAuth) {
         AuthRequestEvent result = successAuth.requestEvent();
         authService.setAuthResult(authAvailability.name, result);
@@ -264,18 +278,6 @@ public class LoginScene extends AbstractScene {
         });
     }
 
-    protected WelcomeOverlay geWelcomeOverlay() {
-        return (WelcomeOverlay) application.gui.getByName("welcome");
-    }
-
-    protected OptionsScene getOptionsScene() {
-        return (OptionsScene) application.gui.getByName("options");
-    }
-
-    protected ServerMenuScene getServerMenuScene() {
-        return (ServerMenuScene) application.gui.getByName("serverMenu");
-    }
-
     public void onGetProfiles() {
         processing(new ProfilesRequest(), launchService.getTranslation("runtime.overlay.processing.text.profiles"),
                 (profiles) -> {
@@ -290,10 +292,10 @@ public class LoginScene extends AbstractScene {
                                 errorHandle(ex);
                             }
                         }
-                        if (application.gui.getCurrentScene() instanceof LoginScene loginScene) {
+                        if (getCurrentScene() instanceof LoginScene loginScene) {
                             loginScene.authFlow.isLoginStarted = false;
                         }
-                        application.gui.setMainScene(getServerMenuScene());
+                        setMainScene(getServerMenuScene());
                     });
                 }, null);
     }

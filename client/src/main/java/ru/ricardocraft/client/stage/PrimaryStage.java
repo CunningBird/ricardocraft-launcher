@@ -8,15 +8,14 @@ import javafx.stage.StageStyle;
 import ru.ricardocraft.client.config.DesignConstants;
 import ru.ricardocraft.client.helper.EnFSHelper;
 import ru.ricardocraft.client.impl.AbstractVisualComponent;
-import ru.ricardocraft.client.impl.GuiObjectsContainer;
 import ru.ricardocraft.client.helper.LogHelper;
 
 import java.io.IOException;
 
-public class PrimaryStage extends AbstractStage {
+public abstract class PrimaryStage extends AbstractStage {
 
-    public PrimaryStage(GuiObjectsContainer guiObjectsContainer, Stage primaryStage, String title) {
-        super(guiObjectsContainer, primaryStage);
+    public PrimaryStage(Stage primaryStage, String title) {
+        super(primaryStage);
         primaryStage.setTitle(title);
         stage.initStyle(StageStyle.TRANSPARENT);
         stage.setResizable(true);
@@ -30,6 +29,8 @@ public class PrimaryStage extends AbstractStage {
         }
         setClipRadius(DesignConstants.SCENE_CLIP_RADIUS, DesignConstants.SCENE_CLIP_RADIUS);
     }
+
+    abstract protected AbstractVisualComponent getByName(String name);
 
     public void pushBackground(AbstractVisualComponent component) {
         scenePosition.incrementAndGet();

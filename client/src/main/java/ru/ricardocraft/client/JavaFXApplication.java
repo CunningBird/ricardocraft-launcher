@@ -8,12 +8,11 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import ru.ricardocraft.client.core.Launcher;
 import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.core.LauncherTrustManager;
-import ru.ricardocraft.client.impl.GuiObjectsContainer;
+import ru.ricardocraft.client.configuration.GuiObjectsContainer;
 import ru.ricardocraft.client.runtime.client.DirBridge;
 import ru.ricardocraft.client.runtime.managers.SettingsManager;
 import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.service.OfflineService;
-import ru.ricardocraft.client.stage.PrimaryStage;
 import ru.ricardocraft.client.helper.EnvHelper;
 import ru.ricardocraft.client.helper.JVMHelper;
 import ru.ricardocraft.client.helper.LogHelper;
@@ -28,29 +27,11 @@ import static ru.ricardocraft.client.runtime.utils.LauncherUpdater.launcherBefor
 public class JavaFXApplication extends Application {
 
     private MethodHandles.Lookup hackLookup;
-    private static final AtomicReference<JavaFXApplication> INSTANCE = new AtomicReference<>();
 
-    public GuiObjectsContainer gui;
     private SettingsManager settingsManager;
-
-    public JavaFXApplication() {
-        INSTANCE.set(this);
-    }
-
-    public static JavaFXApplication getInstance() {
-        return INSTANCE.get();
-    }
 
     public static void main(String[] args) {
         launch(args);
-    }
-
-    public void openURL(String url) {
-        try {
-            getHostServices().showDocument(url);
-        } catch (Throwable e) {
-            LogHelper.error(e);
-        }
     }
 
     @Override
@@ -117,8 +98,7 @@ public class JavaFXApplication extends Application {
             return;
         }
 
-        gui = context.getBean(GuiObjectsContainer.class);
-        gui.setupPrimaryStage(stage);
+        context.getBean(GuiObjectsContainer.class).setupPrimaryStage(this, stage);
 
         if (offlineService.isOfflineMode()) {
             launchService.createNotification(

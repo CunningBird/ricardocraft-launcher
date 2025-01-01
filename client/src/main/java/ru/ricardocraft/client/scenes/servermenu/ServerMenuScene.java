@@ -9,6 +9,7 @@ import javafx.scene.layout.HBox;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.JavaFXApplication;
+import ru.ricardocraft.client.overlays.UploadAssetOverlay;
 import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.components.ServerButton;
 import ru.ricardocraft.client.components.UserBlock;
@@ -30,9 +31,7 @@ import ru.ricardocraft.client.helper.CommonHelper;
 import java.io.IOException;
 import java.util.*;
 
-@Component
-@Scope("prototype")
-public class ServerMenuScene extends AbstractScene implements SceneSupportUserBlock {
+public abstract class ServerMenuScene extends AbstractScene implements SceneSupportUserBlock {
     private List<ClientProfile> lastProfiles;
     private UserBlock userBlock;
 
@@ -48,16 +47,27 @@ public class ServerMenuScene extends AbstractScene implements SceneSupportUserBl
                            SkinManager skinManager,
                            LaunchService launchService,
                            PingService pingService) {
-        super("scenes/servermenu/servermenu.fxml", JavaFXApplication.getInstance(), config, guiModuleConfig, authService, launchService, settingsManager);
+        super("scenes/servermenu/servermenu.fxml", config, guiModuleConfig, authService, launchService, settingsManager);
         this.guiModuleConfig = guiModuleConfig;
         this.settingsManager = settingsManager;
         this.pingService = pingService;
         this.skinManager = skinManager;
     }
 
+    abstract protected GlobalSettingsScene getGlobalSettingsScene();
+
+    abstract protected ServerInfoScene getServerInfoScene();
+
+    abstract protected UploadAssetOverlay getUploadAsset();
+
     @Override
     public void doInit() {
-        this.userBlock = new UserBlock(layout, authService, skinManager, launchService, new SceneAccessor());
+        this.userBlock = new UserBlock(layout, authService, skinManager, launchService, new SceneAccessor()) {
+            @Override
+            protected UploadAssetOverlay getUploadAsset() {
+                return ServerMenuScene.this.getUploadAsset();
+            }
+        };
         LookupHelper.<ButtonBase>lookup(header, "#controls", "#settings").setOnAction((e) -> {
             try {
                 switchScene(getGlobalSettingsScene());
@@ -75,15 +85,6 @@ public class ServerMenuScene extends AbstractScene implements SceneSupportUserBl
         isResetOnShow = true;
     }
 
-    protected GlobalSettingsScene getGlobalSettingsScene() {
-        return (GlobalSettingsScene) application.gui.getByName("globalsettings");
-    }
-
-    static class ServerButtonCache {
-        public ServerButton serverButton;
-        public int position;
-    }
-
     @Override
     public void reset() {
         if (lastProfiles == settingsManager.getProfiles()) return;
@@ -96,7 +97,6 @@ public class ServerMenuScene extends AbstractScene implements SceneSupportUserBl
         for (ClientProfile profile : profiles) {
             ServerButtonCache cache = new ServerButtonCache();
             cache.serverButton = ServerButton.createServerButton(
-                    application,
                     guiModuleConfig,
                     launchService,
                     pingService,
@@ -143,10 +143,6 @@ public class ServerMenuScene extends AbstractScene implements SceneSupportUserBl
         userBlock.reset();
     }
 
-    protected ServerInfoScene getServerInfoScene() {
-        return (ServerInfoScene) application.gui.getByName("serverinfo");
-    }
-
     @Override
     public UserBlock getUserBlock() {
         return userBlock;
@@ -160,5 +156,10 @@ public class ServerMenuScene extends AbstractScene implements SceneSupportUserBl
     private void changeServer(ClientProfile profile) {
         settingsManager.setProfile(profile);
         settingsManager.getRuntimeSettings().lastProfile = profile.getUUID();
+    }
+
+    static class ServerButtonCache {
+        public ServerButton serverButton;
+        public int position;
     }
 }

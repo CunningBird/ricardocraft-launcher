@@ -19,15 +19,13 @@ import ru.ricardocraft.client.helper.LogHelper;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-@Component
-@Scope("prototype")
 public class ProcessingOverlay extends AbstractOverlay {
     private Labeled description;
 
     private final RequestService service;
 
     public ProcessingOverlay(GuiModuleConfig guiModuleConfig, RequestService service, LaunchService launchService) {
-        super("overlay/processing/processing.fxml", JavaFXApplication.getInstance(), guiModuleConfig, launchService);
+        super("overlay/processing/processing.fxml", guiModuleConfig, launchService);
         this.service = service;
     }
 

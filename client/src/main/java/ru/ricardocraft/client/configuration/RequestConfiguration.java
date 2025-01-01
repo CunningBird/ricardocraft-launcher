@@ -2,6 +2,7 @@ package ru.ricardocraft.client.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.core.ClientPermissions;
 import ru.ricardocraft.client.dto.response.AuthRequestEvent;
 import ru.ricardocraft.client.dto.response.ProfilesRequestEvent;
@@ -14,6 +15,7 @@ import ru.ricardocraft.client.dto.request.RequestService;
 import ru.ricardocraft.client.dto.request.auth.AuthRequest;
 import ru.ricardocraft.client.dto.request.auth.password.AuthOAuthPassword;
 import ru.ricardocraft.client.dto.request.update.ProfilesRequest;
+import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.websockets.OfflineRequestService;
 import ru.ricardocraft.client.websockets.StdWebSocketService;
 import ru.ricardocraft.client.client.BasicLauncherEventHandler;
@@ -38,7 +40,10 @@ import java.util.stream.Collectors;
 public class RequestConfiguration {
 
     @Bean
-    public RequestService requestService(LauncherConfig config, SettingsManager settingsManager, AuthService authService) {
+    public RequestService requestService(LauncherConfig config,
+                                         GuiObjectsContainer guiObjectsContainer,
+                                         SettingsManager settingsManager,
+                                         AuthService authService) {
         RequestService requestService;
         if (!Request.isAvailable()) {
             String address = config.address;
@@ -114,8 +119,15 @@ public class RequestConfiguration {
         Request.startAutoRefresh();
         Request.getRequestService().registerEventHandler(new BasicLauncherEventHandler());
 
+        GuiEventHandler guiEventHandler = new GuiEventHandler(authService, settingsManager) {
+            @Override
+            protected AbstractScene getCurrentScene() {
+                return guiObjectsContainer.getCurrentScene();
+            }
+        };
+
         requestService = Request.getRequestService();
-        requestService.registerEventHandler(new GuiEventHandler(authService, settingsManager));
+        requestService.registerEventHandler(guiEventHandler);
         return requestService;
     }
 }

@@ -18,7 +18,6 @@ import java.util.concurrent.CompletableFuture;
 
 public class LoginOnlyAuthMethod extends AbstractAuthMethod<AuthLoginOnlyDetails> {
     private final LoginOnlyOverlay overlay;
-    private final JavaFXApplication application;
     private final RuntimeSettings runtimeSettings;
     private final LoginScene.LoginSceneAccessor accessor;
 
@@ -27,9 +26,8 @@ public class LoginOnlyAuthMethod extends AbstractAuthMethod<AuthLoginOnlyDetails
                                GuiModuleConfig guiModuleConfig,
                                LaunchService launchService) {
         this.accessor = accessor;
-        this.application = accessor.getApplication();
         this.runtimeSettings = runtimeSettings;
-        this.overlay = new LoginOnlyOverlay(application, guiModuleConfig, launchService);
+        this.overlay = new LoginOnlyOverlay(guiModuleConfig, launchService);
     }
 
     @Override
@@ -93,10 +91,8 @@ public class LoginOnlyAuthMethod extends AbstractAuthMethod<AuthLoginOnlyDetails
         private TextField login;
         private CompletableFuture<AuthFlow.LoginAndPasswordResult> future;
 
-        public LoginOnlyOverlay(JavaFXApplication application,
-                                GuiModuleConfig guiModuleConfig,
-                                LaunchService launchService) {
-            super("scenes/login/methods/loginonly.fxml", application, guiModuleConfig, launchService);
+        public LoginOnlyOverlay(GuiModuleConfig guiModuleConfig, LaunchService launchService) {
+            super("scenes/login/methods/loginonly.fxml", guiModuleConfig, launchService);
         }
 
         @Override

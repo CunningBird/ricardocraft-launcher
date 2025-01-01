@@ -18,11 +18,8 @@ public abstract class AbstractOverlay extends AbstractVisualComponent {
     private final AtomicInteger useCounter = new AtomicInteger(0);
     private final AtomicReference<FadeTransition> fadeTransition = new AtomicReference<>();
 
-    protected AbstractOverlay(String fxmlPath,
-                              JavaFXApplication application,
-                              GuiModuleConfig guiModuleConfig,
-                              LaunchService launchService) {
-        super(fxmlPath, application, guiModuleConfig, launchService);
+    protected AbstractOverlay(String fxmlPath, GuiModuleConfig guiModuleConfig, LaunchService launchService) {
+        super(fxmlPath, guiModuleConfig, launchService);
     }
 
     public final void init() throws Exception {

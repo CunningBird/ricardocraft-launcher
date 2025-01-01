@@ -17,14 +17,13 @@ public class InfoDialog extends AbstractDialog {
     private Label textHeader;
     private Label textDescription;
 
-    public InfoDialog(JavaFXApplication application,
-                      String header,
+    public InfoDialog(String header,
                       String text,
                       Runnable onAccept,
                       Runnable onClose,
                       GuiModuleConfig guiModuleConfig,
                       LaunchService launchService) {
-        super("dialogs/info/dialog.fxml", application, guiModuleConfig, launchService);
+        super("dialogs/info/dialog.fxml", guiModuleConfig, launchService);
         this.header = header;
         this.text = text;
         this.onAccept = onAccept;

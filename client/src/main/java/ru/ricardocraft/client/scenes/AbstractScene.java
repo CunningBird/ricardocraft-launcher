@@ -31,13 +31,12 @@ public abstract class AbstractScene extends AbstractVisualComponent {
     protected final SettingsManager settingsManager;
 
     protected AbstractScene(String fxmlPath,
-                            JavaFXApplication application,
                             LauncherConfig config,
                             GuiModuleConfig guiModuleConfig,
                             AuthService authService,
                             LaunchService launchService,
                             SettingsManager settingsManager) {
-        super(fxmlPath, application, guiModuleConfig, launchService);
+        super(fxmlPath, guiModuleConfig, launchService);
         this.launcherConfig = config;
         this.authService = authService;
         this.settingsManager = settingsManager;
@@ -49,6 +48,10 @@ public abstract class AbstractScene extends AbstractVisualComponent {
         sceneBaseInit();
         super.init();
     }
+
+    abstract protected ProcessingOverlay getProcessingOverlay();
+
+    abstract protected LoginScene getLoginScene();
 
     protected abstract void doInit();
 
@@ -78,14 +81,6 @@ public abstract class AbstractScene extends AbstractVisualComponent {
     protected final <T extends WebSocketEvent> void processRequest(String message, Request<T> request,
                                                                    Consumer<T> onSuccess, Consumer<Throwable> onException, EventHandler<ActionEvent> onError) {
         getProcessingOverlay().processRequest(currentStage, message, request, onSuccess, onException, onError);
-    }
-
-    protected ProcessingOverlay getProcessingOverlay() {
-        return (ProcessingOverlay) application.gui.getByName("processing");
-    }
-
-    protected LoginScene getLoginScene() {
-        return (LoginScene) application.gui.getByName("login");
     }
 
     protected void sceneBaseInit() {
@@ -146,13 +141,8 @@ public abstract class AbstractScene extends AbstractVisualComponent {
         public SceneAccessor() {
         }
 
-
         public void showOverlay(AbstractOverlay overlay, EventHandler<ActionEvent> onFinished) throws Exception {
             AbstractScene.this.showOverlay(overlay, onFinished);
-        }
-
-        public JavaFXApplication getApplication() {
-            return application;
         }
 
         public void errorHandle(Throwable e) {

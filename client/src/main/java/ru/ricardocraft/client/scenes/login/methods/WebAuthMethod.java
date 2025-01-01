@@ -1,31 +1,25 @@
 package ru.ricardocraft.client.scenes.login.methods;
 
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.dto.request.auth.details.AuthWebViewDetails;
 import ru.ricardocraft.client.dto.request.auth.password.AuthCodePassword;
+import ru.ricardocraft.client.helper.LogHelper;
 import ru.ricardocraft.client.scenes.login.AuthFlow;
 import ru.ricardocraft.client.scenes.login.LoginScene;
 import ru.ricardocraft.client.scenes.login.WebAuthOverlay;
-import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;
 
-public class WebAuthMethod extends AbstractAuthMethod<AuthWebViewDetails> {
+public abstract class WebAuthMethod extends AbstractAuthMethod<AuthWebViewDetails> {
 
-    private final JavaFXApplication application;
     private final WebAuthOverlay overlay;
     private final LoginScene.LoginSceneAccessor accessor;
 
     public WebAuthMethod(LoginScene.LoginSceneAccessor accessor) {
-        application = accessor.getApplication();
-
         this.accessor = accessor;
         this.overlay = getWebAuthOverlay();
     }
 
-    protected WebAuthOverlay getWebAuthOverlay() {
-        return (WebAuthOverlay) application.gui.getByName("webView");
-    }
+    abstract protected WebAuthOverlay getWebAuthOverlay();
 
     @Override
     public void prepare() {

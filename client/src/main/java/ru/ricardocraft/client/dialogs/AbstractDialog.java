@@ -15,11 +15,8 @@ import java.util.List;
 public abstract class AbstractDialog extends AbstractVisualComponent {
     private final List<ContextHelper.GuiExceptionRunnable> onClose = new ArrayList<>(1);
 
-    protected AbstractDialog(String fxmlPath,
-                             JavaFXApplication application,
-                             GuiModuleConfig guiModuleConfig,
-                             LaunchService launchService) {
-        super(fxmlPath, application, guiModuleConfig, launchService);
+    protected AbstractDialog(String fxmlPath, GuiModuleConfig guiModuleConfig, LaunchService launchService) {
+        super(fxmlPath, guiModuleConfig, launchService);
     }
 
     @Override

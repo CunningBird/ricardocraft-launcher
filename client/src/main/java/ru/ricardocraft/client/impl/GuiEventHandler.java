@@ -21,9 +21,7 @@ import ru.ricardocraft.client.helper.LogHelper;
 
 import java.util.UUID;
 
-public class GuiEventHandler implements RequestService.EventHandler {
-
-    private final JavaFXApplication application = JavaFXApplication.getInstance();
+public abstract class GuiEventHandler implements RequestService.EventHandler {
 
     private final SettingsManager settingsManager;
     private final AuthService authService;
@@ -41,13 +39,13 @@ public class GuiEventHandler implements RequestService.EventHandler {
         }
         try {
             if (event instanceof AuthRequestEvent authRequestEvent) {
-                boolean isNextScene = application.gui.getCurrentScene() instanceof LoginScene; //TODO: FIX
+                boolean isNextScene = getCurrentScene() instanceof LoginScene; //TODO: FIX
                 LogHelper.dev("Receive auth event. Send next scene %s", isNextScene ? "true" : "false");
                 authService.setAuthResult(null, authRequestEvent);
                 if (isNextScene) {
                     Platform.runLater(() -> {
                         try {
-                            ((LoginScene) application.gui.getCurrentScene()).onSuccessLogin(
+                            ((LoginScene) getCurrentScene()).onSuccessLogin(
                                     new AuthFlow.SuccessAuth(authRequestEvent,
                                                              authRequestEvent.playerProfile != null ? authRequestEvent.playerProfile.username : null,
                                                              null));
@@ -68,7 +66,7 @@ public class GuiEventHandler implements RequestService.EventHandler {
                         }
                     }
                 }
-                AbstractScene scene = application.gui.getCurrentScene();
+                AbstractScene scene = getCurrentScene();
                 if (scene instanceof ServerMenuScene
                         || scene instanceof ServerInfoScene
                         || scene instanceof SettingsScene | scene instanceof OptionsScene) {
@@ -80,4 +78,6 @@ public class GuiEventHandler implements RequestService.EventHandler {
         }
         return false;
     }
+
+    abstract protected AbstractScene getCurrentScene();
 }

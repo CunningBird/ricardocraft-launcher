@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.core.Launcher;
 import ru.ricardocraft.client.helper.*;
+import ru.ricardocraft.client.impl.AbstractVisualComponent;
 import ru.ricardocraft.client.profiles.ClientProfile;
 import ru.ricardocraft.client.profiles.ClientProfileBuilder;
 import ru.ricardocraft.client.profiles.ClientProfileVersions;
@@ -29,6 +30,7 @@ import ru.ricardocraft.client.scenes.AbstractScene;
 import ru.ricardocraft.client.scenes.update.UpdateScene;
 import ru.ricardocraft.client.stage.AbstractStage;
 import ru.ricardocraft.client.stage.DialogStage;
+import ru.ricardocraft.client.stage.PrimaryStage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,10 +49,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-@Component
-public class LaunchService {
-
-    private final JavaFXApplication application = JavaFXApplication.getInstance();
+public abstract class LaunchService {
 
     private final SettingsManager settingsManager;
     private final GuiModuleConfig guiModuleConfig;
@@ -64,7 +63,6 @@ public class LaunchService {
 
     public final ExecutorService workers = Executors.newWorkStealingPool(4);
 
-    @Autowired
     public LaunchService(SettingsManager settingsManager,
                          GuiModuleConfig guiModuleConfig,
                          RuntimeModuleManager modulesManager,
@@ -80,10 +78,20 @@ public class LaunchService {
         updateLocaleResources(settingsManager.getRuntimeSettings().locale.name);
     }
 
+    abstract protected UpdateScene getUpdateScene();
+
+    abstract protected ProcessingOverlay getProcessingOverlay();
+
+    abstract protected PrimaryStage getMainStage();
+
+    abstract protected AbstractScene getCurrentScene();
+
+    abstract protected AbstractVisualComponent getByName(String name);
+
     public void createNotification(String head, String message) {
-        NotificationDialog dialog = new NotificationDialog(application, head, message, guiModuleConfig, this);
-        if (application.gui.getCurrentScene() != null) {
-            AbstractStage stage = application.gui.getMainStage();
+        NotificationDialog dialog = new NotificationDialog(head, message, guiModuleConfig, this);
+        if (getCurrentScene() != null) {
+            AbstractStage stage = getMainStage();
             if (stage == null)
                 throw new NullPointerException("Try show launcher notification in application.gui.getMainStage() == null");
             ContextHelper.runInFxThreadStatic(() -> {
@@ -102,32 +110,42 @@ public class LaunchService {
                     stage.get().close();
                     stage.get().stage.setScene(null);
                 });
-                stage.set(new DialogStage(application, head, dialog));
+                stage.set(new DialogStage(head, dialog) {
+                    @Override
+                    protected AbstractVisualComponent getByName(String name) {
+                        return LaunchService.this.getByName(name);
+                    }
+                });
                 stage.get().show();
             });
         }
     }
 
     public void showDialog(String header, String text, Runnable onApplyCallback, Runnable onCloseCallback, boolean isLauncher) {
-        InfoDialog dialog = new InfoDialog(application, header, text, onApplyCallback, onCloseCallback, guiModuleConfig, this);
+        InfoDialog dialog = new InfoDialog(header, text, onApplyCallback, onCloseCallback, guiModuleConfig, this);
         showAbstractDialog(dialog, header, isLauncher);
     }
 
     public void showApplyDialog(String header, String text, Runnable onApplyCallback, Runnable onDenyCallback, boolean isLauncher) {
-        ApplyDialog dialog = new ApplyDialog(application, header, text, onApplyCallback, onDenyCallback, onDenyCallback, guiModuleConfig, this);
+        ApplyDialog dialog = new ApplyDialog(header, text, onApplyCallback, onDenyCallback, onDenyCallback, guiModuleConfig, this);
         showAbstractDialog(dialog, header, isLauncher);
     }
 
     public void showAbstractDialog(AbstractDialog dialog, String header, boolean isLauncher) {
         if (isLauncher) {
-            AbstractScene scene = application.gui.getCurrentScene();
+            AbstractScene scene = getCurrentScene();
             if (scene == null)
                 throw new NullPointerException("Try show launcher dialog in application.gui.getCurrentScene() == null");
             ContextHelper.runInFxThreadStatic(() -> initDialogInScene(scene, dialog));
         } else {
             AtomicReference<DialogStage> stage = new AtomicReference<>(null);
             ContextHelper.runInFxThreadStatic(() -> {
-                stage.set(new DialogStage(application, header, dialog));
+                stage.set(new DialogStage(header, dialog) {
+                    @Override
+                    protected AbstractVisualComponent getByName(String name) {
+                        return LaunchService.this.getByName(name);
+                    }
+                });
                 stage.get().show();
             });
             dialog.setOnClose(() -> {
@@ -223,10 +241,6 @@ public class LaunchService {
         }
     }
 
-    protected UpdateScene getUpdateScene() {
-        return (UpdateScene) application.gui.getByName("update");
-    }
-
     private ClientInstance doLaunchClient(Path assetDir,
                                           HashedDir assetHDir,
                                           Path clientDir,
@@ -296,7 +310,7 @@ public class LaunchService {
     }
 
     public CompletableFuture<ClientInstance> launchClient() {
-        AbstractStage stage = application.gui.getMainStage();
+        AbstractStage stage = getMainStage();
 
         ClientProfile profile = settingsManager.getProfile();
         if (profile == null) throw new NullPointerException("profilesService.getProfile() is null");
@@ -368,10 +382,6 @@ public class LaunchService {
                     }
                 }), future::completeExceptionally, null);
         return future;
-    }
-
-    protected ProcessingOverlay getProcessingOverlay() {
-        return (ProcessingOverlay) application.gui.getByName("processing");
     }
 
     public static class ClientInstance {

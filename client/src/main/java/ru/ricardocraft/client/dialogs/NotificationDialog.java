@@ -56,12 +56,11 @@ public class NotificationDialog extends AbstractDialog {
     private NotificationSlot positionSlot;
     private double positionOffset;
 
-    public NotificationDialog(JavaFXApplication application,
-                              String header,
+    public NotificationDialog(String header,
                               String text,
                               GuiModuleConfig guiModuleConfig,
                               LaunchService launchService) {
-        super("components/notification.fxml", application, guiModuleConfig, launchService);
+        super("components/notification.fxml", guiModuleConfig, launchService);
         this.header = header;
         this.text = text;
     }

@@ -19,15 +19,13 @@ import ru.ricardocraft.client.helper.LogHelper;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-@Component
-@Scope("prototype")
 public class WebAuthOverlay extends AbstractOverlay {
 
     private WebView webView;
     public CompletableFuture<AuthFlow.LoginAndPasswordResult> future;
 
     public WebAuthOverlay(GuiModuleConfig guiModuleConfig, LaunchService launchService) {
-        super("overlay/webauth/webauth.fxml", JavaFXApplication.getInstance(), guiModuleConfig, launchService);
+        super("overlay/webauth/webauth.fxml", guiModuleConfig, launchService);
     }
 
     @Override
