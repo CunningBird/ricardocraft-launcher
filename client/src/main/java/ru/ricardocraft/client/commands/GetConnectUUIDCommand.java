@@ -3,7 +3,7 @@ package ru.ricardocraft.client.commands;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.dto.request.management.GetConnectUUIDRequest;
-import ru.ricardocraft.client.helper.LogHelper;
+import ru.ricardocraft.client.base.helper.LogHelper;
 
 @Component
 public class GetConnectUUIDCommand extends Command {

@@ -1,36 +1,31 @@
 package ru.ricardocraft.client.service;
 
 import javafx.scene.layout.Pane;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.JavaFXApplication;
-import ru.ricardocraft.client.core.Launcher;
-import ru.ricardocraft.client.helper.*;
-import ru.ricardocraft.client.impl.AbstractVisualComponent;
-import ru.ricardocraft.client.profiles.ClientProfile;
-import ru.ricardocraft.client.profiles.ClientProfileBuilder;
-import ru.ricardocraft.client.profiles.ClientProfileVersions;
-import ru.ricardocraft.client.profiles.optional.OptionalView;
+import ru.ricardocraft.client.configuration.GuiObjectsContainer;
+import ru.ricardocraft.client.base.helper.*;
+import ru.ricardocraft.client.ui.impl.AbstractVisualComponent;
+import ru.ricardocraft.client.service.profiles.ClientProfile;
+import ru.ricardocraft.client.service.profiles.ClientProfileBuilder;
+import ru.ricardocraft.client.service.profiles.ClientProfileVersions;
+import ru.ricardocraft.client.service.profiles.optional.OptionalView;
 import ru.ricardocraft.client.dto.request.auth.SetProfileRequest;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.config.RuntimeSettings;
-import ru.ricardocraft.client.core.hasher.HashedDir;
-import ru.ricardocraft.client.dialogs.AbstractDialog;
-import ru.ricardocraft.client.dialogs.ApplyDialog;
-import ru.ricardocraft.client.dialogs.InfoDialog;
-import ru.ricardocraft.client.dialogs.NotificationDialog;
-import ru.ricardocraft.client.impl.ContextHelper;
-import ru.ricardocraft.client.impl.FXMLFactory;
-import ru.ricardocraft.client.launch.RuntimeModuleManager;
-import ru.ricardocraft.client.overlays.ProcessingOverlay;
-import ru.ricardocraft.client.runtime.client.ClientLauncherProcess;
-import ru.ricardocraft.client.runtime.client.DirBridge;
-import ru.ricardocraft.client.runtime.managers.SettingsManager;
-import ru.ricardocraft.client.scenes.AbstractScene;
-import ru.ricardocraft.client.scenes.update.UpdateScene;
-import ru.ricardocraft.client.stage.AbstractStage;
-import ru.ricardocraft.client.stage.DialogStage;
-import ru.ricardocraft.client.stage.PrimaryStage;
+import ru.ricardocraft.client.base.hasher.HashedDir;
+import ru.ricardocraft.client.ui.dialogs.AbstractDialog;
+import ru.ricardocraft.client.ui.dialogs.ApplyDialog;
+import ru.ricardocraft.client.ui.dialogs.InfoDialog;
+import ru.ricardocraft.client.ui.dialogs.NotificationDialog;
+import ru.ricardocraft.client.ui.impl.ContextHelper;
+import ru.ricardocraft.client.ui.impl.FXMLFactory;
+import ru.ricardocraft.client.service.launch.RuntimeModuleManager;
+import ru.ricardocraft.client.ui.overlays.ProcessingOverlay;
+import ru.ricardocraft.client.service.runtime.client.ClientLauncherProcess;
+import ru.ricardocraft.client.service.runtime.client.DirBridge;
+import ru.ricardocraft.client.ui.scenes.AbstractScene;
+import ru.ricardocraft.client.ui.scenes.update.UpdateScene;
+import ru.ricardocraft.client.ui.stage.AbstractStage;
+import ru.ricardocraft.client.ui.stage.DialogStage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,6 +46,7 @@ import java.util.function.Consumer;
 
 public abstract class LaunchService {
 
+    private final GuiObjectsContainer guiObjectsContainer;
     private final SettingsManager settingsManager;
     private final GuiModuleConfig guiModuleConfig;
     private final RuntimeModuleManager modulesManager;
@@ -63,12 +59,14 @@ public abstract class LaunchService {
 
     public final ExecutorService workers = Executors.newWorkStealingPool(4);
 
-    public LaunchService(SettingsManager settingsManager,
+    public LaunchService(GuiObjectsContainer guiObjectsContainer,
+                         SettingsManager settingsManager,
                          GuiModuleConfig guiModuleConfig,
                          RuntimeModuleManager modulesManager,
                          OfflineService offlineService,
                          AuthService authService,
                          JavaService javaService) throws IOException {
+        this.guiObjectsContainer = guiObjectsContainer;
         this.settingsManager = settingsManager;
         this.modulesManager = modulesManager;
         this.guiModuleConfig = guiModuleConfig;
@@ -82,16 +80,12 @@ public abstract class LaunchService {
 
     abstract protected ProcessingOverlay getProcessingOverlay();
 
-    abstract protected PrimaryStage getMainStage();
-
-    abstract protected AbstractScene getCurrentScene();
-
     abstract protected AbstractVisualComponent getByName(String name);
 
     public void createNotification(String head, String message) {
         NotificationDialog dialog = new NotificationDialog(head, message, guiModuleConfig, this);
-        if (getCurrentScene() != null) {
-            AbstractStage stage = getMainStage();
+        if (guiObjectsContainer.getCurrentScene() != null) {
+            AbstractStage stage = guiObjectsContainer.getMainStage();
             if (stage == null)
                 throw new NullPointerException("Try show launcher notification in application.gui.getMainStage() == null");
             ContextHelper.runInFxThreadStatic(() -> {
@@ -133,7 +127,7 @@ public abstract class LaunchService {
 
     public void showAbstractDialog(AbstractDialog dialog, String header, boolean isLauncher) {
         if (isLauncher) {
-            AbstractScene scene = getCurrentScene();
+            AbstractScene scene = guiObjectsContainer.getCurrentScene();
             if (scene == null)
                 throw new NullPointerException("Try show launcher dialog in application.gui.getCurrentScene() == null");
             ContextHelper.runInFxThreadStatic(() -> initDialogInScene(scene, dialog));
@@ -310,7 +304,7 @@ public abstract class LaunchService {
     }
 
     public CompletableFuture<ClientInstance> launchClient() {
-        AbstractStage stage = getMainStage();
+        AbstractStage stage = guiObjectsContainer.getMainStage();
 
         ClientProfile profile = settingsManager.getProfile();
         if (profile == null) throw new NullPointerException("profilesService.getProfile() is null");

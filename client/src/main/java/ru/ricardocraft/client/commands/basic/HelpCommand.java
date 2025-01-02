@@ -7,7 +7,7 @@ import ru.ricardocraft.client.commands.Category;
 import ru.ricardocraft.client.commands.Command;
 import ru.ricardocraft.client.commands.CommandException;
 import ru.ricardocraft.client.commands.CommandHandler;
-import ru.ricardocraft.client.helper.LogHelper;
+import ru.ricardocraft.client.base.helper.LogHelper;
 
 import java.util.Arrays;
 import java.util.Map.Entry;

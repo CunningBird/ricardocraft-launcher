@@ -2,10 +2,10 @@ package ru.ricardocraft.client.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.ricardocraft.client.runtime.client.DirBridge;
-import ru.ricardocraft.client.helper.IOHelper;
-import ru.ricardocraft.client.helper.LogHelper;
-import ru.ricardocraft.client.helper.SecurityHelper;
+import ru.ricardocraft.client.service.runtime.client.DirBridge;
+import ru.ricardocraft.client.base.helper.IOHelper;
+import ru.ricardocraft.client.base.helper.LogHelper;
+import ru.ricardocraft.client.base.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;

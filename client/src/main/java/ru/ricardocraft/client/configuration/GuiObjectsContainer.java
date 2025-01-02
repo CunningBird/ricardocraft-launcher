@@ -4,17 +4,17 @@ import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.config.LauncherConfig;
-import ru.ricardocraft.client.helper.LogHelper;
-import ru.ricardocraft.client.impl.AbstractVisualComponent;
-import ru.ricardocraft.client.impl.BackgroundComponent;
-import ru.ricardocraft.client.impl.ContextHelper;
-import ru.ricardocraft.client.runtime.managers.SettingsManager;
-import ru.ricardocraft.client.scenes.AbstractScene;
-import ru.ricardocraft.client.scenes.login.LoginScene;
-import ru.ricardocraft.client.stage.PrimaryStage;
+import ru.ricardocraft.client.base.helper.LogHelper;
+import ru.ricardocraft.client.ui.impl.AbstractVisualComponent;
+import ru.ricardocraft.client.ui.impl.BackgroundComponent;
+import ru.ricardocraft.client.ui.impl.ContextHelper;
+import ru.ricardocraft.client.service.SettingsManager;
+import ru.ricardocraft.client.ui.scenes.AbstractScene;
+import ru.ricardocraft.client.ui.scenes.login.LoginScene;
+import ru.ricardocraft.client.ui.stage.PrimaryStage;
 
 import static ru.ricardocraft.client.configuration.VisualComponentScopeConfigurer.components;
-import static ru.ricardocraft.client.helper.EnFSHelper.resetDirectory;
+import static ru.ricardocraft.client.base.helper.EnFSHelper.resetDirectory;
 
 public abstract class GuiObjectsContainer {
 

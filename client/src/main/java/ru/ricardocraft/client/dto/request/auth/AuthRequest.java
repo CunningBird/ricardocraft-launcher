@@ -2,9 +2,9 @@ package ru.ricardocraft.client.dto.request.auth;
 
 import ru.ricardocraft.client.dto.request.Request;
 import ru.ricardocraft.client.dto.request.auth.password.*;
-import ru.ricardocraft.client.websockets.WebSocketRequest;
+import ru.ricardocraft.client.client.WebSocketRequest;
 import ru.ricardocraft.client.dto.response.AuthRequestEvent;
-import ru.ricardocraft.client.utils.ProviderMap;
+import ru.ricardocraft.client.base.utils.ProviderMap;
 
 public final class AuthRequest extends Request<AuthRequestEvent> implements WebSocketRequest {
     public static final ProviderMap<AuthPasswordInterface> providers = new ProviderMap<>();

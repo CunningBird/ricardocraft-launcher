@@ -1,16 +1,16 @@
 package ru.ricardocraft.client.config;
 
-import ru.ricardocraft.client.core.Launcher;
-import ru.ricardocraft.client.core.LauncherTrustManager;
-import ru.ricardocraft.client.core.serialize.HInput;
-import ru.ricardocraft.client.core.serialize.HOutput;
-import ru.ricardocraft.client.core.serialize.stream.StreamObject;
-import ru.ricardocraft.client.helper.JVMHelper;
-import ru.ricardocraft.client.helper.LogHelper;
-import ru.ricardocraft.client.helper.SecurityHelper;
-import ru.ricardocraft.client.helper.VerifyHelper;
-import ru.ricardocraft.client.modules.LauncherModule;
-import ru.ricardocraft.client.modules.LauncherModulesManager;
+import ru.ricardocraft.client.service.Launcher;
+import ru.ricardocraft.client.service.LauncherTrustManager;
+import ru.ricardocraft.client.base.serialize.HInput;
+import ru.ricardocraft.client.base.serialize.HOutput;
+import ru.ricardocraft.client.base.serialize.stream.StreamObject;
+import ru.ricardocraft.client.base.helper.JVMHelper;
+import ru.ricardocraft.client.base.helper.LogHelper;
+import ru.ricardocraft.client.base.helper.SecurityHelper;
+import ru.ricardocraft.client.base.helper.VerifyHelper;
+import ru.ricardocraft.client.service.modules.LauncherModule;
+import ru.ricardocraft.client.service.modules.LauncherModulesManager;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;

@@ -2,12 +2,12 @@ package ru.ricardocraft.client.config;
 
 import ru.ricardocraft.client.dto.request.auth.AuthRequest;
 import ru.ricardocraft.client.dto.response.GetAvailabilityAuthRequestEvent;
-import ru.ricardocraft.client.helper.JavaHelper;
-import ru.ricardocraft.client.profiles.ClientProfile;
-import ru.ricardocraft.client.runtime.client.DirBridge;
-import ru.ricardocraft.client.runtime.client.UserSettings;
+import ru.ricardocraft.client.base.helper.JavaHelper;
+import ru.ricardocraft.client.service.profiles.ClientProfile;
+import ru.ricardocraft.client.service.runtime.client.DirBridge;
+import ru.ricardocraft.client.service.runtime.client.UserSettings;
 import ru.ricardocraft.client.service.JavaService;
-import ru.ricardocraft.client.utils.SystemTheme;
+import ru.ricardocraft.client.base.utils.SystemTheme;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

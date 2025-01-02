@@ -2,7 +2,7 @@ package ru.ricardocraft.client.dto.request.update;
 
 import ru.ricardocraft.client.dto.response.ProfilesRequestEvent;
 import ru.ricardocraft.client.dto.request.Request;
-import ru.ricardocraft.client.websockets.WebSocketRequest;
+import ru.ricardocraft.client.client.WebSocketRequest;
 
 public final class ProfilesRequest extends Request<ProfilesRequestEvent> implements WebSocketRequest {
 

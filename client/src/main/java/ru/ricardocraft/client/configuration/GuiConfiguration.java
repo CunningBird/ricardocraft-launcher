@@ -5,34 +5,31 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-import ru.ricardocraft.client.JavaFXApplication;
 import ru.ricardocraft.client.commands.CommandHandler;
 import ru.ricardocraft.client.config.GuiModuleConfig;
 import ru.ricardocraft.client.config.LauncherConfig;
 import ru.ricardocraft.client.dto.request.RequestService;
-import ru.ricardocraft.client.impl.AbstractVisualComponent;
-import ru.ricardocraft.client.impl.BackgroundComponent;
-import ru.ricardocraft.client.launch.RuntimeModuleManager;
-import ru.ricardocraft.client.launch.RuntimeSecurityService;
-import ru.ricardocraft.client.launch.SkinManager;
-import ru.ricardocraft.client.overlays.ProcessingOverlay;
-import ru.ricardocraft.client.overlays.UploadAssetOverlay;
-import ru.ricardocraft.client.overlays.WelcomeOverlay;
-import ru.ricardocraft.client.runtime.managers.SettingsManager;
-import ru.ricardocraft.client.scenes.AbstractScene;
-import ru.ricardocraft.client.scenes.console.ConsoleScene;
-import ru.ricardocraft.client.scenes.debug.DebugScene;
-import ru.ricardocraft.client.scenes.internal.BrowserScene;
-import ru.ricardocraft.client.scenes.login.LoginScene;
-import ru.ricardocraft.client.scenes.login.WebAuthOverlay;
-import ru.ricardocraft.client.scenes.options.OptionsScene;
-import ru.ricardocraft.client.scenes.serverinfo.ServerInfoScene;
-import ru.ricardocraft.client.scenes.servermenu.ServerMenuScene;
-import ru.ricardocraft.client.scenes.settings.GlobalSettingsScene;
-import ru.ricardocraft.client.scenes.settings.SettingsScene;
-import ru.ricardocraft.client.scenes.update.UpdateScene;
+import ru.ricardocraft.client.ui.impl.AbstractVisualComponent;
+import ru.ricardocraft.client.ui.impl.BackgroundComponent;
+import ru.ricardocraft.client.service.launch.RuntimeModuleManager;
+import ru.ricardocraft.client.service.launch.RuntimeSecurityService;
+import ru.ricardocraft.client.service.launch.SkinManager;
+import ru.ricardocraft.client.ui.overlays.ProcessingOverlay;
+import ru.ricardocraft.client.ui.overlays.UploadAssetOverlay;
+import ru.ricardocraft.client.ui.overlays.WelcomeOverlay;
+import ru.ricardocraft.client.service.SettingsManager;
+import ru.ricardocraft.client.ui.scenes.console.ConsoleScene;
+import ru.ricardocraft.client.ui.scenes.debug.DebugScene;
+import ru.ricardocraft.client.ui.scenes.internal.BrowserScene;
+import ru.ricardocraft.client.ui.scenes.login.LoginScene;
+import ru.ricardocraft.client.ui.scenes.login.WebAuthOverlay;
+import ru.ricardocraft.client.ui.scenes.options.OptionsScene;
+import ru.ricardocraft.client.ui.scenes.serverinfo.ServerInfoScene;
+import ru.ricardocraft.client.ui.scenes.servermenu.ServerMenuScene;
+import ru.ricardocraft.client.ui.scenes.settings.GlobalSettingsScene;
+import ru.ricardocraft.client.ui.scenes.settings.SettingsScene;
+import ru.ricardocraft.client.ui.scenes.update.UpdateScene;
 import ru.ricardocraft.client.service.*;
-import ru.ricardocraft.client.stage.PrimaryStage;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -85,7 +82,7 @@ public class GuiConfiguration {
                                  SkinManager skinManager,
                                  LaunchService launchService,
                                  RuntimeSecurityService securityService) {
-        return new LoginScene(config, guiModuleConfig, settingsManager, authService, skinManager, launchService, securityService) {
+        return new LoginScene(config, guiObjectsContainer, guiModuleConfig, settingsManager, authService, skinManager, launchService, securityService) {
             @Override
             protected ProcessingOverlay getProcessingOverlay() {
                 return applicationContext.getBean(ProcessingOverlay.class);
@@ -121,20 +118,6 @@ public class GuiConfiguration {
                 return applicationContext.getBean(WebAuthOverlay.class);
             }
 
-            @Override
-            protected AbstractScene getCurrentScene() {
-                return guiObjectsContainer.getCurrentScene();
-            }
-
-            @Override
-            protected void setMainScene(AbstractScene scene) throws Exception {
-                guiObjectsContainer.setMainScene(scene);
-            }
-
-            @Override
-            protected void openUrl(String url) {
-                guiObjectsContainer.openURL(url);
-            }
         };
     }
 
@@ -322,7 +305,7 @@ public class GuiConfiguration {
                                                    AuthService authService,
                                                    LaunchService launchService,
                                                    JavaService javaService) {
-        return new GlobalSettingsScene(config, guiModuleConfig, settingsManager, authService, launchService, javaService) {
+        return new GlobalSettingsScene(config, guiObjectsContainer, guiModuleConfig, settingsManager, authService, launchService, javaService) {
             @Override
             protected ProcessingOverlay getProcessingOverlay() {
                 return applicationContext.getBean(ProcessingOverlay.class);
@@ -339,23 +322,8 @@ public class GuiConfiguration {
             }
 
             @Override
-            protected PrimaryStage getMainStage() {
-                return guiObjectsContainer.getMainStage();
-            }
-
-            @Override
             protected AbstractVisualComponent getByName(String name) {
                 return applicationContext.getBean(name, AbstractVisualComponent.class);
-            }
-
-            @Override
-            protected void reload() throws Exception {
-                guiObjectsContainer.reload();
-            }
-
-            @Override
-            protected void openUrl(String url) {
-                guiObjectsContainer.openURL(url);
             }
         };
     }
@@ -450,7 +418,7 @@ public class GuiConfiguration {
                                        OfflineService offlineService,
                                        AuthService authService,
                                        JavaService javaService) throws IOException {
-        return new LaunchService(settingsManager, guiModuleConfig, modulesManager, offlineService, authService, javaService) {
+        return new LaunchService(guiObjectsContainer, settingsManager, guiModuleConfig, modulesManager, offlineService, authService, javaService) {
             @Override
             protected UpdateScene getUpdateScene() {
                 return applicationContext.getBean(UpdateScene.class);
@@ -459,16 +427,6 @@ public class GuiConfiguration {
             @Override
             protected ProcessingOverlay getProcessingOverlay() {
                 return applicationContext.getBean(ProcessingOverlay.class);
-            }
-
-            @Override
-            protected PrimaryStage getMainStage() {
-                return guiObjectsContainer.getMainStage();
-            }
-
-            @Override
-            protected AbstractScene getCurrentScene() {
-                return guiObjectsContainer.getCurrentScene();
             }
 
             @Override

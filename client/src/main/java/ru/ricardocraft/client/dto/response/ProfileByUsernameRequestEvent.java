@@ -1,7 +1,7 @@
 package ru.ricardocraft.client.dto.response;
 
 import ru.ricardocraft.client.dto.RequestEvent;
-import ru.ricardocraft.client.profiles.PlayerProfile;
+import ru.ricardocraft.client.service.profiles.PlayerProfile;
 
 import java.util.UUID;
 

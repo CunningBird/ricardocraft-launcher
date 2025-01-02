@@ -1,9 +1,9 @@
 package ru.ricardocraft.client.dto.request.auth;
 
 import ru.ricardocraft.client.dto.request.Request;
-import ru.ricardocraft.client.websockets.WebSocketRequest;
+import ru.ricardocraft.client.client.WebSocketRequest;
 import ru.ricardocraft.client.dto.response.SetProfileRequestEvent;
-import ru.ricardocraft.client.profiles.ClientProfile;
+import ru.ricardocraft.client.service.profiles.ClientProfile;
 
 public class SetProfileRequest extends Request<SetProfileRequestEvent> implements WebSocketRequest {
 

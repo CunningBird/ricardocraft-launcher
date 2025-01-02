@@ -1,14 +1,14 @@
 package ru.ricardocraft.client.dto.request.update;
 
 import ru.ricardocraft.client.config.LauncherConfig;
-import ru.ricardocraft.client.core.Launcher;
+import ru.ricardocraft.client.service.Launcher;
 import ru.ricardocraft.client.dto.request.Request;
 import ru.ricardocraft.client.dto.request.RequestService;
-import ru.ricardocraft.client.websockets.WebSocketRequest;
+import ru.ricardocraft.client.client.WebSocketRequest;
 import ru.ricardocraft.client.dto.response.LauncherRequestEvent;
-import ru.ricardocraft.client.helper.IOHelper;
-import ru.ricardocraft.client.helper.LogHelper;
-import ru.ricardocraft.client.helper.SecurityHelper;
+import ru.ricardocraft.client.base.helper.IOHelper;
+import ru.ricardocraft.client.base.helper.LogHelper;
+import ru.ricardocraft.client.base.helper.SecurityHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;

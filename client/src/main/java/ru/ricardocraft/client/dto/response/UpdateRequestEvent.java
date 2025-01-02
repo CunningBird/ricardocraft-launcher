@@ -1,6 +1,6 @@
 package ru.ricardocraft.client.dto.response;
 
-import ru.ricardocraft.client.core.hasher.HashedDir;
+import ru.ricardocraft.client.base.hasher.HashedDir;
 import ru.ricardocraft.client.dto.RequestEvent;
 
 public class UpdateRequestEvent extends RequestEvent {

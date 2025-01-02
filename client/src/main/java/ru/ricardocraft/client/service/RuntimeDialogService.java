@@ -3,7 +3,7 @@ package ru.ricardocraft.client.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.dto.NotificationEvent;
-import ru.ricardocraft.client.client.DialogService;
+import ru.ricardocraft.client.service.client.DialogService;
 
 @Component
 public class RuntimeDialogService implements DialogService.DialogServiceNotificationImplementation, DialogService.DialogServiceImplementation {

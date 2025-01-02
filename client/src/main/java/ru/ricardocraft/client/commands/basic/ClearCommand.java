@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.ricardocraft.client.commands.Command;
 import ru.ricardocraft.client.commands.CommandHandler;
-import ru.ricardocraft.client.helper.LogHelper;
+import ru.ricardocraft.client.base.helper.LogHelper;
 
 @Component
 public final class ClearCommand extends Command {

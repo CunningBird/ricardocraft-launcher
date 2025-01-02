@@ -2,8 +2,8 @@ package ru.ricardocraft.client.commands;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.runtime.utils.HWIDProvider;
-import ru.ricardocraft.client.helper.LogHelper;
+import ru.ricardocraft.client.service.runtime.utils.HWIDProvider;
+import ru.ricardocraft.client.base.helper.LogHelper;
 
 @Component
 public class PrintHardwareInfoCommand extends Command {

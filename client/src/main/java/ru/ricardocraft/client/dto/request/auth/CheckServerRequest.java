@@ -1,9 +1,9 @@
 package ru.ricardocraft.client.dto.request.auth;
 
 import ru.ricardocraft.client.dto.request.Request;
-import ru.ricardocraft.client.websockets.WebSocketRequest;
+import ru.ricardocraft.client.client.WebSocketRequest;
 import ru.ricardocraft.client.dto.response.CheckServerRequestEvent;
-import ru.ricardocraft.client.helper.VerifyHelper;
+import ru.ricardocraft.client.base.helper.VerifyHelper;
 
 public final class CheckServerRequest extends Request<CheckServerRequestEvent> implements WebSocketRequest {
 

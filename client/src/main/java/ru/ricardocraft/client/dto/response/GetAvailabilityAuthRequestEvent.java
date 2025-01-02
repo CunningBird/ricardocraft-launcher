@@ -1,7 +1,7 @@
 package ru.ricardocraft.client.dto.response;
 
 import ru.ricardocraft.client.dto.RequestEvent;
-import ru.ricardocraft.client.utils.TypeSerializeInterface;
+import ru.ricardocraft.client.base.utils.TypeSerializeInterface;
 
 import java.util.List;
 import java.util.Set;

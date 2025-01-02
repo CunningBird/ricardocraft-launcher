@@ -1,7 +1,7 @@
 package ru.ricardocraft.client.service;
 
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.runtime.client.ServerPinger;
+import ru.ricardocraft.client.service.runtime.client.ServerPinger;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;

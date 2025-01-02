@@ -2,10 +2,10 @@ package ru.ricardocraft.client.commands;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.ricardocraft.client.modules.LauncherModule;
-import ru.ricardocraft.client.modules.LauncherModuleInfo;
-import ru.ricardocraft.client.launch.RuntimeModuleManager;
-import ru.ricardocraft.client.helper.LogHelper;
+import ru.ricardocraft.client.service.modules.LauncherModule;
+import ru.ricardocraft.client.service.modules.LauncherModuleInfo;
+import ru.ricardocraft.client.service.launch.RuntimeModuleManager;
+import ru.ricardocraft.client.base.helper.LogHelper;
 
 @Component
 public class ModulesCommand extends Command {

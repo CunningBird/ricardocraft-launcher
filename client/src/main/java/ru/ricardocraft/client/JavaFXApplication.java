@@ -5,28 +5,24 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import ru.ricardocraft.client.core.Launcher;
+import ru.ricardocraft.client.service.Launcher;
 import ru.ricardocraft.client.config.LauncherConfig;
-import ru.ricardocraft.client.core.LauncherTrustManager;
+import ru.ricardocraft.client.service.LauncherTrustManager;
 import ru.ricardocraft.client.configuration.GuiObjectsContainer;
-import ru.ricardocraft.client.runtime.client.DirBridge;
-import ru.ricardocraft.client.runtime.managers.SettingsManager;
+import ru.ricardocraft.client.service.runtime.client.DirBridge;
+import ru.ricardocraft.client.service.SettingsManager;
 import ru.ricardocraft.client.service.LaunchService;
 import ru.ricardocraft.client.service.OfflineService;
-import ru.ricardocraft.client.helper.EnvHelper;
-import ru.ricardocraft.client.helper.JVMHelper;
-import ru.ricardocraft.client.helper.LogHelper;
+import ru.ricardocraft.client.base.helper.EnvHelper;
+import ru.ricardocraft.client.base.helper.JVMHelper;
+import ru.ricardocraft.client.base.helper.LogHelper;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.security.cert.X509Certificate;
-import java.util.concurrent.atomic.AtomicReference;
 
-import static ru.ricardocraft.client.runtime.utils.LauncherUpdater.launcherBeforeExit;
+import static ru.ricardocraft.client.service.runtime.utils.LauncherUpdater.launcherBeforeExit;
 
 public class JavaFXApplication extends Application {
-
-    private MethodHandles.Lookup hackLookup;
 
     private SettingsManager settingsManager;
 
@@ -82,7 +78,7 @@ public class JavaFXApplication extends Application {
 //        int value = (int) trusted.get(null);
 //        Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, Class.class, int.class);
 //        constructor.setAccessible(true);
-//        hackLookup = constructor.newInstance(JavaFXApplication.class, null, value);
+//        MethodHandles.Lookup hackLookup = constructor.newInstance(JavaFXApplication.class, null, value);
 
         LaunchService launchService = context.getBean(LaunchService.class);
         OfflineService offlineService = context.getBean(OfflineService.class);

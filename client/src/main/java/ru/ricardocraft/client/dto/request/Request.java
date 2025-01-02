@@ -3,12 +3,12 @@ package ru.ricardocraft.client.dto.request;
 import ru.ricardocraft.client.dto.request.auth.RefreshTokenRequest;
 import ru.ricardocraft.client.dto.request.auth.RestoreRequest;
 import ru.ricardocraft.client.dto.response.WebSocketEvent;
-import ru.ricardocraft.client.websockets.StdWebSocketService;
-import ru.ricardocraft.client.websockets.WebSocketRequest;
+import ru.ricardocraft.client.client.StdWebSocketService;
+import ru.ricardocraft.client.client.WebSocketRequest;
 import ru.ricardocraft.client.dto.response.AuthRequestEvent;
 import ru.ricardocraft.client.dto.response.RefreshTokenRequestEvent;
 import ru.ricardocraft.client.dto.response.RestoreRequestEvent;
-import ru.ricardocraft.client.helper.LogHelper;
+import ru.ricardocraft.client.base.helper.LogHelper;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
